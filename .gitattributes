@@ -1,0 +1,26 @@
+# 改行は LF に固定する。
+# project.json、シートの JSON、ゴールデンファイルは「バイト同一」で比較するため、
+# OS やチェックアウト設定で改行が変わってはならない（docs/SPEC.md §5.2.2、§13.5）。
+* text=auto eol=lf
+
+# バイナリ（変換しない）
+*.png binary
+*.gif binary
+*.apng binary
+*.webp binary
+*.bmp binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.ase binary
+*.aseprite binary
+*.gz binary
+*.zip binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+
+# Windows のバッチだけは CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf

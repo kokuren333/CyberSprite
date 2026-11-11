@@ -8,7 +8,7 @@
 ## 1. 結論
 
 - 仕様書の正本 `docs/SPEC.md`（第 0〜17 章、付録 A〜E）を完成させた。ブリーフ §8 が求める章はすべて含む。
-- リポジトリの雛形を作り、**ローカルの git リポジトリ（ブランチ `main`）に初期コミットした。**
+- リポジトリの雛形を作り、**ローカルの git リポジトリ（ブランチ `main`）にコミットした**（初期コミットと、`.gitattributes` を足したコミットの 2 件）。
 - **GitHub リポジトリは作成できなかった。** `gh` CLI がこの PC に入っておらず、API 用のトークンも環境にないためである（§3）。
 - **Aseprite 実機（Steam 版）の参照は行っていない。** ヘッドレス実行で GUI 操作ができないため、実装フェーズ冒頭の必須タスク（M0）として手順書を仕様に残した（§4）。
 - コードは 1 行も書いていない。他製品のコード・アイコン・アセット・文書の文面は、どのファイルにも入れていない。
@@ -30,6 +30,7 @@
 | `NOTICE` | 帰属表示 |
 | `AGENTS.md` / `CLAUDE.md` | 開発と制作のコンテキスト（情報の優先順位、思想、原則、クリーンルームの規則、体制、失敗チェックリスト）。`CLAUDE.md` は `@AGENTS.md` を読み込むだけ |
 | `.gitignore` | `_handoff/`（受け渡し資料）、`_private/`（他社画面のスクリーンショット置き場）、モデルの重み、派生データなどを除外 |
+| `.gitattributes` | 改行を LF に固定し、画像をバイナリ扱いにする（ゴールデンファイルと `project.json` をバイト同一で比べるため） |
 | `third_party/THIRD_PARTY.md` | 組み込み OSS 台帳（現時点は依存なし。事前確認の結果と、M0 のチェックリスト L-01〜L-13） |
 | 骨格ディレクトリ | `src/cybersprite/{core,ops,formats,pipeline,generate,cli,mcp,server,plugins,data}/`、`gui/`、`schemas/`、`tests/{unit,golden,vectors,roundtrip,pipeline,mcp,e2e}/`、`skills/`、`assets/`、`examples/`、`tools/`、`third_party/licenses/`。各トップレベルに役割を書いた `README.md`、末端に `.gitkeep`。配置理由は `docs/SPEC.md` §4.4 |
 

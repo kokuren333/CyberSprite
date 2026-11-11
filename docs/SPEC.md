@@ -444,6 +444,7 @@ CyberSprite/
 ├─ AGENTS.md                開発と制作のコンテキスト（エージェント向け）。CLAUDE.md はこれを読み込むだけ
 ├─ CLAUDE.md
 ├─ .gitignore
+├─ .gitattributes           改行を LF に固定する（バイト同一の比較のため）
 ├─ pyproject.toml           M1 で作る
 ├─ docs/
 │  ├─ SPEC.md               仕様書の正本（この文書）
@@ -2320,6 +2321,7 @@ tests/golden/<ケース名>/
    └─ after.project.json   Op 列を適用した後の正本（バイト同一）
 ```
 
+- リポジトリの `.gitattributes` で、テキストの改行を LF に固定し、画像などをバイナリ扱いにしてある。ゴールデンファイルと `project.json` は、チェックアウトした OS によらず同じバイト列でなければならない。
 - 期待値の更新は `tools/update_goldens.py` でだけ行い、更新した差分はレビューで必ず目視する。テストが失敗したからといって、期待値を機械的に上書きしてはならない。
 - CI は **Windows と Linux**（可能なら macOS も）× Python 3.12 / 3.13 の組み合わせで走らせ、全環境で同じ期待値に一致することを確かめる。これが水準 A の決定性の証明になる。
 - 最低限そろえるケース:
