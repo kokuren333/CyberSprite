@@ -22,5 +22,12 @@
 | 2026-11-12 | Fable 5.2 | KohakuBlueleaf/PixelOE（README、LICENSE） | ライセンス（Apache-2.0）、API と依存（PyTorch） | SPEC §2.3、§11.4 |
 | 2026-11-12 | Fable 5.2 | Astropulse/pixeldetector、dimtoneff/ComfyUI-PixelArt-Detector、sedthh/pyxelate（LICENSE 原文） | いずれも MIT、追加制限なし | SPEC §2.3、§17.2 |
 | 2026-11-12 | Fable 5.2 | MCP 仕様 2026-07-28（概要、tools）、`mcp` SDK（PyPI） | ステートレス、ツール定義の項目、結果の形、エラーの扱い。SDK は MIT、2.3.0 | SPEC §10 |
+| 2026-11-12 | オーケストレーター（Opus 5.5） | Aseprite 実機 v1.3.18.6 Steam 版（GUI） | 起動画面、新規作成、メイン画面の配置、メニュー第 1 階層 8 種、属性ダイアログ（スプライト・レイヤー・フレーム）、拡大縮小、キャンバスの大きさ、色の置換、書き出し、シート書き出し（1 タブ目）、環境設定（1 タブ目）の項目 | ASEPRITE_INVENTORY §1 |
+| 2026-11-12 | オーケストレーター（Opus 5.5） | Aseprite 実機 v1.3.18.6（`--help` の出力） | コマンドラインでできることの分類 | ASEPRITE_INVENTORY §1-47、§4 |
+| 2026-11-12 | オーケストレーター（Opus 5.5） | Aseprite 実機 v1.3.18.6（バッチモードで自作ファイルの挙動を確認） | P-01〜P-10 の事実（タイル反転の順、グループの不透明度、リンクセル、シート JSON の形、インデックスでの不透明度、タグの再生順、空セル、Z インデックス、背景レイヤーの透明インデックス、GIF の遅延の丸め） | ASEPRITE_INVENTORY §2、SPEC §5.9.3、§6.5.4、§8.6.3、付録 D.2 |
+| 2026-11-12 | オーケストレーター（Opus 5.5） | Aseprite リポジトリの EULA.txt 冒頭、docs/ase-file-specs.md の見出し | 文書は EULA の「電子的な文書」に含まれうる。冒頭に形式の実装を禁じる条項は見当たらない（L-08） | THIRD_PARTY §3 |
+| 2026-11-12 | オーケストレーター（Opus 5.5） | Björn Ottosson「A perceptual color space for image processing」（bottosson.github.io/posts/oklab/） | コードはパブリックドメイン、または MIT でも利用可と明記（L-11） | THIRD_PARTY §3、NOTICE（M6 で係数を使う時点） |
+| 2026-11-12 | オーケストレーター（Opus 5.5） | LICENSE 原文: mattt/aseprite-py、KohakuBlueLeaf/PixelOE、modelcontextprotocol/python-sdk、encode/starlette、encode/uvicorn、python-websockets/websockets、huggingface/diffusers、leejet/stable-diffusion.cpp、invoke-ai/InvokeAI。インストール済み dist-info の LICENSE: numpy、pillow、pydantic、pydantic_core、click。PyPI の JSON: 上記と推移的依存 | ライセンスの種類と版（L-01、L-02、L-04、L-09） | THIRD_PARTY §1、§3 |
+| 2026-11-12 | オーケストレーター（Opus 5.5） | PyPI（`cybersprite`、`cyber-sprite`）、GitHub リポジトリ検索 | PyPI に同名なし。GitHub に同名の空に近いリポジトリが 2 件（説明なし、スター 0） | THIRD_PARTY §3、IMPLEMENTATION_PROGRESS |
 
-**Aseprite の実機（Steam 版）は、上流工程では参照していない。** `docs/SPEC.md` §3.5 の手順で、実装フェーズの最初（M0）に参照し、ここに追記する。
+**Aseprite の実機（Steam 版）は、上流工程では参照していない。** 実装フェーズの M0（2026-11-12）で参照した（下の行）。
