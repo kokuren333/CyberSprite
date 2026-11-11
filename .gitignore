@@ -1,0 +1,52 @@
+# ---- 非公開（リポジトリに絶対に入れない） ----
+# 上流工程の受け渡し資料（内部ブリーフ・調査レポート・実行ログ）
+_handoff/
+# クリーンルーム参照資料（他社製品のスクリーンショット等）。docs/SPEC.md §3 参照
+_private/
+
+# ---- CyberSprite プロジェクトの派生データ ----
+# 各 *.csprite/ プロジェクト内の履歴・プレビュー・キャッシュ（消しても正本は壊れない）
+.cybersprite/
+
+# ---- モデル重み（同梱禁止。docs/SPEC.md §2.4 / §12） ----
+*.safetensors
+*.ckpt
+*.gguf
+*.pt
+*.pth
+*.onnx
+models/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.hypothesis/
+.coverage
+htmlcov/
+
+# ---- Node / GUI ----
+node_modules/
+gui/dist/
+*.tsbuildinfo
+
+# ---- OS / エディタ ----
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+
+# ---- ローカル設定・秘密情報 ----
+.env
+.env.*
+*.local.json
+.claude/settings.local.json

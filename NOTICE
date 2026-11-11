@@ -1,0 +1,19 @@
+CyberSprite
+Copyright 2026 kokuren (kokuren333) and the CyberSprite contributors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+CyberSprite is an independent project. It is not affiliated with, endorsed by,
+or derived from Aseprite or Igara Studio. No source code, icons, artwork or
+documentation text from Aseprite, LibreSprite or any other product is included.
+
+Third-party software
+--------------------
+No third-party code is bundled at this stage (specification phase).
+When dependencies are added, their attributions are recorded here and in
+third_party/THIRD_PARTY.md, with license texts under third_party/licenses/.
+
+Algorithm references
+--------------------
+The fixed-point colour distance specified in docs/SPEC.md (Appendix B) uses the
+coefficients of the Oklab colour space published by Björn Ottosson.
