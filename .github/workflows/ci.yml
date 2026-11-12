@@ -39,7 +39,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        # Playwright has no Chromium build for ubuntu-latest (26.04) yet; pin the
+        # newest Ubuntu image Playwright supports for the browser tests.
+        os: [windows-latest, ubuntu-24.04]
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -54,7 +56,12 @@ jobs:
       - run: npm ci
         working-directory: gui
       # Reports contain installed native packages, so audit on each target OS.
-      - run: node tools/check_js_licenses.mjs
+      # The committed ledger is generated on Windows: check it for staleness there,
+      # and audit (without comparing native optional packages) elsewhere.
+      - if: runner.os == 'Windows'
+        run: node tools/check_js_licenses.mjs --check
+      - if: runner.os != 'Windows'
+        run: node tools/check_js_licenses.mjs
       - run: npm test
         working-directory: gui
       - run: npm run build
