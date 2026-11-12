@@ -140,7 +140,8 @@ def stage_history(ctx, before_revision, after_revision, restored=None):
         else:
             # Legacy journals can identify active placements even though their
             # previous conversion metrics were never snapshotted.
-            states, revisions = {}, set()
+            states: dict[int, set[int]] = {}
+            revisions: set[int] = set()
             for entry in read_journal(ctx.root):
                 revision = entry["revision"]
                 if entry["kind"] in ("create", "external"):

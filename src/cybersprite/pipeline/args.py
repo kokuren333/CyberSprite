@@ -89,7 +89,7 @@ class PaletteSettings(Model):
     source: (
         Annotated[str, Field(json_schema_extra={"x-cybersprite-path": "palette"})] | list[Color]
     ) = Field(
-        default_factory=list,
+        default_factory=lambda: [],
         description="Fixed palette preset/file name or RGB/RGBA/hex color list.",
     )
     max_colors: Annotated[int, Field(ge=1, le=255)] = Field(
@@ -166,29 +166,34 @@ class GateSettings(Model):
 
 class PipelineSettings(Model):
     grid: GridSettings = Field(
-        default_factory=GridSettings,
+        default_factory=lambda: GridSettings.model_validate({}),
         description="Grid detection, phase, rational cell counts, and purity.",
     )
     downsample: DownsampleSettings = Field(
-        default_factory=DownsampleSettings, description="Cell sampling and alpha policy."
+        default_factory=lambda: DownsampleSettings.model_validate({}),
+        description="Cell sampling and alpha policy.",
     )
     background: BackgroundSettings = Field(
-        default_factory=BackgroundSettings, description="Border-connected background removal."
+        default_factory=lambda: BackgroundSettings.model_validate({}),
+        description="Border-connected background removal.",
     )
     palette: PaletteSettings = Field(
-        default_factory=PaletteSettings,
+        default_factory=lambda: PaletteSettings.model_validate({}),
         description="Palette locking, extraction, merging, and accent protection.",
     )
     cleanup: CleanupSettings = Field(
-        default_factory=CleanupSettings,
+        default_factory=lambda: CleanupSettings.model_validate({}),
         description="Indexed component cleanup and protected indices.",
     )
     dither: DitherSettings = Field(
-        default_factory=DitherSettings, description="Optional ordered dithering."
+        default_factory=lambda: DitherSettings.model_validate({}),
+        description="Optional ordered dithering.",
     )
     outline: OutlineSettings = Field(
-        default_factory=OutlineSettings, description="Explicit outline decision."
+        default_factory=lambda: OutlineSettings.model_validate({}),
+        description="Explicit outline decision.",
     )
     gates: GateSettings = Field(
-        default_factory=GateSettings, description="Calibrated gate threshold overrides."
+        default_factory=lambda: GateSettings.model_validate({}),
+        description="Calibrated gate threshold overrides.",
     )

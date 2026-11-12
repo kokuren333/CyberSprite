@@ -1,6 +1,7 @@
 """Integer grid candidates, harmonic selection and cell-purity scoring (§11.3)."""
 
 from functools import cmp_to_key
+from typing import Any
 
 import numpy as np
 
@@ -123,9 +124,11 @@ def _signals(frames, axis):
     return raw, energy, peaks
 
 
-def _normalized_select(cx, cy, w, h, force_square, min_peak):
+def _normalized_select(
+    cx: list[dict[str, Any]], cy: list[dict[str, Any]], w, h, force_square, min_peak
+):
     if not force_square:
-        winners = [max(cs, key=lambda c: c["score"], default=None) for cs in (cx, cy)]
+        winners = [max(cs, key=lambda c: c["score"]) if cs else None for cs in (cx, cy)]
         return tuple(c if c and c["score"] >= min_peak else None for c in winners)
     # Equal-division candidates cover all neighboring integer cell counts.
     # A one-pixel span rounding difference is allowed between rectangular axes.
@@ -265,7 +268,7 @@ def detect_grid(
     integer(max_cell, "max_cell", min_cell)
     integer(harmonic_tolerance, "harmonic_tolerance", 0, 1000)
     integer(min_peak, "min_peak", 1)
-    tops = {"x": [], "y": []}
+    tops: dict[str, list[dict[str, Any]]] = {"x": [], "y": []}
     exact = False
     if mode == "auto":
         ex, energy_x, peaks_x = _signals(frames, 1)
@@ -357,10 +360,14 @@ def detect_grid(
         "y_cells": ys,
         "columns": len(xs),
         "rows": len(ys),
-        "peak": min(ax["peak"], ay["peak"]) if detected else 0,
+        "peak": min(ax["peak"], ay["peak"]) if ax is not None and ay is not None else 0,
         "candidates": tops,
-        "alignment": min(ax.get("alignment", 1000), ay.get("alignment", 1000)) if detected else 0,
-        "normalized_score": min(ax.get("score", 0), ay.get("score", 0)) if detected else 0,
+        "alignment": min(ax.get("alignment", 1000), ay.get("alignment", 1000))
+        if ax is not None and ay is not None
+        else 0,
+        "normalized_score": min(ax.get("score", 0), ay.get("score", 0))
+        if ax is not None and ay is not None
+        else 0,
         "ambiguous": bool(
             mode == "auto"
             and detected

@@ -12,7 +12,8 @@ def test_calibrated_defaults_follow_recorded_measurements():
     assert defaults["calibration"] == measured["calibration"]
     assert defaults["calibration"]["pending"] == ["d"]
     rows = measured["records"]
-    assert len(rows) == 471
+    assert len(rows) == 547
+    assert sum(r["grid_exact"] for r in rows if r["category"] == "c-auto") >= 62
     assert {c: sum(r["category"] == c for r in rows) for c in "abcef"} == {
         "a": 255,
         "b": 136,

@@ -1,4 +1,4 @@
-# パイプライン較正（M6、版 1）
+# パイプライン較正（M6、版 4）
 
 正本はこの文書。測定値は `calibration_metrics.json`、再実行は `uv run python tools/calibrate_pipeline.py`。
 規範色表・整数パイプラインは共通で、JPEG と補間入力の作成だけに Pillow を使う。
@@ -8,7 +8,9 @@
 | (a) | 255 | 255/255 | 1000〜1000 | 0〜0 |
 | (b) | 136 | 47/136 | 859〜1000 | 495〜466954543 |
 | (c) | 34 | 6/34 | 415〜1000 | 33587〜34463395 |
-| (e) | 12 | 0/12 | 53〜1000 | 19576〜11333584 |
+| (c-auto) | 68 | 0/68 | 475〜1000 | 0〜572992 |
+| (slime) | 8 | 0/8 | 889〜1000 | 0〜606473 |
+| (e) | 12 | 0/12 | 53〜1000 | 20981〜12079783 |
 | (f) | 34 | 0/34 | 730〜1000 | 0〜1784891 |
 
 (a) は17作品の整数倍 ×2〜×16。全255件を auto で検出し RGBA で完全一致。
@@ -17,7 +19,10 @@
 (c) は5/2・7/2倍の bilinear 補間。正解の列数・行数を target で指定した。
 (b)(c)(f) のパレットは正解の色。後始末は min_cluster=1、背景 keep、縮小 median。
 (e) は12枚を4×4セルで測定し32色抽出。(f) は倍率4の入力へセル幅5・7を故意に指定。
-(d) は M9 の生成バックエンド待ち。較正の完了を主張せず、到着後に版を上げて再測定する。
+(c)-auto は17原画×3.5・5.37・7.9・10.84倍。透明を近白背景に合成してbicubic、JPEG q95/subsampling=0。正解格子は指定しない。
+(c)-auto の正確な列数・行数検出: 62/68。色の完全一致とは別の指標であり、JPEGで透明情報は失われる。
+slime はe2e-05の原画・劣化入力・7変種をコピーした校正ケース。実生成バックエンドの(d)を代用したとは扱わない。
+(d) の実生成入力は未入手。較正の完了を主張せず、到着後に版を上げて再測定する。
 
 ## しきい値の選択
 
@@ -490,15 +495,91 @@ ai/photo に較正値を適用。exact/upscaled の無損失 fidelity=0 と upsc
 | c | walker_48x24/s7-2 | 761 | 2385697 | no |
 | f | walker_48x24/wrong5 | 925 | 0 | no |
 | f | walker_48x24/wrong7 | 896 | 0 | no |
-| e | aa_circles_256 | 831 | 496653 | no |
-| e | aa_vector_scene_384x256 | 981 | 51095 | no |
-| e | bokeh_blur_256 | 1000 | 4336984 | no |
-| e | brush_strokes_320 | 895 | 1851605 | no |
-| e | checker_rotated_aa_256 | 836 | 175826 | no |
-| e | gradient_linear_256x192 | 1000 | 209325 | no |
-| e | gradient_radial_alpha_320x240 | 1000 | 33914 | no |
-| e | landscape_photo_512x320 | 995 | 287442 | no |
-| e | noise_fbm_256 | 1000 | 31406 | no |
-| e | noise_white_128 | 53 | 11333584 | no |
-| e | sphere_soft_256 | 988 | 389342 | no |
-| e | text_aa_384x128 | 949 | 19576 | no |
+| c-auto | button_32x16/s7-2-q95 | 785 | 272654 | no |
+| c-auto | button_32x16/s537-100-q95 | 767 | 167289 | no |
+| c-auto | button_32x16/s79-10-q95 | 764 | 147985 | no |
+| c-auto | button_32x16/s1084-100-q95 | 825 | 107545 | no |
+| c-auto | dither_ramp_32x16/s7-2-q95 | 910 | 356105 | no |
+| c-auto | dither_ramp_32x16/s537-100-q95 | 967 | 316623 | no |
+| c-auto | dither_ramp_32x16/s79-10-q95 | 918 | 330974 | no |
+| c-auto | dither_ramp_32x16/s1084-100-q95 | 959 | 199600 | no |
+| c-auto | emblem_lowcontrast_16x16/s7-2-q95 | 1000 | 307536 | no |
+| c-auto | emblem_lowcontrast_16x16/s537-100-q95 | 1000 | 348553 | no |
+| c-auto | emblem_lowcontrast_16x16/s79-10-q95 | 1000 | 328974 | no |
+| c-auto | emblem_lowcontrast_16x16/s1084-100-q95 | 1000 | 358633 | no |
+| c-auto | flat_field_64x48/s7-2-q95 | 997 | 3038 | no |
+| c-auto | flat_field_64x48/s537-100-q95 | 998 | 2877 | no |
+| c-auto | flat_field_64x48/s79-10-q95 | 998 | 2123 | no |
+| c-auto | flat_field_64x48/s1084-100-q95 | 998 | 1156 | no |
+| c-auto | gem_10x10/s7-2-q95 | 678 | 442133 | no |
+| c-auto | gem_10x10/s537-100-q95 | 709 | 528733 | no |
+| c-auto | gem_10x10/s79-10-q95 | 661 | 301286 | no |
+| c-auto | gem_10x10/s1084-100-q95 | 722 | 379584 | no |
+| c-auto | glyphs_52x14/s7-2-q95 | 749 | 499559 | no |
+| c-auto | glyphs_52x14/s537-100-q95 | 788 | 401289 | no |
+| c-auto | glyphs_52x14/s79-10-q95 | 754 | 395727 | no |
+| c-auto | glyphs_52x14/s1084-100-q95 | 823 | 265069 | no |
+| c-auto | heart_8x8/s7-2-q95 | 622 | 556770 | no |
+| c-auto | heart_8x8/s537-100-q95 | 587 | 416033 | no |
+| c-auto | heart_8x8/s79-10-q95 | 540 | 392183 | no |
+| c-auto | heart_8x8/s1084-100-q95 | 605 | 436797 | no |
+| c-auto | hero_16x16/s7-2-q95 | 674 | 563330 | no |
+| c-auto | hero_16x16/s537-100-q95 | 728 | 492940 | no |
+| c-auto | hero_16x16/s79-10-q95 | 657 | 400060 | no |
+| c-auto | hero_16x16/s1084-100-q95 | 741 | 314884 | no |
+| c-auto | key_16x8/s7-2-q95 | 475 | 469426 | no |
+| c-auto | key_16x8/s537-100-q95 | 516 | 449872 | no |
+| c-auto | key_16x8/s79-10-q95 | 488 | 541297 | no |
+| c-auto | key_16x8/s1084-100-q95 | 587 | 572992 | no |
+| c-auto | night_wires_24x24/s7-2-q95 | 883 | 215645 | no |
+| c-auto | night_wires_24x24/s537-100-q95 | 917 | 191138 | no |
+| c-auto | night_wires_24x24/s79-10-q95 | 895 | 118486 | no |
+| c-auto | night_wires_24x24/s1084-100-q95 | 922 | 128563 | no |
+| c-auto | onebit_cat_24x16/s7-2-q95 | 804 | 320387 | no |
+| c-auto | onebit_cat_24x16/s537-100-q95 | 802 | 230011 | no |
+| c-auto | onebit_cat_24x16/s79-10-q95 | 790 | 221521 | no |
+| c-auto | onebit_cat_24x16/s1084-100-q95 | 837 | 204021 | no |
+| c-auto | orb_24x24/s7-2-q95 | 884 | 418618 | no |
+| c-auto | orb_24x24/s537-100-q95 | 911 | 439391 | no |
+| c-auto | orb_24x24/s79-10-q95 | 889 | 394330 | no |
+| c-auto | orb_24x24/s1084-100-q95 | 922 | 366757 | no |
+| c-auto | potion_12x16/s7-2-q95 | 654 | 439760 | no |
+| c-auto | potion_12x16/s537-100-q95 | 713 | 431254 | no |
+| c-auto | potion_12x16/s79-10-q95 | 655 | 447854 | no |
+| c-auto | potion_12x16/s1084-100-q95 | 725 | 412670 | no |
+| c-auto | sparse_firefly_32x32/s7-2-q95 | 993 | 0 | no |
+| c-auto | sparse_firefly_32x32/s537-100-q95 | 992 | 0 | no |
+| c-auto | sparse_firefly_32x32/s79-10-q95 | 988 | 8763 | no |
+| c-auto | sparse_firefly_32x32/s1084-100-q95 | 991 | 7684 | no |
+| c-auto | sword_16x16/s7-2-q95 | 716 | 372809 | no |
+| c-auto | sword_16x16/s537-100-q95 | 726 | 334441 | no |
+| c-auto | sword_16x16/s79-10-q95 | 683 | 335092 | no |
+| c-auto | sword_16x16/s1084-100-q95 | 733 | 262585 | no |
+| c-auto | terrain_48x16/s7-2-q95 | 642 | 266098 | no |
+| c-auto | terrain_48x16/s537-100-q95 | 657 | 290639 | no |
+| c-auto | terrain_48x16/s79-10-q95 | 658 | 187208 | no |
+| c-auto | terrain_48x16/s1084-100-q95 | 655 | 214286 | no |
+| c-auto | walker_48x24/s7-2-q95 | 802 | 416011 | no |
+| c-auto | walker_48x24/s537-100-q95 | 826 | 230214 | no |
+| c-auto | walker_48x24/s79-10-q95 | 810 | 283783 | no |
+| c-auto | walker_48x24/s1084-100-q95 | 850 | 160876 | no |
+| slime | variant_bicubic_only | 893 | 133504 | no |
+| slime | variant_bilinear_only | 894 | 161751 | no |
+| slime | variant_nearest_nonint | 1000 | 0 | no |
+| slime | variant_smooth_nojpeg | 893 | 459604 | no |
+| slime | variant_smooth_q80 | 895 | 507551 | no |
+| slime | variant_smooth_q95 | 894 | 588642 | no |
+| slime | variant_tile8drift_q80 | 889 | 606473 | no |
+| slime | slime_generated_like | 895 | 507551 | no |
+| e | aa_circles_256 | 831 | 267913 | no |
+| e | aa_vector_scene_384x256 | 981 | 26161 | no |
+| e | bokeh_blur_256 | 1000 | 5085345 | no |
+| e | brush_strokes_320 | 895 | 1855292 | no |
+| e | checker_rotated_aa_256 | 836 | 151158 | no |
+| e | gradient_linear_256x192 | 1000 | 483235 | no |
+| e | gradient_radial_alpha_320x240 | 1000 | 478230 | no |
+| e | landscape_photo_512x320 | 995 | 548790 | no |
+| e | noise_fbm_256 | 1000 | 372187 | no |
+| e | noise_white_128 | 53 | 12079783 | no |
+| e | sphere_soft_256 | 988 | 449011 | no |
+| e | text_aa_384x128 | 949 | 20981 | no |

@@ -63,8 +63,9 @@ def extract_palette(
             colors[min(range(len(colors)), key=lambda i: (dist2(lab, original_labs[i]), colors[i]))]
         )
     if merge_distance and colors:
-        representatives, merged_weights = [], []
-        representative_labs = []
+        representatives: list[tuple[int, ...]] = []
+        merged_weights: list[int] = []
+        representative_labs: list[tuple[int, ...]] = []
         for i in sorted(
             range(len(colors)), key=lambda i: (colors[i] not in reserved, -weights[i], colors[i])
         ):
