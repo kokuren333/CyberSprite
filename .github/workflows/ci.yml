@@ -16,12 +16,12 @@ jobs:
           version: '0.12.23'
           enable-cache: true
       - run: uv python install ${{ matrix.python }}
-      - run: uv sync --locked --python ${{ matrix.python }}
+      - run: uv sync --locked --extra mcp --python ${{ matrix.python }}
       - run: uv run ruff check
       - run: uv run ruff format --check
       - run: uv run mypy
       - run: uv run pytest
       - run: uv run python tools/gen_schemas.py --check
-      - run: uv run python tools/check_licenses.py --include-dev
+      - run: uv run python tools/check_licenses.py --include-dev --extra mcp
       - run: uv pip install hatchling==1.27.0 && uv run --no-sync python tools/check_licenses.py --include-build
       - run: uv run python tools/check_repository.py
