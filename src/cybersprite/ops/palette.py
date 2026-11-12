@@ -8,7 +8,7 @@ from cybersprite.core.errors import invalid
 from cybersprite.core.models import ImageLayer, LinkCel, Palette
 from cybersprite.core.pixels import pixels_from_rows, pixels_to_rows, rgb_distance, rgba
 from cybersprite.core.references import walk_layers
-from cybersprite.formats.palette_files import raw_color, read_palette
+from cybersprite.formats.palette_files import raw_color, read_palette_with_names
 
 from .common import fail
 
@@ -50,12 +50,16 @@ def palette_op(ctx, a, name):
     if name == "load_palette":
         from .args import ARGS
 
-        colors = read_palette(a.source)
+        colors, names = read_palette_with_names(a.source)
         if a.mode == "append":
-            palette_op(ctx, ARGS["add_palette_colors"](colors=colors), "add_palette_colors")
+            palette_op(
+                ctx, ARGS["add_palette_colors"](colors=colors, names=names), "add_palette_colors"
+            )
             return {}
         return palette_op(
-            ctx, ARGS["set_palette"](colors=colors, on_shrink=a.on_shrink), "set_palette"
+            ctx,
+            ARGS["set_palette"](colors=colors, names=names, on_shrink=a.on_shrink),
+            "set_palette",
         )
     if name == "set_palette":
         colors = [raw_color(c) for c in a.colors]

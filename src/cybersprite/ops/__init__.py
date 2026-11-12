@@ -254,6 +254,9 @@ def registry():
                     description,
                 )
             )
+        from .export_ops import register_exports
+
+        register_exports(_registry)
     return _registry
 
 
@@ -273,6 +276,12 @@ def execute(name, project, args=None, *, actor="cli", **options):
         ) from error
     parsed = definition.parse(args)
     root = project_path(project).parent
+    if name == "import_aseprite":
+        if options:
+            raise invalid("Transaction options are accepted only by mutate operations.")
+        from .export_ops import execute_import
+
+        return execute_import(project, parsed, actor=actor)
     if name == "new_project":
         target = project_path(project)
         p = construct(parsed, root)

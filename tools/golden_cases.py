@@ -80,6 +80,33 @@ def execute_case(directory: Path) -> dict[str, bytes]:
                 output[f"tx{index}.project.json"] = (root / "project.json").read_bytes()
             project = load_project(root)
             output["after.project.json"] = dumps_project(project)
+    if "exports" in case:
+        from cybersprite.formats.common import export_policy
+        from cybersprite.formats.export import EXPORTERS
+        from cybersprite.formats.export_args import EXPORT_ARGS
+        from cybersprite.formats.png import decode_png
+
+        with tempfile.TemporaryDirectory() as temporary, export_policy(temporary):
+            for action in case["exports"]:
+                name = action["op"]
+                args = EXPORT_ARGS[name].model_validate(action["args"])
+                result = EXPORTERS[name](project, args)
+                for entry in result["files"]:
+                    path = Path(temporary) / entry["path"]
+                    if action.get("pixel_only"):
+                        decoded = decode_png(path.read_bytes())
+                        output[path.name + ".pixhash"] = (
+                            pixel_sha256(decoded.pixels) + "\n"
+                        ).encode()
+                    else:
+                        output[path.name] = path.read_bytes()
+                output[action["name"] + ".result.json"] = json_bytes(
+                    {
+                        key: value
+                        for key, value in result.items()
+                        if key not in ("files", "fingerprint")
+                    }
+                )
     for i, action in enumerate(case.get("renders", [])):
         name = action.get("name", f"f{i}")
         try:

@@ -12,6 +12,15 @@ wheels = [
 ]
 
 [[package]]
+name = "aseprite"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c0/6e/4f67598438026468acb125934bf45b91aa862917628ceb16f4eb0ce80eb9/aseprite-0.1.0.tar.gz", hash = "sha256:c8e13dd22d21c34f0394033354f632bade1a46673959b6f8c00ea453a9718cf9", size = 35943, upload-time = "2026-09-05T16:21:42.467Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6b/0b/72ef8ee3c94795acfc979afe0b0c36109f267371dc177a850ba6806ed825/aseprite-0.1.0-py3-none-any.whl", hash = "sha256:d554a480e76e60beec11e2ac91dc02cf5fa52bb7b741d8918ec4279cb09d542f", size = 40637, upload-time = "2026-09-05T16:21:41.123Z" },
+]
+
+[[package]]
 name = "click"
 version = "8.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -37,6 +46,7 @@ name = "cybersprite"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "aseprite" },
     { name = "click" },
     { name = "numpy" },
     { name = "pillow" },
@@ -53,6 +63,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "aseprite", specifier = "==0.1.0" },
     { name = "click", specifier = "==8.3.0" },
     { name = "numpy", specifier = "==2.3.4" },
     { name = "pillow", specifier = ">=12" },
