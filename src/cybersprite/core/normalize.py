@@ -56,6 +56,7 @@ def normalize_cels(project: Project, *, in_place: bool = False) -> Project:
         normalized: list[Any] = []
         for old_owner in sorted(groups):
             members = groups[old_owner]
+            z_indices = {frame: by_frame[frame].z_index for frame in members}
             owner = by_frame[old_owner]
             data: Any
             if not (isinstance(layer, ImageLayer) and layer.background):
@@ -92,10 +93,10 @@ def normalize_cels(project: Project, *, in_place: bool = False) -> Project:
                     owner.tiles = tiles_to_rows([row[left:right] for row in data[top:bottom]])
             first = min(members)
             owner.frame = first
-            owner.z_index = by_frame[first].z_index
+            owner.z_index = z_indices[first]
             normalized.append(owner)
             normalized.extend(
-                LinkCel(frame=frame, link=first, z_index=by_frame[frame].z_index)
+                LinkCel(frame=frame, link=first, z_index=z_indices[frame])
                 for frame in sorted(members)
                 if frame != first
             )

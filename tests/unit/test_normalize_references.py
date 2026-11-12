@@ -33,14 +33,15 @@ def test_trim_links_and_keep_offcanvas(project):
     assert project.layers[0].cels[0].w == 3
 
 
-def test_reassign_owner_and_chain(project):
+@pytest.mark.parametrize("in_place", [False, True])
+def test_reassign_owner_and_chain(project, in_place):
     project.frames *= 2
     project.layers[0].cels = [
         LinkCel(frame=0, link=2, z_index=3),
         LinkCel(frame=1, link=0, z_index=7),
         ImageCel(frame=2, x=0, y=0, w=1, h=1, pixels=["01"], z_index=-1),
     ]
-    result = normalize_cels(project)
+    result = normalize_cels(project, in_place=in_place)
     cels = result.layers[0].cels
     assert cels[0].frame == 0 and cels[0].pixels == ["01"] and cels[0].z_index == 3
     assert [(c.frame, c.link, c.z_index) for c in cels[1:]] == [(1, 0, 7), (2, 0, -1)]
