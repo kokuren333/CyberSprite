@@ -2221,7 +2221,7 @@ set_cel.linked は error/all/unlink（既定error）。リンク組のx/y/opacit
 | `min_cell` / `max_cell` | 2 / 64 | 検出するセルの大きさの範囲 |
 | `force_square` | true | セルを正方形に揃える |
 | `harmonic_tolerance` | 850 | 下記の手順 4 で使う（千分率） |
-| `min_peak` | 1500 | これ未満なら「グリッドなし」と判定する（千分率） |
+| `min_peak` | 1500 | 正規化選択の各軸 `score` の下限（`peak` の下限ではない）。完全整数境界の補正経路では使わない |
 | `purity_tolerance` | 16 | セル純度の許容差 |
 
 #### 11.3.2 検出の手順（`mode: "auto"`）
@@ -2234,11 +2234,21 @@ set_cel.linked は error/all/unlink（既定error）。リンク組のx/y/opacit
    - 系統 B（整数周期）: セルの大きさ `s`（`min_cell ≤ s ≤ max_cell`）と位相 `o`（`0 ≤ o < s`）。境界は `o + k × s` のうち `1..n−1` に入るもの。
 3. **スコア。** 候補の境界集合 `B` に対して `peak = (Σ_{b∈B} e[b] × (n − 1) × 1000) div (Σ_全体 e × |B|)`。境界での差分の平均が、全体の平均の何倍か（千分率）を表す。`Σ_全体 e = 0`（単色の画像）なら「グリッドなし」。
 4. **選択。** 完全整数境界への下記補正を先に試す。それ以外は全 N と整数位相候補を評価する。差分の局所最大（軸最大の1/4以上）への三角重み整合度 `alignment` と、全差分への整数三次周期重みの相関 `coherence` から、`score = (coherence + 20) × alignment div 10` を求める。周期位相の端からの距離を d、周期の分子を P とし、三角重みは `max(P−6d,0)`、三次重みは `1000−24000d² div P²+32000d³ div P³`。整合度は重み付き差分和を全差分和と P で正規化した千分率に `(P−Q)/P` を掛ける。補間の傾き変化（2階差分）の中心位相での同様のスコアを1/4の重みで補助評価し、大きい方を採る。各軸の選択スコアが `min_peak` 未満なら未検出。`harmonic_tolerance` は旧設定互換のため保持する。
-   - 完全な整数拡大への補正: 差分が非ゼロの全境界を含み、画像端の半端セルが保持条件を満たす系統 B 候補がある場合は、全境界を説明する最大周期を優先する。正方形では両軸を同じ周期で説明する候補を採る。単色または元の絵自体が同じ格子の倍数に揃う場合は元の倍率を一意に推定できず、`fixed` 指定を使う。この補正で候補と peak の報告は変更しない。
+   - 完全な整数拡大への補正: 差分が非ゼロの全境界を含み、画像端の半端セルが保持条件を満たす系統 B 候補がある場合は、全境界を説明する最大周期を優先する。正方形では両軸を同じ周期で説明する候補を採る。単色または元の絵自体が同じ格子の倍数に揃う場合は元の倍率を一意に推定できず、`fixed` 指定を使う。この補正では `score=peak`、`alignment=coherence=1000` とし、`min_peak` は適用しない。
 5. **正方形化。** `force_square` では画像長の整数丸めを許す等分候補の組（`abs(Nx×H−Ny×W)×4 ≤ max(W,H)`）の両軸スコア合計を最大化する。整数位相候補は最良等分組のピッチとの差が10%以内かつスコア合計が2倍以上の場合だけ比較する。短辺4セル未満ではセル数/4を順位に掛ける。同点は小さいセル、B、小さい位相の順。候補に元の `peak` と `score`、`alignment`、`coherence` を残す。全 N の探索が近傍セル数の探索を兼ねる。
 6. **セルの確定。** 境界の列からセルの矩形の一覧を作る。系統 B で端に残る半端なセルは、幅（または高さ）がセルの半分以上なら残し、未満なら捨てる。
 
 「グリッドなし」と判定された場合、`mode: "auto"` は失敗として扱い、候補の上位 5 件を報告に入れて関門 `grid_detected` を不合格にする。エージェントは `"fixed"` か `"target"` で指定し直す。
+
+**手順4の厳密な定義（R1-27）**: 軸長を `n`、直交座標を `j`、候補の周期を有理数 `P/Q`（A: `P=n,Q=N,o=0`、B: `P=s,Q=1,o=offset`）とする。各フレームの差分強度 `g[j,i]=Σ_c abs(I[j,i,c]−I[j,i−1,c])`（`i=1..n−1`）を作る。軸0では転置して常に第2添字を検出方向にする。各フレーム・軸の全 `g` の最大値を `M` とし、`4g>=M` の点だけを有意とする。局所最大は同じ `j` の検出方向で `g[j,i]>=g[j,i−1]` かつ `g[j,i]>g[j,i+1]`（強度配列の両端は巡回）とする。平坦な山では末尾を採る。`e[0]=E[0]=L[0]=0` とし、`e[i]` は全強度、`E[i]` は有意強度、`L[i]` は有意かつ局所最大の強度を直交座標と全フレームで合計する。
+
+`r=((i−o)Q) mod P`、`d=min(r,P−r)`、`T=max(P−6d,0)`、`C=1000−(24000d² div P²)+(32000d³ div P³)`。`alignment=((Σ LT)×1000 div max(1,(ΣL)P))×(P−Q) div P`、`coherence=max(0,Σ EC) div max(1,ΣE)`、通常の `score=(coherence+20)×alignment div 10`。除算は記述した位置ごとに整数切捨てする。
+
+補助信号 `K` は各フレームの `k[j,i]=Σ_c abs(I[j,i+1,c]−2I[j,i,c]+I[j,i−1,c])`（`i=1..n−2`）から作る。各フレーム・軸の全 `k` の最大値の1/4以上だけを合計し、`K[0]=K[n−1]=0`。長さ3未満なら補助評価しない。A候補だけを中心位相 `r=(iQ+n div 2) mod n`、`P=n` で評価する。`alignment_k=(Σ KT)×1000 div (max(1,ΣK)n)`（通常の `(P−Q)/P` 補正なし）、`coherence_k=max(0,Σ KC) div max(1,ΣK)`、`knot_score=(coherence_k+20)×alignment_k div 40`。これが通常のscoreより大きいときscoreとalignmentだけを置き換える。`coherence` は通常信号の値のまま報告する。
+
+候補列はAをN昇順、次にBをs・o昇順で作り、指定した比較キーが同じなら先の候補を採る。非正方形では各軸の最大scoreを独立に採る。正方形のB比較で使う最良A組はセル数補正前のscore合計で決める。最終の順位は手順5のscore合計に `min(4,round(WQx/Px),round(HQy/Py))` を掛ける（roundは正数の四捨五入）。上位5件は `−score,−peak,cell,offset` の順。言語非依存ベクタは `tests/vectors/grid/`。
+
+完全境界の補正候補は「非ゼロ差分位置を全て境界に含む、かつ保持セルの長さの合計が軸長nと一致する」ものとする。`force_square=false` ではA/B両方を周期P/Q昇順、同周期ではB優先・位相昇順で安定整列し、各軸の末尾を選ぶ。両軸で補正候補が揃った場合だけ通常選択を省略する。
 
 #### 11.3.3 グリッド整合スコア（セル純度）
 
@@ -2406,6 +2416,11 @@ R1-D1の実行時既定は較正版5とする。版4の547件の正例・指標�
 | `dither.type` | `none` | `none` | `none` | `none` |
 | 関門 `grid_score`（fail 未満 / warn 未満） | 判定しない | 990 / 1000 | 415 / 707 | 判定しない |
 | 関門 `fidelity`（fail 超 / warn 超） | 0 / 0（損失なし） | 0 / 0 | 466954543 / 233477271 | 466954543 / 233477271 |
+| 値の正本（`src/cybersprite/data/pipeline_defaults.json`） | `common`＋`presets.exact` | `common`＋`presets.upscaled` | `common`＋`presets.ai` | `common`＋`presets.photo` |
+| 共通検出値（`common.grid`） | `min_cell=2,max_cell=64,force_square=true,harmonic_tolerance=850,min_peak=1500,purity_tolerance=16,candidate_agreement=950` | 同左 | 同左 | 同左 |
+| 補助関門（`common.gates`） | `grid_cell_count=[12,96],boundary_alignment=[80,250],snap_fidelity=[3000,500]` | 同左 | 同左 | 同左 |
+
+確定した実行値の正本は `src/cybersprite/data/pipeline_defaults.json` の `calibration.version=5`、`common` と `presets`。各プリセットは `common` に上書きして解決する。検出の `min_cell=2,max_cell=64,force_square=true,harmonic_tolerance=850,min_peak=1500,purity_tolerance=16,candidate_agreement=950` も同ファイルの `common.grid`。格子セル数・境界整合・snap誤差の関門は `common.gates` にあり、§11.8の設定で上書きできる。版5は実行値の確定であり、§11.9の95%分類条件達成を意味しない。
 
 呼び出し元は、`pipeline` 引数でどの設定も上書きできる。上書きした項目は報告に記録される。
 
@@ -2429,7 +2444,9 @@ R1-D1の実行時既定は較正版5とする。版4の547件の正例・指標�
 
 - 組み込みのステップは、水準 A の決定性を満たす。外部・任意アダプタは §15.2.1 の `level_a` 宣言と出力契約に従う。
 - プラグインのステップ（PixelOE など）は、浮動小数や GPU を使うため、環境が違うと結果が変わりうる。報告にプラグインの版と実行デバイスを記録し、**変換結果を `result.png` として保存する**ことで、プロジェクトの再現性はプラグインの再実行に依存しないようにする。
-- R1-D1の外部アダプターは登録・runner接続前の純関数境界とし、`run(rgba, params) -> (RGBA, metrics)`、`available() -> (bool, reason)`、`describe() -> {name, version, license, level_a}` を提供する。proper-pixel-artは同寸法のフレーム列も受け、共通格子で縮小したRGBA列と共有パレット情報を返す。外部側の減色を無効化し、正本への量子化・パレットロックは組み込み処理で行う。浮動小数を使う外部実装は `level_a: false`。許可外または未監査の推移依存を持つものは依存宣言・同梱をせず、利用者導入を検出する。動画APIは呼び出さない。
+- 外部アダプターは `reconstruct.pixel_art_fixer` / `reconstruct.proper_pixel_art` / `reconstruct.pixeloe` として自パッケージのentry pointに登録する。通常の許可設定を適用し、依存は選択時までimportしない。未導入は `available()` の導入方法・ライセンス注意をhintに含む `E_PLUGIN`。設定は `reconstruct: {method, params}`。PixelOEは明示的な `params.target_w,target_h` が必須（`oracle_size` は既定false、既知の正解寸法を渡す評価だけtrueとする）。既定の内蔵方式を自動的に置換しない。
+- 純関数境界 `run(rgba, params) -> (RGBA, metrics)`、`available() -> (bool, reason)`、`describe() -> {name, version, license, level_a}` を提供する。proper-pixel-artは全フレームをまとめて呼び、最頻mesh（同数は先頭）と共有色の厳密和集合を使う。外部側の減色を無効化し、正本への量子化・パレットロックは組み込み処理で一度だけ行う。浮動小数を使う外部実装は `level_a: false`。依存宣言・同梱をせず、利用者導入を検出する。動画APIは呼び出さない。
+- 報告の `plugins[].implementation` に実アダプター名・上流版・ライセンス・level_aを記録し、wrapperの配布版と区別する。方式・params・決定性とともにsourceにも保持する。Fixerのdetect JSONの `step_x,step_y,cols,rows,consensus` はstage2の各frame metricsのgridに残す。reconstruct経路の共通gridは出力のnone格子であり、入力格子の純度・整合度の合否を評価したものではない。
 
 ---
 
@@ -2917,6 +2934,7 @@ tests/golden/<ケース名>/
 - `[plugins].enabled` に登録名を列挙し、`disabled` は明示拒否（優先）とする。CLI は許可済み Op を初回利用時に解決する。Op 群は提供者を登録名とし、Op 名は `<登録名>_<操作>`（登録名そのものも可）。MCP の `--allow-plugin-op` は Op 名の許可であり、その名前の登録名または最長の提供者接頭辞だけを読む。他の Op 提供者は import しない。
 - パイプラインは組み込み方式を先に解決し、その他は登録名 `<ステップ>.<方式>`（方式名だけも可）を読む。ステップは `grid` / `downsample` / `quantize` / `cleanup` / `reconstruct`、実装は `step`、`method`、`level_a: bool`、`run(image, params) -> (image, metrics)` を持つ。方式固有の引数は各節の `params`。`quantize` は既存の `palette` 節で選択する（`quantize` 節も同義）。`reconstruct` は grid と downsample を置換し、量子化は後段で一度だけ行う。
 - 画像契約は RGBA `uint8[H,W,4]`、量子化の出力と cleanup の入出力は `IndexedImage(pixels: uint8[H,W], palette: RGBAタプルの列)`。フレーム間で寸法・パレットを一致させる。cleanup はパレットを変えない。量子化は既存パレットの接頭辞と透明番号を保持し、project モードでは追加しない。プラグイン内部の浮動小数は許すが、同一環境・同一入力で決定的でなければならない。
+- 任意の `run_frames(images, params) -> (images, metricsの列)` があれば全フレームを1回で渡す。返却フレーム数・指標数は入力と一致させ、通常と同じ型・寸法・パレット検査を通す。未定義時は従来のフレームごとのrunを使う。共有格子が必要なproper-pixel-artはこの契約を使う。
 - プラグインの配布名・版・登録名・方式・引数・決定性を報告の `plugins` に記録し、その報告を source の来歴にも保存する。水準 A を申告しない実装は `W_PLUGIN_DETERMINISM` と `determinism: "same-platform"` を返す。同梱の任意アダプタも自パッケージの entry point と同じ契約で登録する。
 - 検証実装は `rule`、`default_severity`、`check(document, frame_range) -> (issues, metrics)`。規則 ID は `Q-<登録名>-nn` とし、組み込み・他の登録済み規則との ID 衝突は `E_PLUGIN` とする。metrics は `metrics.plugins[規則ID]` に置く。通常の水準上書き・絞込・デルタに含める。文書は独立コピーで渡す。
 - パレットの factory は `{name, colors, license, names?}` の列を返す。名前衝突は拒否し、組み込みと同じ読取入口で使える。ライセンス未指定時は配布メタデータの表示を使う。

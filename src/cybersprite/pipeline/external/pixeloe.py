@@ -1,4 +1,4 @@
-"""PixelOE 1.0.0 torch adapter; CPU only, oracle target size, quantization off."""
+"""PixelOE 1.0.0 torch adapter; CPU only, explicit target size, quantization off."""
 
 from . import _common as common
 
@@ -17,7 +17,14 @@ def describe():
 
 
 def run(rgba, params):
-    frames, _ = common.inputs(rgba, params, ("target_w", "target_h", "pixel_size", "thickness"))
+    frames, _ = common.inputs(
+        rgba, params, ("target_w", "target_h", "pixel_size", "thickness", "oracle_size")
+    )
+    oracle = params.get("oracle_size", False)
+    if type(oracle) is not bool:
+        raise common.invalid(
+            "PixelOE oracle_size must be a boolean; use true only for known truth."
+        )
     width = common.positive(params, "target_w", maximum=frames[0].shape[1])
     height = common.positive(params, "target_h", maximum=frames[0].shape[0])
     size = common.positive(params, "pixel_size", 4, maximum=16)
@@ -61,9 +68,10 @@ def run(rgba, params):
     return common.output(result), {
         **describe(),
         "device": "cpu",
+        "torch_version": str(torch.__version__),
         "torch_threads": 1,
         "seed": 0,
-        "oracle_size": True,
+        "oracle_size": oracle,
         "target_size": [width, height],
         "quantized": False,
         "pre_resize": "nearest to target_size * pixel_size",

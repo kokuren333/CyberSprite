@@ -47,6 +47,8 @@ RGBA は `numpy.uint8[H,W,4]`。`IndexedImage` は `pixels: numpy.uint8[H,W]` �
 
 metrics と params は JSON 化可能な値にする。プラグイン内部は浮動小数を使えるが、同じ環境と入力から同じ結果を返す必要がある。`level_a=True` は Windows/Linux などを跨いだ同一画素の宣言である。False では報告の determinism が `same-platform` となり `W_PLUGIN_DETERMINISM` が付く。登録名・distribution・版・引数・宣言は pipeline_report と source manifest の report に保存される。
 
+`PipelineStep` の任意フィールド `run_frames` は `(images, params) -> (images, metricsの列)`。定義した場合はフレームごとのrunに代えて全フレームを一度に渡す。返却数は入力と一致させ、通常と同じ型・寸法・パレット検査を通す。同梱の `reconstruct.proper_pixel_art` は共有meshのためこの契約を使う。同梱方式にも通常のenabled/disabled設定を適用する。
+
 ## その他の群
 
 公開の設定付きローダーは `cybersprite.plugins.PluginManager`。core は独立した標準ライブラリ／pydantic の低層ローダーと許可データ型だけに依存し、形式・変換・拡張実装を import しない。Python API から手動登録した Op と entry point 由来の Op は区別し、後者の設定許可を検査する。両方とも同じトランザクション・不変条件を通る。

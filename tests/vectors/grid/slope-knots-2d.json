@@ -1,0 +1,386 @@
+{
+  "name": "slope-knots-2d",
+  "grayscale_frames": [
+    [
+      [
+        0,
+        10,
+        30,
+        30,
+        20,
+        10,
+        10,
+        30
+      ],
+      [
+        10,
+        20,
+        40,
+        40,
+        30,
+        20,
+        20,
+        40
+      ],
+      [
+        30,
+        40,
+        60,
+        60,
+        50,
+        40,
+        40,
+        60
+      ],
+      [
+        30,
+        40,
+        60,
+        60,
+        50,
+        40,
+        40,
+        60
+      ],
+      [
+        20,
+        30,
+        50,
+        50,
+        40,
+        30,
+        30,
+        50
+      ],
+      [
+        10,
+        20,
+        40,
+        40,
+        30,
+        20,
+        20,
+        40
+      ],
+      [
+        10,
+        20,
+        40,
+        40,
+        30,
+        20,
+        20,
+        40
+      ],
+      [
+        30,
+        40,
+        60,
+        60,
+        50,
+        40,
+        40,
+        60
+      ]
+    ]
+  ],
+  "alpha": 255,
+  "settings": {
+    "max_cell": 4
+  },
+  "signals": {
+    "0": [
+      [
+        0,
+        240,
+        480,
+        0,
+        240,
+        240,
+        0,
+        480
+      ],
+      [
+        0,
+        240,
+        480,
+        0,
+        240,
+        240,
+        0,
+        480
+      ],
+      [
+        0,
+        0,
+        480,
+        0,
+        0,
+        240,
+        0,
+        480
+      ]
+    ],
+    "1": [
+      [
+        0,
+        240,
+        480,
+        0,
+        240,
+        240,
+        0,
+        480
+      ],
+      [
+        0,
+        240,
+        480,
+        0,
+        240,
+        240,
+        0,
+        480
+      ],
+      [
+        0,
+        0,
+        480,
+        0,
+        0,
+        240,
+        0,
+        480
+      ]
+    ]
+  },
+  "expected": {
+    "mode": "auto",
+    "detected": true,
+    "x": {
+      "family": "A",
+      "numerator": 8,
+      "denominator": 2,
+      "cell": 4,
+      "offset": 0,
+      "boundaries": [
+        4
+      ],
+      "peak": 1000,
+      "alignment": 571,
+      "coherence": 0,
+      "score": 8436,
+      "knot_score": 8436
+    },
+    "y": {
+      "family": "A",
+      "numerator": 8,
+      "denominator": 2,
+      "cell": 4,
+      "offset": 0,
+      "boundaries": [
+        4
+      ],
+      "peak": 1000,
+      "alignment": 571,
+      "coherence": 0,
+      "score": 8436,
+      "knot_score": 8436
+    },
+    "cell_w": 4,
+    "cell_h": 4,
+    "offset_x": 0,
+    "offset_y": 0,
+    "x_cells": [
+      [
+        0,
+        4
+      ],
+      [
+        4,
+        8
+      ]
+    ],
+    "y_cells": [
+      [
+        0,
+        4
+      ],
+      [
+        4,
+        8
+      ]
+    ],
+    "columns": 2,
+    "rows": 2,
+    "peak": 1000,
+    "candidates": {
+      "x": [
+        {
+          "family": "B",
+          "numerator": 3,
+          "denominator": 1,
+          "cell": 3,
+          "offset": 1,
+          "boundaries": [
+            1,
+            4,
+            7
+          ],
+          "peak": 1333,
+          "alignment": 266,
+          "coherence": 365,
+          "score": 10241
+        },
+        {
+          "family": "A",
+          "numerator": 8,
+          "denominator": 2,
+          "cell": 4,
+          "offset": 0,
+          "boundaries": [
+            4
+          ],
+          "peak": 1000,
+          "alignment": 571,
+          "coherence": 0,
+          "score": 8436,
+          "knot_score": 8436
+        },
+        {
+          "family": "B",
+          "numerator": 3,
+          "denominator": 1,
+          "cell": 3,
+          "offset": 2,
+          "boundaries": [
+            2,
+            5
+          ],
+          "peak": 1500,
+          "alignment": 400,
+          "coherence": 153,
+          "score": 6920
+        },
+        {
+          "family": "B",
+          "numerator": 2,
+          "denominator": 1,
+          "cell": 2,
+          "offset": 1,
+          "boundaries": [
+            1,
+            3,
+            5,
+            7
+          ],
+          "peak": 1000,
+          "alignment": 300,
+          "coherence": 142,
+          "score": 4860
+        },
+        {
+          "family": "B",
+          "numerator": 4,
+          "denominator": 1,
+          "cell": 4,
+          "offset": 2,
+          "boundaries": [
+            2,
+            6
+          ],
+          "peak": 1000,
+          "alignment": 300,
+          "coherence": 142,
+          "score": 4860
+        }
+      ],
+      "y": [
+        {
+          "family": "B",
+          "numerator": 3,
+          "denominator": 1,
+          "cell": 3,
+          "offset": 1,
+          "boundaries": [
+            1,
+            4,
+            7
+          ],
+          "peak": 1333,
+          "alignment": 266,
+          "coherence": 365,
+          "score": 10241
+        },
+        {
+          "family": "A",
+          "numerator": 8,
+          "denominator": 2,
+          "cell": 4,
+          "offset": 0,
+          "boundaries": [
+            4
+          ],
+          "peak": 1000,
+          "alignment": 571,
+          "coherence": 0,
+          "score": 8436,
+          "knot_score": 8436
+        },
+        {
+          "family": "B",
+          "numerator": 3,
+          "denominator": 1,
+          "cell": 3,
+          "offset": 2,
+          "boundaries": [
+            2,
+            5
+          ],
+          "peak": 1500,
+          "alignment": 400,
+          "coherence": 153,
+          "score": 6920
+        },
+        {
+          "family": "B",
+          "numerator": 2,
+          "denominator": 1,
+          "cell": 2,
+          "offset": 1,
+          "boundaries": [
+            1,
+            3,
+            5,
+            7
+          ],
+          "peak": 1000,
+          "alignment": 300,
+          "coherence": 142,
+          "score": 4860
+        },
+        {
+          "family": "B",
+          "numerator": 4,
+          "denominator": 1,
+          "cell": 4,
+          "offset": 2,
+          "boundaries": [
+            2,
+            6
+          ],
+          "peak": 1000,
+          "alignment": 300,
+          "coherence": 142,
+          "score": 4860
+        }
+      ]
+    },
+    "alignment": 571,
+    "normalized_score": 8436,
+    "ambiguous": false,
+    "grid_score": 625,
+    "matched_pixels": 10,
+    "interior_pixels": 16
+  }
+}

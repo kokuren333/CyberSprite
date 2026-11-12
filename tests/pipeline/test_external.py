@@ -125,6 +125,8 @@ def test_real_user_runtime(name, image):
     available, reason = adapter.available()
     if not available:
         pytest.skip(reason)
+    # Fixer's autocorrelation requires a span larger than this tiny mock fixture.
+    image = image.repeat(8, 0).repeat(8, 1)
     params = {"target_w": 4, "target_h": 4} if name == "pixeloe" else {}
     first, metrics = adapter.run(image, params)
     second, _ = adapter.run(image, params)

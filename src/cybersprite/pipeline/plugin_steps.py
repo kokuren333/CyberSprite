@@ -5,7 +5,7 @@ from copy import deepcopy
 import numpy as np
 
 from cybersprite.core.canonical import metadata_bytes
-from cybersprite.core.errors import invalid
+from cybersprite.core.errors import CyberSpriteError, invalid
 from cybersprite.plugins import PluginManager, plugin_error
 from cybersprite.plugins.contracts import IndexedImage
 
@@ -86,6 +86,9 @@ class StepRunner:
                 raise ValueError("step requires level_a: bool and callable run")
             self.methods[(step, method)] = (name, implementation)
             return implementation
+        except CyberSpriteError:
+            self.manager.discard("cybersprite.pipeline_steps", name)
+            raise
         except Exception as error:
             self.manager.discard("cybersprite.pipeline_steps", name)
             raise plugin_error(name, f"step registration failed: {error}") from error
@@ -108,13 +111,27 @@ class StepRunner:
             params = {k: deepcopy(v) for k, v in settings.items() if k not in ("method", "params")}
             params.update(deepcopy(settings.get("params", {})))
             params.update(context)
-            for image in images:
-                source = (
+            sources = (
+                (
                     IndexedImage(image.pixels.copy(), list(image.palette))
                     if isinstance(image, IndexedImage)
                     else image.copy()
                 )
-                result, measurements = implementation.run(source, deepcopy(params))
+                for image in images
+            )
+            batch = getattr(implementation, "run_frames", None)
+            if batch is not None:
+                if not callable(batch):
+                    raise ValueError("run_frames must be callable")
+                results, measurements_by_frame = batch(list(sources), deepcopy(params))
+                if len(results) != len(images) or len(measurements_by_frame) != len(images):
+                    raise ValueError(
+                        "run_frames must return one image and metrics object per frame"
+                    )
+                pairs = zip(results, measurements_by_frame, strict=True)
+            else:
+                pairs = (implementation.run(source, deepcopy(params)) for source in sources)
+            for result, measurements in pairs:
                 output = (
                     indexed_image(result) if step in ("quantize", "cleanup") else rgba_image(result)
                 )
@@ -136,7 +153,14 @@ class StepRunner:
                 for im, src in zip(outputs, images, strict=True)
             ):
                 raise ValueError("cleanup must preserve palette and image dimensions")
+        except CyberSpriteError:
+            raise
         except Exception as error:
             raise plugin_error(name, f"{step} failed: {error}", step=step, method=method) from error
         self.records.append(records)
+        # Keep wrapper distribution identity and the actual upstream version separately.
+        if metrics and all(key in metrics[0] for key in ("name", "version", "license", "level_a")):
+            records["implementation"] = {
+                key: metrics[0][key] for key in ("name", "version", "license", "level_a")
+            }
         return outputs, {"method": method, "frames": metrics}
