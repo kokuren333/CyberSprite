@@ -103,3 +103,17 @@ main のテスト: 622 passed（M2 統合時点、Windows / Python 3.12）。M6 
 - 実 CLI GUI を起動し、Google Chrome headless の初期スクリーンショットと、実キャンバス/revision を待ったスクリーンショットを開いた。判断 I-651〜I-660。仕様 §14.6 に認証初期ページの説明を補足した。
 - M5/M6 未統合のため W3/W5 の実ファイル通し確認は統合後。Linux は I-007 により CI 設定のみ。全体 mypy は既存22ファイルの86エラーで、server の診断はない。Opus の restyle と Python 台帳/来歴ログへの反映は後続作業。
 - 詳細、依存原文、受け入れ状況は [M8_SERVER_REPORT.md](M8_SERVER_REPORT.md)、起動方法と UI className 一覧は [GUI.md](GUI.md)。
+
+## M9 生成バックエンド（2026-11-12、Codex）
+
+実装と Windows での検証を完了。配布用 Diffusers extra の依存追加は I-708 の監査保留があるため、M9 全体を完了扱いにはしない。
+
+- `generate/` にバックエンド契約、設定と遅延プラグイン登録、command、Diffusers API 接続、モデルとアダプタの個別承諾、実体ハッシュ照合を実装した。`ops/generation.py` が list_generators/query と generate_image/ingest/G を登録し、全71 Op。
+- 生成は source の原画像と来歴だけを保存し、正本・リビジョンを変更しない。source の冪等性キーで再実行を抑止し、既存 import_image で配置する。設定の分離は CYBERSPRITE_CONFIG_DIR（I-702）。
+- `uv run --extra mcp --extra gui pytest -q`: **1180 passed、2 skipped**（298.94秒）。既存2件のスキップは Windows のシンボリックリンク作成権限。最終変更後の `uv run --extra mcp --extra gui pytest tests/generate -q`: **21 passed**（14.65秒）。
+- `uv run --extra mcp --extra gui ruff check .`、`tools/check_repository.py`、`tools/check_licenses.py`、`git diff --check` が成功。新しい依存は追加しておらず、第三者台帳は編集していない。
+- `uv build --wheel --out-dir .venv/m9-dist` の wheel 全105エントリを確認。重み拡張子・32 MiB 以上のファイルなし。追跡ファイルと package 配下の走査テストも追加した。
+- `.venv/m9-smoke/settings/config.toml` を設定先にして、実 CLI の gen backends、gen run（偽コマンド、承諾フラグ、seed=42、冪等性キー）、import image --source SRC1 --preset exact、validate、preview、export image を実行。検証デルタは errors=0/warnings=0、最終 validate も error=0/warning=0。初期空レイヤーと透明番号未使用の info 2件は試験の構成どおり。
+- 書き出し結果は validation_ok=true / verified=true。プレビューと最終PNGそのものを開いて確認し、復号した8×6の黒枠・白い内側の画素も検査した。最終PNG SHA-256 は `aca375c26bb02658ae0b4150357250b88a98cc242154c87f7f67e975dfbb503a`。試験出力は git 管理外の `.venv/m9-smoke/` に保持する。
+- 仕様変更は §12.5 の command.model 設定と例の追記のみ。判断 I-701〜I-709。エージェント側生成・利用方法・正確な L-10/L-12 の確認先候補・残る依存監査は `docs/GENERATION.md` に記載。
+- 未完: Diffusers extra の実依存追加と推移依存監査（regex の CNRI Python 1.6 表記が今回の許可リスト外）、GPU実機、Linux実行、L-10/L-12 のモデルカード・利用規約の確認。Torch/Diffusers の巨大wheel・重みは導入していない。ビジュアル判断を要する変更なし。M7 と gui/ は変更していない。
