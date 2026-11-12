@@ -4,9 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
-    "build": "tsc --noEmit && vite build",
-    "test": "vitest run",
+    "dev": "npm run icons && vite --host 127.0.0.1",
+    "icons": "node scripts/build-icons.mjs",
+    "build": "npm run icons && tsc --noEmit && vite build",
+    "test": "vitest run && npm run check:contrast",
+    "check:contrast": "node scripts/check-contrast.mjs",
     "test:e2e": "playwright test",
     "licenses": "node ../tools/check_js_licenses.mjs --check"
   },

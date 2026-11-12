@@ -1,6 +1,6 @@
 # GUI の起動と構成
 
-M8-S の GUI は接続・状態・Op 呼出しを確かめるための無装飾の仮画面である。見た目は Opus の後続作業で決める。テーマ C のトークンだけを原文どおり `gui/src/theme/tokens.css` に移した。
+GUI はテーマ「Circuit White」の案 C「Solder Mask」（`docs/design/theme-options/SELECTION.md` の緩和策つき）で描く。画面の見本は `docs/design/gui/`（英語、高コントラスト、日本語、設定ダイアログ）。データ経路と Op の呼び方は下の「接続とデータ」のとおりで、見た目の層はそこに手を入れていない。
 
 ```powershell
 uv sync --locked --extra gui
@@ -70,17 +70,79 @@ JS の全インストール済み直接・推移依存は `THIRD_PARTY_JS.md`、
 
 M5/M6 がこのブランチに未統合なので W3/W5 の実ファイルを伴う通し確認は統合後に行う。現時点でも登録 Op を追加すればスキーマとダイアログへ自動反映する。サーバ試験では仮の登録 Op によって予行・配置・書出しの転送、actor、dry_run、job.progress を検査している。合成・検証・描画・履歴・CLI 反映には実装済みの本物の Op を使う。
 
-Opus の変更箇所は次のとおり。CSS の配色・レイアウト、アイコン、市松模様、スライス/タイル格子、強調の見た目、アクセシビリティの意匠検査は後続作業。
+## テーマ
+
+| ファイル | 中身 |
+|---|---|
+| `gui/src/theme/tokens.css` | 全トークン。`--cs-*` は SPEC §14.3.1 の基本色、`--ui-*` は役割（本文、補助、見出し帯、押下中のパッド、選択行、フォーカス、キャンバスの重ね表示など）。`/* @theme normal */` と `/* @theme high-contrast */` の 2 ブロック。寸法（文字の大きさ、パネルの幅、行の高さ、面取りの形）もここ |
+| `gui/src/theme/app.css` | 部品の見た目。色は必ず `var(--ui-*)` か `var(--cs-*)` で参照する |
+| `gui/src/theme/prefs.ts` | 表示の設定。`<html>` の `data-contrast`、`data-text`、`data-scale`、`data-motion` に反映し、localStorage に保存する |
+| `gui/src/components/chrome.tsx` | 意匠の部品。アイコン、シルク印刷のピクセルフォント（5×7）、IC の切り欠き、ビア、パネルの見出し帯。すべて 1×1 の矩形の連なりを `crispEdges` で描く |
+
+意匠の約束:
+
+- パネルは IC のパッケージ。左上に 45° の切り欠き、2px の配線色の枠、見出し帯にビアとシルク印刷のラベル（英語表示ではラベルが見出しを兼ね、日本語表示では隣に日本語の見出しを出す）。ツールバーは両側に DIP のピンを付ける。
+- **アクティブなパネルだけ**見出し帯を水色で塗り、枠を濃い水色にして外側に 1px の薄い線（発光の代わり）を出す。アクティブは最後にポインタかフォーカスが入ったパネル。ほかの見出し帯は白。
+- パッド（ボタン）は 1 段の面取り（`--chamfer`）。押下中は濃い水色の枠と淡い水色の面。フォーカスは内側 2px のインクの枠。
+- ぼかし、発光のグラデーション、アンチエイリアスの曲線は使わない。グラデーションは市松模様と DIP ピンの、軸に沿った硬い境目だけ。キャンバスの重ね表示（グリッド、選択枠、変わったピクセルの枠）は `fillRect` の 1px 線で描く。
+- 状態は形でも示す。押下中は枠、セルは塗り（あり）・中抜き（リンク）・点（空）、検証は合格チップ・三角・八角形のアイコンと文字、前景色と背景色は FG / BG の札、選択色は実線、背景色は破線。
+- エージェントのコミットが届くと、エージェントパネルの見出しの配線を信号が 3 コマ（300 ms）で活動タブへ走り、キャンバスの変わった範囲を 1 秒間紫の枠で囲む。
+
+### 設定（右上の設定ボタン）
+
+言語（日本語 / English）、コントラスト（OS に従う / 標準 / 高コントラスト）、本文の文字（12 / 13 / 14 px、既定 13）、表示倍率（1 / 2 / 3 倍。CSS の `zoom` による整数倍。キャンバスの座標計算は倍率を割り戻す）、動き（OS に従う / 減らす）。OS の `prefers-contrast: more` と `prefers-reduced-motion: reduce` に連動する。動きを減らすと、すべてのアニメーションと遷移を止め、信号の演出も出さない。
+
+高コントラスト版は、線と文字をすべて `--cs-ink`、面をすべて白にし、アクティブな見出し帯は反転（インク地に白文字）、押下中と選択行は太い枠で示す。
+
+## アイコン
+
+原本は `assets/ui/icons/*.csprite`（1 アイコン 1 プロジェクト、16×16、`assets/ui/icons/README.md`）。`npm run icons` が各プロジェクトをリポジトリのルートから CLI で書き出す。
+
+```powershell
+uv run cybersprite -p assets/ui/icons/<名前>.csprite export image --out gui/public/icons/<名前>.png
+```
+
+- `npm run build` と `npm run dev` は先に `npm run icons` を実行する。出力 `gui/public/icons/` は git 管理外で、Vite が `static/icons/` に写す。
+- 書き出しの結果の `ok`、`validation_ok`、`verified` と 16×16 を確かめ、1 つでも外れたらビルドを止める。
+- GUI では `<Icon name="…" scale={1|2} />` で使う（`image-rendering: pixelated`、整数倍だけ）。ツールバーは 2 倍、ほかは 1 倍。名前の一覧 `ICONS`（`chrome.tsx`）と原本の一致は `src/components/icons.test.ts` が検査する。
+- 足りないアイコンは、ほかの手段で描かず、`assets/ui/icons/tools/icon_grids.py` に設計データを足して `build_icons.py` で `.csprite` を作る（M8 で `settings` を追加）。
+
+## コントラストの自動検査
+
+```powershell
+cd gui
+npm run check:contrast        # --verbose で全組を表示
+```
+
+`scripts/check-contrast.mjs` が `tokens.css` の通常版と高コントラスト版を読み、`var()` をたどって色を求め、画面で実際に使う前景と背景の組を WCAG 2.x の比で検査する。基準は SPEC §14.3.3（本文 7:1、補助の文字 4.5:1、意味のある文字以外の要素 3:1）。装飾（配線、区切り線、パッドの縁、警告色の帯）は参考値として表示だけする。あわせて、`app.css` が未定義の変数を参照していないこと、キャンバスの周囲と市松模様の彩度が低いこと（クロマ 0.10 以下）も検査する。`npm test` は vitest のあとにこの検査を実行する。部品に新しい色の組を足したら、この表にも足すこと。
+
+## スクリーンショットの撮り直し
+
+```powershell
+# 原本を壊さないよう、作業用の写しを開く
+uv run cybersprite gui .gui-check/shots/mechanic.csprite --no-browser --port 8790
+cd gui
+node scripts/screenshots.mjs "<表示された URL（# 以降も含む）>" ../docs/design/gui "C:\Program Files\Google\Chrome\Application\chrome.exe" .gui-check/shots/mechanic.csprite
+```
+
+4 番目の引数を渡すと、撮影中にエージェントとして 1 コミットし、W1 の強調表示を写す（写しにだけ使うこと）。
+
+## 部品と className
+
+Playwright の試験はアクセシブルな名前（ツールの `aria-label`、`Play`、`Onion skin` のラベル、`Project path`、`Arguments (JSON)`、`Apply`）、`data-testid`（`sprite-canvas`、`revision`、`status`）と、下の className に依存する。見た目を変えるときも残すこと。
 
 | コンポーネント | 主な className |
 |---|---|
-| App | app-shell, menu-bar, file-menu, edit-menu, op-menu, workspace, status-bar, global-error, job-progress |
+| App | app-shell（`data-active-panel`）, menu-bar, file-menu, edit-menu, op-menu, status-bar, global-error, job-progress |
 | ContextBar | context-bar |
 | Palette | palette-panel, palette-list, palette-color |
 | Toolbar | toolbar, tool-button |
 | Canvas | canvas-region, document-tabs, canvas-controls, canvas-viewport, sprite-canvas, canvas-sample |
-| Timeline | timeline, playback-controls, timeline-grid, timeline-cel, cel-empty/present/linked |
+| Timeline | timeline, playback-controls, timeline-grid（`tbody` の行 = レイヤー、`td` = セル）, timeline-cel, cel-empty/present/linked |
 | AgentPanel | agent-panel, agent-tabs, agent-content, agent-activity/validate/diff/sources, activity-list, activity-entry, validation-issues, validation-metrics, validation-delta, diff-image, sources-list, source-image |
 | SchemaDialog | schema-dialog, op-schema, export-plan, dialog-error, operation-result, stage-image |
+| SettingsDialog / Tooltip | settings-dialog / tooltip（`data-tip` 属性を持つ要素に、ポインタとキーボードのフォーカスで出す） |
+
+既知の制約: `get_info` のセルに `link` が含まれないため、タイムラインのリンクセルの表示（中抜きの四角と連結線）は現在のサーバでは出ない（GUI 側は `link` を受け取れば表示する）。
 
 ショートカット設定の読み込み・永続 prefs、取り込みの専用項目 UI、書き出し種別ごとの予定寸法の詳細計算は後続拡張。現在は生成スキーマと JSON 入力で全引数を明示できる。GUI だけに保存・変換・書出しの処理を増やさないこと。

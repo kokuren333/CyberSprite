@@ -31,7 +31,7 @@ SPEC §14.3.2「自分たちの道具で自分たちの UI を作る」に従い
 ## 名前
 
 ファイル名は英小文字のケバブケース（`select-rect`、`eye-off`、`step-prev` など）。GUI からはこの名前で引く。
-一覧は `tools/icon_grids.py` の `all_icons()`（ツールバー 11、タイムライン 13、コマンド 4、状態とエージェント 8、構造 4 の計 40）。
+一覧は `tools/icon_grids.py` の `all_icons()`（ツールバー 11、タイムライン 13、コマンド 4、状態とエージェント 8、構造 4、GUI の部品 1 の計 41）。
 
 ## 作り直す・直す
 
@@ -43,5 +43,10 @@ SPEC §14.3.2「自分たちの道具で自分たちの UI を作る」に従い
 
 ## GUI への組み込み
 
-GUI のビルドで `cybersprite export sheet` を使い、全アイコンを 1 枚のスプライトシート（+ JSON の座標表）に書き出して組み込む予定。
-`export_sheet` は M5 で入る。それまでは `cybersprite -p <アイコン> render --frame 0 --out <名前>.png --indexed` で 1 枚ずつ書き出せる。
+GUI のビルド（`cd gui && npm run build`）の前段 `npm run icons` が、全アイコンを 1 つずつ CLI の `export image` で PNG に書き出して組み込む（SPEC §14.3.2。複数プロジェクトを 1 枚にまとめる書き出しは v1 にはない [I-013]）。
+
+```powershell
+uv run cybersprite -p assets/ui/icons/<名前>.csprite export image --out gui/public/icons/<名前>.png
+```
+
+出力は git 管理外。詳細は `docs/GUI.md` の「アイコン」。M8 で GUI の設定ボタン用に `settings`（スライダー）を追加した（計 41）。
