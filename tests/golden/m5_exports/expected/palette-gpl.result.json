@@ -1,0 +1,19 @@
+{
+  "files": [
+    {
+      "path": "palette.gpl",
+      "bytes": 84,
+      "sha256": "b484dfe29712cd6c58cc81b7335785c70a3c59e1ecc36457cb829198718c3b44",
+      "kind": "data"
+    }
+  ],
+  "warnings": [
+    {
+      "code": "W_PALETTE_TRANSPARENT_ENTRY",
+      "index": 0,
+      "message": "Palette format gpl cannot express transparency at index 0; the entry's stored RGB was written."
+    }
+  ],
+  "validation_ok": true,
+  "verified": true
+}

@@ -106,6 +106,7 @@ def write_points(ctx, layer, frame, points):
         ]
         if len(linked) > 1:
             ctx.linked_frames.update(linked)
+            ctx.link_groups.add(tuple(sorted(linked)))
     left = min(x for x, y in values)
     top = min(y for x, y in values)
     right = max(x for x, y in values) + 1

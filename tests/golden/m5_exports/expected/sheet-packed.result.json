@@ -1,4 +1,20 @@
 {
+  "files": [
+    {
+      "path": "sheet-packed.png",
+      "bytes": 339,
+      "sha256": "37b131183c5f38b35fcd5e38a9198608ae72c77d06df2ee23133e783e0832151",
+      "pixel_sha256": "1693ec21df9f2139b3a28c5ae05361b95d86a458162902c3a01164c33998b3e5",
+      "width": 12,
+      "height": 18
+    },
+    {
+      "path": "sheet-packed.json",
+      "bytes": 3077,
+      "sha256": "2ac29e785cce5d30839882512297aa8d356bcfd3acf5ecbfa6a099312bf82a1e",
+      "kind": "data"
+    }
+  ],
   "warnings": [],
   "validation_ok": true,
   "verified": true,

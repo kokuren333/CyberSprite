@@ -1,0 +1,19 @@
+{
+  "files": [
+    {
+      "path": "palette.hex",
+      "bytes": 32,
+      "sha256": "9b6115868064b67ef66874180165fae8e66b3cb0b767f75ffb965fbb2c59e497",
+      "kind": "data"
+    }
+  ],
+  "warnings": [
+    {
+      "code": "W_PALETTE_TRANSPARENT_ENTRY",
+      "index": 0,
+      "message": "Palette format hex cannot express transparency at index 0; the entry's stored RGB was written."
+    }
+  ],
+  "validation_ok": true,
+  "verified": true
+}

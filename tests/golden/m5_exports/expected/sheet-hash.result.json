@@ -1,4 +1,20 @@
 {
+  "files": [
+    {
+      "path": "sheet-hash.png",
+      "bytes": 183,
+      "sha256": "9af70e8639c930a011e78af1b6cec9c2d9da320fc5352c3a21ad582172b50cb2",
+      "pixel_sha256": "ab845c05da1a4db116c28cbce8f8f30a4e29a25064524f1da3416604c4c288ea",
+      "width": 12,
+      "height": 6
+    },
+    {
+      "path": "sheet-hash.json",
+      "bytes": 2398,
+      "sha256": "d4d66e1271d5ea65af0e88fc9fbfb582af3f0b38596ea89000fd9b6520eef419",
+      "kind": "data"
+    }
+  ],
   "warnings": [],
   "validation_ok": true,
   "verified": true,

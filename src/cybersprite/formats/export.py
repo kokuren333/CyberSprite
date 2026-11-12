@@ -119,9 +119,7 @@ def export_sheet(p, a, root=None):
     result["files"].append(_png_file(paths[0], pixels, palette, a.compression))
     if data is not None:
         result["files"].append(
-            write_verified(
-                paths[1], json_bytes(data), lambda raw: json.loads(raw) == data, pixels=pixels
-            )
+            write_verified(paths[1], json_bytes(data), lambda raw: json.loads(raw) == data)
         )
     result.update(sheet=dict(width=w, height=h), items=len(items))
     return result
@@ -234,7 +232,17 @@ def export_palette(p, a, root=None):
     format = a.format or Path(a.out).suffix.lower().removeprefix(".")
     colors, names = p.palette.colors, p.palette.names
     raw = encode_palette(colors, names, format, p.name)
-    expected = colors if format in ("hex", "png") else [c[:7] + "ff" for c in colors]
+    expected = colors if format == "png" else [c[:7] + "ff" for c in colors]
+    if format in ("gpl", "pal", "hex"):
+        index = p.palette.transparent_index
+        result["warnings"].append(
+            {
+                "code": "W_PALETTE_TRANSPARENT_ENTRY",
+                "index": index,
+                "message": f"Palette format {format} cannot express transparency at index {index}; "
+                "the entry's stored RGB was written.",
+            }
+        )
 
     def verify(data):
         if format == "png":
@@ -244,7 +252,9 @@ def export_palette(p, a, root=None):
 
     path = preflight([a.out], a.overwrite)[0]
     pixels = np.array([[rgba(c) for c in expected]], dtype=np.uint8)
-    result["files"].append(write_verified(path, raw, verify, pixels=pixels))
+    result["files"].append(
+        write_verified(path, raw, verify, pixels=pixels if format == "png" else None)
+    )
     return result
 
 
@@ -339,7 +349,6 @@ def export_tileset(p, a, root=None):
                 paths[1],
                 json_bytes(data),
                 lambda raw: json.loads(raw) == data,
-                pixels=pixels,
             )
         )
     return result

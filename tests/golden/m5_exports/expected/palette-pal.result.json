@@ -1,0 +1,19 @@
+{
+  "files": [
+    {
+      "path": "palette.pal",
+      "bytes": 53,
+      "sha256": "3fd7638c48b773b4108f2556fb1fc9ee8e1950f6756d1e029e404eb96532370f",
+      "kind": "data"
+    }
+  ],
+  "warnings": [
+    {
+      "code": "W_PALETTE_TRANSPARENT_ENTRY",
+      "index": 0,
+      "message": "Palette format pal cannot express transparency at index 0; the entry's stored RGB was written."
+    }
+  ],
+  "validation_ok": true,
+  "verified": true
+}

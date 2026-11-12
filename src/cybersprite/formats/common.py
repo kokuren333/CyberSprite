@@ -198,16 +198,17 @@ def write_verified(path, data, verify, *, pixels=None, width=0, height=0):
             "Report this export and its options; the failed file was removed.",
             {"path": display_path(path)},
         ) from error
-    if pixels is not None:
-        height, width = pixels.shape[:2]
-    return {
+    result = {
         "path": display_path(path),
         "bytes": len(actual),
         "sha256": hashlib.sha256(actual).hexdigest(),
-        "pixel_sha256": pixel_sha256(pixels) if pixels is not None else None,
-        "width": width,
-        "height": height,
     }
+    if pixels is None:
+        result["kind"] = "data"
+    else:
+        height, width = pixels.shape[:2]
+        result.update(pixel_sha256=pixel_sha256(pixels), width=width, height=height)
+    return result
 
 
 def rgba_pixels(pixels, palette):

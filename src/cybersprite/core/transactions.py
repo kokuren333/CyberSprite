@@ -49,6 +49,7 @@ def changes(before, after, ctx):
         "frames": frame_changes,
         "layers": layers,
         "linked_frames": sorted(ctx.linked_frames),
+        "link_groups": [list(group) for group in sorted(ctx.link_groups)],
         "clipped_pixels": ctx.clipped_pixels,
     }
 

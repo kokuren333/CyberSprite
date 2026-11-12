@@ -256,9 +256,9 @@ def restore_files(backups):
 
 def retain_previews(root):
     folder = Path(root) / ".cybersprite/previews"
-    revisions = sorted({path.name.split("_")[0] for path in folder.glob("r*_f*.png")})
+    revisions = sorted({path.name.split("_")[0] for path in folder.glob("r*_*.png")})
     for expired in revisions[:-100]:
-        for path in folder.glob(expired + "_f*.png"):
+        for path in folder.glob(expired + "_*.png"):
             path.unlink()
 
 

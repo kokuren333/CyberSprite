@@ -1,4 +1,14 @@
 {
+  "files": [
+    {
+      "path": "animation.apng",
+      "bytes": 931,
+      "sha256": "f43dc8d50804c9b7e145780bc69f84efc4e13b1bd96c9d05f150ad6b44397144",
+      "pixel_sha256": "9689cf38a1f6cce63184f0b4c0ad3bf761fcefdb96220ef428cfb37f6b94438f",
+      "width": 8,
+      "height": 6
+    }
+  ],
   "warnings": [],
   "validation_ok": true,
   "verified": true

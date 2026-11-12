@@ -1,0 +1,15 @@
+{
+  "files": [
+    {
+      "path": "palette.png",
+      "bytes": 85,
+      "sha256": "007cf6a54880c74da7f80a5b8881810074ccec065bf9127f722988ff5d4a4854",
+      "pixel_sha256": "568ca0e8c17fcf967442538bbf88263214a104f78a57571dacdd0d4d60d653b9",
+      "width": 4,
+      "height": 1
+    }
+  ],
+  "warnings": [],
+  "validation_ok": true,
+  "verified": true
+}

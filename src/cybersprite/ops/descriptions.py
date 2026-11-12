@@ -244,13 +244,21 @@ OPERATIONS = {
         "Evaluate structural invariants and configured quality rules with deterministic metrics."
     ),
     "render_preview": (
-        "Render up to eight frames with optional diagnostic grid, rulers, and onion skins."
+        "Render separate frames (at most eight) or a composite strip/grid with diagnostic overlays."
     ),
     "diff_preview": "Compare history revisions with pixel counts and before/after/highlight PNGs.",
     "get_history": "Read recent transaction entries and whether undo or redo is available.",
 }
 
 OVERRIDES = {
+    ("add_tag", "color"): "Raw display color as #rrggbb; it need not belong to the palette.",
+    ("update_tag", "color"): "Raw display color as #rrggbb; it need not belong to the palette.",
+    ("add_slice", "color"): "Raw display color as #rrggbb; it need not belong to the palette.",
+    ("update_slice", "color"): "Raw display color as #rrggbb; it need not belong to the palette.",
+    (
+        "render_preview",
+        "background",
+    ): "Checker, palette index/exact color, or raw #rrggbb decoration.",
     ("set_tile", "flip"): "Reflection flags in x, y, d order; diagonal is applied first.",
     ("set_tiles", "rows"): "Tile reference rows, e.g. 0 1 1x 2yd, separated by spaces.",
     ("move_tiles", "from_"): "First zero-based tile index of the inclusive range (at least one).",

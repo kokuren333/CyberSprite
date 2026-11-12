@@ -12,6 +12,7 @@
 | `benchmark_pipeline.py` | 1024×1024入力から、段階画像の保存・再復号検査までの時間を3回測る | §13.8 | M6 |
 | `int_acceptance.py` | CLI 子プロセスで16×16・4フレーム・タグ・検証・シート/GIF/APNG/.asepriteを書き出し、往復とコーパスPNGを再復号照合。`--out` は未使用のディレクトリを指定する | §13.6 | INT-1 |
 | `m7_acceptance.py` | 実 CLI でタイルセット作成・8反転配置・リンク・共有タイル修正・PNG/タイルセット/.aseprite出力を実行する。全検証デルタと書出し自己検査、実PNGの再復号を確認し、`--out` の未使用ディレクトリへ画像と記録を残す（`uv run python -m tools.m7_acceptance --out build/m7-review`） | §10.10、§13.6 | M7 |
+| `fix2_acceptance.py` | runner.csprite を一時ディレクトリへコピーして、実CLIのタグstrip・全フレームgrid・タグ循環onion・生RGB背景を確認する。正本のバイト不変と実PNGの再復号を検査し、画像とsession.jsonを残す（`uv run python -m tools.fix2_acceptance --out build/fix2-review`、出力先は未使用） | §6.7、§10.4 | FIX-2 |
 | `m7_cases.py` | 自作の非対称L字工学ベクタと変換・番号付替えのゴールデン入力だけを作る。期待値は `update_goldens.py` で生成する | §13.5 | M7 |
 | `smoke_pipeline.py` | 等倍・整数拡大・JPEGの3件を直接 Op で取り込み、配置後の PNG と段階画像を `.cybersprite/m6-review/` に残す | §11、§13.7 | M6 |
 

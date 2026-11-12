@@ -181,6 +181,7 @@ def frame_op(ctx, a, name):
             cel.z_index = a.z_index
         if len(linked) > 1 and a.model_fields_set - {"layer", "frame", "z_index"}:
             ctx.linked_frames.update(linked)
+            ctx.link_groups.add(tuple(sorted(linked)))
     elif name == "unlink_cel":
         if len(linked) > 1:
             copy = deepcopy(owner)
@@ -220,4 +221,6 @@ def frame_op(ctx, a, name):
         )
         set_groups(layer, values)
         ctx.linked_frames.update(sorted(shared[1]))
+        if len(shared[1]) > 1:
+            ctx.link_groups.add(tuple(sorted(shared[1])))
     return {}

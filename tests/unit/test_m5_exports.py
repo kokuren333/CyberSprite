@@ -310,9 +310,7 @@ def test_animation_auto_mode_transparency_and_nearest(policy):
 def test_palette_codecs_and_export(policy, format):
     p = animated_project()
     assert export_palette(p, PaletteArgs(out="palette." + format))["verified"]
-    expected = (
-        p.palette.colors if format in ("hex", "png") else [c[:7] + "ff" for c in p.palette.colors]
-    )
+    expected = p.palette.colors if format == "png" else [c[:7] + "ff" for c in p.palette.colors]
     assert read_palette(str(policy / ("palette." + format))) == expected
     if format == "gpl":
         assert decode_palette((policy / "palette.gpl").read_bytes(), format)[1] == p.palette.names
