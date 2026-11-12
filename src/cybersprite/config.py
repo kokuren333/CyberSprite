@@ -1,6 +1,7 @@
 """Validated user-owned settings. Tool arguments never supply configuration."""
 
 import string
+import sys as sys
 import tomllib
 from pathlib import Path
 from typing import Annotated, Literal
