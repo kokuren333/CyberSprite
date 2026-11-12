@@ -16,12 +16,41 @@ jobs:
           version: '0.12.23'
           enable-cache: true
       - run: uv python install ${{ matrix.python }}
-      - run: uv sync --locked --extra mcp --python ${{ matrix.python }}
+      - run: uv sync --locked --extra mcp --extra gui --python ${{ matrix.python }}
       - run: uv run ruff check
       - run: uv run ruff format --check
       - run: uv run mypy
       - run: uv run pytest
       - run: uv run python tools/gen_schemas.py --check
-      - run: uv run python tools/check_licenses.py --include-dev --extra mcp
+      - run: uv run python tools/check_licenses.py --include-dev --extra mcp --extra gui
       - run: uv pip install hatchling==1.27.0 && uv run --no-sync python tools/check_licenses.py --include-build
       - run: uv run python tools/check_repository.py
+  gui:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.12.23'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: gui/package-lock.json
+      - run: uv sync --locked --extra gui --python 3.12
+      - run: npm ci
+        working-directory: gui
+      # Reports contain installed native packages, so audit on each target OS.
+      - run: node tools/check_js_licenses.mjs
+      - run: npm test
+        working-directory: gui
+      - run: npm run build
+        working-directory: gui
+      - run: npx playwright install --with-deps chromium
+        working-directory: gui
+      - run: npm run test:e2e
+        working-directory: gui

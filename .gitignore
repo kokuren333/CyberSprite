@@ -35,6 +35,11 @@ htmlcov/
 # ---- Node / GUI ----
 node_modules/
 gui/dist/
+src/cybersprite/server/static/*
+!src/cybersprite/server/static/.gitkeep
+gui/test-results/
+gui/playwright-report/
+.gui-check/
 *.tsbuildinfo
 
 # ---- OS / エディタ ----

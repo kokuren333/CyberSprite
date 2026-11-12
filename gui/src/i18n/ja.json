@@ -1,0 +1,9 @@
+{
+  "file":"ファイル", "edit":"編集", "sprite":"スプライト", "layer":"レイヤー", "frame":"フレーム", "select":"選択", "view":"表示", "agent":"エージェント", "help":"ヘルプ",
+  "new":"新規プロジェクト", "open":"プロジェクトを開く", "close":"閉じる", "import":"取り込み", "export":"書き出し", "undo":"取り消し", "redo":"やり直し", "saved":"保存済み",
+  "palette":"パレット", "foreground":"前景色", "background":"背景色", "tool":"ツール", "brush":"ブラシ", "shape":"形状", "filled":"塗りつぶし", "perfect":"ピクセルパーフェクト", "connectivity":"近傍",
+  "pencil":"鉛筆", "eraser":"消しゴム", "line":"直線", "rect":"矩形", "ellipse":"楕円", "fill":"塗りつぶし", "eyedropper":"スポイト", "hand":"パン", "zoom":"拡大率", "move":"移動", "selectTool":"矩形選択",
+  "canvas":"キャンバス", "timeline":"タイムライン", "play":"再生", "stop":"停止", "onion":"オニオンスキン", "grid":"グリッド", "duration":"表示時間 (ms)", "previous":"前のフレーム", "next":"次のフレーム",
+  "Activity":"活動", "Validate":"検証", "Diff":"差分", "Sources":"来歴", "refresh":"更新", "restore":"ここまで戻す", "compare":"比較", "from":"変更前リビジョン", "to":"変更後リビジョン",
+  "project":"プロジェクトのパス", "operation":"操作", "arguments":"引数 (JSON)", "apply":"適用", "cancel":"閉じる", "preview":"予行", "force":"検証エラーがあっても書き出す", "noProject":"プロジェクトを開くか新規作成してください", "disconnected":"切断中", "connected":"接続中", "status":"状態", "settings":"設定", "language":"言語", "about":"CyberSprite — Apache-2.0", "source":"元画像", "underlay":"下絵に表示", "clear":"解除", "empty":"空", "present":"セルあり", "linked":"リンク", "result":"結果", "schema":"引数スキーマ", "all":"全フレーム", "coordinate":"座標", "color":"色番号", "square":"四角", "circle":"円", "notAvailable":"このビルドでは利用できません。M5/M6 を統合して再接続してください。", "validation":"検証", "revision":"リビジョン", "zoomIn":"拡大", "zoomOut":"縮小"
+}

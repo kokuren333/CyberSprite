@@ -697,10 +697,12 @@ def mcp_serve(state, **options):
 
 @cli.command("gui")
 @click.argument("path", type=click.Path(path_type=Path), required=False)
-@click.option("--port", type=click.IntRange(1, 65535), default=None)
+@click.option("--port", type=click.IntRange(0, 65535), default=None)
 @click.option("--no-browser", is_flag=True, default=None)
+@click.option("--root", type=click.Path(path_type=Path, file_okay=False), default=None)
+@click.option("--allow-dir", multiple=True, type=click.Path(path_type=Path, file_okay=False))
 @click.pass_obj
-def gui_command(state, path, port, no_browser):
+def gui_command(state, path, port, no_browser, root, allow_dir):
     from cybersprite.config import load_config
 
     settings = load_config()
@@ -711,8 +713,10 @@ def gui_command(state, path, port, no_browser):
         "M8",
         "cybersprite[gui]",
         project=path or state.get("project"),
-        port=port or settings.gui.port,
+        port=settings.gui.port if port is None else port,
         no_browser=not settings.gui.open_browser if no_browser is None else no_browser,
+        root=root,
+        allow_dir=allow_dir,
     )
 
 
