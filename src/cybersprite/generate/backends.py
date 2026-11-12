@@ -53,7 +53,7 @@ def _deterministic_flags(torch, enabled):
         torch.backends.cudnn.benchmark,
         torch.backends.cudnn.deterministic,
         torch.backends.cudnn.allow_tf32,
-        torch.backends.cuda.matmul.allow_tf32,
+        torch.get_float32_matmul_precision(),
     )
     workspace = os.environ.get("CUBLAS_WORKSPACE_CONFIG")
     try:
@@ -62,14 +62,14 @@ def _deterministic_flags(torch, enabled):
         torch.backends.cudnn.benchmark = False
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.allow_tf32 = False
-        torch.backends.cuda.matmul.allow_tf32 = False
+        torch.set_float32_matmul_precision("highest")
         yield
     finally:
         torch.use_deterministic_algorithms(previous[0], warn_only=previous[1])
         torch.backends.cudnn.benchmark = previous[2]
         torch.backends.cudnn.deterministic = previous[3]
         torch.backends.cudnn.allow_tf32 = previous[4]
-        torch.backends.cuda.matmul.allow_tf32 = previous[5]
+        torch.set_float32_matmul_precision(previous[5])
         if workspace is None:
             os.environ.pop("CUBLAS_WORKSPACE_CONFIG", None)
         else:

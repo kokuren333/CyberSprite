@@ -75,7 +75,7 @@ def cli(args, directory, label, *, measure=False):
         "peak_board_memory_mib_200ms": max(samples, default=None),
     }
     (directory / f"{label}.measurement.json").write_text(
-        json.dumps(record, indent=2) + "\n", encoding="utf-8"
+        json.dumps(record, indent=2) + "\n", encoding="utf-8", newline="\n"
     )
     print(label, json.dumps(record), flush=True)
     content = stdout_path.read_text(encoding="utf-8")
@@ -144,7 +144,9 @@ def main():
             m["seconds"] for m in measurements
         ),
     }
-    (directory / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+    (directory / "summary.json").write_text(
+        json.dumps(summary, indent=2) + "\n", encoding="utf-8", newline="\n"
+    )
     if args.import_source:
         response, _ = cli(
             ["-p", str(project), "import", "image", "--source", "SRC1", "--preset", "ai"],

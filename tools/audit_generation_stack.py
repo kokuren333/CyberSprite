@@ -65,7 +65,9 @@ def main():
             f"{len(texts)} license files, {len(native)} native libraries"
         )
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(rows, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    args.out.write_text(
+        json.dumps(rows, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n"
+    )
     print("Metadata classification is provisional: review every bundled grant before acceptance.")
 
 

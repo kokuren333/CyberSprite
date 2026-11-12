@@ -344,7 +344,10 @@ def test_diffusers_fake_pipeline(configured, monkeypatch, single_file, fp16_vari
 
 @pytest.mark.parametrize("fail", [False, True])
 @pytest.mark.parametrize("workspace", [None, ":16:8"])
-def test_deterministic_generation_restores_flags_and_environment(monkeypatch, fail, workspace):
+@pytest.mark.parametrize("matmul_precision", ["highest", "high", "medium"])
+def test_deterministic_generation_restores_flags_and_environment(
+    monkeypatch, fail, workspace, matmul_precision
+):
     import os
 
     from cybersprite.generate.backends import deterministic_generation
@@ -354,16 +357,23 @@ def test_deterministic_generation_restores_flags_and_environment(monkeypatch, fa
     else:
         monkeypatch.setenv("CUBLAS_WORKSPACE_CONFIG", workspace)
     cudnn = SimpleNamespace(benchmark=True, deterministic=False, allow_tf32=True)
-    matmul = SimpleNamespace(allow_tf32=True)
+    matmul = SimpleNamespace(allow_tf32=matmul_precision != "highest")
+    precision = [matmul_precision]
     state = [False, True]
 
     def algorithms(enabled, warn_only=False):
         state[:] = [enabled, warn_only]
 
+    def set_precision(value):
+        precision[0] = value
+        matmul.allow_tf32 = value != "highest"
+
     torch = SimpleNamespace(
         are_deterministic_algorithms_enabled=lambda: state[0],
         is_deterministic_algorithms_warn_only_enabled=lambda: state[1],
         use_deterministic_algorithms=algorithms,
+        get_float32_matmul_precision=lambda: precision[0],
+        set_float32_matmul_precision=set_precision,
         backends=SimpleNamespace(cudnn=cudnn, cuda=SimpleNamespace(matmul=matmul)),
     )
     try:
@@ -372,13 +382,15 @@ def test_deterministic_generation_restores_flags_and_environment(monkeypatch, fa
             assert os.environ["CUBLAS_WORKSPACE_CONFIG"] == ":4096:8"
             assert not cudnn.benchmark and cudnn.deterministic
             assert not cudnn.allow_tf32 and not matmul.allow_tf32
+            assert precision == ["highest"]
             if fail:
                 raise RuntimeError("unsupported deterministic operation")
     except RuntimeError:
         assert fail
     assert state == [False, True]
     assert cudnn.benchmark and not cudnn.deterministic
-    assert cudnn.allow_tf32 and matmul.allow_tf32
+    assert cudnn.allow_tf32 and matmul.allow_tf32 == (matmul_precision != "highest")
+    assert precision == [matmul_precision]
     assert os.environ.get("CUBLAS_WORKSPACE_CONFIG") == workspace
 
 
