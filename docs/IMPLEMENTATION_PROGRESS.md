@@ -195,3 +195,12 @@
 - 唯一の更新器で既存15・新規3のgolden期待値を生成して全差分を確認した。既存PNG・画素配列・画素ハッシュ・正本は不変。新しい独自分割PNGは既存互換配列PNGとバイト同一。M5全出力はハッシュシード17/319でも一致した。
 - 実CLIで2×1・2フレーム・透明番号2・日本語タグ/スライスを作成し、検証デルタ・全フレームプレビュー・書出しPNG/JSONを確認した。validation_ok/verified=true、error/warning=0、未使用色0。情報3件は独立同一セルと1画素クラスタの工学ベクタによる意図どおりの指摘として保持。git管理外の `build/fix6-review/` に実ファイルと記録を残した。
 - 判断I-901〜I-904。SPEC変更は付録D.1と§6.4.1、§13.2/13.4。新規依存・外部参照・ビジュアル判断なし。LinuxはI-007のとおり未実行、main統合はオーケストレーターが行う。詳細は [FIX6_IMPLEMENTATION_REPORT.md](FIX6_IMPLEMENTATION_REPORT.md)。
+
+## R1-A3: GUI有限往復再生と共有ベクタ（2026-11-12）
+
+- Fable R1-16／Codex C-R1-07を修正。playbackFramesは有限タグの全再生列、無限タグの循環列を返し、Timelineは片道回数を再計算せず列末尾で停止する。最終フレームの表示時間も消化する。スタイル・意匠とPython coreの挙動は変更していない。
+- Python coreから4方向×タグ長1〜4×repeat 0〜3の64ベクタを生成し、Python／vitestで同じJSONの順序・表示時間を照合する。開始位置2、非均等duration、無限3周期を固定し、生成器は既存差分の上書きを拒否する。既存ゴールデンの更新は0件。Playwrightにも同じJSONによる往復両方向・repeat 0〜3の端点、有限停止、無限3周期の検査を追加した。
+- 関連Python試験は `uv run pytest tests/unit/test_playback_vectors.py tests/unit/test_m5_exports.py -q --tb=short` で131 passed／1 skipped（既存Windowsシンボリックリンク権限）、npm testは693 passed／コントラスト86組成功。Ruff check／format（175ファイル）、schema drift、repository check、ベクタ再生成のバイト照合は成功した。
+- 全体受入は未完。共有Windowsホストの空き物理メモリが約130〜320MiB（全体約16GiB）まで減った状態で、全体 `uv run pytest -q --tb=short` とcore/opsのmypyは進行が著しく遅くなり、こちらのプロセスを停止して直列化したため最終結果はない。npm run buildは41アイコンの検証付き書出しとtscを通過し、Viteの52モジュール変換後も完了しなかったためrendering chunksの段階で手動停止した。npm run test:e2eはconfig.webServerの30000ms起動待ちで失敗し、テスト本体は未実行。これら4コマンドは負荷の下がった環境で再実行が必要であり、成功扱いにはしない。
+- レビュー§7 Pと同じ0〜2の有限pingpongは、repeat 1／2／3でGUIの4／8／12ステップからcoreと同じ3／5／7ステップになった。修正後の列はそれぞれ0,1,2／0,1,2,1,0／0,1,2,1,0,1,2。速度の改善は主張せず、性能の前後測定は対象外。
+- 判断I-1061〜I-1062。SPEC §5.7に有限GUI＝loop 1、無限GUI＝loop 0と表示時間消化後の停止を補足した。新規依存・外部参照・ビジュアル判断のTODOなし。Linuxの実行とmain統合はオーケストレーターへ引き継ぐ。
