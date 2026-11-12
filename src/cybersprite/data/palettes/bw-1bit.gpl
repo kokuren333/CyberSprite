@@ -1,0 +1,6 @@
+GIMP Palette
+Name: bw-1bit
+Columns: 8
+# Device palette (public-domain fact). CC0-1.0.
+  0   0   0	black
+255 255 255	white

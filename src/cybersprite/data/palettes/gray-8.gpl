@@ -1,0 +1,13 @@
+GIMP Palette
+Name: gray-8
+Columns: 8
+# Device palette (public-domain fact). CC0-1.0.
+# value(i) = i * 255 // 7 for i = 0..7
+  0   0   0	gray-0
+ 36  36  36	gray-1
+ 72  72  72	gray-2
+109 109 109	gray-3
+145 145 145	gray-4
+182 182 182	gray-5
+218 218 218	gray-6
+255 255 255	gray-7

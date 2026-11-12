@@ -1,0 +1,37 @@
+[
+  {
+    "name": "cs-circuit-16",
+    "colors": 16,
+    "description": "Default general-purpose 16-color palette for game sprites, with hue-shifted ramps around a white and cyan circuit-board theme.",
+    "license": "Apache-2.0",
+    "origin": "original"
+  },
+  {
+    "name": "cs-circuit-32",
+    "colors": 32,
+    "description": "32-color extension of cs-circuit-16 (its first 16 colors are identical) that fills out every ramp for richer sprites and tiles.",
+    "license": "Apache-2.0",
+    "origin": "original"
+  },
+  {
+    "name": "bw-1bit",
+    "colors": 2,
+    "description": "Two-color 1-bit palette of pure black and pure white.",
+    "license": "CC0-1.0",
+    "origin": "device"
+  },
+  {
+    "name": "gray-4",
+    "colors": 4,
+    "description": "Four evenly spaced greys from black to white (value = i * 255 // 3).",
+    "license": "CC0-1.0",
+    "origin": "device"
+  },
+  {
+    "name": "gray-8",
+    "colors": 8,
+    "description": "Eight evenly spaced greys from black to white (value = i * 255 // 7).",
+    "license": "CC0-1.0",
+    "origin": "device"
+  }
+]

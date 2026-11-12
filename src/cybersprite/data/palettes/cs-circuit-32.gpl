@@ -1,0 +1,37 @@
+GIMP Palette
+Name: cs-circuit-32
+Columns: 8
+# CyberSprite built-in palette. Original work, Apache-2.0.
+# Colors 0-15 are identical to cs-circuit-16.
+ 22  24  39	ink
+ 67  76  96	slate
+131 143 156	steel
+199 210 214	mist
+245 249 243	paper
+ 38  66 140	navy
+ 34 180 216	trace-cyan
+168 236 239	ice
+ 31 107  82	moss
+108 191  62	leaf
+242 201  76	gold
+212 105  46	rust
+244 191 152	skin
+110  52  52	bark
+214  51  63	red
+109  63 154	violet
+ 43  48  63	charcoal
+ 27  45 112	deep-sea
+ 92 136 224	sky
+ 21 130 156	teal
+ 18  74  58	pine
+ 46 160 116	jade
+185 224  74	lime
+255 242 178	cream
+232 153  42	amber
+196 126  92	clay
+140 150  54	olive
+ 82  50  31	umber
+154  42  74	wine
+240 138 168	pink
+ 74  36  88	plum
+167 122 208	lilac

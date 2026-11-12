@@ -1,0 +1,9 @@
+GIMP Palette
+Name: gray-4
+Columns: 8
+# Device palette (public-domain fact). CC0-1.0.
+# value(i) = i * 255 // 3 for i = 0..3
+  0   0   0	gray-0
+ 85  85  85	gray-1
+170 170 170	gray-2
+255 255 255	gray-3
