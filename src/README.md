@@ -8,7 +8,7 @@ Python パッケージ `cybersprite` の置き場所。M1 のヘッドレス基�
 |---|---|---|---|
 | `cybersprite/core/` | M1 の型・正準化・構造検証・レンダラに加え、`registry` 契約と登録、`transactions` 唯一の既存正本保存経路、`history` ロック・原子的保存・履歴、`journal_clock` 時刻の隔離、`quality` 品質検証とデルタ、`previews` 装飾画像の整数配列 | §5、§6、§13 | M1、M2 |
 | `cybersprite/ops/` | `args` 引数モデル、`common` 参照・リンク共有編集、`drawing` ラスタ関数の接続、`frames` フレーム／セル、`palette` パレット、`structure` レイヤー／タグ／スライス／メタデータ、`canvas` キャンバス、`queries` 読取と初期構築、`previews` PNG 保存。`__init__` の `registry()` と `execute()` が利用面の共通入口 | §6.4、§10 | M2、M7 |
-| `cybersprite/formats/` | `png` 自前 PNG writer・限定 reader・実行環境指紋、`palette_files` 組み込みプリセット・GPL/PAL/HEX テキスト読込。ほかの形式は M5 | §6.6、§8 | M1、M2、M5 |
+| `cybersprite/formats/` | `png` 自前 PNG codec、`animation` 自前 GIF/LZW と APNG、`sheet` 配置と JSON 3 形式、`export` 共通の自己検査付き書出し、`export_args` 利用面共通の引数、`palette_files` パレット codec、`aseprite_io` 唯一のパッケージ依存境界、`input_adapter` 一時取り込み。`common.export_policy` が利用面の root/allow-dir を共有する | §5.9、§6.6、§8 | M1、M2、M5 |
 | `cybersprite/pipeline/` | 変換パイプライン | §11 | M6 |
 | `cybersprite/generate/` | 生成バックエンド | §12 | M9 |
 | `cybersprite/cli/` | 遅延 import の Click CLI。既存コマンドに `op`、`apply`、`undo`、`redo`、`history`、`ops list/describe`、`preview`、`diff`、`pixels`、`palette show/presets` を追加。`validate` は品質規則まで検査。CLI の仕上げは M3 | §9 | M1〜M3 |
