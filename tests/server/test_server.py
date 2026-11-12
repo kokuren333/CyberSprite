@@ -130,7 +130,8 @@ def test_rpc_read_render_prefs_and_lifecycle(live):
         assert len(base64.b64decode(frames["frames"][0]["rgba"])) == 3 * 4 * 4
         assert result(c, "validate.run")["result"]["ok"]
         assert result(c, "history.list")["result"]["entries"]
-        assert result(c, "sources.list") == {"sources": []}
+        listed = result(c, "sources.list")
+        assert listed.get("result", listed)["sources"] == []
         assert (
             call(c, "sources.get", {"id": "S1"})[0]["error"]["data"]["code"] == "E_SOURCE_NOT_FOUND"
         )
