@@ -37,7 +37,9 @@ def test_builtin_snapshots():
     ids = {p["id"] for p in list_platforms()}
     assert {"free", "dmg", "nds", "sprite-80", "motion", "dmg/background", "nds/sprite-96"} <= ids
     for id in sorted(ids):
-        p = resolve(id)
+        p = resolve(
+            id, overrides={"/system/color/master_colors": [[0, 0, 0]]} if id == "nes" else None
+        )
         assert p.id == id
         assert p.craft is None or p.craft.basis == "authored"
         assert len(guide(p).encode()) <= 2048
@@ -253,6 +255,7 @@ def test_qplt_hand_vectors():
         "unique_tiles",
         "unique_tiles_with_flips",
         "tick_deviations",
+        "craft",
     }
     p.validation.severity.update({k: "off" for k in found})
     assert not any(i["rule"].startswith("Q-PLT") for i in report(p)["issues"])

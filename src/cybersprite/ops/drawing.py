@@ -148,7 +148,22 @@ def drawing(ctx, a, name):
     def image():
         return canvas_pixels(p, layer, a.frame)
 
-    if name == "set_pixel":
+    if name == "shift_ramp":
+        data = image()
+        ramps = p.palette.ramps
+        if a.ramp is not None:
+            ramps = [r for r in ramps if r.name == a.ramp]
+            if not ramps:
+                raise invalid("Unknown material ramp; use get_palette to list ramps.", ramp=a.ramp)
+        table = np.arange(256, dtype=np.uint8)
+        direction = 1 if a.direction == "lighter" else -1
+        for ramp in ramps:
+            for index, color in enumerate(ramp.indices):
+                table[color] = ramp.indices[max(0, min(len(ramp.indices) - 1, index + direction))]
+        shifted = table[data]
+        selected = region(p, a.region, data) & (shifted != data)
+        points = [(int(x), int(y), int(shifted[y, x])) for y, x in np.argwhere(selected)]
+    elif name == "set_pixel":
         points = [(a.x, a.y, resolve_color(p.palette, a.color))]
     elif name == "set_pixels":
         if (a.pixels is None) == (a.points is None):
@@ -203,6 +218,32 @@ def drawing(ctx, a, name):
             p.palette.transparent_index if name == "erase" else resolve_color(p.palette, a.color)
         )
         points = [(int(x), int(y), color) for y, x in zip(*np.nonzero(mask), strict=True)]
+        if name == "outline" and a.selective:
+            darkest = {i: ramp.indices[0] for ramp in p.palette.ramps for i in ramp.indices}
+            chosen = []
+            for x, y, fallback in points:
+                if a.placement == "inside":
+                    value = darkest.get(int(data[y, x]), fallback)
+                else:
+                    neighbours = []
+                    for dy in (-1, 0, 1):
+                        for dx in (-1, 0, 1):
+                            nx, ny = x + dx, y + dy
+                            if (
+                                (dx or dy)
+                                and (a.connectivity == 8 or not (dx and dy))
+                                and 0 <= nx < data.shape[1]
+                                and 0 <= ny < data.shape[0]
+                                and seeds[ny, nx]
+                            ):
+                                neighbours.append((dx * dx + dy * dy, ny, nx))
+                    if neighbours:
+                        _, ny, nx = min(neighbours)
+                        value = darkest.get(int(data[ny, nx]), fallback)
+                    else:
+                        value = fallback
+                chosen.append((x, y, value))
+            points = chosen
     elif name == "transform_region":
         data = image()
         mask = region(p, a.region, data)

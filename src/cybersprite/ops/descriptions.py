@@ -6,6 +6,9 @@ from typing import Any
 from pydantic import BaseModel, create_model
 
 ARGUMENTS = {
+    "selective": "Use the neighboring material ramp's darkest index for outline pixels.",
+    "ramp": "Optional material ramp name; omission uses all defined ramps.",
+    "ramps": "Explicit dark-to-light material index lists; an empty list clears ramps.",
     "mask": "Optional protection: only_on/not_on colors and region, tested once before drawing.",
     "legend": (
         "Symbol-to-color mapping for sym rows; indices, exact colors or @name. Dot is reserved."
@@ -154,6 +157,7 @@ ARGUMENTS = {
 }
 
 OPERATIONS = {
+    "shift_ramp": "Move selected pixels one step lighter or darker in their material ramps.",
     "delete_tileset": (
         "Delete an unused tileset; E_IN_USE lists referencing layers. "
         "Remove or reassign those layers first. missing_ok tolerates only a missing tileset."
@@ -272,6 +276,7 @@ OPERATIONS = {
 OPERATIONS["move_cel"] = "Move a cel by integer offsets with explicit frame or shared scope."
 
 OVERRIDES = {
+    ("shift_ramp", "direction"): "Move one step lighter or darker; endpoints remain fixed.",
     ("add_tag", "color"): "Raw display color as #rrggbb; it need not belong to the palette.",
     ("update_tag", "color"): "Raw display color as #rrggbb; it need not belong to the palette.",
     (

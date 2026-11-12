@@ -7,7 +7,7 @@ import numpy as np
 
 from cybersprite.core.color import compare_hue, rgb_to_oklab_fixed
 from cybersprite.core.errors import invalid
-from cybersprite.core.models import ImageLayer, LinkCel, Palette
+from cybersprite.core.models import ImageLayer, LinkCel, Palette, Ramp
 from cybersprite.core.pixels import pixels_from_rows, pixels_to_rows, rgb_distance, rgba
 from cybersprite.core.references import walk_layers
 from cybersprite.formats.palette_files import raw_color, read_palette_with_names
@@ -103,7 +103,14 @@ def palette_op(ctx, a, name):
         )
         if any(int(k) >= len(colors) for k in names):
             raise invalid("Palette names must refer to indices in the new palette.")
-        p.palette = Palette(colors=colors, names=names, transparent_index=ti)
+        ramps = pal.ramps if a.ramps is None else a.ramps
+        try:
+            p.palette = Palette(colors=colors, names=names, transparent_index=ti, ramps=ramps)
+        except ValueError as error:
+            raise invalid(
+                "Palette change invalidates ramps; provide corrected ramps or ramps=[].",
+                reason=str(error),
+            ) from error
         return {}
     if name == "set_palette_color":
         if not 0 <= a.index < len(pal.colors):
@@ -179,6 +186,18 @@ def palette_op(ctx, a, name):
         str(mapping[int(k)]): oldnames[k] for k in sorted(oldnames, key=int) if int(k) in positions
     }
     pal.transparent_index = mapping[pal.transparent_index]
+    updated = []
+    for ramp in pal.ramps:
+        indices = [mapping[i] for i in ramp.indices if i not in removed]
+        if indices:
+            updated.append(Ramp(name=ramp.name, indices=indices))
+    pal.ramps = updated
+    try:
+        Palette.model_validate(pal.model_dump())
+    except ValueError as error:
+        raise invalid(
+            "Palette remap merges material ramps; clear or redefine ramps first.", reason=str(error)
+        ) from error
     return {
         "mapping": {str(i): None if i in removed else mapping[i] for i in sorted(mapping)},
         "palette_size": len(pal.colors),

@@ -3,7 +3,7 @@
 import numpy as np
 
 from .models import GroupLayer, TilemapLayer
-from .pixels import rgba
+from .pixels import pixels_from_rows, rgba
 from .platform import nearest_rgb, tick_durations
 from .references import cel_owner, walk_layers
 from .render import render_indexed
@@ -12,7 +12,9 @@ LEVELS = {
     "Q-PLT-01": "error",
     "Q-PLT-02": "error",
     "Q-PLT-03": "error",
+    "Q-PLT-04": "error",
     "Q-PLT-05": "warning",
+    "Q-PLT-06": "warning",
     "Q-PLT-07": "info",
     "Q-PLT-08": "info",
 }
@@ -147,6 +149,20 @@ def evaluate(p, colors_per_frame):
             limit=asset.animation.frames_max,
         )
     unique, flipped = set(), set()
+
+    def add_tile(data):
+        th, tw = data.shape
+        unique.add((tw, th, data.tobytes()))
+        variants = []
+        for d in (False, True) if tile.flips.d and tw == th else (False,):
+            for fy in (False, True) if tile.flips.y else (False,):
+                for fx in (False, True) if tile.flips.x else (False,):
+                    v = data.T if d else data
+                    v = v[::-1] if fy else v
+                    v = v[:, ::-1] if fx else v
+                    variants.append(v.tobytes())
+        flipped.add((tw, th, min(variants)))
+
     if tile:
         for f in range(len(p.frames)):
             image = render_indexed(p, f, {"flatten": "nearest"})
@@ -155,17 +171,25 @@ def evaluate(p, colors_per_frame):
                     data = np.full((tile.h, tile.w), p.palette.transparent_index, dtype=np.uint8)
                     part = image[y : y + tile.h, x : x + tile.w]
                     data[: part.shape[0], : part.shape[1]] = part
-                    raw = data.tobytes()
-                    unique.add(raw)
-                    variants = []
-                    for d in (False, True) if tile.flips.d and tile.w == tile.h else (False,):
-                        for fy in (False, True) if tile.flips.y else (False,):
-                            for fx in (False, True) if tile.flips.x else (False,):
-                                v = data.T if d else data
-                                v = v[::-1] if fy else v
-                                v = v[:, ::-1] if fx else v
-                                variants.append(v.tobytes())
-                    flipped.add(min(variants))
+                    add_tile(data)
+        for ts in p.tilesets:
+            for entry in ts.tiles[1:]:
+                add_tile(pixels_from_rows(entry.pixels, ts.tile_w, ts.tile_h))
+        if tile.unique_max is not None and len(flipped) > tile.unique_max:
+            add(
+                "Q-PLT-06",
+                "Unique tile count exceeds the platform budget.",
+                actual=len(flipped),
+                limit=tile.unique_max,
+            )
+    from .palette_units import violations
+
+    for location in violations(p):
+        add(
+            "Q-PLT-04",
+            "Palette unit mixes rows or uses forbidden slots; remap its indices.",
+            **location,
+        )
     # The shared quality reporter groups by rule/frame/layer. Preserve every
     # resource-specific location before that grouping can discard later colors,
     # slices or missing tags.
@@ -179,8 +203,9 @@ def evaluate(p, colors_per_frame):
             continue
         previous = grouped[key]
         prior_where = previous["where"]
-        old = {k: v for k, v in prior_where.items() if k not in common}
-        new = {k: v for k, v in where.items() if k not in common}
+        detail_common = common - {"bbox"} if issue["rule"] == "Q-PLT-04" else common
+        old = {k: v for k, v in prior_where.items() if k not in detail_common}
+        new = {k: v for k, v in where.items() if k not in detail_common}
         if old != new:
             locations = prior_where.setdefault("findings", [old])
             if new not in locations:
@@ -188,7 +213,7 @@ def evaluate(p, colors_per_frame):
         if issue["message"] not in previous["message"]:
             previous["message"] += " " + issue["message"]
     ordered = sorted(grouped, key=lambda key: (key[0], key[1], key[2] or ""))
-    return [grouped[key] for key in ordered], {
+    metrics = {
         "id": platform.id,
         "opaque_max": max(colors_per_frame),
         "unrepresentable_colors": unrepresentable,
@@ -196,3 +221,10 @@ def evaluate(p, colors_per_frame):
         "unique_tiles_with_flips": len(flipped),
         "tick_deviations": len(set(deviations)),
     }
+    final = [grouped[key] for key in ordered]
+    if platform.craft is not None:
+        from .craft import evaluate as evaluate_craft
+
+        craft_issues, metrics["craft"] = evaluate_craft(p)
+        final.extend(craft_issues)
+    return final, metrics

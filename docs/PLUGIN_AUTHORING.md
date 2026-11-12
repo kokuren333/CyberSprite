@@ -57,9 +57,11 @@ metrics と params は JSON 化可能な値にする。プラグイン内部は�
 - `palettes`: factory は `{name, colors, license?, names?}` の列を返す。colors は 1〜256 個の `#rrggbbaa`、names は文字列の番号から色名。衝突する名前を拒否する。既存プリセットの読取入口と CLI の `palette presets` から使える。
 - `exporters`: オブジェクトまたは factory は `name`, `extension`, pydantic の `options_model`, `write(document, renderer, out, options)` を提供する。`export_plugin` Op／`export plugin --format <name> --out <path>` が共通検証と path preflight を実行する。format 省略時は有効な exporter の extension を照合する。v1 は単一ファイル。writer は渡された一時 out だけへ書く。任意の `decode(bytes)` は全フレームの RGBA 配列の列を返す。自己検査は実ファイルから読んだ bytes を復号し、コア描画と照合する。decode がなければ `verified=false` と理由を返す。失敗時は以前の出力を保持する。
 - `importers`: メタデータ列挙だけ。v1.x で入力予算・ラスターと構造形式の来歴／配置契約を確定して接続する。
-- `platforms`: メタデータ群を予約。機種プロファイルの解決はプラットフォーム工程で接続する。
+- `platforms`: API 1のfactoryが`ID -> JSON定義`の辞書を返す。有効設定とAPI検査は他群と同じ。定義は整数・文字列・真偽・nullだけで構成し、キーと定義内idを一致させる。同名の内蔵定義を上書きでき、プラグイン間の同IDはE_PLUGIN。保存したsnapshotの検証では再読込しない。
 
 exporter の `write` は `formats.export_args.ExportResult`（またはその辞書）を返す。wrapper は戻り値のスキーマを検査し、warnings を引き継ぐ。ファイルのメタデータ・validation_ok・verified は共通層が独立して求め、writer の自己申告で上書きしない。
+
+実機形式は`native=true`で`export_native`から選べる。省略可能な`verification_frames(document, renderer, options)`は照合用の厳密RGBA区画列を返し、この場合decode(bytes)が必須。内蔵gb-2bppは8×8タイル列を独立復号してレンダラ区画へ照合する。bank/VRAM配置・palette_out/map_outはこの版の対象外。
 
 validator の規則 ID は組み込みと他の登録済み規則を含めて一意にする。同じ ID の置換は許さず、衝突した登録を `E_PLUGIN` で破棄する。downsample は `params.grid` の実際のセル数に合わせる。自動格子が未検出の場合も診断用 none 格子で画像と不合格の報告を残す（関門は合格に変更しない）。
 

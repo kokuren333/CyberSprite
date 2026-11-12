@@ -93,6 +93,22 @@ def resolve_color(palette: Palette, value: int | str) -> int:
         raise invalid("Color must be a palette index or a #rrggbb/#rrggbbaa string.")
     if value.startswith("@"):
         name = value[1:]
+        if ":" in name:
+            material, step = name.rsplit(":", 1)
+            ramps = [r for r in palette.ramps if r.name == material]
+            if (
+                len(ramps) != 1
+                or not re.fullmatch(r"0|[1-9][0-9]*", step)
+                or len(step) > 3
+                or int(step) >= len(ramps[0].indices)
+            ):
+                raise invalid(
+                    "Unknown ramp or step; use @ramp:k with a valid zero-based step.",
+                    ramp=material,
+                    step=step,
+                    candidates=[r.name for r in sorted(palette.ramps, key=lambda r: r.name)],
+                )
+            return ramps[0].indices[int(step)]
         matches = sorted(int(i) for i, n in palette.names.items() if n == name)
         if len(matches) > 1:
             raise CyberSpriteError(

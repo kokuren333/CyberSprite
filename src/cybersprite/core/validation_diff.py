@@ -5,6 +5,8 @@ from typing import Any
 
 def identity(issue):
     where = issue["where"]
+    if issue["rule"] == "Q-CRF-01":
+        return issue["rule"], tuple(where.get("frames", [])), where.get("layer"), where["metric"]
     return issue["rule"], tuple(where.get("frames", [])), where.get("layer")
 
 

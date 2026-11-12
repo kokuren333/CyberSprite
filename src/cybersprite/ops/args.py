@@ -12,6 +12,7 @@ from cybersprite.core.models import (
     MatchFlips,
     Model,
     Name,
+    Ramp,
     Rect,
     Size,
     SliceKey,
@@ -194,6 +195,7 @@ def define(name: str, fields: dict[str, Any], draw: bool = False) -> None:
         "replace_color",
         "transform_region",
         "outline",
+        "shift_ramp",
         "cleanup_pixels",
     }:
         fields = {
@@ -295,7 +297,17 @@ define(
         "color": COLOR,
         "placement": (Literal["outside", "inside"], "outside"),
         "exclude_colors": (list[Color] | None, None),
+        "selective": (bool, False),
         "connectivity": (Literal[4, 8], 4),
+        "region": REGION,
+    },
+    True,
+)
+define(
+    "shift_ramp",
+    {
+        "direction": (Literal["lighter", "darker"], ...),
+        "ramp": (str | None, None),
         "region": REGION,
     },
     True,
@@ -381,6 +393,7 @@ define(
     {
         "colors": (list[str], ...),
         "names": (dict[str, str] | None, None),
+        "ramps": (list[Ramp] | None, None),
         "transparent_index": (int | None, None),
         "on_shrink": SHRINK,
     },
@@ -686,9 +699,9 @@ define(
             Field(None, description="Tileset ID or unique name; render its labeled tile grid."),
         ),
         "layout": (
-            Literal["frames", "strip", "grid"],
+            Literal["frames", "strip", "grid", "review"],
             Field(
-                "frames", description="Separate images (at most 8), one strip, or one frame grid."
+                "frames", description="Separate images (at most 8), strip, grid, or review sheet."
             ),
         ),
         "layers": (list[str] | None, None),

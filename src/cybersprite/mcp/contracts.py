@@ -15,7 +15,7 @@ new_project get_info list_platforms set_platform get_pixels get_palette validate
 render_preview diff_preview get_history
 undo redo apply_ops set_project_meta set_validation
 set_pixel set_pixels draw_rows line rect ellipse polygon stroke fill erase replace_color
-transform_region outline cleanup_pixels
+transform_region outline shift_ramp cleanup_pixels
 add_frame delete_frames move_frames reverse_frames set_frame_duration set_cel clear_cel copy_cel
 link_cel unlink_cel move_cel set_frame_ticks conform_palette
 set_palette set_palette_color add_palette_colors remap_palette load_palette set_palette_frozen
@@ -25,7 +25,8 @@ add_tileset delete_tileset set_tile_pixels delete_tiles move_tiles set_tile set_
 tileset_from_layer
 resize_canvas crop_canvas scale_sprite transform_sprite
 import_image import_aseprite export_image export_sheet export_animation export_aseprite
-export_tileset export_palette export_plugin add_source list_sources get_source list_generators generate_image
+export_tileset export_palette export_plugin export_native
+add_source list_sources get_source list_generators generate_image
 """.split()
 MINIMAL = frozenset(
     """

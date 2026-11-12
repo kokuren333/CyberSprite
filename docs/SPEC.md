@@ -592,6 +592,10 @@ hero.csprite/
 
 色引数の `"@<名前>"` は `palette.names` を完全一致で調べ、操作の適用前に番号へ解決する。複数一致は `E_AMBIGUOUS_REF`（候補番号）、未知名は `E_INVALID_ARGS`（利用可能な名前候補）。表示用の生の色とパレット編集の色定義は従来どおり。
 
+`palette.ramps`は省略可能な`[{name, indices}]`、暗→明の順序付き番号列。空なら正準JSONでは省略し旧正本bytesを保つ。一意名（colonを含めない）と非空・重複なし・透明番号を含めない・パレット内の番号を要求し、素材の曖昧さを避けるため異なるランプ間も番号を共有しない。明度の単調性は利用者の意味づけとして扱い、自動並替えしない。`@ramp:k`は0始まりの厳密参照で、colonなしの@nameは従来どおり。set_paletteの任意ramps引数で設定・空配列で解除、未指定は保持（縮小・透明番号変更で無効なら明示訂正を要求）。remap_paletteは番号を同じ写像で移し、remove_unusedで消えた番号と空ランプだけを除く。素材間のmerge衝突は拒否する。.aseprite予約メタデータにもランプを往復する。
+
+`shift_ramp`（mutate、N）はlayer/frame/region、direction=lighter/darker、任意ramp名とmaskを受け、描画前の各番号をそのランプ内で1段だけ移す。端は固定、未所属画素は不変、共有セル・保護描画は他の描画Opと同じ。`outline.selective=true`は種画素の素材ランプの先頭番号を輪郭に使う。outsideで複数素材が隣接する場合は距離二乗・隣接y・xの順で決め、insideは当該画素の素材を使う。ランプのない素材は必須color引数へフォールバックする。
+
 | キー | 型 | 既定 | 説明 |
 |---|---|---|---|
 | `transparent_index` | 整数 | 0 | 透明インデックス。パレットの範囲内でなければならない |
@@ -1048,6 +1052,8 @@ hero.csprite/
 
 検証報告の `metrics.platform` に、`id`、不透明色の最大数、表せない色の数、ユニークなタイルの数（反転を考慮する場合としない場合）、`tick` からずれたフレームの数を、判定の有無によらず常に入れる。
 
+Q-PLT-04は非groupの各セルを独立に調べる（非表示も含む）。object/layerはその層・フレーム全体、tile/blockはキャンバス原点を格子原点とする。透明番号は行計算から除外する。slot0=colorの行境界は`(i-1) div row_size`、他は`i div row_size`。colorでは透明画素を許さず、transparent/sharedでは透明番号以外の行頭画素を許さない。行数超過、混在行、禁止slotを資源・frame・矩形付きで報告する。Q-PLT-06の数は全フレームの合成像と全tileset（未参照も含む、空tile0は除く）を対象とし、透明で右下を補い、同じ寸法のタイルだけを同一視する。system.tile.flipsで生成できる反転群の辞書順最小bytesを代表とする。
+
 **色を合わせる Op。** Q-PLT-02 を直すために `conform_palette`（種別 `mutate`、冪等性 I）を足す。パレットの各色を、最も近い表せる色（付録 B の距離）に**明示的に**置き換え、変えた色の前後を結果に並べる。予行で確かめてから使う。編集で色を黙って近似する経路は作らない（原則 2）。
 
 **作法（Q-CRF）。** 既定の水準は `info` で固定の 1 規則だけにする。
@@ -1067,6 +1073,8 @@ hero.csprite/
 | `ramp_steps` | 1 つの素材の陰影の段数 | `palette.ramps`（H-16）があるときだけ |
 | `outline.dark_permille` | 輪郭の画素のうち、最も暗い色の割合 | 千分率 |
 | `parts` | 部品どうしの寸法比。例 `"eye.near.w/head.w": [250, 400]` | 名前が `part.` で始まるスライスの矩形から計算する |
+
+craftがある場合、`metrics.platform.craft.frames`へ全フレームの全指標を常に返す。空画像の比と深さは0、割算は切捨て。depthはキャンバス外も透明とした4近傍距離（輪郭は1）。flatは不透明画素を分母とし、画像内3×3が厳密に同一RGBAの中心だけ。regionは同一RGBAの4近傍成分。outlineは不透明の4近傍輪郭で、当該フレームの最小Lに等しい画素の割合。partsは`part.`を外した一意のスライス名、各frame以前の最後のkeyから幅/高さの千分比を返す。曖昧・欠損・分母0はnull。ramp_stepsはランプごとの使用番号数（未使用ランプは0）。Q-CRF-01はframe/metricごとに独立し、水準はoff以外常にinfo（severity:errorでも関門にしない）。欠損部品は未測定として指摘しない。
 
 `basis` は `authored`（自分たちで書いた一般則）か `measured`（測った値）。`measured` のときは `corpus` に、測った集合の名前、点数、入力一覧のハッシュを入れる。ファイルのパスは入れない。
 
@@ -1369,6 +1377,7 @@ Ra = 0 のとき: 結果は (0, 0, 0, 0)
 
 #### 6.7.1 プレビュー
 
+- `layout: "review"` は1枚の装飾PNGを返す。先頭の選択フレームを背景ごとの実寸（screen枠があれば中央配置）、整数拡大、シルエット、付録BのLを0〜255へ整数換算した灰色版として並べる。背景未設定はchecker、review_scale未設定は4。guideは拡大像と同じ倍率で隣接させる。アニメーションは選択フレームをタグの再生順（有限repeat、無限は1周期）に並べ、タグ外の選択フレームも表示する。番号付きパネルと返却値`panels`で内容を識別する。実寸・指定倍率を保つためreviewは自動縮小せず、辺8192・面積16777216・再生4096コマの予算超過は生成前にE_LIMIT_EXCEEDED。大きい場合はframes/rectを絞る。格子・幽像・定規はreviewでは使わない。
 - `rect: {x, y, w, h}` はキャンバス内の非空矩形を原座標で切り出す。範囲外は `E_OUT_OF_CANVAS`。幽像・市松・格子は原座標の位相、定規は原座標の数字を保つ。strip/grid でも各フレームを同じ矩形で切る。auto は切り出した寸法を使い、CLI は `--rect x,y,w,h` を受ける。
 - `guide: {source, file, x: 0, y: 0, scale, mode: "side"}` は登録済み source の画像（file は登録パス、省略時は先頭）を右に並べるプレビュー装飾。file は CLI では正本ディレクトリ相対または登録実体の絶対パス、MCP では通常の workspace 相対パス規則に従い、返された files をそのまま指定できる。未登録ファイルは拒否する。x/y は原画の切り出し原点（非負）、scale は整数1〜64（省略時はプレビュー倍率）。合成の長辺1024制限では両側を同じ整数間隔で抽出する。原画の復号は formats 層で行い、正本・パレットを変更しない。`mode: "under"` と GUI 表示は v1.x。
 - `mutate` の Op は、引数 `preview` に従ってプレビューを作る [D-22]。`"path"`（既定）は画像を `.cybersprite/previews/` に書いてパスを返す。`"inline"` はそれに加えて画像そのものを返す（MCP では画像コンテンツ）。`"none"` は作らない。
@@ -1733,6 +1742,14 @@ Ra = 0 のとき: 結果は (0, 0, 0, 0)
 - `.aseprite` などの外部ファイルを直接入力にして書き出す一括変換（プロジェクトを作らない）は、CLI の `--input` で行う（§9.4）。
 
 ---
+
+### 8.9 実機向け書き出し（R1-E3）
+
+`export_native`（export、E）は`cybersprite.exporters`と同じ解決・preflight・一時ファイル・復号検査を使う。内蔵`gb-2bpp`は外部配布を要さず優先解決する。引数はformat/out、tilesetまたはlayer（片方必須）、overwrite、allow_invalid。palette_out/map_outは予約引数として受けるが、この版では指定時E_UNSUPPORTEDで書込み前に拒否する。layerは非group層の全frame（frame昇順、各frameは行優先8×8）、tilesetは空tile0を含むデータ番号順。寸法は8の倍数、最大65536タイル、量子化・切捨て・暗黙paddingをしない。
+
+1タイル16bytes。上から行rの2rが下位面、2r+1が上位面、左から画素xはbit7-x。slot0=transparent/sharedは`index mod row_size`、colorは`(index-1) mod row_size`。row_size=4とplatformが必要。Q-PLT-04およびbinary alpha/表現色検査はseverity=offやallow_invalidでも省略せず、構造・局所行・アルファ・寸法・色表現の不適合はE_VALIDATION_FAILEDまたはE_INVALID_ARGSでファイルを作らない。色の近似はしない。タイルごとのbank/slot表は呼出元文書から固定し、独立decoderの局所値をその表でRGBAに戻して、レンダラの8×8区画と全件比較する。このtile streamだけでVRAM・bank配置は決まらない。
+
+exporterの省略可能`verification_frames(document, render, options)`は通常の全frame照合に代わる厳密RGBA区画列を供給できる（実機形式用）。decoderと両方が必要で、共通経路がdisk bytesを読み戻して全区画照合する。
 
 ## 9. CLI 仕様
 
@@ -2115,6 +2132,8 @@ set_cel.linked は error/all/unlink（既定error）。リンク組のx/y/opacit
 
 ### 10.8 レイヤー
 
+ランプ関連の追加は§5.3.2。`get_palette.result.ramps`で定義を返し、`set_palette.ramps`で設定する。`shift_ramp`は描画と同じlayer/frame/region/maskにdirection=lighter/darkerと任意ramp名を足したmutate（N）。`outline.selective`の既定はfalse。
+
 | ツール | 引数（既定） | 動作と `result` | 冪等性 |
 |---|---|---|---|
 | `add_layer` | `name`、`type`（`"image"`）、`parent`（省略 = 最上位）、`position`（`"top"`。ほかに `"bottom"`、`{"above": レイヤー}`、`{"below": レイヤー}`）、`opacity`（255）、`blend_mode`（`"normal"`）、`visible`（true）、`continuous`（false）、`tileset`（`type: "tilemap"` のとき必須）、`if_exists`（`"error"`。ほかに `"reuse"` `"allow"`） | 同じ親の下に同じ名前のレイヤーが既にある場合、`"error"` は `E_EXISTS`（既存の `id` を詳細に入れる）、`"reuse"` は既存のものを返す、`"allow"` は同名で作る。`result`: `{id}` | C（`"reuse"` で I） |
@@ -2180,6 +2199,7 @@ set_cel.linked は error/all/unlink（既定error）。リンク組のx/y/opacit
 | `export_aseprite` | `out`、`verify`（true）、`allow_invalid`（false） | §8.5 | E |
 | `export_tileset` | `tileset`、`out`、`data_out`、`layout`、`columns`、`spacing`、`border`、`scale`、`include_empty`（false） | §8.7 | E |
 | `export_palette` | `out`、`format`（拡張子から。`gpl` `pal` `hex` `png`） | §8.2 | E |
+| `export_native` | `format`（`gb-2bpp`）、`out`、`layer`または`tileset`、`overwrite`（true）、`allow_invalid`（false）、予約`palette_out/map_out` | §8.9。共通結果、独立decoder必須、表現不能は強行不可 | E |
 | `list_sources` | — | `{sources: [{id, kind, provider, license, accepted, placements}]}` | R |
 | `get_source` | `id`、`include_report`（false） | マニフェストの 1 件。`include_report: true` でパイプライン報告も付ける | R |
 | `list_generators` | — | `{backends: [{name, available, reason, models}]}` | R |
@@ -2896,7 +2916,7 @@ tests/golden/<ケース名>/
 | `cybersprite.generators` | 生成バックエンド | §12.3 | 対応 |
 | `cybersprite.validators` | 品質ルール | 規則 ID（`Q-<提供者>-nn`）、既定の水準、`check(document, frame_range) -> issues, metrics` | 対応 |
 | `cybersprite.palettes` | パレットのプリセット集 | 名前、色、ライセンスの表示 | 対応 |
-| `cybersprite.platforms` | 宣言的な機種プロファイル | REVIEW_1 §3.1 H-01。共通機構はメタデータ列挙のみを予約する | M11（解決はプラットフォーム工程） |
+| `cybersprite.platforms` | 宣言的な機種プロファイル | REVIEW_1 §3.1 H-01。共通PluginManagerで有効設定/APIを検査し、ID→JSON定義のfactoryを読む | M11 / R1-E3接合済み |
 | GUI の拡張（テーマ、パネル） | テーマは CSS 変数の差し替え、パネルは v1.x で設計 | — | v1.x |
 
 ### 15.2 規則
@@ -3087,11 +3107,17 @@ H-01〜04、H-12前半、H-20。前提はR1-03/04/07/09/10/12/13/18。受け入�
 
 H-06指標、H-07〜09、H-11、H-13〜17、H-19。最初にR1-06の実生成入力を検証。受け入れ: 標準工程でDS級を1体作り直し、発注者が見て合否を決める。
 
+R1-E3はH-08のreviewシートとH-06の整数指標を実装する。reviewのframes未指定は全frame、明示指定はその集合のタグ順を使う。中立パネルの意匠確認と制作物の合否はOpus・発注者の工程であり、機能試験だけでM12の制作受け入れ完了とはしない。
+
 #### M13: 機種仕様の深掘りと生成の拡張
 
 H-05、H-06部品、H-10、H-12後半、H-16後半、H-21/22。残るcgb/nes/sfc/md/gba、行・タイル予算、実機出力、ずれつきリンク、ランプ、計測、GPU/ComfyUI。1.0か1.xかは発注者が決める。
 
+R1-E3の表示系は各機種の代表的な非変形spriteモードを既定とする。cgbは8行×4、sfcは4bpp・8行×16・通常の正方形物体、mdはH40/224・4行×16・各辺8〜32の8刻み、gbaは標準4bpp・16行×16・12物体寸法。画面はそれぞれ160×144、256×224、320×224、240×160。RGBはcgb/sfc/gbaが5bit、mdが3bitのreplicate展開（実モニターの測色値を主張しない）。nesは256×240・4行×4・8×8/8×16・tile8×8/2bpp・反転x/y、512タイルを代表予算とするが、RGB色表を内蔵しない。利用者が登録済み`master_palette`または明示`master_colors`を提供しない解決はE_INVALID_ARGS。背景の16×16共有行は利用者定義でunit=block、slot0=sharedを指定する。代表モード以外は利用者定義で上書きする。VRAM割付、走査線制限、同時選択できる物体寸法の組は扱わない。
+
 ### 16.5 レビューループ（最大 3 回）
+
+R1-E3の完了境界はreview・craft・行/タイル検査・代表機種・gb-2bpp・rampsまで。H-12後半offset links、H-10 analyze、追加native形式gba-4bpp/rgb555-le、palette_out/map_outはM13-later/v1.xへ延期する（I-1515）。
 
 1. M10 の完了後、オーケストレーターが `docs/REVIEW_REQUEST_<n>.md` を書く（できたこと、既知の不足、テスト結果、動かし方）。
 2. Fable 5.2 がレビューし、`docs/REVIEW_<n>.md` に指摘を書く。指摘 1 件の内容: 番号、重大度（`blocker` / `major` / `minor` / `suggestion`）、仕様の節、根拠（再現手順やファイル）、期待する状態。
@@ -3443,12 +3469,12 @@ L = (M2i[0][0] × l' + M2i[0][1] × m' + M2i[0][2] × s' + 32768) >> 16      （
 | `E_NOT_PALETTE_CLOSED` | パレット閉包でない | 原因のレイヤー、セル、色 |
 | `E_NEEDS_QUANTIZE` | 量子化の指定が必要 | 色数 |
 | `E_LIMIT_EXCEEDED` | 上限を超えた | 上限と要求値 |
-| `E_UNSUPPORTED` | 対応していない | 対応していない要素 |
+| `E_UNSUPPORTED` | 対応していない | 対応していない要素。export_nativeの未実装palette_out/map_outも含む |
 | `E_REVISION_CONFLICT` | リビジョンが期待と違う | 現在のリビジョン |
 | `E_LOCKED` | 他の処理が編集中 | ロックの持ち主 |
 | `E_NOTHING_TO_UNDO` / `E_NOTHING_TO_REDO` | 取り消す・やり直すものがない | |
 | `E_HISTORY_UNAVAILABLE` | 必要な履歴が残っていない | リビジョン |
-| `E_VALIDATION_FAILED` | 検証が通っていないため拒否した | エラー水準の指摘 |
+| `E_VALIDATION_FAILED` | 検証が通っていないため拒否した | エラー水準の指摘。nativeの行/slot/色/alphaの表現不能はallow_invalidでも拒否 |
 | `E_INVARIANT` | 適用後に構造不変条件が破れた（実装の不具合） | 規則 ID |
 | `E_PATH_NOT_ALLOWED` | 許可されていないパス | 許可されているディレクトリ。予約領域への書き出しは `reason: "protected_project_file"`、`path`、`project` |
 | `E_IO` | 読み書きの失敗 | パス、OS のエラー |

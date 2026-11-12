@@ -1,0 +1,16 @@
+{
+  "id": "gba",
+  "title": "GBA-class standard 4bpp sprite display",
+  "preset_version": 1,
+  "extends": "nds",
+  "system": {
+    "id": "gba",
+    "screen": {
+      "w": 240,
+      "h": 160
+    },
+    "object": {
+      "notes": "Standard non-affine mode; 8bpp requires an explicit platform override."
+    }
+  }
+}
