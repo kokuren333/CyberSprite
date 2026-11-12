@@ -68,3 +68,10 @@ def test_gui_region_uses_current_core_render(tmp_path):
     )
     expected = render(load_project(project), 0, {"crop": {"x": 1, "y": 1, "w": 1, "h": 1}})
     assert base64.b64decode(actual["frames"][0]["rgba"]) == expected.tobytes()
+
+
+def test_gui_cache_preserves_missing_project_error(tmp_path):
+    service = Service(tmp_path)
+    with pytest.raises(CyberSpriteError) as error:
+        service.read_project(tmp_path / "missing.csprite")
+    assert error.value.code == "E_PROJECT_NOT_FOUND"

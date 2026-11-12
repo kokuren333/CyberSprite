@@ -15,7 +15,7 @@ from starlette.websockets import WebSocketDisconnect
 
 from cybersprite import ops
 from cybersprite.core import history
-from cybersprite.core.canonical import loads_project, project_path
+from cybersprite.core.canonical import load_project, loads_project, project_path
 from cybersprite.core.errors import CyberSpriteError, invalid
 from cybersprite.core.models import Rect
 from cybersprite.core.quality import cached_frame_rgba
@@ -61,7 +61,11 @@ class Service:
     def read_project(self, project):
         # Read the actual bytes every time. A same-size external edit (even with
         # a restored timestamp) must never reuse a stale parsed model.
-        data = (project / "project.json").read_bytes()
+        try:
+            data = (project / "project.json").read_bytes()
+        except OSError:
+            # Preserve the core's specific missing-project and IO errors.
+            return load_project(project)
         cached = self.models.get(project)
         if cached is not None and data == cached[0]:
             return cached[1]
