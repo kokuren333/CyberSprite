@@ -126,6 +126,7 @@ def test_dry_run_places_once_in_memory_without_lock_or_source(setup, monkeypatch
     real = ops.execute("import_image", project, args, preview="none")
     assert real["revision"] == result["revision"]
     assert real["changed"] == result["changed"]
+    assert real["validation"] == result["validation"]
     assert len(load_project(project).frames) == 3
 
 
