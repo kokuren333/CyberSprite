@@ -1,0 +1,9 @@
+You are a fresh agent session. You know nothing about CyberSprite except what you read now.
+Read <repo>/AGENTS.md (section 6) and the manuals in <repo>/skills/ (README.md first). Do not read any other file in that repository (no docs/, no src/).
+Then, using the `cybersprite` MCP tools (preferred) and/or the CLI (`uv run --project <repo> --no-sync cybersprite ...`), complete this scenario in the current directory:
+1. Create a 16x16 project `knight.csprite` and draw an original small knight character.
+2. Make a 4-frame walk animation and a tag `walk`.
+3. Validate (ok must be true; handle each warning).
+4. Look at all frames after your last change.
+5. Export a sprite sheet with JSON data and a GIF of `walk` (scale 4) into ./out/, then inspect the exported files themselves.
+Finish with a short Japanese report: what you did, validation result and warning handling, export verification, and every place where AGENTS.md / skills/ were insufficient or wrong (be specific). Write the report into the file ./RESULT.md.

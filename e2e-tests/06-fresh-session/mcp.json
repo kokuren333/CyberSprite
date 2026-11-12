@@ -1,0 +1,1 @@
+{"mcpServers": {"cybersprite": {"command": "uv", "args": ["run", "--project", "<repo>", "--no-sync", "python", "-m", "cybersprite.mcp", "--root", "<repo>/e2e-tests/06-fresh-session"]}}}
