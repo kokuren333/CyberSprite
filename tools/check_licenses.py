@@ -95,6 +95,23 @@ def license_files(dist) -> list[tuple[str, str]]:
 
 def identify_license(dist) -> tuple[str, str]:
     name = canonicalize_name(dist.metadata["Name"])
+    texts = license_files(dist)
+    # Distribution-level classifiers can omit licenses of bundled Python modules
+    # (pywin32/adodbapi), or mislabel MIT No Attribution as MIT (cffi 2.0.0).
+    # Fail closed on the actual grant before accepting aggregate metadata (I-356).
+    for path, text in texts:
+        heading = " ".join(text.split())
+        for title, spdx in (
+            ("GNU LESSER GENERAL PUBLIC LICENSE Version 2.1", "LGPL-2.1-only"),
+            ("GNU LESSER GENERAL PUBLIC LICENSE Version 3", "LGPL-3.0-only"),
+            ("GNU GENERAL PUBLIC LICENSE Version 2", "GPL-2.0-only"),
+            ("GNU GENERAL PUBLIC LICENSE Version 3", "GPL-3.0-only"),
+            ("GNU AFFERO GENERAL PUBLIC LICENSE Version 3", "AGPL-3.0-only"),
+        ):
+            if heading.startswith(title):
+                return spdx, f"Bundled license grant: {path}; metadata is not sufficient"
+        if "MIT No Attribution" in text and "Permission is hereby granted, free of charge" in text:
+            return "MIT-0", path
     if (name, dist.version) in REVIEWED_EXCEPTIONS:
         return REVIEWED_EXCEPTIONS[name, dist.version]
     expression = dist.metadata.get("License-Expression", "")
@@ -117,7 +134,6 @@ def identify_license(dist) -> tuple[str, str]:
     for suffix, spdx in sorted(mapping.items(), key=lambda item: item[1] in ALLOWED):
         if any(item.endswith(" :: " + suffix) for item in classifiers):
             return spdx, "License classifier"
-    texts = license_files(dist)
     # Recognize complete standard grants, never an arbitrary mention of a license name.
     for path, text in texts:
         if text.lstrip().startswith("Mozilla Public License Version 2.0"):
@@ -183,11 +199,17 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--include-dev", action="store_true")
     parser.add_argument("--include-build", action="store_true")
+    parser.add_argument("--extra", action="append", default=[], help="Audit an installed extra.")
     args = parser.parse_args()
     project = tomllib.loads(
         (Path(__file__).resolve().parents[1] / "pyproject.toml").read_text(encoding="utf-8")
     )
     roots = list(project["project"]["dependencies"])
+    for extra in args.extra:
+        optional = project["project"].get("optional-dependencies", {})
+        if extra not in optional:
+            parser.error(f"Unknown extra {extra!r}; choose from {', '.join(sorted(optional))}.")
+        roots.extend(optional[extra])
     if args.include_dev:
         roots.extend(project["dependency-groups"]["dev"])
     build_roots = list(project["build-system"]["requires"]) if args.include_build else []

@@ -10,7 +10,7 @@ from cybersprite.formats.palette_files import presets
 class PathPolicy:
     def __init__(self, root, allow_dir=()):
         self.root = Path(root).resolve()
-        self.allowed = (self.root, *(Path(p).resolve() for p in allow_dir))
+        self.allowed = (self.root, *((self.root / Path(p)).resolve() for p in allow_dir))
 
     def resolve(self, value):
         path = Path(value)
@@ -19,8 +19,11 @@ class PathPolicy:
             candidate = os.path.normcase(str(path))
             for parent in self.allowed:
                 base = os.path.normcase(str(parent))
-                if os.path.commonpath([candidate, base]) == base:
-                    return path
+                try:
+                    if os.path.commonpath([candidate, base]) == base:
+                        return path
+                except ValueError:  # Distinct Windows volumes cannot share a parent.
+                    continue
         except (OSError, ValueError, RuntimeError):
             pass
         raise CyberSpriteError(
@@ -31,7 +34,14 @@ class PathPolicy:
         )
 
     def relative(self, path):
-        return Path(os.path.relpath(self.resolve(path), self.root)).as_posix()
+        try:
+            return Path(os.path.relpath(self.resolve(path), self.root)).as_posix()
+        except ValueError as error:
+            raise CyberSpriteError(
+                "E_PATH_NOT_ALLOWED",
+                "Path cannot be represented relative to root across volumes.",
+                "Restart the server with root on the same volume as the requested path.",
+            ) from error
 
     def check_project(self, project, check=lambda: None):
         """Check derived history/source paths too, without following directory links."""

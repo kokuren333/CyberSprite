@@ -72,6 +72,7 @@ def test_allow_dir_and_relative_result(tmp_path):
     result = service.call("new_project", {"project": str(extra / "p"), "width": 1, "height": 1})
     assert not result.is_error
     assert result.structured_content["project"] == "../extra/p"
+    assert PathPolicy(root, ["../extra"]).resolve(extra / "q") == extra / "q"
     if os.name == "nt":
         assert PathPolicy(root).resolve(str(root).swapcase()) == root
 
