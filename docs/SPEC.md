@@ -1926,7 +1926,7 @@ MCP ではツール実行エラー（`isError: true`）として返す。プロ�
 
 ### 10.12 取り込み、書き出し、生成
 
-`add_source`（ingest、N）は `files`（画像パスまたは配列）と `provenance`（import と同じ、license 必須、unknown 可）で原画像を source/ に登録し、`use: "design"` を記録する。キャンバス・パレット・revision・project.json は変えない。`result: {source, files}`。未作成の正本にも登録できる。dry_run は検査だけで保存しない。expect_revision は既存正本に照合し、idempotency_key の再送は source の登録を重複させない。
+`add_source`（ingest、N）は `files`（画像パスまたは配列）と `provenance`（import と同じ、license 必須、unknown 可）で原画像を source/ に登録し、`use: "design"` を記録する。キャンバス・パレット・revision・project.json は変えない。`result: {source, files}`。未作成の正本にも登録できる。dry_run は検査だけで保存しない。idempotency_key を先に照合して再送は保存済み応答を返し、未登録キーの場合だけ expect_revision を既存正本に照合する。source の登録を重複させない。
 
 `import_image` は未作成のプロジェクトにも直接使える。受理時の自動作成と、初回取り込みの undo 後の再取り込みは §11.11 に従う。
 

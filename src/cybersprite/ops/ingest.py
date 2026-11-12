@@ -167,12 +167,6 @@ def add_source_top(path, args, tx, actor):
     try:
         with nullcontext() if tx.dry_run else history.ProjectLock(root, actor):
             revision = load_project(root).revision if project_path(root).exists() else 0
-            if tx.expect_revision is not None and tx.expect_revision != revision:
-                fail(
-                    "E_REVISION_CONFLICT",
-                    "Source registration revision does not match.",
-                    current_revision=revision,
-                )
             replay_path = None
             fingerprint = sha256(metadata_bytes(args.model_dump())).hexdigest()
             if tx.idempotency_key:
@@ -187,6 +181,12 @@ def add_source_top(path, args, tx, actor):
                     result = saved["result"]
                     result["replayed"] = True
                     return result
+            if tx.expect_revision is not None and tx.expect_revision != revision:
+                fail(
+                    "E_REVISION_CONFLICT",
+                    "Source registration revision does not match.",
+                    current_revision=revision,
+                )
             inputs = [args.files] if isinstance(args.files, str) else args.files
             captured = []
             for file in inputs:

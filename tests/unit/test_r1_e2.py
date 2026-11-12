@@ -353,6 +353,31 @@ def test_add_source_provenance_guide_and_byte_invariance(root, tmp_path):
         execute("render_preview", root, {"guide": {"source": stored.id, "file": "../design.png"}})
 
 
+def test_source_retry_precedes_revision_check(root, tmp_path):
+    file = tmp_path / "design.png"
+    file.write_bytes(encode_png(np.full((2, 2, 4), 255, dtype=np.uint8)))
+    args = {"files": str(file), "provenance": {"license": "unknown"}}
+    added = execute("add_source", root, args, idempotency_key="retry", expect_revision=0)
+    op(root, "set_pixel", **DRAW, x=1, y=1, color=1)
+    before = (root / "project.json").read_bytes()
+    replay = execute("add_source", root, args, idempotency_key="retry", expect_revision=0)
+    assert replay["replayed"] and replay["result"] == added["result"]
+    assert (root / "project.json").read_bytes() == before
+    assert len(read_manifest(root).sources) == 1
+    with pytest.raises(CyberSpriteError) as error:
+        execute("add_source", root, args, idempotency_key="new", expect_revision=0)
+    assert error.value.code == "E_REVISION_CONFLICT"
+    with pytest.raises(CyberSpriteError) as error:
+        execute(
+            "add_source",
+            root,
+            {**args, "provenance": {"license": "CC0-1.0"}},
+            idempotency_key="retry",
+            expect_revision=0,
+        )
+    assert error.value.code == "E_INVALID_ARGS"
+
+
 def test_design_header_limit_precedes_pixel_decode(monkeypatch):
     from unittest.mock import MagicMock
 
