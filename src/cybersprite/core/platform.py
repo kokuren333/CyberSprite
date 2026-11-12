@@ -84,6 +84,8 @@ class Flips(Data):
 
 
 class TileSpec(Size):
+    w: Annotated[int, Field(ge=1, le=256)] = 1
+    h: Annotated[int, Field(ge=1, le=256)] = 1
     bpp: Annotated[int, Field(ge=1, le=8)] | None = None
     flips: Flips = Field(default_factory=Flips)
     unique_max: Positive | None = None
