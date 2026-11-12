@@ -22,6 +22,22 @@ Apache-2.0, Copyright 2026 Mattt <https://mat.tt>. Its wheel contains LICENSE
 and no separate NOTICE; its code is not bundled in the CyberSprite wheel.
 Runtime and development dependency records are in third_party/THIRD_PARTY.md.
 
+Images with unknown usage terms
+-------------------------------
+The repository contains test and record images made with an image generator
+(Codex imagegen) whose model and output usage terms are recorded as "unknown":
+  - tests/pipeline/corpus/generated/ (16 calibration images; prompts, dates and
+    SHA-256 in its README.md and manifest.json), and
+  - e2e-tests/07-ds-turnaround/ (generated design originals, and the review
+    sheets, stage images and exports that show or derive from them; provenance
+    in each project's source/manifest.json and RECORD.md).
+These images are not offered under the Apache License, Version 2.0, and no
+license is claimed for them. They are excluded from the wheel and the sdist.
+The generator's terms as understood are recorded in third_party/THIRD_PARTY.md
+(L-12). The source records of the e2e-tests/03 and 04 round-trip projects say
+"unknown" only because the import default was used; those images were drawn in
+this project and are covered by Apache-2.0 like the rest of the repository.
+
 Algorithm references
 --------------------
 The fixed-point colour distance specified in docs/SPEC.md (Appendix B) uses the

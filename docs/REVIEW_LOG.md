@@ -17,7 +17,7 @@
 
 重複台帳の状態ずれを避け、全32 Fable・全8 Codex指摘の状態、対応先、延期理由は [FIX_ROUND_1_REPORT §4](FIX_ROUND_1_REPORT.md) を本ログの対応表として参照する（I-1945）。設計分岐とI番号は同§5、現在の未完はKNOWN_ISSUES。fixedは指定修正済み、partiallyは条件残、deferredは理由付き延期、not addressedは未着手を表す。
 
-- Fable: fixed23 / partially7 / deferred2 / not addressed0。
+- Fable: fixed24 / partially6 / deferred2 / not addressed0（FIX_ROUND_1_REPORT §4 の総括に合わせた。2026-11-12 公開前仕上げで R2-25 の指摘を反映。REVIEW_2 の判定では解消 20・部分 10・未解消 2）。
 - Codex: fixed7 / partially1 / deferred0 / not addressed0。
 - 延期した実装はR1-17/30（専用GUI／設定）、importers、H-10 analyze、H-12後半offset links、追加native/sidecarsなど。関門95%と性能目標は下げず未達を記録。
 - I-010/I-012事後承認、最終CI、e2e-07人間判定は待ち。connectorは未決ではなく後続発注指示で標準化済み。

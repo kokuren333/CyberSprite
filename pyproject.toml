@@ -42,6 +42,8 @@ artifacts = ["src/cybersprite/server/static/**"]
 
 [tool.hatch.build.targets.sdist]
 artifacts = ["src/cybersprite/server/static/**"]
+# Generated images whose usage terms are unknown stay in the repository only (NOTICE, I-2004).
+exclude = ["/e2e-tests", "/tests/pipeline/corpus/generated"]
 
 [tool.ruff]
 target-version = "py312"

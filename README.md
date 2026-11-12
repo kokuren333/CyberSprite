@@ -3,8 +3,8 @@
 AI エージェントが、ピクセル単位で正確にドット絵とドットアニメーションを作るための制作環境。
 An agent-first pixel art and sprite animation environment. Pixel-perfect by construction.
 
-> **現在の状態 / Status**: CLI、MCP、ローカル GUI、画像変換、タイルマップ、アニメーションと `.aseprite` 入出力を実装済み。M10 の配布・検証整備中です。Windows で検証し、Linux CI は未実行です。既知の不足は [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md)。
-> Implemented and tested on Windows; release verification is in progress. Linux CI results are pending. See the known issues before use. The source of truth is [`docs/SPEC.md`](docs/SPEC.md) (Japanese).
+> **現在の状態 / Status**: 1.0 より前の開発版です。CLI、MCP、ローカル GUI、画像変換、タイルマップ、アニメーション、`.aseprite` 入出力と、配布物の検証（M0〜M10）を実装し、修正ラウンド 1 と 2 回目のレビューを終えました。CI は Windows と Linux（Ubuntu）の Python 3.12 / 3.13、GUI は Windows と Ubuntu 24.04 で実行しています。PyPI などへの配布はまだです。既知の不足は [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md)。
+> Pre-1.0 development version. Milestones M0–M10 are implemented and CI runs on Windows and Linux (Python 3.12 / 3.13; GUI on Windows and Ubuntu 24.04). Not yet published to a package registry. See the known issues before use. The source of truth is [`docs/SPEC.md`](docs/SPEC.md) (Japanese).
 
 ---
 
@@ -111,6 +111,7 @@ cybersprite gui demo.csprite --no-browser
 - 組み込む OSS は、Apache-2.0 の成果物に組み込めるパーミッシブライセンス（MIT、BSD、Apache-2.0、ISC、Zlib、HPND など）のものに限ります。**GPL / LGPL / AGPL のコードは取り込みません。** 必須の依存にもしません。
 - **画像生成モデルの重みは同梱しません。** 利用者が自分でダウンロードし、モデルのライセンスを確認・承諾したうえで使います。承諾とモデルの情報は、生成物の来歴に記録されます。
 - 組み込み OSS の一覧は [`third_party/THIRD_PARTY.md`](third_party/THIRD_PARTY.md) にあります。
+- リポジトリには、画像生成器で作った、利用条件が `unknown` の試験用画像があります（`tests/pipeline/corpus/generated/` と `e2e-tests/07-ds-turnaround/`）。これらは Apache-2.0 の対象に含めず、wheel と sdist にも入れません。詳細は [`NOTICE`](NOTICE)。
 
 ## クリーンルーム開発
 
@@ -134,6 +135,7 @@ CyberSprite is an open-source (Apache-2.0) pixel art and sprite animation enviro
 - **Conversion pipeline.** Generated or imported rasters go through grid detection, downsampling, palette lock, cleanup and validation before they may touch the canvas. Provenance is recorded.
 - **Clean-room.** Aseprite is referenced for features only, through its public documentation. No code, icons, assets or documentation text from Aseprite, LibreSprite or any other product is used. CyberSprite is not affiliated with Aseprite or Igara Studio.
 - **No bundled model weights.** Only permissively licensed code is incorporated; no GPL/LGPL/AGPL code.
+- **Generated test images with unknown usage terms** (`tests/pipeline/corpus/generated/`, `e2e-tests/07-ds-turnaround/`) are not offered under Apache-2.0 and are not in the wheel or sdist; see [`NOTICE`](NOTICE).
 
 The specification (in Japanese) is in [`docs/SPEC.md`](docs/SPEC.md).
 
