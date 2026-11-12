@@ -39,14 +39,14 @@ class ConfiguredBackend:
             )
         if alias not in models:
             raise invalid("Select a configured model alias.", candidates=sorted(models))
-        return model_info(models[alias], alias)
+        return model_info(models[alias], alias, registered=models)
 
     def list_models(self):
         result = []
         for alias in sorted(self.settings.models):
             setting = self.settings.models[alias]
             try:
-                info = model_info(setting, alias)
+                info = model_info(setting, alias, registered=self.settings.models)
             except CyberSpriteError:
                 from .contracts import ModelInfo
 

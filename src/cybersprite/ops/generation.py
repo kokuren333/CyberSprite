@@ -1,5 +1,7 @@
 """Registry definitions for source-only generation and backend inspection."""
 
+from typing import Literal
+
 from pydantic import Field
 
 from cybersprite.core.errors import invalid
@@ -18,6 +20,11 @@ class BackendResult(Model):
 class GenerationResult(Model):
     sources: list[str] = Field(description="Generated source IDs for a later import_image call.")
     files: list[str] = Field(description="Project-relative generated original file paths.")
+    use: Literal["design", "canvas"]
+    model_terms: list[dict] = Field(
+        description="License badges and messages for models, adapters and bases."
+    )
+    message: str = Field(description="Plain-text terms for the GUI generation result.")
 
 
 def _top_only(_ctx, _args):

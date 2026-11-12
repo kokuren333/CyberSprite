@@ -5,13 +5,17 @@ from cybersprite.core.errors import CyberSpriteError, invalid
 from cybersprite.plugins import PluginManager
 
 from .backends import CommandBackend, DiffusersBackend
+from .comfyui import ComfyUIBackend
 from .contracts import Availability
 
 
 class BackendRegistry:
     def __init__(self, settings=None):
         self.settings = settings or load_config()
-        self.builtins = {"diffusers": DiffusersBackend(self.settings.generators.diffusers)}
+        self.builtins = {
+            "diffusers": DiffusersBackend(self.settings.generators.diffusers),
+            "comfyui": ComfyUIBackend(self.settings.generators.comfyui),
+        }
         for name in sorted(self.settings.generators.command):
             backend = CommandBackend(name, self.settings.generators.command[name])
             self.builtins[backend.name] = backend
