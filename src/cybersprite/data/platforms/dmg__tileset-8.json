@@ -1,6 +1,6 @@
 {
   "id": "dmg/tileset-8",
-  "preset_version": 1,
+  "preset_version": 2,
   "title": "DMG-class tileset-8",
   "extends": "dmg",
   "asset": {

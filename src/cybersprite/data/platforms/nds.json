@@ -1,6 +1,6 @@
 {
   "id": "nds",
-  "preset_version": 1,
+  "preset_version": 2,
   "title": "NDS-class 4bpp display",
   "extends": "free",
   "system": {
@@ -101,6 +101,13 @@
       "#00000000",
       "#000000ff",
       "#ffffffff"
+    ]
+  },
+  "craft": {
+    "basis": "authored",
+    "ramp_steps": [
+      1,
+      5
     ]
   }
 }

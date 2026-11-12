@@ -1,6 +1,6 @@
 {
   "id": "dmg/sprite-16",
-  "preset_version": 1,
+  "preset_version": 2,
   "title": "DMG-class sprite-16",
   "extends": "dmg",
   "asset": {
