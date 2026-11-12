@@ -97,5 +97,6 @@ def describe(op):
         definition.get("properties", {}).pop("images", None)
     failure = Failure.model_json_schema()
     defs = {**success.pop("$defs", {}), **failure.pop("$defs", {})}
-    value["outputSchema"] = {"oneOf": [success, failure], "$defs": defs}
+    # Root "type": "object" is required by older MCP protocol versions (e.g. 2025-06-18).
+    value["outputSchema"] = {"type": "object", "oneOf": [success, failure], "$defs": defs}
     return value
