@@ -17,7 +17,14 @@ from cybersprite.core.palette_units import resources, violations
 from cybersprite.core.pixels import pixels_to_rows
 from cybersprite.core.projects import new_project
 from cybersprite.core.quality import report, validation_delta
-from cybersprite.core.review_sheet import luminance, playback_frames, review_sheet
+from cybersprite.core.review_sheet import (
+    LETTERS,
+    caption,
+    label_text,
+    luminance,
+    playback_frames,
+    review_sheet,
+)
 from cybersprite.formats.png import decode_png
 from cybersprite.platforms import plugin_definitions, resolve
 from cybersprite.plugins import PluginManager
@@ -252,6 +259,35 @@ def test_review_design_zoom_same_row_and_exact_scale():
     reference = next(v for v in panels if v["kind"] == "design")
     assert zoom["y"] == reference["y"] and zoom["scale"] == reference["scale"] == scale
     assert image[reference["y"], reference["x"]].tolist() == [80, 80, 80, 255]
+
+
+def test_review_captions_frames_and_silhouette_ground():
+    p = project([[1, 0], [0, 1]])
+    p.frames.append(p.frames[0].model_copy())
+    p.tags = [Tag(id="T1", name="idle-é", **{"from": 0, "to": 1})]
+    image, scale, panels = review_sheet(p, [0, 1])
+    kinds = {v["kind"]: v for v in panels}
+    assert [caption(v, {"T1": "idle-é"}) for v in panels] == [
+        "SCREEN 1X",
+        "ZOOM 4X",
+        "SILHOUETTE",
+        "LIGHTNESS",
+        "PLAY 1X IDLE-",
+    ]
+    assert label_text("a/é?") == "A/" and set("0123456789") <= set(LETTERS)
+    for kind in ("zoom", "silhouette", "luminance"):
+        v = kinds[kind]
+        # The neutral one-pixel frame sits just outside the image area on every side.
+        assert image[v["y"] - 1, v["x"] - 1].tolist() == [96, 96, 96, 255]
+        assert image[v["y"] + v["h"], v["x"] + v["w"]].tolist() == [96, 96, 96, 255]
+    silhouette = kinds["silhouette"]
+    assert image[silhouette["y"], silhouette["x"]].tolist() == [32, 32, 32, 255]
+    assert image[silhouette["y"], silhouette["x"] + scale].tolist() == [255, 255, 255, 255]
+    # Labels sit in the band above each panel and never inside its image area.
+    zoom = kinds["zoom"]
+    band = image[zoom["y"] - 10 : zoom["y"] - 1, zoom["x"] - 1 : zoom["x"] + zoom["w"]]
+    assert (band[:, :, 0] == 32).any()
+    assert all(v["x"] >= 6 and v["y"] >= 15 for v in panels)
 
 
 def test_review_screen_frame_never_silently_expands():
