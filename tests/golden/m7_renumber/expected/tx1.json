@@ -1,0 +1,57 @@
+{
+  "ok": true,
+  "op": "set_tile_pixels",
+  "project": "golden.csprite",
+  "revision": {
+    "before": 1,
+    "after": 2
+  },
+  "no_op": false,
+  "replayed": false,
+  "dry_run": false,
+  "result": {
+    "tile": 1
+  },
+  "changed": {
+    "data": true,
+    "frames": [
+      {
+        "frame": 0,
+        "pixels_changed": 8,
+        "bbox": {
+          "x": 3,
+          "y": 2,
+          "w": 20,
+          "h": 3
+        }
+      },
+      {
+        "frame": 1,
+        "pixels_changed": 8,
+        "bbox": {
+          "x": 3,
+          "y": 2,
+          "w": 20,
+          "h": 3
+        }
+      }
+    ],
+    "layers": [],
+    "linked_frames": [],
+    "clipped_pixels": 0
+  },
+  "validation": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "new_issues": [],
+    "resolved_issues": [],
+    "metrics_delta": {}
+  },
+  "preview": {
+    "paths": [],
+    "scale": 1,
+    "omitted_frames": []
+  },
+  "warnings": []
+}

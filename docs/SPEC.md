@@ -745,7 +745,7 @@ hero.csprite/
 | `name` | 文字列 | — | 名前 |
 | `tile_w` / `tile_h` | 整数 1〜256 | — | タイルの大きさ |
 | `base_index` | 整数 | 1 | GUI で表示するときの開始番号（表示だけに使う。データ上の番号は常に 0 始まり） |
-| `match_flips` | `{x, y, d}`（真偽） | すべて false | 自動モードでタイルを探すとき、反転した既存タイルを同じものとみなすか（v1.x の自動モードで使う。v1 では保持するだけ） |
+| `match_flips` | `{x, y, d}`（真偽） | すべて false | 反転した既存タイルを同じものとみなすか。v1 は `tileset_from_layer` の重複統合で使い、v1.x の自動モードでも使う |
 | `user_data` | オブジェクト | 省略可 | |
 | `tiles` | 配列（1 個以上） | — | 位置がタイル番号。各要素は `{"pixels": [...]}` と、省略可の `user_data` |
 
@@ -1746,6 +1746,7 @@ cybersprite mcp serve [--root <ディレクトリ>] [--allow-dir <ディレク�
 
 - `result` は Op 固有の値（この章の各表の「`result`」欄）。
 - `changed.frames[].pixels_changed` は、合成結果（RGBA）で変わったピクセル数。`changed.data` は、見た目が変わらなくてもモデルが変わったら true。
+- `changed.frames` は合成ピクセルが変わったフレームだけを含む。名前・表示時間・インデックスの付け替え等で合成結果が変わらなければ空配列とし、モデルの変更は `changed.data` で示す。
 - `validation` は**検証デルタ**である（§13.4）。全体の報告は `validate` で取る。`ok`、`errors`、`warnings` はコミット後の全体の状態を表す。
 - `apply_ops` の `result` は `{"results": [各 Op の result]}`。
 
@@ -1871,9 +1872,10 @@ MCP ではツール実行エラー（`isError: true`）として返す。プロ�
 
 | ツール | 引数（既定） | 動作と `result` | 冪等性 |
 |---|---|---|---|
-| `add_tileset` | `name`、`tile_w`、`tile_h`、`base_index`（1）、`if_exists`（`"error"`） | 空タイル（番号 0）だけを持つタイルセットを作る。`result`: `{id}` | C |
+| `add_tileset` | `name`、`tile_w`、`tile_h`、`base_index`（1）、`if_exists`（`"error"`。ほかに `"reuse"` `"allow"`） | 空タイル（番号 0）だけを持つタイルセットを作る。同名があれば error は既存ID付き E_EXISTS、reuse は配列順で最初の既存セットを返し、allow は同名を作る。`result`: `{id}` | C |
 | `set_tile_pixels` | `tileset`、`tile`（番号、または `"new"`）、`rows`、`format`（`"hex"`） | タイルの中身を書く。`"new"` は末尾に追加する。番号 0 は変更できない（`E_INVALID_ARGS`）。`result`: `{tile}` | C（番号指定で I、`"new"` は N） |
 | `delete_tiles` | `tileset`、`tiles`（番号の配列）、`on_used`（`"error"`。ほかに `"clear"`） | 消したタイルより後ろの番号を詰め、全タイルマップセルの参照を付け替える。使われているタイルは、`"clear"` なら参照を空タイルにしてから消す | N |
+| `move_tiles` | `tileset`、`from`、`to`（両端を含む番号）、`before`（移動前の番号、末尾はタイル数） | 連続したタイルを `before` の前へ移動し、全タイルマップセルの参照を付け替える。空タイル 0 は移動できず、その前にも置けない。`result`: `{mapping}`（旧番号の文字列 → 新番号） | N |
 | `set_tile` | `layer`、`frame`、`col`、`row`、`tile`、`flip`（`""`。`x` `y` `d` の組み合わせ。例 `"xy"`） | | I |
 | `set_tiles` | `layer`、`frame`、`col`、`row`、`rows`（§5.2.3 のタイル参照の行） | 左上 `(col, row)` から書く | I |
 | `get_tiles` | `layer`、`frame`、`rect`（タイル単位。省略時はセル全体） | `{col, row, w, h, rows, tileset}` | R |

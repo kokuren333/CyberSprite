@@ -173,8 +173,9 @@ def test_class_i_second_call_is_no_op(project, name):
 
 def test_registry_coverage_and_contracts():
     from cybersprite.formats.export_args import EXPORT_ARGS
+    from cybersprite.ops import TILES
 
-    assert {op.name for op in registry().all()} == set(CASES) | set(EXPORT_ARGS) | {
+    assert {op.name for op in registry().all()} == set(CASES) | set(EXPORT_ARGS) | TILES | {
         "new_project",
         "cleanup_pixels",
         "import_aseprite",
@@ -248,7 +249,6 @@ def test_new_project_and_cleanup_contracts(tmp_path):
         ("update_slice", {"slice": "missing", "name": "x"}, "E_SLICE_NOT_FOUND"),
         ("merge_layers", {"layers": ["L1"]}, "E_INVALID_ARGS"),
         ("resize_canvas", {"width": 8193, "height": 1}, "E_LIMIT_EXCEEDED"),
-        ("replace_color", {"from": 1, "to": 2, "tilesets": True}, "E_UNSUPPORTED"),
     ],
 )
 def test_primary_semantic_errors(project, name, args, code):

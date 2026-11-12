@@ -6,6 +6,15 @@ from typing import Any
 from pydantic import BaseModel, create_model
 
 ARGUMENTS = {
+    "tile_w": "Tile width in pixels (1-256).",
+    "tile_h": "Tile height in pixels (1-256).",
+    "tile": "Zero-based tile index; set_tile_pixels also accepts new to append.",
+    "tiles": "Zero-based tile indices to delete; tile zero is immutable.",
+    "col": "Zero-based column on the cel grid, including its origin offset.",
+    "row": "Zero-based row on the cel grid, including its origin offset.",
+    "base_index": "Display-only starting tile number; stored indices always start at zero.",
+    "match_flips": "Permit exact existing tile matches with x, y, or diagonal reflections.",
+    "on_used": "Reject deletion of referenced tiles, or clear their placements explicitly.",
     "layer": "Target layer ID, unique name, or group path.",
     "frame": "Zero-based frame index.",
     "frames": "Frame selection: zero-based index, index list, all, range 0-3, or tag:name.",
@@ -133,6 +142,14 @@ ARGUMENTS = {
 }
 
 OPERATIONS = {
+    "add_tileset": "Create a tileset containing immutable transparent tile zero.",
+    "set_tile_pixels": "Replace one tile image or append a new tile, affecting all references.",
+    "delete_tiles": "Delete tiles, compact indices, and remap or clear all placements atomically.",
+    "move_tiles": "Move an inclusive tile range before an old index and remap all placements.",
+    "set_tile": "Set one grid placement with canonical x, y, d reflection flags.",
+    "set_tiles": "Write rectangular rows of tile references on the cel grid.",
+    "get_tiles": "Read a tile rectangle, or the entire trimmed cel when rect is omitted.",
+    "tileset_from_layer": "Convert an image layer to a tilemap with exact tile deduplication.",
     "set_pixel": "Write one indexed pixel at an integer canvas coordinate.",
     "set_pixels": (
         "Write explicit pixel triples or color a list of coordinates; later duplicates win."
@@ -234,6 +251,12 @@ OPERATIONS = {
 }
 
 OVERRIDES = {
+    ("set_tile", "flip"): "Reflection flags in x, y, d order; diagonal is applied first.",
+    ("set_tiles", "rows"): "Tile reference rows, e.g. 0 1 1x 2yd, separated by spaces.",
+    ("move_tiles", "from_"): "First zero-based tile index of the inclusive range (at least one).",
+    ("move_tiles", "to"): "Last zero-based tile index of the inclusive range.",
+    ("move_tiles", "before"): "Old tile index before which to insert; tile count appends.",
+    ("get_tiles", "rect"): "Rectangle {x,y,w,h} in grid tile units; omission reads the whole cel.",
     ("replace_color", "from_"): "Palette index or exact palette color to replace.",
     ("replace_color", "to"): "Replacement palette index or exact palette color.",
     ("load_palette", "mode"): "Replace the palette or append imported colors.",

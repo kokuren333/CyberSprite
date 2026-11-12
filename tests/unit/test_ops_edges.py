@@ -213,9 +213,9 @@ def test_tilemap_frame_copy_resize_crop_and_scale(tmp_path):
     p = load_project(root)
     assert np.array_equal(render(p, 0), np.repeat(np.repeat(before, 2, 0), 2, 1))
     assert not check_structure(p)
-    with pytest.raises(CyberSpriteError) as error:
-        execute("transform_sprite", root, {"rotate": 90}, preview="none")
-    assert error.value.code == "E_UNSUPPORTED"
+    before = render(p, 0)
+    execute("transform_sprite", root, {"rotate": 90}, preview="none")
+    np.testing.assert_array_equal(render(load_project(root), 0), np.rot90(before, -1))
 
 
 def test_new_engineering_modules_use_no_float_random_or_implicit_clock():
@@ -267,4 +267,6 @@ def test_linked_z_index_is_local_to_the_requested_frame(project):
     )
     result = execute("set_cel", project, {**DRAW, "frame": 1, "z_index": 1}, preview="none")
     assert result["changed"]["linked_frames"] == []
-    assert [item["frame"] for item in result["changed"]["frames"]] == [1]
+    # The z-index changes data, but this single-layer composite remains identical.
+    assert result["changed"]["frames"] == [] and result["changed"]["data"]
+    assert load_project(project).layers[0].cels[1].z_index == 1

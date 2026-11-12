@@ -1,0 +1,42 @@
+{
+  "ok": true,
+  "op": "move_tiles",
+  "project": "golden.csprite",
+  "revision": {
+    "before": 2,
+    "after": 3
+  },
+  "no_op": false,
+  "replayed": false,
+  "dry_run": false,
+  "result": {
+    "mapping": {
+      "0": 0,
+      "1": 2,
+      "2": 1
+    }
+  },
+  "changed": {
+    "data": true,
+    "frames": [],
+    "layers": [
+      "L1"
+    ],
+    "linked_frames": [],
+    "clipped_pixels": 0
+  },
+  "validation": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "new_issues": [],
+    "resolved_issues": [],
+    "metrics_delta": {}
+  },
+  "preview": {
+    "paths": [],
+    "scale": 1,
+    "omitted_frames": []
+  },
+  "warnings": []
+}

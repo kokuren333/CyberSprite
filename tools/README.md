@@ -11,6 +11,8 @@
 | `calibrate_pipeline.py` | 自作17作品から整数拡大・JPEG・補間・誤格子を作り、非ドット12枚と合わせて測定し、しきい値と較正表を保存する | §11.9 | M6 |
 | `benchmark_pipeline.py` | 1024×1024入力から、段階画像の保存・再復号検査までの時間を3回測る | §13.8 | M6 |
 | `int_acceptance.py` | CLI 子プロセスで16×16・4フレーム・タグ・検証・シート/GIF/APNG/.asepriteを書き出し、往復とコーパスPNGを再復号照合。`--out` は未使用のディレクトリを指定する | §13.6 | INT-1 |
+| `m7_acceptance.py` | 実 CLI でタイルセット作成・8反転配置・リンク・共有タイル修正・PNG/タイルセット/.aseprite出力を実行する。全検証デルタと書出し自己検査、実PNGの再復号を確認し、`--out` の未使用ディレクトリへ画像と記録を残す（`uv run python -m tools.m7_acceptance --out build/m7-review`） | §10.10、§13.6 | M7 |
+| `m7_cases.py` | 自作の非対称L字工学ベクタと変換・番号付替えのゴールデン入力だけを作る。期待値は `update_goldens.py` で生成する | §13.5 | M7 |
 | `smoke_pipeline.py` | 等倍・整数拡大・JPEGの3件を直接 Op で取り込み、配置後の PNG と段階画像を `.cybersprite/m6-review/` に残す | §11、§13.7 | M6 |
 
 実行は `uv run python tools/<スクリプト>.py`。較正は期待値の更新器ではなく測定器である。ゴールデンの更新は引き続き `update_goldens.py` だけを使い、PNG・画素・ハッシュの変更を確認する。

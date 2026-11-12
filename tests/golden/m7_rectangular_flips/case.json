@@ -1,0 +1,100 @@
+{
+  "renders": [
+    {
+      "name": "flip_none",
+      "indexed": true,
+      "options": {
+        "crop": {
+          "x": 1,
+          "y": 2,
+          "w": 3,
+          "h": 2
+        }
+      }
+    },
+    {
+      "name": "flip_x",
+      "indexed": true,
+      "options": {
+        "crop": {
+          "x": 4,
+          "y": 2,
+          "w": 3,
+          "h": 2
+        }
+      }
+    },
+    {
+      "name": "flip_y",
+      "indexed": true,
+      "options": {
+        "crop": {
+          "x": 7,
+          "y": 2,
+          "w": 3,
+          "h": 2
+        }
+      }
+    },
+    {
+      "name": "flip_xy",
+      "indexed": true,
+      "options": {
+        "crop": {
+          "x": 10,
+          "y": 2,
+          "w": 3,
+          "h": 2
+        }
+      }
+    },
+    {
+      "name": "flip_d",
+      "indexed": true,
+      "options": {
+        "crop": {
+          "x": 13,
+          "y": 2,
+          "w": 3,
+          "h": 2
+        }
+      }
+    },
+    {
+      "name": "flip_xd",
+      "indexed": true,
+      "options": {
+        "crop": {
+          "x": 16,
+          "y": 2,
+          "w": 3,
+          "h": 2
+        }
+      }
+    },
+    {
+      "name": "flip_yd",
+      "indexed": true,
+      "options": {
+        "crop": {
+          "x": 19,
+          "y": 2,
+          "w": 3,
+          "h": 2
+        }
+      }
+    },
+    {
+      "name": "flip_xyd",
+      "indexed": true,
+      "options": {
+        "crop": {
+          "x": 22,
+          "y": 2,
+          "w": 3,
+          "h": 2
+        }
+      }
+    }
+  ]
+}

@@ -94,7 +94,9 @@ async def replay(directory, root, *, stdio=False, exports=False):
                     image.seek(index)
                     actual.append(pixel_sha256(np.asarray(image.convert("RGBA"))))
                 expected = (
-                    [pixel_sha256(np.concatenate(frames, axis=1))]
+                    [case["pixel_hashes"][filename]]
+                    if kind == "tileset"
+                    else [pixel_sha256(np.concatenate(frames, axis=1))]
                     if kind == "sheet"
                     else [pixel_sha256(frame) for frame in frames]
                 )

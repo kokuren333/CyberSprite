@@ -8,6 +8,7 @@ from cybersprite.core.models import (
     BlendMode,
     Coordinate,
     Grid,
+    MatchFlips,
     Model,
     Name,
     Rect,
@@ -482,6 +483,66 @@ define(
     },
 )
 define("get_palette", {})
+
+TileSize = Annotated[int, Field(ge=1, le=256)]
+define(
+    "add_tileset",
+    {
+        "name": (Name, ...),
+        "tile_w": (TileSize, ...),
+        "tile_h": (TileSize, ...),
+        "base_index": (int, 1),
+        "if_exists": (Literal["error", "reuse", "allow"], "error"),
+    },
+)
+define(
+    "set_tile_pixels",
+    {
+        "tileset": (str, ...),
+        "tile": (int | Literal["new"], ...),
+        "rows": (list[str], ...),
+        "format": (Literal["hex", "sym"], "hex"),
+    },
+)
+define(
+    "delete_tiles",
+    {
+        "tileset": (str, ...),
+        "tiles": (list[int], ...),
+        "on_used": (Literal["error", "clear"], "error"),
+    },
+)
+define(
+    "move_tiles",
+    {
+        "tileset": (str, ...),
+        "from_": (int, Field(alias="from")),
+        "to": (int, ...),
+        "before": (int, ...),
+    },
+)
+define(
+    "set_tile",
+    {
+        "col": (int, ...),
+        "row": (int, ...),
+        "tile": (int, ...),
+        "flip": (Annotated[str, Field(pattern=r"^x?y?d?$")], ""),
+    },
+    True,
+)
+define("set_tiles", {"col": (int, ...), "row": (int, ...), "rows": (list[str], ...)}, True)
+define("get_tiles", {"rect": (Rect | None, None)}, True)
+define(
+    "tileset_from_layer",
+    {
+        "layer": (str, ...),
+        "tile_w": (TileSize, ...),
+        "tile_h": (TileSize, ...),
+        "name": (Name | None, None),
+        "match_flips": (MatchFlips, Field(default_factory=MatchFlips)),
+    },
+)
 define("validate", {"frames": (Frames, "all"), "rules": (list[str] | None, None)})
 define(
     "render_preview",
