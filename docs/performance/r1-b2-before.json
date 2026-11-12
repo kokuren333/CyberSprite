@@ -1,0 +1,631 @@
+{
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.10",
+  "numpy": "2.3.4",
+  "workspace_revision": "9feb3cd4bb42ec3c9e31fceb2cea84be8034ace5",
+  "source_revision": "0fd9e264678c5abdea6bc028452a01361f234894",
+  "measurements": {
+    "small_32_3_4": {
+      "validate_cold": {
+        "us": [
+          20551,
+          25763,
+          29491
+        ],
+        "median_us": 25763,
+        "available_physical_bytes_before": [
+          845836288,
+          845664256,
+          845537280
+        ]
+      },
+      "edit": {
+        "us": [
+          119233,
+          143483,
+          161708
+        ],
+        "median_us": 143483,
+        "available_physical_bytes_before": [
+          846172160,
+          834600960,
+          833638400
+        ]
+      },
+      "info_summary": {
+        "us": [
+          92409,
+          18306,
+          35463
+        ],
+        "median_us": 35463,
+        "available_physical_bytes_before": [
+          829636608,
+          817803264,
+          816517120
+        ]
+      },
+      "cli_info": {
+        "us": [
+          2907356,
+          1918196,
+          1932556
+        ],
+        "median_us": 1932556,
+        "available_physical_bytes_before": [
+          812675072,
+          841412608,
+          840978432
+        ]
+      },
+      "validate_cached": {
+        "us": [
+          8303,
+          5795,
+          6699
+        ],
+        "median_us": 6699,
+        "available_physical_bytes_before": [
+          1168637952,
+          1168388096,
+          1168203776
+        ]
+      }
+    },
+    "review_80_1_4": {
+      "validate_cold": {
+        "us": [
+          140436,
+          111952,
+          131690
+        ],
+        "median_us": 131690,
+        "available_physical_bytes_before": [
+          946085888,
+          950521856,
+          947372032
+        ]
+      },
+      "edit": {
+        "us": [
+          88094,
+          193313,
+          192890
+        ],
+        "median_us": 192890,
+        "available_physical_bytes_before": [
+          952643584,
+          948486144,
+          939655168
+        ]
+      },
+      "info_summary": {
+        "us": [
+          63031,
+          20149,
+          36168
+        ],
+        "median_us": 36168,
+        "available_physical_bytes_before": [
+          943063040,
+          946089984,
+          938737664
+        ]
+      },
+      "cli_info": {
+        "us": [
+          3068553,
+          2675239,
+          3771510
+        ],
+        "median_us": 3068553,
+        "available_physical_bytes_before": [
+          943964160,
+          893349888,
+          904859648
+        ]
+      },
+      "cli_empty_layers": {
+        "us": [
+          3227834,
+          3417729,
+          1592026
+        ],
+        "median_us": 3227834,
+        "available_physical_bytes_before": [
+          837156864,
+          634720256,
+          713736192
+        ]
+      },
+      "validate_cached": {
+        "us": [
+          11545,
+          11180,
+          9657
+        ],
+        "median_us": 11180,
+        "available_physical_bytes_before": [
+          1020071936,
+          1020538880,
+          1020325888
+        ]
+      }
+    },
+    "legacy_64_10_32": {
+      "validate_cold": {
+        "us": [
+          1549782,
+          3083458,
+          1665653
+        ],
+        "median_us": 1665653,
+        "available_physical_bytes_before": [
+          831156224,
+          830795776,
+          764211200
+        ]
+      },
+      "edit": {
+        "us": [
+          1294440,
+          1717076,
+          2294050
+        ],
+        "median_us": 1717076,
+        "available_physical_bytes_before": [
+          735977472,
+          723406848,
+          762871808
+        ]
+      },
+      "info_summary": {
+        "us": [
+          775276,
+          1919284,
+          1075226
+        ],
+        "median_us": 1075226,
+        "available_physical_bytes_before": [
+          754315264,
+          783908864,
+          672268288
+        ]
+      },
+      "cli_info": {
+        "us": [
+          5653317,
+          5369467,
+          4936158
+        ],
+        "median_us": 5369467,
+        "available_physical_bytes_before": [
+          735420416,
+          832045056,
+          762716160
+        ]
+      },
+      "validate_cached": {
+        "us": [
+          416330,
+          462458,
+          733402
+        ],
+        "median_us": 462458,
+        "available_physical_bytes_before": [
+          896839680,
+          838418432,
+          918941696
+        ]
+      }
+    },
+    "ds_96_8_45": {
+      "validate_cold": {
+        "us": [
+          7263448,
+          6748796,
+          6820665
+        ],
+        "median_us": 6820665,
+        "available_physical_bytes_before": [
+          449941504,
+          592056320,
+          564391936
+        ]
+      },
+      "edit": {
+        "us": [
+          11485448,
+          12600196,
+          14599178
+        ],
+        "median_us": 12600196,
+        "available_physical_bytes_before": [
+          377782272,
+          243220480,
+          227426304
+        ]
+      },
+      "info_summary": {
+        "us": [
+          7644008,
+          7553136,
+          7226527
+        ],
+        "median_us": 7553136,
+        "available_physical_bytes_before": [
+          408461312,
+          625704960,
+          649932800
+        ]
+      },
+      "cli_info": {
+        "us": [
+          10715390,
+          16369517,
+          11588435
+        ],
+        "median_us": 11588435,
+        "available_physical_bytes_before": [
+          596066304,
+          537223168,
+          751882240
+        ]
+      },
+      "validate_cached": {
+        "us": [
+          3028011,
+          2936146,
+          3375025
+        ],
+        "median_us": 3028011,
+        "available_physical_bytes_before": [
+          959041536,
+          1338019840,
+          1342115840
+        ]
+      }
+    },
+    "review_96_1_16": {
+      "validate_cold": {
+        "us": [
+          1084992,
+          1601546,
+          950260
+        ],
+        "median_us": 1084992,
+        "available_physical_bytes_before": [
+          948813824,
+          886984704,
+          859308032
+        ]
+      },
+      "edit": {
+        "us": [
+          237786,
+          645064,
+          971801
+        ],
+        "median_us": 645064,
+        "available_physical_bytes_before": [
+          870309888,
+          853454848,
+          805965824
+        ]
+      },
+      "info_summary": {
+        "us": [
+          489756,
+          167174,
+          452012
+        ],
+        "median_us": 452012,
+        "available_physical_bytes_before": [
+          715104256,
+          893915136,
+          899735552
+        ]
+      },
+      "cli_info": {
+        "us": [
+          8639811,
+          7204564,
+          6191980
+        ],
+        "median_us": 7204564,
+        "available_physical_bytes_before": [
+          937050112,
+          1042378752,
+          988286976
+        ]
+      },
+      "validate_cached": {
+        "us": [
+          65853,
+          64643,
+          51794
+        ],
+        "median_us": 64643,
+        "available_physical_bytes_before": [
+          1316528128,
+          1309470720,
+          1310740480
+        ]
+      }
+    },
+    "medium_256_1_8": {
+      "validate_cold": {
+        "us": [
+          3438517,
+          3641347,
+          3515831
+        ],
+        "median_us": 3515831,
+        "available_physical_bytes_before": [
+          1278877696,
+          1297850368,
+          1210658816
+        ]
+      },
+      "edit": {
+        "us": [
+          9018198,
+          10050524,
+          7672474
+        ],
+        "median_us": 9018198,
+        "available_physical_bytes_before": [
+          1170227200,
+          774119424,
+          844365824
+        ]
+      },
+      "info_summary": {
+        "us": [
+          3917399,
+          4508845,
+          4760405
+        ],
+        "median_us": 4508845,
+        "available_physical_bytes_before": [
+          899571712,
+          838676480,
+          872521728
+        ]
+      },
+      "cli_info": {
+        "us": [
+          10186884,
+          8142996,
+          9800470
+        ],
+        "median_us": 9800470,
+        "available_physical_bytes_before": [
+          976482304,
+          1131335680,
+          959918080
+        ]
+      },
+      "validate_cached": {
+        "us": [
+          2553907,
+          2165327,
+          2055208
+        ],
+        "median_us": 2165327,
+        "available_physical_bytes_before": [
+          1430048768,
+          1421844480,
+          1425117184
+        ]
+      }
+    },
+    "validate_256_1_32": {
+      "validate_cold": {
+        "us": [
+          12454956,
+          13033595,
+          14204522
+        ],
+        "median_us": 13033595,
+        "available_physical_bytes_before": [
+          1179410432,
+          1058332672,
+          252588032
+        ]
+      },
+      "edit": {
+        "us": [
+          25673632,
+          26154445,
+          25841803
+        ],
+        "median_us": 25841803,
+        "available_physical_bytes_before": [
+          746774528,
+          1024966656,
+          1125912576
+        ]
+      },
+      "info_summary": {
+        "us": [
+          13147391,
+          11206400,
+          12709469
+        ],
+        "median_us": 12709469,
+        "available_physical_bytes_before": [
+          1325613056,
+          1369391104,
+          1435664384
+        ]
+      },
+      "cli_info": {
+        "us": [
+          16767559,
+          17006008,
+          13384354
+        ],
+        "median_us": 16767559,
+        "available_physical_bytes_before": [
+          1230684160,
+          623120384,
+          1088819200
+        ]
+      },
+      "validate_cached": {
+        "us": [
+          11479098,
+          8733762,
+          11802214
+        ],
+        "median_us": 11479098,
+        "available_physical_bytes_before": [
+          1464631296,
+          1435246592,
+          1377075200
+        ]
+      }
+    },
+    "wide_480_270_1_16": {
+      "validate_cold": {
+        "us": [
+          9412470,
+          9722301,
+          9857473
+        ],
+        "median_us": 9722301,
+        "available_physical_bytes_before": [
+          601284608,
+          947998720,
+          779722752
+        ]
+      },
+      "edit": {
+        "us": [
+          19186282,
+          20817187,
+          17828398
+        ],
+        "median_us": 19186282,
+        "available_physical_bytes_before": [
+          901873664,
+          1719463936,
+          1819987968
+        ]
+      },
+      "info_summary": {
+        "us": [
+          8299610,
+          7924166,
+          7248807
+        ],
+        "median_us": 7924166,
+        "available_physical_bytes_before": [
+          1782063104,
+          1703149568,
+          1701515264
+        ]
+      },
+      "cli_info": {
+        "us": [
+          9725521,
+          9433961,
+          10295535
+        ],
+        "median_us": 9725521,
+        "available_physical_bytes_before": [
+          1700884480,
+          1669828608,
+          1901338624
+        ]
+      },
+      "validate_cached": {
+        "us": [
+          7536528,
+          7243213,
+          5786477
+        ],
+        "median_us": 7243213,
+        "available_physical_bytes_before": [
+          1615659008,
+          1635942400,
+          1633972224
+        ]
+      }
+    },
+    "dense_1024_1_1": {
+      "validate_cold": {
+        "us": [
+          3047789,
+          2900278,
+          2837847
+        ],
+        "median_us": 2900278,
+        "available_physical_bytes_before": [
+          1794437120,
+          1871478784,
+          1878593536
+        ]
+      },
+      "edit": {
+        "us": [
+          7020735,
+          7424276,
+          8428750
+        ],
+        "median_us": 7424276,
+        "available_physical_bytes_before": [
+          1831727104,
+          1833291776,
+          1825660928
+        ]
+      },
+      "info_summary": {
+        "us": [
+          3418171,
+          3808138,
+          2856375
+        ],
+        "median_us": 3418171,
+        "available_physical_bytes_before": [
+          1826009088,
+          1683451904,
+          1793208320
+        ]
+      },
+      "cli_info": {
+        "us": [
+          4614108,
+          5076717,
+          5493541
+        ],
+        "median_us": 5076717,
+        "available_physical_bytes_before": [
+          1785290752,
+          1583464448,
+          1556348928
+        ]
+      },
+      "validate_cached": {
+        "us": [
+          4222984,
+          3078341,
+          3213058
+        ],
+        "median_us": 3213058,
+        "available_physical_bytes_before": [
+          1739476992,
+          1808510976,
+          1869393920
+        ]
+      }
+    }
+  },
+  "source_root": "build/r1-b2-baseline/src/cybersprite",
+  "source_sha256": {
+    "core\\quality.py": "1867b241286a5d11bc2c8301ff652807c0a6f446da05097cad15510a4bafed2e",
+    "ops\\__init__.py": "b9ba2ca2e86c6c044f75837017b21f77f162a5efb7bc9e75d1998fbe4b6e0163",
+    "generate\\__init__.py": "c9a7c37d32672d04e4676162c097378626712cb27a8179b13ddae8be98d05bec"
+  }
+}

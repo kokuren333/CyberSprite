@@ -61,7 +61,11 @@ def main():
         help="Measure R1-B2 distinct-frame fixtures and CLI info end-to-end.",
     )
     args = parser.parse_args()
+    if args.repeats < 1:
+        parser.error("--repeats must be positive.")
     if args.representative:
+        if args.repeats != 3:
+            parser.error("Representative R1-B2 measurements require --repeats 3.")
         from tools.benchmark_r1_b2 import main as representative_main
 
         representative_main(["--out", str(args.out)])
@@ -70,8 +74,6 @@ def main():
     from cybersprite.pipeline.cli_api import convert
     from tools.gui_test_support import connect_gui, rpc, running_gui
 
-    if args.repeats < 1:
-        parser.error("--repeats must be positive.")
     values = {}
 
     def record(name, limit, function):

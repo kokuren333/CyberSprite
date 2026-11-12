@@ -119,7 +119,7 @@ def main(argv=None):
             if args.case and name not in args.case:
                 continue
             measurements = result["measurements"].setdefault(name, {})
-            expected = {"validate_cold", "edit", "info_summary", "cli_info"}
+            expected = {"validate_cold", "validate_cached", "edit", "info_summary", "cli_info"}
             if name == "review_80_1_4":
                 expected.add("cli_empty_layers")
             if expected <= measurements.keys():
@@ -192,6 +192,8 @@ def main(argv=None):
                         capture_output=True,
                     ),
                 )
+            # Full rules and metrics are still evaluated; only unchanged frame analysis is reused.
+            record("validate_cached", lambda _, p=p: quality.report(p))
 
 
 if __name__ == "__main__":

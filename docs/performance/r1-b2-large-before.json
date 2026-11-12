@@ -1,0 +1,54 @@
+{
+  "platform": "Windows-11-10.0.26200-SP0",
+  "source": "build/r1-b2-baseline/src",
+  "measurements": {
+    "dense": {
+      "samples": [
+        {
+          "render_us": 421709,
+          "validate_us": 2880648,
+          "peak_working_set_bytes": 276377600,
+          "ok": true
+        },
+        {
+          "render_us": 294290,
+          "validate_us": 4754175,
+          "peak_working_set_bytes": 277278720,
+          "ok": true
+        },
+        {
+          "render_us": 455834,
+          "validate_us": 3860492,
+          "peak_working_set_bytes": 275914752,
+          "ok": true
+        }
+      ],
+      "median_render_us": 421709,
+      "median_validate_us": 3860492
+    },
+    "sparse": {
+      "samples": [
+        {
+          "render_us": 38889,
+          "validate_us": 1714413,
+          "peak_working_set_bytes": 277716992,
+          "ok": true
+        },
+        {
+          "render_us": 50523,
+          "validate_us": 1644482,
+          "peak_working_set_bytes": 277848064,
+          "ok": true
+        },
+        {
+          "render_us": 64802,
+          "validate_us": 1689407,
+          "peak_working_set_bytes": 277696512,
+          "ok": true
+        }
+      ],
+      "median_render_us": 50523,
+      "median_validate_us": 1689407
+    }
+  }
+}
