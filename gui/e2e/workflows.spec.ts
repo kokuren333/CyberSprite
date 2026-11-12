@@ -67,3 +67,44 @@ test('W4 tag direction, finite repeat, onion frames and duration edits use real 
   await page.getByLabel('Duration (ms) 0', { exact: true }).blur();
   await expect.poll(() => JSON.parse(readFileSync(resolve(project, 'project.json'), 'utf8')).frames[0].duration_ms).toBe(120);
 });
+test('W4 pingpong endpoints, finite stop and infinite seams match shared core vectors', async ({ page }) => {
+  const { project } = JSON.parse(readFileSync(resolve(root, '.gui-check/session.json'), 'utf8'));
+  const vectors = JSON.parse(readFileSync(resolve(root, 'tests/vectors/playback/sequences.json'), 'utf8')).cases;
+  const cases = vectors.filter((c: any) => c.input.tag.to - c.input.tag.from === 2 && c.input.tag.direction.startsWith('pingpong'));
+  const durations: number[] = cases[0].input.durations_ms;
+  const frameCount = JSON.parse(readFileSync(resolve(project, 'project.json'), 'utf8')).frames.length;
+  const ops: { op: string; args: object }[] = [];
+  if (frameCount < durations.length) ops.push({ op: 'add_frame', args: { count: durations.length - frameCount } });
+  durations.forEach((duration_ms, frame) => ops.push({ op: 'set_frame_duration', args: { frames: [frame], duration_ms } }));
+  cases.forEach((c: any) => ops.push({ op: 'add_tag', args: { ...c.input.tag, id: undefined, name: c.name } }));
+  const result = JSON.parse(execFileSync('uv', ['run', 'cybersprite', 'op', 'apply_ops', '-p', project, '--args', JSON.stringify({ ops })], { cwd: root, encoding: 'utf8' }));
+  expect(result.ok).toBe(true);
+  await page.clock.install({ time: new Date('2026-11-12T00:00:00Z') });
+  await page.goto('/#playwright-fixture-token');
+  await expect(page.getByTestId('sprite-canvas')).toBeVisible();
+  await page.clock.pauseAt(new Date('2026-11-12T00:00:10Z'));
+  const current = page.locator('.timeline-grid .frame-no[aria-current="true"]');
+  for (const c of cases) {
+    const tag = c.input.tag;
+    await page.locator('.playback-controls select').selectOption({ label: `${c.name}: ${tag.from}–${tag.to} (${tag.direction}, ${tag.repeat})` });
+    await page.getByRole('button', { name: 'Play', exact: true }).click();
+    const sequence: number[] = c.expected.observed_sequence;
+    for (let i = 0; i < sequence.length; i++) {
+      await expect(current).toHaveText(String(sequence[i]));
+      await expect(page.getByRole('button', { name: 'Stop', exact: true })).toBeVisible();
+      await page.clock.runFor(c.expected.observed_durations_ms[i] - 1);
+      await expect(current).toHaveText(String(sequence[i]));
+      await expect(page.getByRole('button', { name: 'Stop', exact: true })).toBeVisible();
+      await page.clock.runFor(1);
+    }
+    if (tag.repeat) {
+      await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeVisible();
+      await expect(current).toHaveText(String(sequence.at(-1)));
+      await page.clock.runFor(1000);
+      await expect(current).toHaveText(String(sequence.at(-1)));
+    } else {
+      await expect(current).toHaveText(String(sequence[0]));
+      await page.getByRole('button', { name: 'Stop', exact: true }).click();
+    }
+  }
+});

@@ -18,7 +18,8 @@ export function Timeline() {
   useEffect(() => {
     if (!s.playing || !s.project) return;
     const tag = s.project.tags.find(t => t.id === s.tag), sequence = playbackFrames(tag, s.project.frames.length);
-    let cursor = 0, cycles = 0, timer: ReturnType<typeof setTimeout>;
+    if (!sequence.length) { view({ playing: false }); return; }
+    let cursor = 0, timer: ReturnType<typeof setTimeout>;
     const step = () => {
       const current = store.getState().project;
       if (!current) return;
@@ -27,7 +28,7 @@ export function Timeline() {
       view({ frame });
       timer = setTimeout(() => {
         cursor++;
-        if (cursor >= sequence.length) { cursor = 0; cycles++; if (tag?.repeat && cycles >= tag.repeat) { view({ playing: false }); return; } }
+        if (cursor >= sequence.length) { if (tag?.repeat) { view({ playing: false }); return; } cursor = 0; }
         step();
       }, current.frames[frame].duration_ms);
     };

@@ -1,0 +1,3452 @@
+{
+  "cases": [
+    {
+      "name": "forward_length_1_repeat_0",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 2,
+          "direction": "forward",
+          "repeat": 0
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 0,
+        "cycles": 3
+      },
+      "expected": {
+        "sequence": [
+          2
+        ],
+        "durations_ms": [
+          127
+        ],
+        "observed_sequence": [
+          2,
+          2,
+          2
+        ],
+        "observed_durations_ms": [
+          127,
+          127,
+          127
+        ]
+      }
+    },
+    {
+      "name": "forward_length_1_repeat_1",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 2,
+          "direction": "forward",
+          "repeat": 1
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2
+        ],
+        "durations_ms": [
+          127
+        ],
+        "observed_sequence": [
+          2
+        ],
+        "observed_durations_ms": [
+          127
+        ]
+      }
+    },
+    {
+      "name": "forward_length_1_repeat_2",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 2,
+          "direction": "forward",
+          "repeat": 2
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2
+        ],
+        "durations_ms": [
+          127
+        ],
+        "observed_sequence": [
+          2
+        ],
+        "observed_durations_ms": [
+          127
+        ]
+      }
+    },
+    {
+      "name": "forward_length_1_repeat_3",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 2,
+          "direction": "forward",
+          "repeat": 3
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2
+        ],
+        "durations_ms": [
+          127
+        ],
+        "observed_sequence": [
+          2
+        ],
+        "observed_durations_ms": [
+          127
+        ]
+      }
+    },
+    {
+      "name": "forward_length_2_repeat_0",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 3,
+          "direction": "forward",
+          "repeat": 0
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 0,
+        "cycles": 3
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3
+        ],
+        "durations_ms": [
+          127,
+          211
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          2,
+          3,
+          2,
+          3
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          127,
+          211,
+          127,
+          211
+        ]
+      }
+    },
+    {
+      "name": "forward_length_2_repeat_1",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 3,
+          "direction": "forward",
+          "repeat": 1
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3
+        ],
+        "durations_ms": [
+          127,
+          211
+        ],
+        "observed_sequence": [
+          2,
+          3
+        ],
+        "observed_durations_ms": [
+          127,
+          211
+        ]
+      }
+    },
+    {
+      "name": "forward_length_2_repeat_2",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 3,
+          "direction": "forward",
+          "repeat": 2
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          2,
+          3
+        ],
+        "durations_ms": [
+          127,
+          211,
+          127,
+          211
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          2,
+          3
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          127,
+          211
+        ]
+      }
+    },
+    {
+      "name": "forward_length_2_repeat_3",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 3,
+          "direction": "forward",
+          "repeat": 3
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          2,
+          3,
+          2,
+          3
+        ],
+        "durations_ms": [
+          127,
+          211,
+          127,
+          211,
+          127,
+          211
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          2,
+          3,
+          2,
+          3
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          127,
+          211,
+          127,
+          211
+        ]
+      }
+    },
+    {
+      "name": "forward_length_3_repeat_0",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 4,
+          "direction": "forward",
+          "repeat": 0
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 0,
+        "cycles": 3
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          4
+        ],
+        "durations_ms": [
+          127,
+          211,
+          307
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          4,
+          2,
+          3,
+          4,
+          2,
+          3,
+          4
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          307,
+          127,
+          211,
+          307,
+          127,
+          211,
+          307
+        ]
+      }
+    },
+    {
+      "name": "forward_length_3_repeat_1",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 4,
+          "direction": "forward",
+          "repeat": 1
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          4
+        ],
+        "durations_ms": [
+          127,
+          211,
+          307
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          4
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          307
+        ]
+      }
+    },
+    {
+      "name": "forward_length_3_repeat_2",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 4,
+          "direction": "forward",
+          "repeat": 2
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          4,
+          2,
+          3,
+          4
+        ],
+        "durations_ms": [
+          127,
+          211,
+          307,
+          127,
+          211,
+          307
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          4,
+          2,
+          3,
+          4
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          307,
+          127,
+          211,
+          307
+        ]
+      }
+    },
+    {
+      "name": "forward_length_3_repeat_3",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 4,
+          "direction": "forward",
+          "repeat": 3
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          4,
+          2,
+          3,
+          4,
+          2,
+          3,
+          4
+        ],
+        "durations_ms": [
+          127,
+          211,
+          307,
+          127,
+          211,
+          307,
+          127,
+          211,
+          307
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          4,
+          2,
+          3,
+          4,
+          2,
+          3,
+          4
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          307,
+          127,
+          211,
+          307,
+          127,
+          211,
+          307
+        ]
+      }
+    },
+    {
+      "name": "forward_length_4_repeat_0",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 5,
+          "direction": "forward",
+          "repeat": 0
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 0,
+        "cycles": 3
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "durations_ms": [
+          127,
+          211,
+          307,
+          419
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          4,
+          5,
+          2,
+          3,
+          4,
+          5,
+          2,
+          3,
+          4,
+          5
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          307,
+          419,
+          127,
+          211,
+          307,
+          419,
+          127,
+          211,
+          307,
+          419
+        ]
+      }
+    },
+    {
+      "name": "forward_length_4_repeat_1",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 5,
+          "direction": "forward",
+          "repeat": 1
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "durations_ms": [
+          127,
+          211,
+          307,
+          419
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          307,
+          419
+        ]
+      }
+    },
+    {
+      "name": "forward_length_4_repeat_2",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 5,
+          "direction": "forward",
+          "repeat": 2
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          4,
+          5,
+          2,
+          3,
+          4,
+          5
+        ],
+        "durations_ms": [
+          127,
+          211,
+          307,
+          419,
+          127,
+          211,
+          307,
+          419
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          4,
+          5,
+          2,
+          3,
+          4,
+          5
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          307,
+          419,
+          127,
+          211,
+          307,
+          419
+        ]
+      }
+    },
+    {
+      "name": "forward_length_4_repeat_3",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 5,
+          "direction": "forward",
+          "repeat": 3
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          4,
+          5,
+          2,
+          3,
+          4,
+          5,
+          2,
+          3,
+          4,
+          5
+        ],
+        "durations_ms": [
+          127,
+          211,
+          307,
+          419,
+          127,
+          211,
+          307,
+          419,
+          127,
+          211,
+          307,
+          419
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          4,
+          5,
+          2,
+          3,
+          4,
+          5,
+          2,
+          3,
+          4,
+          5
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          307,
+          419,
+          127,
+          211,
+          307,
+          419,
+          127,
+          211,
+          307,
+          419
+        ]
+      }
+    },
+    {
+      "name": "reverse_length_1_repeat_0",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 2,
+          "direction": "reverse",
+          "repeat": 0
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 0,
+        "cycles": 3
+      },
+      "expected": {
+        "sequence": [
+          2
+        ],
+        "durations_ms": [
+          127
+        ],
+        "observed_sequence": [
+          2,
+          2,
+          2
+        ],
+        "observed_durations_ms": [
+          127,
+          127,
+          127
+        ]
+      }
+    },
+    {
+      "name": "reverse_length_1_repeat_1",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 2,
+          "direction": "reverse",
+          "repeat": 1
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2
+        ],
+        "durations_ms": [
+          127
+        ],
+        "observed_sequence": [
+          2
+        ],
+        "observed_durations_ms": [
+          127
+        ]
+      }
+    },
+    {
+      "name": "reverse_length_1_repeat_2",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 2,
+          "direction": "reverse",
+          "repeat": 2
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2
+        ],
+        "durations_ms": [
+          127
+        ],
+        "observed_sequence": [
+          2
+        ],
+        "observed_durations_ms": [
+          127
+        ]
+      }
+    },
+    {
+      "name": "reverse_length_1_repeat_3",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 2,
+          "direction": "reverse",
+          "repeat": 3
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2
+        ],
+        "durations_ms": [
+          127
+        ],
+        "observed_sequence": [
+          2
+        ],
+        "observed_durations_ms": [
+          127
+        ]
+      }
+    },
+    {
+      "name": "reverse_length_2_repeat_0",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 3,
+          "direction": "reverse",
+          "repeat": 0
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 0,
+        "cycles": 3
+      },
+      "expected": {
+        "sequence": [
+          3,
+          2
+        ],
+        "durations_ms": [
+          211,
+          127
+        ],
+        "observed_sequence": [
+          3,
+          2,
+          3,
+          2,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          211,
+          127,
+          211,
+          127,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "reverse_length_2_repeat_1",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 3,
+          "direction": "reverse",
+          "repeat": 1
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          3,
+          2
+        ],
+        "durations_ms": [
+          211,
+          127
+        ],
+        "observed_sequence": [
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "reverse_length_2_repeat_2",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 3,
+          "direction": "reverse",
+          "repeat": 2
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          3,
+          2,
+          3,
+          2
+        ],
+        "durations_ms": [
+          211,
+          127,
+          211,
+          127
+        ],
+        "observed_sequence": [
+          3,
+          2,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          211,
+          127,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "reverse_length_2_repeat_3",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 3,
+          "direction": "reverse",
+          "repeat": 3
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          3,
+          2,
+          3,
+          2,
+          3,
+          2
+        ],
+        "durations_ms": [
+          211,
+          127,
+          211,
+          127,
+          211,
+          127
+        ],
+        "observed_sequence": [
+          3,
+          2,
+          3,
+          2,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          211,
+          127,
+          211,
+          127,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "reverse_length_3_repeat_0",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 4,
+          "direction": "reverse",
+          "repeat": 0
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 0,
+        "cycles": 3
+      },
+      "expected": {
+        "sequence": [
+          4,
+          3,
+          2
+        ],
+        "durations_ms": [
+          307,
+          211,
+          127
+        ],
+        "observed_sequence": [
+          4,
+          3,
+          2,
+          4,
+          3,
+          2,
+          4,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          307,
+          211,
+          127,
+          307,
+          211,
+          127,
+          307,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "reverse_length_3_repeat_1",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 4,
+          "direction": "reverse",
+          "repeat": 1
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          4,
+          3,
+          2
+        ],
+        "durations_ms": [
+          307,
+          211,
+          127
+        ],
+        "observed_sequence": [
+          4,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          307,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "reverse_length_3_repeat_2",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 4,
+          "direction": "reverse",
+          "repeat": 2
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          4,
+          3,
+          2,
+          4,
+          3,
+          2
+        ],
+        "durations_ms": [
+          307,
+          211,
+          127,
+          307,
+          211,
+          127
+        ],
+        "observed_sequence": [
+          4,
+          3,
+          2,
+          4,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          307,
+          211,
+          127,
+          307,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "reverse_length_3_repeat_3",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 4,
+          "direction": "reverse",
+          "repeat": 3
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          4,
+          3,
+          2,
+          4,
+          3,
+          2,
+          4,
+          3,
+          2
+        ],
+        "durations_ms": [
+          307,
+          211,
+          127,
+          307,
+          211,
+          127,
+          307,
+          211,
+          127
+        ],
+        "observed_sequence": [
+          4,
+          3,
+          2,
+          4,
+          3,
+          2,
+          4,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          307,
+          211,
+          127,
+          307,
+          211,
+          127,
+          307,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "reverse_length_4_repeat_0",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 5,
+          "direction": "reverse",
+          "repeat": 0
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 0,
+        "cycles": 3
+      },
+      "expected": {
+        "sequence": [
+          5,
+          4,
+          3,
+          2
+        ],
+        "durations_ms": [
+          419,
+          307,
+          211,
+          127
+        ],
+        "observed_sequence": [
+          5,
+          4,
+          3,
+          2,
+          5,
+          4,
+          3,
+          2,
+          5,
+          4,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          419,
+          307,
+          211,
+          127,
+          419,
+          307,
+          211,
+          127,
+          419,
+          307,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "reverse_length_4_repeat_1",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 5,
+          "direction": "reverse",
+          "repeat": 1
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          5,
+          4,
+          3,
+          2
+        ],
+        "durations_ms": [
+          419,
+          307,
+          211,
+          127
+        ],
+        "observed_sequence": [
+          5,
+          4,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          419,
+          307,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "reverse_length_4_repeat_2",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 5,
+          "direction": "reverse",
+          "repeat": 2
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          5,
+          4,
+          3,
+          2,
+          5,
+          4,
+          3,
+          2
+        ],
+        "durations_ms": [
+          419,
+          307,
+          211,
+          127,
+          419,
+          307,
+          211,
+          127
+        ],
+        "observed_sequence": [
+          5,
+          4,
+          3,
+          2,
+          5,
+          4,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          419,
+          307,
+          211,
+          127,
+          419,
+          307,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "reverse_length_4_repeat_3",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 5,
+          "direction": "reverse",
+          "repeat": 3
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          5,
+          4,
+          3,
+          2,
+          5,
+          4,
+          3,
+          2,
+          5,
+          4,
+          3,
+          2
+        ],
+        "durations_ms": [
+          419,
+          307,
+          211,
+          127,
+          419,
+          307,
+          211,
+          127,
+          419,
+          307,
+          211,
+          127
+        ],
+        "observed_sequence": [
+          5,
+          4,
+          3,
+          2,
+          5,
+          4,
+          3,
+          2,
+          5,
+          4,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          419,
+          307,
+          211,
+          127,
+          419,
+          307,
+          211,
+          127,
+          419,
+          307,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "pingpong_length_1_repeat_0",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 2,
+          "direction": "pingpong",
+          "repeat": 0
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 0,
+        "cycles": 3
+      },
+      "expected": {
+        "sequence": [
+          2
+        ],
+        "durations_ms": [
+          127
+        ],
+        "observed_sequence": [
+          2,
+          2,
+          2
+        ],
+        "observed_durations_ms": [
+          127,
+          127,
+          127
+        ]
+      }
+    },
+    {
+      "name": "pingpong_length_1_repeat_1",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 2,
+          "direction": "pingpong",
+          "repeat": 1
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2
+        ],
+        "durations_ms": [
+          127
+        ],
+        "observed_sequence": [
+          2
+        ],
+        "observed_durations_ms": [
+          127
+        ]
+      }
+    },
+    {
+      "name": "pingpong_length_1_repeat_2",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 2,
+          "direction": "pingpong",
+          "repeat": 2
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2
+        ],
+        "durations_ms": [
+          127
+        ],
+        "observed_sequence": [
+          2
+        ],
+        "observed_durations_ms": [
+          127
+        ]
+      }
+    },
+    {
+      "name": "pingpong_length_1_repeat_3",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 2,
+          "direction": "pingpong",
+          "repeat": 3
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2
+        ],
+        "durations_ms": [
+          127
+        ],
+        "observed_sequence": [
+          2
+        ],
+        "observed_durations_ms": [
+          127
+        ]
+      }
+    },
+    {
+      "name": "pingpong_length_2_repeat_0",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 3,
+          "direction": "pingpong",
+          "repeat": 0
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 0,
+        "cycles": 3
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3
+        ],
+        "durations_ms": [
+          127,
+          211
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          2,
+          3,
+          2,
+          3
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          127,
+          211,
+          127,
+          211
+        ]
+      }
+    },
+    {
+      "name": "pingpong_length_2_repeat_1",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 3,
+          "direction": "pingpong",
+          "repeat": 1
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3
+        ],
+        "durations_ms": [
+          127,
+          211
+        ],
+        "observed_sequence": [
+          2,
+          3
+        ],
+        "observed_durations_ms": [
+          127,
+          211
+        ]
+      }
+    },
+    {
+      "name": "pingpong_length_2_repeat_2",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 3,
+          "direction": "pingpong",
+          "repeat": 2
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          2
+        ],
+        "durations_ms": [
+          127,
+          211,
+          127
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "pingpong_length_2_repeat_3",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 3,
+          "direction": "pingpong",
+          "repeat": 3
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          2,
+          3
+        ],
+        "durations_ms": [
+          127,
+          211,
+          127,
+          211
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          2,
+          3
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          127,
+          211
+        ]
+      }
+    },
+    {
+      "name": "pingpong_length_3_repeat_0",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 4,
+          "direction": "pingpong",
+          "repeat": 0
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 0,
+        "cycles": 3
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          4,
+          3
+        ],
+        "durations_ms": [
+          127,
+          211,
+          307,
+          211
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          4,
+          3,
+          2,
+          3,
+          4,
+          3,
+          2,
+          3,
+          4,
+          3
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          307,
+          211,
+          127,
+          211,
+          307,
+          211,
+          127,
+          211,
+          307,
+          211
+        ]
+      }
+    },
+    {
+      "name": "pingpong_length_3_repeat_1",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 4,
+          "direction": "pingpong",
+          "repeat": 1
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          4
+        ],
+        "durations_ms": [
+          127,
+          211,
+          307
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          4
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          307
+        ]
+      }
+    },
+    {
+      "name": "pingpong_length_3_repeat_2",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 4,
+          "direction": "pingpong",
+          "repeat": 2
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          4,
+          3,
+          2
+        ],
+        "durations_ms": [
+          127,
+          211,
+          307,
+          211,
+          127
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          4,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          307,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "pingpong_length_3_repeat_3",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 4,
+          "direction": "pingpong",
+          "repeat": 3
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          4,
+          3,
+          2,
+          3,
+          4
+        ],
+        "durations_ms": [
+          127,
+          211,
+          307,
+          211,
+          127,
+          211,
+          307
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          4,
+          3,
+          2,
+          3,
+          4
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          307,
+          211,
+          127,
+          211,
+          307
+        ]
+      }
+    },
+    {
+      "name": "pingpong_length_4_repeat_0",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 5,
+          "direction": "pingpong",
+          "repeat": 0
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 0,
+        "cycles": 3
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          4,
+          5,
+          4,
+          3
+        ],
+        "durations_ms": [
+          127,
+          211,
+          307,
+          419,
+          307,
+          211
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          4,
+          5,
+          4,
+          3,
+          2,
+          3,
+          4,
+          5,
+          4,
+          3,
+          2,
+          3,
+          4,
+          5,
+          4,
+          3
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          307,
+          419,
+          307,
+          211,
+          127,
+          211,
+          307,
+          419,
+          307,
+          211,
+          127,
+          211,
+          307,
+          419,
+          307,
+          211
+        ]
+      }
+    },
+    {
+      "name": "pingpong_length_4_repeat_1",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 5,
+          "direction": "pingpong",
+          "repeat": 1
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "durations_ms": [
+          127,
+          211,
+          307,
+          419
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          307,
+          419
+        ]
+      }
+    },
+    {
+      "name": "pingpong_length_4_repeat_2",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 5,
+          "direction": "pingpong",
+          "repeat": 2
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          4,
+          5,
+          4,
+          3,
+          2
+        ],
+        "durations_ms": [
+          127,
+          211,
+          307,
+          419,
+          307,
+          211,
+          127
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          4,
+          5,
+          4,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          307,
+          419,
+          307,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "pingpong_length_4_repeat_3",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 5,
+          "direction": "pingpong",
+          "repeat": 3
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2,
+          3,
+          4,
+          5,
+          4,
+          3,
+          2,
+          3,
+          4,
+          5
+        ],
+        "durations_ms": [
+          127,
+          211,
+          307,
+          419,
+          307,
+          211,
+          127,
+          211,
+          307,
+          419
+        ],
+        "observed_sequence": [
+          2,
+          3,
+          4,
+          5,
+          4,
+          3,
+          2,
+          3,
+          4,
+          5
+        ],
+        "observed_durations_ms": [
+          127,
+          211,
+          307,
+          419,
+          307,
+          211,
+          127,
+          211,
+          307,
+          419
+        ]
+      }
+    },
+    {
+      "name": "pingpong_reverse_length_1_repeat_0",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 2,
+          "direction": "pingpong_reverse",
+          "repeat": 0
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 0,
+        "cycles": 3
+      },
+      "expected": {
+        "sequence": [
+          2
+        ],
+        "durations_ms": [
+          127
+        ],
+        "observed_sequence": [
+          2,
+          2,
+          2
+        ],
+        "observed_durations_ms": [
+          127,
+          127,
+          127
+        ]
+      }
+    },
+    {
+      "name": "pingpong_reverse_length_1_repeat_1",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 2,
+          "direction": "pingpong_reverse",
+          "repeat": 1
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2
+        ],
+        "durations_ms": [
+          127
+        ],
+        "observed_sequence": [
+          2
+        ],
+        "observed_durations_ms": [
+          127
+        ]
+      }
+    },
+    {
+      "name": "pingpong_reverse_length_1_repeat_2",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 2,
+          "direction": "pingpong_reverse",
+          "repeat": 2
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2
+        ],
+        "durations_ms": [
+          127
+        ],
+        "observed_sequence": [
+          2
+        ],
+        "observed_durations_ms": [
+          127
+        ]
+      }
+    },
+    {
+      "name": "pingpong_reverse_length_1_repeat_3",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 2,
+          "direction": "pingpong_reverse",
+          "repeat": 3
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          2
+        ],
+        "durations_ms": [
+          127
+        ],
+        "observed_sequence": [
+          2
+        ],
+        "observed_durations_ms": [
+          127
+        ]
+      }
+    },
+    {
+      "name": "pingpong_reverse_length_2_repeat_0",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 3,
+          "direction": "pingpong_reverse",
+          "repeat": 0
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 0,
+        "cycles": 3
+      },
+      "expected": {
+        "sequence": [
+          3,
+          2
+        ],
+        "durations_ms": [
+          211,
+          127
+        ],
+        "observed_sequence": [
+          3,
+          2,
+          3,
+          2,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          211,
+          127,
+          211,
+          127,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "pingpong_reverse_length_2_repeat_1",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 3,
+          "direction": "pingpong_reverse",
+          "repeat": 1
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          3,
+          2
+        ],
+        "durations_ms": [
+          211,
+          127
+        ],
+        "observed_sequence": [
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "pingpong_reverse_length_2_repeat_2",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 3,
+          "direction": "pingpong_reverse",
+          "repeat": 2
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          3,
+          2,
+          3
+        ],
+        "durations_ms": [
+          211,
+          127,
+          211
+        ],
+        "observed_sequence": [
+          3,
+          2,
+          3
+        ],
+        "observed_durations_ms": [
+          211,
+          127,
+          211
+        ]
+      }
+    },
+    {
+      "name": "pingpong_reverse_length_2_repeat_3",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 3,
+          "direction": "pingpong_reverse",
+          "repeat": 3
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          3,
+          2,
+          3,
+          2
+        ],
+        "durations_ms": [
+          211,
+          127,
+          211,
+          127
+        ],
+        "observed_sequence": [
+          3,
+          2,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          211,
+          127,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "pingpong_reverse_length_3_repeat_0",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 4,
+          "direction": "pingpong_reverse",
+          "repeat": 0
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 0,
+        "cycles": 3
+      },
+      "expected": {
+        "sequence": [
+          4,
+          3,
+          2,
+          3
+        ],
+        "durations_ms": [
+          307,
+          211,
+          127,
+          211
+        ],
+        "observed_sequence": [
+          4,
+          3,
+          2,
+          3,
+          4,
+          3,
+          2,
+          3,
+          4,
+          3,
+          2,
+          3
+        ],
+        "observed_durations_ms": [
+          307,
+          211,
+          127,
+          211,
+          307,
+          211,
+          127,
+          211,
+          307,
+          211,
+          127,
+          211
+        ]
+      }
+    },
+    {
+      "name": "pingpong_reverse_length_3_repeat_1",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 4,
+          "direction": "pingpong_reverse",
+          "repeat": 1
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          4,
+          3,
+          2
+        ],
+        "durations_ms": [
+          307,
+          211,
+          127
+        ],
+        "observed_sequence": [
+          4,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          307,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "pingpong_reverse_length_3_repeat_2",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 4,
+          "direction": "pingpong_reverse",
+          "repeat": 2
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          4,
+          3,
+          2,
+          3,
+          4
+        ],
+        "durations_ms": [
+          307,
+          211,
+          127,
+          211,
+          307
+        ],
+        "observed_sequence": [
+          4,
+          3,
+          2,
+          3,
+          4
+        ],
+        "observed_durations_ms": [
+          307,
+          211,
+          127,
+          211,
+          307
+        ]
+      }
+    },
+    {
+      "name": "pingpong_reverse_length_3_repeat_3",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 4,
+          "direction": "pingpong_reverse",
+          "repeat": 3
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          4,
+          3,
+          2,
+          3,
+          4,
+          3,
+          2
+        ],
+        "durations_ms": [
+          307,
+          211,
+          127,
+          211,
+          307,
+          211,
+          127
+        ],
+        "observed_sequence": [
+          4,
+          3,
+          2,
+          3,
+          4,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          307,
+          211,
+          127,
+          211,
+          307,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "pingpong_reverse_length_4_repeat_0",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 5,
+          "direction": "pingpong_reverse",
+          "repeat": 0
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 0,
+        "cycles": 3
+      },
+      "expected": {
+        "sequence": [
+          5,
+          4,
+          3,
+          2,
+          3,
+          4
+        ],
+        "durations_ms": [
+          419,
+          307,
+          211,
+          127,
+          211,
+          307
+        ],
+        "observed_sequence": [
+          5,
+          4,
+          3,
+          2,
+          3,
+          4,
+          5,
+          4,
+          3,
+          2,
+          3,
+          4,
+          5,
+          4,
+          3,
+          2,
+          3,
+          4
+        ],
+        "observed_durations_ms": [
+          419,
+          307,
+          211,
+          127,
+          211,
+          307,
+          419,
+          307,
+          211,
+          127,
+          211,
+          307,
+          419,
+          307,
+          211,
+          127,
+          211,
+          307
+        ]
+      }
+    },
+    {
+      "name": "pingpong_reverse_length_4_repeat_1",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 5,
+          "direction": "pingpong_reverse",
+          "repeat": 1
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          5,
+          4,
+          3,
+          2
+        ],
+        "durations_ms": [
+          419,
+          307,
+          211,
+          127
+        ],
+        "observed_sequence": [
+          5,
+          4,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          419,
+          307,
+          211,
+          127
+        ]
+      }
+    },
+    {
+      "name": "pingpong_reverse_length_4_repeat_2",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 5,
+          "direction": "pingpong_reverse",
+          "repeat": 2
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          5,
+          4,
+          3,
+          2,
+          3,
+          4,
+          5
+        ],
+        "durations_ms": [
+          419,
+          307,
+          211,
+          127,
+          211,
+          307,
+          419
+        ],
+        "observed_sequence": [
+          5,
+          4,
+          3,
+          2,
+          3,
+          4,
+          5
+        ],
+        "observed_durations_ms": [
+          419,
+          307,
+          211,
+          127,
+          211,
+          307,
+          419
+        ]
+      }
+    },
+    {
+      "name": "pingpong_reverse_length_4_repeat_3",
+      "input": {
+        "tag": {
+          "id": "T1",
+          "name": "playback",
+          "from": 2,
+          "to": 5,
+          "direction": "pingpong_reverse",
+          "repeat": 3
+        },
+        "durations_ms": [
+          37,
+          83,
+          127,
+          211,
+          307,
+          419,
+          523,
+          631
+        ],
+        "loop": 1,
+        "cycles": 1
+      },
+      "expected": {
+        "sequence": [
+          5,
+          4,
+          3,
+          2,
+          3,
+          4,
+          5,
+          4,
+          3,
+          2
+        ],
+        "durations_ms": [
+          419,
+          307,
+          211,
+          127,
+          211,
+          307,
+          419,
+          307,
+          211,
+          127
+        ],
+        "observed_sequence": [
+          5,
+          4,
+          3,
+          2,
+          3,
+          4,
+          5,
+          4,
+          3,
+          2
+        ],
+        "observed_durations_ms": [
+          419,
+          307,
+          211,
+          127,
+          211,
+          307,
+          419,
+          307,
+          211,
+          127
+        ]
+      }
+    }
+  ]
+}
