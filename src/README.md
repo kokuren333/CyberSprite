@@ -1,6 +1,6 @@
 # src/
 
-Python パッケージ `cybersprite` の置き場所。M1〜M9 のヘッドレス基盤、Op・トランザクション、CLI、MCP、形式、変換、タイルマップ、GUI、source 専用生成を統合済み（79 Op、生成を無効にした標準MCPは77ツール）。Diffusers extra の依存追加は監査保留。M10の配布手順は `tools/build_release.py`。
+Python パッケージ `cybersprite` の置き場所。M1〜M11 のヘッドレス基盤、Op・トランザクション、CLI、MCP、形式、変換、タイルマップ、GUI、source 専用生成、platform機構を統合済み（84 Op、生成を無効にした標準MCPは82ツール）。Diffusers extra の依存追加は監査保留。M10の配布手順は `tools/build_release.py`。
 
 `src/` レイアウトにしているのは、インストールしていない状態のコードをテストが誤って読み込むのを防ぐためである。
 

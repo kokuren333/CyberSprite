@@ -284,7 +284,30 @@ def _capture(root, args, manifest):
 
 def import_top(registry, path, args, tx, actor):
     try:
-        return _import_top(registry, path, args, tx, actor)
+        used = []
+        if project_path(path).exists() and not ({"preset", "pipeline"} & args.model_fields_set):
+            p = load_project(path)
+            if p.platform:
+                from cybersprite.platforms import merge
+
+                defaults = p.platform.defaults.pipeline
+                if defaults.preset:
+                    args.preset = defaults.preset
+                    used.append("defaults.pipeline.preset")
+                nested: dict = {}
+                for key, value in sorted(defaults.overrides.items()):
+                    target = nested
+                    parts = key.split(".")
+                    for part in parts[:-1]:
+                        target = target.setdefault(part, {})
+                    target[parts[-1]] = value
+                if nested:
+                    args.pipeline = PipelineSettings.model_validate(merge({}, nested))
+                    used.append("defaults.pipeline.overrides")
+        result = _import_top(registry, path, args, tx, actor)
+        if used:
+            result["defaults_from_platform"] = used
+        return result
     except OSError as error:
         raise CyberSpriteError(
             "E_IO",

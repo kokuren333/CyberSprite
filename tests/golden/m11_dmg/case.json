@@ -1,0 +1,8 @@
+{
+  "new_project": {"platform": "dmg/sprite-16", "name": "DMG vector"},
+  "canonical": true,
+  "transactions": [
+    {"op": "set_pixel", "args": {"layer": "L1", "frame": 0, "x": 0, "y": 0, "color": 1}}
+  ],
+  "renders": [{"indexed": true}]
+}

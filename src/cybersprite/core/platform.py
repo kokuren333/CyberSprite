@@ -228,6 +228,8 @@ class Platform(Data):
 
 def check_integer_data(value):
     if isinstance(value, dict):
+        if any(not isinstance(key, str) for key in value):
+            raise ValueError("Platform object keys must be strings.")
         for key in sorted(value):
             check_integer_data(value[key])
     elif isinstance(value, list):

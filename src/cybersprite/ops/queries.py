@@ -31,15 +31,55 @@ def summary(p, root):
         "revision": p.revision,
         "tags": [tag.name for tag in p.tags],
         "validation_ok": report(p, root=root)["ok"],
+        **(
+            {
+                "platform": {
+                    "id": p.platform.id,
+                    "canvas": p.platform.asset.canvas.model_dump()
+                    if p.platform.asset.canvas
+                    else None,
+                    "opaque_max": p.platform.asset.colors.opaque_max,
+                    "workflow": p.platform.workflow,
+                }
+            }
+            if p.platform
+            else {"platform": None}
+        ),
     }
 
 
 def construct(a, root):
+    from cybersprite.platforms import resolve
+
+    from .platform_ops import copy_validation
+
+    platform = resolve(
+        a.platform,
+        platform_file=a.platform_file,
+        overrides=a.platform_overrides,
+        width=a.width,
+        height=a.height,
+        use_default="platform" not in a.model_fields_set,
+    )
+    used = []
+    if platform:
+        for key, axis in (("width", "w"), ("height", "h")):
+            if getattr(a, key) is None and platform.asset.canvas:
+                setattr(a, key, getattr(platform.asset.canvas, axis))
+                used.append("asset.canvas." + axis)
+        if "palette" not in a.model_fields_set and platform.defaults.palette is not None:
+            a.palette = platform.defaults.palette
+            used.append("defaults.palette")
+    if a.width is None or a.height is None:
+        raise invalid("Provide width and height (--size WxH), or a platform with asset.canvas.")
     colors, names = (
         read_palette_with_names(a.palette)
         if isinstance(a.palette, str)
         else ([raw_color(c) for c in a.palette], {})
     )
+    if platform and "defaults.palette" in used and platform.asset.colors.palette_max:
+        colors = colors[: platform.asset.colors.palette_max]
+        names = {k: v for k, v in names.items() if int(k) < len(colors)}
     p = new_project(
         width=a.width,
         height=a.height,
@@ -52,6 +92,16 @@ def construct(a, root):
         fail("E_INDEX_OUT_OF_RANGE", "Transparent index is outside the palette.")
     p.palette.transparent_index = a.transparent_index
     p.palette.names = names
+    p.platform = platform
+    if platform:
+        if platform.defaults.grid:
+            p.canvas.grid.w, p.canvas.grid.h = platform.defaults.grid.w, platform.defaults.grid.h
+            used.append("defaults.grid")
+        ratio = platform.system.pixel_aspect
+        if (ratio.w, ratio.h) in ((1, 1), (2, 1), (1, 2)):
+            p.canvas.pixel_ratio.w, p.canvas.pixel_ratio.h = ratio.w, ratio.h
+        a.__dict__["_copied_validation_keys"] = copy_validation(p)
+    a.__dict__["_defaults_from_platform"] = used
     p.layers[0].name = a.layer_name
     if a.background is not None:
         value = resolve_color(p.palette, a.background)
@@ -111,6 +161,11 @@ def query(ctx, a, name):
                 result[section] = [node(layer) for layer in p.layers]
             elif section == "palette":
                 result[section] = p.palette.model_dump()
+            elif section == "platform":
+                from cybersprite.core.platform import guide
+
+                result[section] = p.platform.model_dump(by_alias=True) if p.platform else None
+                result["guide"] = guide(p.platform) if p.platform else None
             elif section == "validation":
                 result[section] = report(p, root=root)
             elif section == "history":

@@ -40,6 +40,7 @@ def prepare(rule):
         p.palette.colors[1] = "#00000080"
     elif rule == "Q-PAL-05":
         p.validation.colors_per_frame_max = 1
+        p.layers[0].cels[0].pixels = ["0102"]
     elif rule == "Q-PIX-01":
         p.validation.orphan_pixels_max = clean.validation.orphan_pixels_max = 0
         p.layers[0].cels[0].pixels = ["0102"]
@@ -252,7 +253,7 @@ def test_unused_palette_excludes_only_reserved_transparent_index(transparent_ind
     p.layers[0].cels[0].pixels = [f"{opaque[0]:02x}{transparent_index:02x}"]
     used_transparency = report(p, use_cache=use_cache)
     assert used_transparency["metrics"]["unused_palette"] == 1
-    assert used_transparency["metrics"]["colors_used"] == 2
+    assert used_transparency["metrics"]["colors_used"] == 1
 
 
 def test_empty_transparent_only_palette_is_not_unused():

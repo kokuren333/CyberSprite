@@ -319,7 +319,7 @@ def report(
             nonclosed += 1
             add("Q-LYR-01", "Frame is not palette closed.", fs=[f])
         image = indexed.pixels
-        color_count = len(np.unique(image))
+        color_count = sum(int(i) != p.palette.transparent_index for i in np.unique(image))
         colors_per_frame.append(color_count)
         if (
             settings.colors_per_frame_max is not None
@@ -456,6 +456,12 @@ def report(
                             fs=fs,
                         )
                         break
+    platform_metrics = None
+    if p.platform is not None:
+        from .quality_platform import evaluate
+
+        platform_issues, platform_metrics = evaluate(p, colors_per_frame)
+        issues.extend(platform_issues)
     if rules is not None:
         issues = [i for i in issues if i["rule"] in rules or i["rule"].startswith("S-")]
     if selected_frames is not None:
@@ -487,7 +493,7 @@ def report(
     }
     metrics = {
         "palette_size": len(p.palette.colors),
-        "colors_used": len(usage),
+        "colors_used": sum(i != p.palette.transparent_index for i in usage),
         "unused_palette": len(unused),
         "off_palette": 0,
         "colors_per_frame": colors_per_frame,
@@ -507,6 +513,8 @@ def report(
         "non_closed_frames": nonclosed,
         "sources": sources,
     }
+    if platform_metrics is not None:
+        metrics["platform"] = platform_metrics
     return {
         "ok": counts["error"] == 0,
         "revision": p.revision,

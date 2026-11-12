@@ -104,6 +104,8 @@ def _run(images, directory, source_id, preset, overrides, project, position):
     ti = project.palette.transparent_index if project else 0
     existing = [rgba(c) for c in project.palette.colors] if project else None
     pal_settings = dict(settings["palette"])
+    if project is not None and project.platform is not None:
+        pal_settings["platform_color"] = project.platform.system.color
     if pal_settings.get("mode") == "fixed":
         src = pal_settings.get("source")
         if isinstance(src, str):

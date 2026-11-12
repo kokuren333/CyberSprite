@@ -65,21 +65,21 @@
       },
       "colors_per_frame": {
         "before": {
-          "sum": 1,
-          "max": 1
+          "sum": 0,
+          "max": 0
         },
         "after": {
-          "sum": 2,
-          "max": 2
+          "sum": 1,
+          "max": 1
         }
       },
       "colors_per_frame_max": {
-        "before": 1,
-        "after": 2
+        "before": 0,
+        "after": 1
       },
       "colors_used": {
         "before": 0,
-        "after": 2
+        "after": 1
       },
       "opaque_pixels": {
         "before": {

@@ -24,6 +24,7 @@ class OpContext:
     source_manifest: object = None
     previous_source_manifest: object = None
     warnings: list = field(default_factory=list)
+    defaults_from_platform: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -115,6 +116,7 @@ class Op:
             "revision": (int | dict[str, int], ...),
             "result": (self.result, ...),
             "warnings": (list[dict], Field(default_factory=lambda: [])),
+            "defaults_from_platform": (list[str], Field(default_factory=lambda: [])),
         }
         if self.kind in ("mutate", "ingest") and self.name not in (
             "new_project",

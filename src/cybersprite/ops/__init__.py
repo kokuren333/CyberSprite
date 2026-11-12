@@ -34,6 +34,7 @@ from .ingest import (
     source_query,
 )
 from .palette import palette_op
+from .platform_ops import apply_defaults, register_platforms
 from .previews import transaction_previews
 from .queries import construct, query, summary
 from .structure import layer_op, metadata_op, tag_slice_op
@@ -56,6 +57,7 @@ DRAWING = {
     "cleanup_pixels",
 }
 FRAME = {
+    "move_cel",
     "add_frame",
     "delete_frames",
     "move_frames",
@@ -100,6 +102,7 @@ QUERY = {
     "get_tiles",
 }
 NON_IDEMPOTENT = {
+    "move_cel",
     "delete_tiles",
     "move_tiles",
     "tileset_from_layer",
@@ -188,7 +191,10 @@ def _result(name):
         "undo": {"restored_revision": (int, ...)},
         "redo": {"restored_revision": (int, ...)},
         "apply_ops": {"results": (list[dict], ...)},
-        "new_project": {"summary": (dict, ...)},
+        "new_project": {
+            "summary": (dict, ...),
+            "copied_validation_keys": (list[str], Field(default_factory=lambda: [])),
+        },
         "get_info": {
             key: (Any, None)
             for key in (
@@ -202,6 +208,8 @@ def _result(name):
                 "sources",
                 "validation",
                 "history",
+                "platform",
+                "guide",
             )
         },
         "get_pixels": {
@@ -269,6 +277,11 @@ def _special(_ctx, _args):
 _registry = None
 
 
+def _apply_with_defaults(function, ctx, args, *, name):
+    ctx.defaults_from_platform.extend(apply_defaults(ctx.project, args, name))
+    return function(ctx, args, name=name)
+
+
 def registry():
     global _registry
     if _registry is None:
@@ -292,7 +305,7 @@ def registry():
                 ),
                 None,
             )
-            apply = partial(function, name=name) if function else _special
+            apply = partial(_apply_with_defaults, function, name=name) if function else _special
             kind: Literal["query", "mutate"] = "query" if name in QUERY else "mutate"
             idem: Literal["R", "N", "C", "I"] = (
                 "R"
@@ -322,6 +335,7 @@ def registry():
         from .export_ops import register_exports
 
         register_exports(_registry)
+        register_platforms(_registry)
         from .generation import register_generators
 
         register_generators(_registry)
@@ -383,7 +397,7 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
         value = generate_top(project, parsed, tx, actor)
         definition.result.model_validate(value["result"])
         return value
-    if name == "list_generators":
+    if name in ("list_generators", "list_platforms"):
         value = definition.apply(SimpleNamespace(root=root), parsed)
         definition.result.model_validate(value)
         return {
@@ -410,6 +424,8 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
     if name == "new_project":
         target = project_path(project)
         p = construct(parsed, root)
+        default_keys = parsed.__dict__.pop("_defaults_from_platform", [])
+        copied_keys = parsed.__dict__.pop("_copied_validation_keys", [])
         with nullcontext() if tx.dry_run else history.ProjectLock(root, actor):
             if target.exists():
                 if parsed.if_exists != "open":
@@ -432,8 +448,12 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
             "op": name,
             "project": root.as_posix(),
             "revision": p.revision,
-            "result": {"summary": summary(p, root)},
+            "result": {
+                "summary": summary(p, root),
+                **({"copied_validation_keys": copied_keys} if p.platform else {}),
+            },
             "warnings": [],
+            **({"defaults_from_platform": default_keys} if default_keys else {}),
         }
     if definition.kind == "mutate":
         calls = (
@@ -454,7 +474,8 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
     if options:
         raise invalid("Transaction options are accepted only by mutate operations.")
     p = synchronize(root, load_project(project), actor=actor)
-    value = definition.apply(OpContext(p, root), parsed)
+    ctx = OpContext(p, root)
+    value = definition.apply(ctx, parsed)
     # Validate output without injecting optional absent query sections.
     definition.result.model_validate(value)
     return {
@@ -464,4 +485,9 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
         "revision": p.revision,
         "result": value,
         "warnings": [],
+        **(
+            {"defaults_from_platform": sorted(set(ctx.defaults_from_platform))}
+            if ctx.defaults_from_platform
+            else {}
+        ),
     }

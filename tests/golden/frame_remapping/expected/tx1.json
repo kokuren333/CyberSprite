@@ -118,12 +118,12 @@
       },
       "colors_per_frame": {
         "before": {
-          "sum": 14,
-          "max": 3
+          "sum": 8,
+          "max": 2
         },
         "after": {
-          "sum": 8,
-          "max": 3
+          "sum": 4,
+          "max": 2
         }
       },
       "frames": {

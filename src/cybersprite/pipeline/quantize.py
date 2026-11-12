@@ -256,6 +256,7 @@ def quantize(
     transparent_index=0,
     dither_type="none",
     strength=255,
+    platform_color=None,
 ):
     """Return (index frames, locked palette, report), without touching a project.
 
@@ -302,6 +303,14 @@ def quantize(
             salient_distance=salient_distance,
             protect=protect,
         )
+    if platform_color is not None:
+        from cybersprite.core.platform import nearest_rgb
+
+        master = tuple(tuple(c) for c in platform_color.master_colors)
+        extracted = [
+            (*nearest_rgb(tuple(c[:3]), platform_color.model_dump_json(), master), c[3])
+            for c in extracted
+        ]
     # Quantize against source order first: fixed-source ties use source numbers.
     temporary = [(0, 0, 0, 0)] + extracted
     temp_indices = _assign_frames(frames, temporary, 0, dither_type, strength, np.int32)

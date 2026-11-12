@@ -1,0 +1,224 @@
+{
+  "format": "cybersprite-project",
+  "schema_version": 1,
+  "revision": 0,
+  "name": "DMG vector",
+  "platform": {
+    "id": "dmg/sprite-16",
+    "title": "DMG-class sprite-16",
+    "preset_version": 1,
+    "origin": "builtin",
+    "overrides": [],
+    "system": {
+      "id": "dmg",
+      "screen": {
+        "w": 160,
+        "h": 144
+      },
+      "pixel_aspect": {
+        "w": 1,
+        "h": 1
+      },
+      "color": {
+        "model": "master",
+        "bits": null,
+        "expand": null,
+        "master_palette": "gray-4",
+        "master_colors": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            85,
+            85,
+            85
+          ],
+          [
+            170,
+            170,
+            170
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "alpha": "binary"
+      },
+      "palette": {
+        "rows": 2,
+        "row_size": 4,
+        "slot0": "transparent",
+        "unit": "object",
+        "block": null
+      },
+      "tile": {
+        "w": 8,
+        "h": 8,
+        "bpp": 2,
+        "flips": {
+          "x": true,
+          "y": true,
+          "d": false
+        },
+        "unique_max": null,
+        "map_max": {
+          "w": 32,
+          "h": 32
+        }
+      },
+      "object": {
+        "sizes": [
+          [
+            8,
+            8
+          ],
+          [
+            8,
+            16
+          ]
+        ],
+        "notes": "Larger assets require multiple hardware objects."
+      },
+      "native": [
+        "gb-2bpp"
+      ]
+    },
+    "asset": {
+      "class": "sprite-16",
+      "role": "sprite",
+      "canvas": {
+        "w": 16,
+        "h": 16,
+        "fixed": true
+      },
+      "colors": {
+        "palette_max": 4,
+        "opaque_max": 3
+      },
+      "animation": {
+        "tick": null,
+        "tags": [],
+        "tags_optional": [],
+        "frames_max": null
+      }
+    },
+    "defaults": {
+      "grid": {
+        "w": 8,
+        "h": 8
+      },
+      "palette": "gray-4",
+      "preview": {
+        "scale": 6,
+        "backgrounds": []
+      },
+      "export": {
+        "scale": 1,
+        "review_scale": null,
+        "sheet": null
+      },
+      "pipeline": {
+        "preset": "ai",
+        "overrides": {
+          "palette.max_colors": 3
+        }
+      }
+    },
+    "validation": {
+      "palette_max": null,
+      "colors_per_frame_max": null,
+      "orphan_pixels_max": null,
+      "min_cluster": null,
+      "require_tag_coverage": null,
+      "silhouette_jitter_max": null,
+      "severity": {}
+    },
+    "craft": {
+      "basis": "authored",
+      "corpus": null,
+      "ramp_steps": null,
+      "outline": null,
+      "dither": null,
+      "light": null,
+      "fill_permille": null,
+      "depth_max": null,
+      "flat_permille": null,
+      "region_density_x100": null,
+      "parts": {}
+    },
+    "workflow": "silhouette-first",
+    "notes": "gray-4 uses authored conventional shades, not a hardware RGB standard."
+  },
+  "canvas": {
+    "width": 16,
+    "height": 16,
+    "grid": {
+      "x": 0,
+      "y": 0,
+      "w": 8,
+      "h": 8
+    },
+    "pixel_ratio": {
+      "w": 1,
+      "h": 1
+    },
+    "color_profile": "srgb"
+  },
+  "palette": {
+    "transparent_index": 0,
+    "frozen": false,
+    "colors": [
+      "#00000000",
+      "#000000ff",
+      "#555555ff",
+      "#aaaaaaff"
+    ],
+    "names": {
+      "1": "gray-0",
+      "2": "gray-1",
+      "3": "gray-2"
+    }
+  },
+  "frames": [
+    {
+      "duration_ms": 100
+    }
+  ],
+  "layers": [
+    {
+      "id": "L1",
+      "name": "Layer 1",
+      "type": "image",
+      "visible": true,
+      "locked": false,
+      "opacity": 255,
+      "blend_mode": "normal",
+      "background": false,
+      "continuous": false,
+      "cels": []
+    }
+  ],
+  "tags": [],
+  "slices": [],
+  "tilesets": [],
+  "validation": {
+    "palette_max": 4,
+    "colors_per_frame_max": 3,
+    "orphan_pixels_max": null,
+    "min_cluster": 2,
+    "require_tag_coverage": false,
+    "silhouette_jitter_max": null,
+    "severity": {}
+  },
+  "id_counters": {
+    "layer": 1,
+    "tag": 0,
+    "slice": 0,
+    "tileset": 0
+  },
+  "extensions": {}
+}

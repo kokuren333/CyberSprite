@@ -257,6 +257,8 @@ OPERATIONS = {
     "get_history": "Read recent transaction entries and whether undo or redo is available.",
 }
 
+OPERATIONS["move_cel"] = "Move a cel by integer offsets with explicit frame or shared scope."
+
 OVERRIDES = {
     ("add_tag", "color"): "Raw display color as #rrggbb; it need not belong to the palette.",
     ("update_tag", "color"): "Raw display color as #rrggbb; it need not belong to the palette.",

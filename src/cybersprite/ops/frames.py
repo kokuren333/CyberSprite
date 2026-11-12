@@ -168,18 +168,56 @@ def frame_op(ctx, a, name):
         for c in layer.cels
         if c.frame == owner.frame or isinstance(c, LinkCel) and c.link == owner.frame
     ]
-    if name == "set_cel":
+    if name == "move_cel":
+        if a.scope == "frame" and len(linked) > 1:
+            copy = deepcopy(owner)
+            copy.z_index = cel.z_index
+            put_cel(layer, copy, frame)
+            owner = cel_at(layer, frame)
+            linked = [frame]
+        if isinstance(layer, ImageLayer) and layer.background and (a.dx or a.dy):
+            raise invalid("Background cel position must remain (0, 0); resize the canvas instead.")
+        if not (-32768 <= owner.x + a.dx <= 32767 and -32768 <= owner.y + a.dy <= 32767):
+            raise invalid("Moved cel coordinates must remain within -32768..32767.")
+        owner.x += a.dx
+        owner.y += a.dy
+        if len(linked) > 1 and (a.dx or a.dy):
+            ctx.linked_frames.update(linked)
+            ctx.link_groups.add(tuple(sorted(linked)))
+    elif name == "set_cel":
+        shared_change = any(
+            getattr(a, key) is not None and getattr(a, key) != getattr(owner, key)
+            for key in ("x", "y", "opacity")
+        )
+        if len(linked) > 1 and shared_change:
+            if a.linked == "error":
+                from cybersprite.core.errors import CyberSpriteError
+
+                raise CyberSpriteError(
+                    "E_LINKED_CEL",
+                    "Cel position or opacity is shared with linked frames.",
+                    "Set linked=all to edit shared frames, or linked=unlink to detach this frame.",
+                    {"linked_frames": sorted(linked)},
+                )
+            if a.linked == "unlink":
+                copy = deepcopy(owner)
+                copy.z_index = cel.z_index
+                put_cel(layer, copy, frame)
+                cel = owner = cel_at(layer, frame)
+                linked = [frame]
         if (
             isinstance(layer, ImageLayer)
             and layer.background
             and (a.x not in (None, 0) or a.y not in (None, 0))
         ):
             raise invalid("Background cel position must remain (0, 0); resize the canvas instead.")
-        for key in sorted(a.model_fields_set - {"layer", "frame", "z_index"}):
+        for key in sorted(a.model_fields_set - {"layer", "frame", "z_index", "linked"}):
+            if getattr(a, key) is None and key != "user_data":
+                continue
             setattr(owner, key, deepcopy(getattr(a, key)))
         if a.z_index is not None:
             cel.z_index = a.z_index
-        if len(linked) > 1 and a.model_fields_set - {"layer", "frame", "z_index"}:
+        if len(linked) > 1 and a.model_fields_set - {"layer", "frame", "z_index", "linked"}:
             ctx.linked_frames.update(linked)
             ctx.link_groups.add(tuple(sorted(linked)))
     elif name == "unlink_cel":

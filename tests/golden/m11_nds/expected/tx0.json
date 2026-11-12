@@ -1,0 +1,168 @@
+{
+  "ok": true,
+  "op": "set_pixel",
+  "project": "golden.csprite",
+  "revision": {
+    "before": 0,
+    "after": 1
+  },
+  "no_op": false,
+  "replayed": false,
+  "dry_run": false,
+  "result": {
+    "pixels_written": 1
+  },
+  "changed": {
+    "data": true,
+    "frames": [
+      {
+        "frame": 0,
+        "pixels_changed": 1,
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        }
+      }
+    ],
+    "layers": [
+      "L1"
+    ],
+    "cels": [
+      {
+        "layer": "L1",
+        "frame": 0
+      }
+    ],
+    "tilesets": [],
+    "linked_frames": [],
+    "link_groups": [],
+    "clipped_pixels": 0
+  },
+  "validation": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2,
+    "new_issues": [
+      {
+        "rule": "Q-PLT-05",
+        "level": "warning",
+        "message": "Dimensions are not multiples of the platform tile size. Dimensions require several platform objects; inspect object composition.",
+        "where": {
+          "frames": [
+            0
+          ],
+          "layer": "L1",
+          "bbox": null,
+          "points": []
+        }
+      },
+      {
+        "rule": "Q-PIX-02",
+        "level": "info",
+        "message": "Frame has clusters below min_cluster.",
+        "where": {
+          "frames": [
+            0
+          ],
+          "layer": "L1",
+          "bbox": null,
+          "points": [
+            [
+              0,
+              0
+            ]
+          ]
+        }
+      }
+    ],
+    "resolved_issues": [
+      {
+        "rule": "Q-LYR-03",
+        "level": "info",
+        "message": "Layer has no cels.",
+        "where": {
+          "frames": [],
+          "layer": "L1",
+          "bbox": null,
+          "points": []
+        }
+      }
+    ],
+    "metrics_delta": {
+      "cels": {
+        "before": 0,
+        "after": 1
+      },
+      "colors_per_frame": {
+        "before": {
+          "sum": 0,
+          "max": 0
+        },
+        "after": {
+          "sum": 1,
+          "max": 1
+        }
+      },
+      "colors_per_frame_max": {
+        "before": 0,
+        "after": 1
+      },
+      "colors_used": {
+        "before": 0,
+        "after": 1
+      },
+      "opaque_pixels": {
+        "before": {
+          "sum": 0,
+          "max": 0
+        },
+        "after": {
+          "sum": 1,
+          "max": 1
+        }
+      },
+      "orphan_pixels": {
+        "before": {
+          "sum": 0,
+          "max": 0
+        },
+        "after": {
+          "sum": 1,
+          "max": 1
+        }
+      },
+      "orphan_pixels_total": {
+        "before": 0,
+        "after": 1
+      },
+      "platform.opaque_max": {
+        "before": 0,
+        "after": 1
+      },
+      "platform.unique_tiles": {
+        "before": 1,
+        "after": 2
+      },
+      "platform.unique_tiles_with_flips": {
+        "before": 1,
+        "after": 2
+      },
+      "small_clusters_total": {
+        "before": 0,
+        "after": 1
+      },
+      "unused_palette": {
+        "before": 2,
+        "after": 1
+      }
+    }
+  },
+  "preview": {
+    "paths": [],
+    "scale": 1,
+    "omitted_frames": []
+  },
+  "warnings": []
+}

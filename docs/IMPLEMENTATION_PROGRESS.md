@@ -195,3 +195,10 @@
 - 唯一の更新器で既存15・新規3のgolden期待値を生成して全差分を確認した。既存PNG・画素配列・画素ハッシュ・正本は不変。新しい独自分割PNGは既存互換配列PNGとバイト同一。M5全出力はハッシュシード17/319でも一致した。
 - 実CLIで2×1・2フレーム・透明番号2・日本語タグ/スライスを作成し、検証デルタ・全フレームプレビュー・書出しPNG/JSONを確認した。validation_ok/verified=true、error/warning=0、未使用色0。情報3件は独立同一セルと1画素クラスタの工学ベクタによる意図どおりの指摘として保持。git管理外の `build/fix6-review/` に実ファイルと記録を残した。
 - 判断I-901〜I-904。SPEC変更は付録D.1と§6.4.1、§13.2/13.4。新規依存・外部参照・ビジュアル判断なし。LinuxはI-007のとおり未実行、main統合はオーケストレーターが行う。詳細は [FIX6_IMPLEMENTATION_REPORT.md](FIX6_IMPLEMENTATION_REPORT.md)。
+
+## R1-E1: プラットフォームの芯と共有セルの明示化（2026-11-12）
+
+- SPECを先に改訂してM11〜M13を追加し、省略可能platform snapshot、解決・継承、29定義、Op/CLI/MCP、6規則、既定値の駆動、リンク編集の明示scopeを実装した。
+- 個別試験は途中集計36 passed。実CLIとMCP SDKの通し確認、実PNGの自前/Pillow再復号とファイル確認、Ruff/mypy39ファイル/schema/repositoryは成功。全体pytestは実行中。既存goldenは8応答の透明除外による色数デルタだけ、新規NDS/DMGは16期待ファイル。既存正本・画像・画素ハッシュは不変。
+- 性能最適化なし、before/afterの速度主張なし。判断I-1401〜I-1414、新規依存なし。ハードウェアの事実はPan Docs/GBATEKで照合した。
+- GUIの意匠、R1-C共通基盤への接合、M12/M13、Linux、過去DS資料の遡及来歴記録は後続工程。詳細は [R1_E1_REPORT.md](R1_E1_REPORT.md)。

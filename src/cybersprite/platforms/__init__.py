@@ -91,6 +91,7 @@ def definitions(platform_file=None):
 
 
 def pointers(data, overrides):
+    check_integer_data(overrides or {})
     result = deepcopy(data)
     for pointer, value in sorted((overrides or {}).items()):
         if not pointer.startswith("/") or re.search(r"~(?![01])", pointer):
@@ -163,6 +164,16 @@ def resolve(
         payload = resolved.model_dump(by_alias=True)
         payload = pointers(payload, overrides)
         payload["overrides"] = sorted(set(resolved.overrides) | set(overrides or {}))
+        from cybersprite.formats.palette_files import presets
+
+        known_palettes = {entry["name"] for entry in presets()}
+        default_palette = payload["defaults"]["palette"]
+        if isinstance(default_palette, str) and default_palette not in known_palettes:
+            raise invalid(
+                "Platform defaults.palette requires a preset ID or literal colors. "
+                "Pass palette file paths through new_project.palette.",
+                palette=default_palette,
+            )
         # Freeze the master RGB table as well as its human-readable preset ID.
         if payload["system"]["color"]["model"] == "master" and not payload["system"]["color"].get(
             "master_colors"
@@ -171,6 +182,11 @@ def resolve(
             from cybersprite.formats.palette_files import read_palette
 
             name = payload["system"]["color"]["master_palette"]
+            if name not in known_palettes:
+                raise invalid(
+                    "Use a registered master_palette ID, or embed master_colors in the snapshot.",
+                    palette=name,
+                )
             payload["system"]["color"]["master_colors"] = sorted(
                 {c[:3] for c in map(rgba, read_palette(name)) if c[3] == 255}
             )

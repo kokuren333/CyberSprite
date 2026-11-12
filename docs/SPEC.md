@@ -1089,6 +1089,8 @@ hero.csprite/
 
 `system.color.master_colors` は解決時に固定するRGB整数三つ組の配列である。master_paletteの名前は来歴として保持し、検証やconform_paletteはこの保存済み色表だけを使う。既定パレットがasset.colors.palette_maxを超える場合は番号順の先頭を採用する。明示パレットは切り詰めない。
 
+定義中のdefaults.paletteと未解決のmaster_paletteの文字列は登録済みパレットIDだけを受ける。独自色はリテラルの配列に固定し、ファイルのパスはパス検査を通る明示のnew_project.palette引数で渡す。
+
 - 表示系は `free`、`dmg`、`nds`、`hd-320x180`、`hd-384x216`、`hd-480x270`、`hd-640x360`。汎用役割は sprite-16/24/32/48/64/80/96/128、tileset-8/16/32、background、ui-icon-16、portrait-64。組は dmg/sprite-16、dmg/tileset-8、dmg/background、nds/sprite-80、nds/sprite-96、hd-320x180/sprite-64、free/sprite-32。`motion` は tick={num:1,den:24}、必須 idle、任意 attack/hurt/death/skill/power。
 - DMG の画面160×144、8×8・2bpp、背景マップ32×32、物体8×8/8×16、背景1行×4・物体2行×4。NDS の画面256×192、RGB555、代表モードは8×8・4bpp、16行×16、物体12寸法（8〜64px）。公開技術資料の事実のみで照合する。gray-4 は自作の慣用灰色で、実機のRGB規格ではない。背景用は透明予約枠に加えて4階調を保持する。
 - 内蔵craftはauthoredだけ。Q-PLT-04/06、Q-CRF-01、export_native は後続段階。M11でもmetrics.platformにunique_tiles/unique_tiles_with_flipsを含める。色数は常に透明インデックスを除く使用色数。
