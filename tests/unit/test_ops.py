@@ -180,6 +180,7 @@ def test_registry_coverage_and_contracts():
         "cleanup_pixels",
         "import_aseprite",
         "import_image",
+        "add_source",
         "list_sources",
         "get_source",
         "list_generators",
