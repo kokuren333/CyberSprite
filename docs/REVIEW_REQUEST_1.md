@@ -28,7 +28,7 @@ M0〜M10 をすべて実装し、`main` に統合した。詳細は `docs/IMPLEM
 
 ## 3. テスト結果（Windows 11 / Python 3.12.10）
 
-- Python: 1387 passed / 2 skipped（skip は開発機にシンボリックリンク作成権限がない 2 件）。FIX-6 の統合後の数は `IMPLEMENTATION_PROGRESS.md` を参照。
+- Python: 1411 passed / 2 skipped（skip は開発機にシンボリックリンク作成権限がない 2 件）。
 - GUI: vitest 627 passed（TS のラスタライズがテストベクタ 618 件と 100% 一致）、Playwright 3 passed、コントラスト検査 86 組合格。
 - 通しシナリオ 1〜5（MCP の JSONL 再生）すべて合格、skip / xfail なし。
 - Ruff、スキーマ差分検査、クリーンルーム検査、ライセンス検査（実行時・開発・ビルド・`mcp` / `gui` extra）合格。
