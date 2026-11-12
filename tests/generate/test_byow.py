@@ -104,6 +104,17 @@ def test_adapter_registration_and_base_warning(byow, kind):
     assert any(b["badge"] == "non-commercial only" for b in list_models()["models"][0]["badges"])
 
 
+def test_list_generators_models_carry_the_same_badges(byow):
+    register(byow, commercial_use="no")
+    from cybersprite.generate.registry import BackendRegistry
+
+    described = BackendRegistry().describe()["backends"]
+    diffusers = next(b for b in described if b["name"] == "diffusers")
+    badges = diffusers["models"][0]["badges"]
+    assert badges == list_models()["models"][0]["badges"]
+    assert badges[0]["badge"] == "non-commercial only"
+
+
 @pytest.mark.parametrize(
     "name,kind,base",
     [

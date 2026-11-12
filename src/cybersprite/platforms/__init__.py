@@ -204,8 +204,36 @@ def resolve(
         ) from error
 
 
+def _summary(available, key):
+    """Inherited system ID, role and canvas for listings; no validation, cycle-safe."""
+    merged, seen = {}, set()
+    while key in available and key not in seen:
+        seen.add(key)
+        data = available[key][0]
+        merged = merge({k: v for k, v in data.items() if k != "extends"}, merged)
+        key = data.get("extends")
+    system = merged.get("system") if isinstance(merged.get("system"), dict) else {}
+    asset = merged.get("asset") if isinstance(merged.get("asset"), dict) else {}
+    canvas = asset.get("canvas") if isinstance(asset.get("canvas"), dict) else None
+    return {
+        "system": system.get("id") if isinstance(system.get("id"), str) else None,
+        "role": asset.get("role") if isinstance(asset.get("role"), str) else None,
+        "canvas": (
+            {"w": canvas["w"], "h": canvas["h"], "fixed": bool(canvas.get("fixed", False))}
+            if canvas and isinstance(canvas.get("w"), int) and isinstance(canvas.get("h"), int)
+            else None
+        ),
+    }
+
+
 def list_platforms():
+    available = definitions()
     return [
-        {"id": key, "title": data.get("title", key), "origin": origin}
-        for key, (data, origin) in sorted(definitions().items())
+        {
+            "id": key,
+            "title": data.get("title", key),
+            "origin": origin,
+            **_summary(available, key),
+        }
+        for key, (data, origin) in sorted(available.items())
     ]

@@ -33,6 +33,22 @@ def create(root, **args):
     return ops.execute("new_project", root, args, preview="none")
 
 
+def test_list_platforms_reports_inherited_system_role_and_canvas():
+    listed = {p["id"]: p for p in list_platforms()}
+    assert listed["nds/sprite-80"] == {
+        "id": "nds/sprite-80",
+        "title": "NDS-class sprite-80",
+        "origin": "builtin",
+        "system": "nds",
+        "role": "sprite",
+        "canvas": {"w": 80, "h": 80, "fixed": True},
+    }
+    assert listed["dmg/sprite-16"]["canvas"] == {"w": 16, "h": 16, "fixed": True}
+    assert listed["nds"]["canvas"] is None and listed["nds"]["system"] == "nds"
+    assert listed["sprite-80"]["system"] == "free"
+    assert listed["sprite-80"]["canvas"]["fixed"] is False
+
+
 def test_builtin_snapshots():
     ids = {p["id"] for p in list_platforms()}
     assert {"free", "dmg", "nds", "sprite-80", "motion", "dmg/background", "nds/sprite-96"} <= ids
