@@ -1,0 +1,16 @@
+{
+  "id": "sprite-128",
+  "preset_version": 1,
+  "title": "Free 128x128 sprite",
+  "extends": "free",
+  "asset": {
+    "class": "sprite-128",
+    "role": "sprite",
+    "canvas": {
+      "w": 128,
+      "h": 128,
+      "fixed": false
+    }
+  },
+  "workflow": "turnaround-parts"
+}

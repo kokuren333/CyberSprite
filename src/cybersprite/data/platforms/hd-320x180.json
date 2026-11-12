@@ -1,0 +1,23 @@
+{
+  "id": "hd-320x180",
+  "preset_version": 1,
+  "title": "HD-class 320x180 display",
+  "extends": "free",
+  "system": {
+    "id": "hd-320x180",
+    "screen": {
+      "w": 320,
+      "h": 180
+    },
+    "tile": {
+      "w": 16,
+      "h": 16
+    }
+  },
+  "defaults": {
+    "grid": {
+      "w": 16,
+      "h": 16
+    }
+  }
+}

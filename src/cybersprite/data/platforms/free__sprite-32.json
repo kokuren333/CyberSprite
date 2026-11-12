@@ -1,0 +1,28 @@
+{
+  "id": "free/sprite-32",
+  "preset_version": 1,
+  "title": "FREE-class sprite-32",
+  "extends": "free",
+  "asset": {
+    "class": "sprite-32",
+    "role": "sprite",
+    "canvas": {
+      "w": 32,
+      "h": 32,
+      "fixed": false
+    },
+    "colors": {
+      "palette_max": 17,
+      "opaque_max": 16
+    }
+  },
+  "defaults": {
+    "pipeline": {
+      "preset": "ai",
+      "overrides": {
+        "palette.max_colors": 16
+      }
+    }
+  },
+  "workflow": "direct"
+}

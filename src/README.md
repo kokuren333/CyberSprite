@@ -1,6 +1,6 @@
 # src/
 
-Python パッケージ `cybersprite` の置き場所。M1〜M9 のヘッドレス基盤、Op・トランザクション、CLI、MCP、形式、変換、タイルマップ、GUI、source 専用生成を統合済み（79 Op、生成を無効にした標準MCPは77ツール）。Diffusers extra の依存追加は監査保留。M10の配布手順は `tools/build_release.py`。
+Python パッケージ `cybersprite` の置き場所。M1〜M11 のヘッドレス基盤、Op・トランザクション、CLI、MCP、形式、変換、タイルマップ、GUI、source 専用生成、platform機構を統合済み（84 Op、生成を無効にした標準MCPは82ツール）。Diffusers extra の依存追加は監査保留。M10の配布手順は `tools/build_release.py`。
 
 `src/` レイアウトにしているのは、インストールしていない状態のコードをテストが誤って読み込むのを防ぐためである。
 
@@ -13,6 +13,7 @@ Python パッケージ `cybersprite` の置き場所。M1〜M9 のヘッドレ�
 | `cybersprite/generate/` | `contracts` のバックエンド契約、`registry` の遅延プラグイン、`backends` の command/Diffusers API 接続、`licenses` の実体ハッシュと承諾、`service` の source 専用保存と再実行 | §12 | M9 |
 | `cybersprite/cli/` | 全コマンド。`generated` が登録済み Op の引数から Click オプションを遅延生成し、`output` が JSON・要約・エラー封筒と正本への出力保護を担当する。GUIと生成の入口も統合済み。使い方は `docs/CLI.md` | §9 | M1〜M9 |
 | `cybersprite/config.py` | ユーザーの config.toml の場所解決と厳密なスキーマ、生成コマンドの置換名検査、モデル実体の設定。`CYBERSPRITE_CONFIG_DIR` で設定ディレクトリを分離できる | §9.6、§12 | M3、M9 |
+| `cybersprite/platforms/` | データだけの定義の探索・単一継承・JSON Pointer上書き。`core/platform.py`が純粋snapshotと整数色距離・tick配分、`core/quality_platform.py`がQ-PLT検証を担当。保存後は定義を読み直さない | §5.13、§10、§13 | M11 |
 | `cybersprite/mcp/` | `server` が Op 実行と利用範囲、`contracts` がプロファイルとスキーマ、`paths` が入力・出力の実体パス制限、`execution` が期限とロールバックを担当。export_policy は同じ root/allow-dir を共有 | §10 | M4 |
 | `cybersprite/server/` | GUI 用ローカルサーバ。GUI のビルド成果物を `static/` に同梱する | §14.6 | M8 |
 | `cybersprite/plugins/` | プラグインの読み込みと公開 API | §15 | M2〜 |

@@ -308,6 +308,11 @@ def transact(
         result = {
             "ok": True,
             "op": op,
+            **(
+                {"defaults_from_platform": sorted(set(ctx.defaults_from_platform))}
+                if ctx.defaults_from_platform
+                else {}
+            ),
             "project": root.as_posix(),
             "revision": {"before": before.revision, "after": after.revision},
             "no_op": no_op,

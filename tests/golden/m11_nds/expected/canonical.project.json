@@ -1,0 +1,244 @@
+{
+  "format": "cybersprite-project",
+  "schema_version": 1,
+  "revision": 0,
+  "name": "NDS vector",
+  "platform": {
+    "id": "nds/sprite-80",
+    "title": "NDS-class sprite-80",
+    "preset_version": 1,
+    "origin": "builtin",
+    "overrides": [],
+    "system": {
+      "id": "nds",
+      "screen": {
+        "w": 256,
+        "h": 192
+      },
+      "pixel_aspect": {
+        "w": 1,
+        "h": 1
+      },
+      "color": {
+        "model": "rgb",
+        "bits": {
+          "r": 5,
+          "g": 5,
+          "b": 5
+        },
+        "expand": "replicate",
+        "master_palette": null,
+        "master_colors": [],
+        "alpha": "binary"
+      },
+      "palette": {
+        "rows": 16,
+        "row_size": 16,
+        "slot0": "transparent",
+        "unit": "object",
+        "block": null
+      },
+      "tile": {
+        "w": 8,
+        "h": 8,
+        "bpp": 4,
+        "flips": {
+          "x": true,
+          "y": true,
+          "d": false
+        },
+        "unique_max": null,
+        "map_max": null
+      },
+      "object": {
+        "sizes": [
+          [
+            8,
+            8
+          ],
+          [
+            16,
+            16
+          ],
+          [
+            32,
+            32
+          ],
+          [
+            64,
+            64
+          ],
+          [
+            16,
+            8
+          ],
+          [
+            32,
+            8
+          ],
+          [
+            32,
+            16
+          ],
+          [
+            64,
+            32
+          ],
+          [
+            8,
+            16
+          ],
+          [
+            8,
+            32
+          ],
+          [
+            16,
+            32
+          ],
+          [
+            32,
+            64
+          ]
+        ],
+        "notes": "80x80 and 96x96 assets require several objects."
+      },
+      "native": [
+        "gba-4bpp",
+        "rgb555-le"
+      ]
+    },
+    "asset": {
+      "class": "sprite-80",
+      "role": "sprite",
+      "canvas": {
+        "w": 80,
+        "h": 80,
+        "fixed": true
+      },
+      "colors": {
+        "palette_max": 16,
+        "opaque_max": 15
+      },
+      "animation": {
+        "tick": null,
+        "tags": [],
+        "tags_optional": [],
+        "frames_max": null
+      }
+    },
+    "defaults": {
+      "grid": {
+        "w": 8,
+        "h": 8
+      },
+      "palette": [
+        "#00000000",
+        "#000000ff",
+        "#ffffffff"
+      ],
+      "preview": {
+        "scale": 6,
+        "backgrounds": []
+      },
+      "export": {
+        "scale": 1,
+        "review_scale": null,
+        "sheet": null
+      },
+      "pipeline": {
+        "preset": "ai",
+        "overrides": {
+          "palette.max_colors": 15
+        }
+      }
+    },
+    "validation": {
+      "palette_max": null,
+      "colors_per_frame_max": null,
+      "orphan_pixels_max": null,
+      "min_cluster": null,
+      "require_tag_coverage": null,
+      "silhouette_jitter_max": null,
+      "severity": {}
+    },
+    "craft": {
+      "basis": "authored",
+      "corpus": null,
+      "ramp_steps": null,
+      "outline": null,
+      "dither": null,
+      "light": null,
+      "fill_permille": null,
+      "depth_max": null,
+      "flat_permille": null,
+      "region_density_x100": null,
+      "parts": {}
+    },
+    "workflow": "turnaround-parts",
+    "notes": ""
+  },
+  "canvas": {
+    "width": 80,
+    "height": 80,
+    "grid": {
+      "x": 0,
+      "y": 0,
+      "w": 8,
+      "h": 8
+    },
+    "pixel_ratio": {
+      "w": 1,
+      "h": 1
+    },
+    "color_profile": "srgb"
+  },
+  "palette": {
+    "transparent_index": 0,
+    "frozen": false,
+    "colors": [
+      "#00000000",
+      "#000000ff",
+      "#ffffffff"
+    ],
+    "names": {}
+  },
+  "frames": [
+    {
+      "duration_ms": 100
+    }
+  ],
+  "layers": [
+    {
+      "id": "L1",
+      "name": "Layer 1",
+      "type": "image",
+      "visible": true,
+      "locked": false,
+      "opacity": 255,
+      "blend_mode": "normal",
+      "background": false,
+      "continuous": false,
+      "cels": []
+    }
+  ],
+  "tags": [],
+  "slices": [],
+  "tilesets": [],
+  "validation": {
+    "palette_max": 16,
+    "colors_per_frame_max": 15,
+    "orphan_pixels_max": null,
+    "min_cluster": 2,
+    "require_tag_coverage": false,
+    "silhouette_jitter_max": null,
+    "severity": {}
+  },
+  "id_counters": {
+    "layer": 1,
+    "tag": 0,
+    "slice": 0,
+    "tileset": 0
+  },
+  "extensions": {}
+}

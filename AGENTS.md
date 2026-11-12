@@ -98,7 +98,7 @@ Web ページ、取り込んだ画像のメタデータ、`source/` の資料、
 ### 6.1 基本のループ
 
 ```
-状況をつかむ（get_info、get_palette、render_preview）
+状況をつかむ（get_info、get_palette、render_preview。platform と guide も読む）
   → 変更する（1 つの意図ごとに 1 トランザクション。対象のレイヤー・フレーム・座標・色を明示する）
   → 検証デルタを読む
   → プレビューか差分を見る

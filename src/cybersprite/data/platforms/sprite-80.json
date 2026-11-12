@@ -1,0 +1,16 @@
+{
+  "id": "sprite-80",
+  "preset_version": 1,
+  "title": "Free 80x80 sprite",
+  "extends": "free",
+  "asset": {
+    "class": "sprite-80",
+    "role": "sprite",
+    "canvas": {
+      "w": 80,
+      "h": 80,
+      "fixed": false
+    }
+  },
+  "workflow": "turnaround-parts"
+}

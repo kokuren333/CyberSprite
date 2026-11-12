@@ -185,6 +185,11 @@ def test_registry_coverage_and_contracts():
         "list_generators",
         "generate_image",
         "export_plugin",
+        "move_cel",
+        "set_platform",
+        "list_platforms",
+        "conform_palette",
+        "set_frame_ticks",
     }
     for op in registry().all():
         description = op.describe()

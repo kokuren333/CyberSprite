@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Annotated, Literal
 
 import numpy as np
-from pydantic import Field
+from pydantic import Field, ValidationError
 
 from cybersprite.core import history, sources
 from cybersprite.core.canonical import load_project, metadata_bytes, project_path
@@ -296,9 +296,46 @@ def _capture(root, args, manifest, *, dry_run=False):
     return source, frames, durations, warnings
 
 
+def _platform_pipeline_defaults(args, project):
+    used = []
+    if (
+        project is not None
+        and project.platform
+        and not ({"preset", "pipeline"} & args.model_fields_set)
+    ):
+        from cybersprite.platforms import merge
+
+        defaults = project.platform.defaults.pipeline
+        if defaults.preset:
+            args.preset = defaults.preset
+            used.append("defaults.pipeline.preset")
+        nested: dict = {}
+        for key, value in sorted(defaults.overrides.items()):
+            target = nested
+            parts = key.split(".")
+            for part in parts[:-1]:
+                target = target.setdefault(part, {})
+            target[parts[-1]] = value
+        if nested:
+            try:
+                args.pipeline = PipelineSettings.model_validate(merge({}, nested))
+            except ValidationError as error:
+                raise invalid(
+                    "Invalid platform pipeline defaults. "
+                    "Fix defaults.pipeline.overrides with set_platform.",
+                    issues=error.errors(include_input=False, include_context=False),
+                ) from error
+            used.append("defaults.pipeline.overrides")
+    args.__dict__["_platform_defaults"] = used
+
+
 def import_top(registry, path, args, tx, actor):
     try:
-        return _import_top(registry, path, args, tx, actor)
+        result = _import_top(registry, path, args, tx, actor)
+        used = args.__dict__.get("_platform_defaults", [])
+        if used and not result.get("replayed"):
+            result["defaults_from_platform"] = sorted(used)
+        return result
     except OSError as error:
         raise CyberSpriteError(
             "E_IO",
@@ -329,6 +366,7 @@ def _import_top(registry, path, args, tx, actor):
                     if tx.dry_run:
                         result.update(dry_run=True, would_commit=False, checked=["idempotency"])
                     return result
+        _platform_pipeline_defaults(args, existing)
         manifest = sources.read_manifest(root)
         previous_manifest = deepcopy(manifest)
         source, images, durations, warnings = _capture(root, args, manifest, dry_run=tx.dry_run)
@@ -443,6 +481,7 @@ def _import_top(registry, path, args, tx, actor):
                 palette=["#00000000"],
             )
         prepared = {
+            "platform_defaults": args.__dict__.get("_platform_defaults", []),
             "indices": indices,
             "palette": palette,
             "durations": durations,
@@ -478,6 +517,8 @@ def place(ctx, args):
     if ctx.prepared is None:
         raise invalid("import_image must be invoked as a top-level ingest operation.")
     data, p = ctx.prepared, ctx.project
+    if data.get("platform_defaults"):
+        ctx.defaults_from_platform.extend(data["platform_defaults"])
     ctx.warnings.extend(data["warnings"])
     target = args.target
     if target.mode == "new_layer" or data["new_project"]:

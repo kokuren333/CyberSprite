@@ -1,0 +1,25 @@
+{
+  "id": "motion",
+  "preset_version": 1,
+  "title": "Free motion at 24 fps",
+  "extends": "free",
+  "asset": {
+    "role": "effect",
+    "animation": {
+      "tick": {
+        "num": 1,
+        "den": 24
+      },
+      "tags": [
+        "idle"
+      ],
+      "tags_optional": [
+        "attack",
+        "hurt",
+        "death",
+        "skill",
+        "power"
+      ]
+    }
+  }
+}

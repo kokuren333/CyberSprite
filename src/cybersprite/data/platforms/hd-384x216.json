@@ -1,0 +1,23 @@
+{
+  "id": "hd-384x216",
+  "preset_version": 1,
+  "title": "HD-class 384x216 display",
+  "extends": "free",
+  "system": {
+    "id": "hd-384x216",
+    "screen": {
+      "w": 384,
+      "h": 216
+    },
+    "tile": {
+      "w": 16,
+      "h": 16
+    }
+  },
+  "defaults": {
+    "grid": {
+      "w": 16,
+      "h": 16
+    }
+  }
+}

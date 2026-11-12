@@ -1,0 +1,11 @@
+{
+  "id": "background",
+  "preset_version": 1,
+  "title": "Free background",
+  "extends": "free",
+  "asset": {
+    "class": "background",
+    "role": "background"
+  },
+  "workflow": "scene"
+}

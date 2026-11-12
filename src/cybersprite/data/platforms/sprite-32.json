@@ -1,0 +1,16 @@
+{
+  "id": "sprite-32",
+  "preset_version": 1,
+  "title": "Free 32x32 sprite",
+  "extends": "free",
+  "asset": {
+    "class": "sprite-32",
+    "role": "sprite",
+    "canvas": {
+      "w": 32,
+      "h": 32,
+      "fixed": false
+    }
+  },
+  "workflow": "direct"
+}

@@ -258,9 +258,28 @@ define("set_frame_duration", {"frames": (Frames, ...), "duration_ms": (Duration,
 define(
     "set_cel",
     {
+        "linked": (
+            Literal["error", "all", "unlink"],
+            Field(
+                "error",
+                description="Shared position/opacity edits: error, all, or unlink this frame.",
+            ),
+        ),
         **{k: (Coordinate | None, None) for k in ("x", "y", "z_index")},
         "opacity": (Byte | None, None),
         "user_data": (UserData | None, None),
+    },
+    True,
+)
+define(
+    "move_cel",
+    {
+        "dx": (int, 0),
+        "dy": (int, 0),
+        "scope": (
+            Literal["frame", "shared"],
+            Field(description="Move this frame after detaching, or every shared frame."),
+        ),
     },
     True,
 )
@@ -442,8 +461,30 @@ for name in ("undo", "redo"):
 define(
     "new_project",
     {
-        "width": (Positive, ...),
-        "height": (Positive, ...),
+        "width": (Positive | None, None),
+        "height": (Positive | None, None),
+        "platform": (
+            str | dict | None,
+            Field(
+                None,
+                description="Platform ID or data-only definition; omission uses user defaults.",
+            ),
+        ),
+        "platform_file": (
+            str | None,
+            Field(
+                None,
+                description="Platform JSON file path.",
+                json_schema_extra={"x-cybersprite-path": "input"},
+            ),
+        ),
+        "platform_overrides": (
+            dict,
+            Field(
+                default_factory=lambda: {},
+                description="Platform override values keyed by JSON Pointer.",
+            ),
+        ),
         "palette": (str | list[str], "cs-circuit-16"),
         "transparent_index": (int, 0),
         "frames": (Positive, 1),
@@ -470,6 +511,7 @@ define(
                     "sources",
                     "validation",
                     "history",
+                    "platform",
                 ]
             ],
             ["summary"],
@@ -493,8 +535,8 @@ define(
     "add_tileset",
     {
         "name": (Name, ...),
-        "tile_w": (TileSize, ...),
-        "tile_h": (TileSize, ...),
+        "tile_w": (TileSize | None, None),
+        "tile_h": (TileSize | None, None),
         "base_index": (int, 1),
         "if_exists": (Literal["error", "reuse", "allow"], "error"),
     },
@@ -541,8 +583,8 @@ define(
     "tileset_from_layer",
     {
         "layer": (str, ...),
-        "tile_w": (TileSize, ...),
-        "tile_h": (TileSize, ...),
+        "tile_w": (TileSize | None, None),
+        "tile_h": (TileSize | None, None),
         "origin_x": (
             int | None,
             Field(None, description="Grid origin X; defaults to canvas.grid.x."),

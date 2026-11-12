@@ -1,0 +1,28 @@
+{
+  "id": "dmg/sprite-16",
+  "preset_version": 1,
+  "title": "DMG-class sprite-16",
+  "extends": "dmg",
+  "asset": {
+    "class": "sprite-16",
+    "role": "sprite",
+    "canvas": {
+      "w": 16,
+      "h": 16,
+      "fixed": true
+    },
+    "colors": {
+      "palette_max": 4,
+      "opaque_max": 3
+    }
+  },
+  "defaults": {
+    "pipeline": {
+      "preset": "ai",
+      "overrides": {
+        "palette.max_colors": 3
+      }
+    }
+  },
+  "workflow": "silhouette-first"
+}

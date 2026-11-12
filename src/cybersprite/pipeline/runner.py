@@ -181,6 +181,8 @@ def _run(images, directory, source_id, preset, overrides, project, position):
     quant_plugin = plugins.resolve("quantize", quant_method)
     if quant_method is not None and quant_plugin is None:
         pal_settings["mode"] = quant_method
+    if project is not None and project.platform is not None:
+        pal_settings["platform_color"] = project.platform.system.color
     if pal_settings.get("mode") == "fixed":
         src = pal_settings.get("source")
         if isinstance(src, str):

@@ -242,6 +242,7 @@ def to_native(p):
     metadata = dict(
         version=1,
         name=p.name,
+        **({"platform": p.platform.model_dump(by_alias=True)} if p.platform else {}),
         frozen=p.palette.frozen,
         shapes={},
         extension_ids={name: n + 1 for n, name in enumerate(extensions)},
@@ -498,6 +499,7 @@ def from_native(sprite, *, name="Imported", quantize=None):
         palette, names, ti = ["#00000000"], {}, 0
     p = Project(
         name=metadata.get("name", name),
+        platform=metadata.get("platform"),
         canvas=Canvas(
             width=width,
             height=height,
