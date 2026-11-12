@@ -1,0 +1,226 @@
+{
+"label": "collar: cast shadow of the head, midrib fold, veins, lit edges",
+"ops": [
+{
+"op": "shift_ramp",
+"args": {
+"layer": "collar",
+"frame": 0,
+"direction": "darker",
+"region": {
+"type": "or",
+"of": [
+{
+"type": "polygon",
+"points": [
+[
+11,
+40
+],
+[
+62,
+40
+],
+[
+63,
+46
+],
+[
+52,
+45
+],
+[
+46,
+44
+],
+[
+30,
+43
+],
+[
+20,
+44
+],
+[
+11,
+45
+]
+]
+},
+{
+"type": "polygon",
+"points": [
+[
+38,
+43
+],
+[
+49,
+41
+],
+[
+49,
+47
+],
+[
+38,
+57
+]
+]
+},
+{
+"type": "polygon",
+"points": [
+[
+47,
+47
+],
+[
+63,
+46
+],
+[
+63,
+50
+],
+[
+49,
+50
+]
+]
+}
+]
+}
+}
+},
+{
+"op": "stroke",
+"args": {
+"layer": "collar",
+"frame": 0,
+"points": [
+[
+37,
+44
+],
+[
+37,
+53
+]
+],
+"color": "@leaf1",
+"brush": {
+"size": 1,
+"shape": "square"
+},
+"mask": {
+"only_on": [
+"@leaf2"
+]
+}
+}
+},
+{
+"op": "stroke",
+"args": {
+"layer": "collar",
+"frame": 0,
+"points": [
+[
+29,
+44
+],
+[
+17,
+48
+]
+],
+"color": "@leaf1",
+"brush": {
+"size": 1,
+"shape": "square"
+},
+"mask": {
+"only_on": [
+"@leaf2"
+]
+}
+}
+},
+{
+"op": "stroke",
+"args": {
+"layer": "collar",
+"frame": 0,
+"points": [
+[
+46,
+44
+],
+[
+58,
+48
+]
+],
+"color": "@leaf0",
+"brush": {
+"size": 1,
+"shape": "square"
+},
+"mask": {
+"only_on": [
+"@leaf1",
+"@leaf2"
+]
+}
+}
+},
+{
+"op": "draw_rows",
+"args": {
+"layer": "collar",
+"frame": 0,
+"x": 13,
+"y": 46,
+"format": "sym",
+"skip_transparent": true,
+"legend": {
+"h": "@leaf3"
+},
+"rows": [
+"hhhh....",
+".hhhhh.."
+],
+"mask": {
+"only_on": [
+"@leaf2"
+]
+}
+}
+},
+{
+"op": "draw_rows",
+"args": {
+"layer": "collar",
+"frame": 0,
+"x": 29,
+"y": 45,
+"format": "sym",
+"skip_transparent": true,
+"legend": {
+"h": "@leaf3"
+},
+"rows": [
+"hhhh",
+".hhh",
+"..hh"
+],
+"mask": {
+"only_on": [
+"@leaf2"
+]
+}
+}
+}
+]
+}

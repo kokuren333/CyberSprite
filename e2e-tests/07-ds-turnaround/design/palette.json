@@ -1,0 +1,3 @@
+{"label":"palette names and ramps","ops":[{"op":"set_palette","args":{"colors":["#00000000","#1a0f1cff","#3d1a33ff","#63284fff","#8a3d6bff","#b0608cff","#d7a6d0ff","#1f3d22ff","#3f6b33ff","#6b9a4aff","#a2c770ff","#b89a74ff","#efe0bbff","#b85a10ff","#ffb22eff","#ffffffff"],
+"names":{"1":"line","2":"plum0","3":"plum1","4":"plum2","5":"plum3","6":"lilac","7":"leaf0","8":"leaf1","9":"leaf2","10":"leaf3","11":"belly0","12":"belly1","13":"amber0","14":"amber1","15":"white"},
+"ramps":[{"name":"plum","indices":[2,3,4,5]},{"name":"leaf","indices":[7,8,9,10]},{"name":"belly","indices":[11,12]},{"name":"amber","indices":[13,14]}]}}]}

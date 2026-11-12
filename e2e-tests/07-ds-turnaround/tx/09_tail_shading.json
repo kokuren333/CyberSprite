@@ -1,0 +1,176 @@
+{
+"label": "tail: underside, behind-leg occlusion, frond midrib",
+"ops": [
+{
+"op": "shift_ramp",
+"args": {
+"layer": "tail",
+"frame": 0,
+"direction": "darker",
+"region": {
+"type": "or",
+"of": [
+{
+"type": "polygon",
+"points": [
+[
+48,
+69
+],
+[
+60,
+68
+],
+[
+66,
+64
+],
+[
+69,
+64
+],
+[
+69,
+75
+],
+[
+48,
+75
+]
+]
+},
+{
+"type": "polygon",
+"points": [
+[
+48,
+63
+],
+[
+55,
+63
+],
+[
+55,
+75
+],
+[
+48,
+75
+]
+]
+},
+{
+"type": "polygon",
+"points": [
+[
+66,
+51
+],
+[
+73,
+51
+],
+[
+73,
+64
+],
+[
+66,
+64
+]
+]
+}
+]
+}
+}
+},
+{
+"op": "shift_ramp",
+"args": {
+"layer": "tail",
+"frame": 0,
+"direction": "darker",
+"region": {
+"type": "polygon",
+"points": [
+[
+48,
+63
+],
+[
+54,
+63
+],
+[
+54,
+75
+],
+[
+48,
+75
+]
+]
+},
+"ramp": "plum"
+}
+},
+{
+"op": "stroke",
+"args": {
+"layer": "tail",
+"frame": 0,
+"points": [
+[
+65,
+52
+],
+[
+65,
+62
+],
+[
+65,
+64
+]
+],
+"color": "@leaf1",
+"brush": {
+"size": 1,
+"shape": "square"
+},
+"mask": {
+"only_on": [
+"@leaf2",
+"@leaf1"
+]
+}
+}
+},
+{
+"op": "draw_rows",
+"args": {
+"layer": "tail",
+"frame": 0,
+"x": 60,
+"y": 53,
+"format": "sym",
+"skip_transparent": true,
+"legend": {
+"h": "@leaf3"
+},
+"rows": [
+"..h...",
+"hh....",
+".h....",
+"hh...."
+],
+"mask": {
+"only_on": [
+"@leaf2"
+]
+}
+}
+}
+]
+}

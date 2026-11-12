@@ -1,0 +1,6 @@
+{"label":"branch B clean-up: merge near-duplicate blacks and plums, drop unused entries","ops":[
+ {"op":"replace_color","args":{"from":1,"to":2,"layers":["imported"],"frames":"all"}},
+ {"op":"replace_color","args":{"from":3,"to":2,"layers":["imported"],"frames":"all"}},
+ {"op":"replace_color","args":{"from":6,"to":7,"layers":["imported"],"frames":"all"}},
+ {"op":"remap_palette","args":{"remove_unused":true,"keep_transparent_first":true}}
+]}

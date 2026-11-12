@@ -1,0 +1,152 @@
+{
+"label": "fern: lit top-left of coils, shaded stems",
+"ops": [
+{
+"op": "shift_ramp",
+"args": {
+"layer": "fern",
+"frame": 0,
+"direction": "lighter",
+"region": {
+"type": "or",
+"of": [
+{
+"type": "polygon",
+"points": [
+[
+17,
+0
+],
+[
+29,
+0
+],
+[
+27,
+3
+],
+[
+22,
+4
+],
+[
+19,
+8
+],
+[
+17,
+9
+]
+]
+},
+{
+"type": "polygon",
+"points": [
+[
+43,
+0
+],
+[
+55,
+0
+],
+[
+53,
+3
+],
+[
+48,
+4
+],
+[
+46,
+8
+],
+[
+44,
+10
+]
+]
+}
+]
+}
+}
+},
+{
+"op": "shift_ramp",
+"args": {
+"layer": "fern",
+"frame": 0,
+"direction": "darker",
+"region": {
+"type": "or",
+"of": [
+{
+"type": "polygon",
+"points": [
+[
+31,
+6
+],
+[
+33,
+6
+],
+[
+33,
+17
+],
+[
+31,
+17
+]
+]
+},
+{
+"type": "polygon",
+"points": [
+[
+46,
+6
+],
+[
+48,
+6
+],
+[
+48,
+17
+],
+[
+46,
+17
+]
+]
+},
+{
+"type": "polygon",
+"points": [
+[
+53,
+5
+],
+[
+58,
+5
+],
+[
+58,
+14
+],
+[
+50,
+14
+]
+]
+}
+]
+}
+}
+}
+]
+}

@@ -1,0 +1,12 @@
+Look at the image file turnaround-v2.png in the current working directory. It is our own original creature design sheet (front, side, back views).
+
+Use your built-in image generation tool to create ONE pixel-art-style version of this turnaround, and save it as a PNG file named turnaround-pixel-v2.png in the current working directory. Copy it there from wherever the tool writes it. You may give turnaround-v2.png to the image tool as the input image.
+
+- Keep the same creature, the same three views (front left, side facing right in the middle, back right), the same arrangement, scale and the same plain flat bright cyan background (#00ffff).
+- Make it look like a handheld-console-era pixel sprite: each figure should look about 70 pixels tall, with clearly visible square pixels on a regular grid.
+- About 14 flat colours in total for the creature. Each material (plum skin, sage-green leaves and fern spirals, cream belly) uses 3 shading steps; the eyes use a dark outline, a bright amber ring and a black pupil with one white highlight pixel.
+- Outline: mostly near-black on the outer silhouette, and the darkest shade of each material inside the silhouette where parts overlap.
+- Light from the upper left. Shadows that explain the form: the head casts a shadow onto the leaf collar, darker pixels where arms and legs join the body, a darker underside of the tail.
+- Plain flat colours, no gradients, no dithering, no blur, no anti-aliasing against the background.
+
+At the end, write the saved file path on one line.
