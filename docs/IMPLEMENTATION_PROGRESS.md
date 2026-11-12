@@ -323,3 +323,13 @@
 - 内蔵 craft: nds `ramp_steps [1,5]`、dmg `[1,3]` だけ authored で追加し、作風に関わる文字列と比率は null（I-1863〜I-1865）。m11 の golden 6 件を更新器で更新（snapshot の 2 項目だけ）。
 - 確認: `npm test` 698 passed・コントラスト 100 組合格、`npm run build` 成功、`npm run test:e2e` 5 passed（新規: 選択→作成→ID 表示→CLI の 1 画素で Q-PLT-05 が見出しの下だけに出る）。Python は下記の報告の数値。スクリーンショットは `docs/design/gui/platform-main-en.png`、`platform-new-project-ja.png`、`model-terms-en.png`。
 - 判断 I-1851〜I-1865。範囲外: プラットフォーム定義の編集（v1.x）、来歴タブの source ごとのバッジ（get_source の結果にバッジが無い）、取り込み・書き出しの専用フォームと設定ダイアログ（R1-17/R1-30）。
+
+## R1-INT: 統合（2026-11-12）
+
+- `r1-merge`で、r1-int → fixr1-e3 → fixr1-f1 → fixr1-f2 → fixr1-g → fixr1-gui → fixr1-hを各1 merge commitで統合した。mainは4475308のまま、pushなし。D2は指示どおり未統合。
+- B1の保存文脈・索引再送、B2の遅延登録・成分解析・軽量summary、A2の入力/出力予算、Mのschema駆動パス変換をE1/E2/E3へ接続した。source-onlyの累積予算・保存失敗復元・正本作成前の読取、F1/E2の用途一致、MCPの有効な投影とローカル$defsの回帰6件を追加した。Opusの意匠・craft値は保持した。
+- MCP標準87ツールの定義は同一JSON直列化で各3回113126 → 98576 bytes（3回とも同値）。minimalは13ツール17652 → 16043 bytes。パス注釈と完全な実行時契約を保持し、説明と冗長な形を縮めた。extendedへの移動なし。
+- 同一マシン・各3回のレビューfixture測定で、96²/8層/45fの編集中央値1073.466 → 1202.689 ms、256²/32fのcold検証1348.378 → 1261.025 ms。増減が混在し、速度改善・目標達成を主張しない。生値・条件・再現ツール・限界はdocs/R1_INT_REPORT.md。
+- 最終Python全体試験は **2071 passed / 9 skipped（464.43秒）**、終了コード0。skipはWindowsのsymlink権限5、未導入の任意コンバータ3、明示GPU1。初回全体2件の失敗は公開パス注釈とREADME件数の修正で解消した。Ruff/format、core/ops mypy50ファイル、strict7ファイル、schema drift、repository、依存42件が成功。GUIは698 tests、100コントラスト対、build、Playwright5件、JS台帳46件が成功。
+- 判断I-1901〜I-1906。SPECの重複§3.6、MCP一覧、用途、platform規則一覧を局所整理し、生成schema32件を更新した。既存golden11応答はvalidationだけ、新規m11の2ケースを保持。統合時の更新器はm11各tx0.jsonのE2点差分・既存指摘更新だけに使い、全差分を確認した。
+- 実CLI17呼出しでNDS/DMG、mask.only_on、outline再実行no_op、guide/review、PNG、gb-2bppの復号照合が成功。最終commit後はbuild/r1-int-smoke-final/へ同じ17呼出しを再実行し、実ファイルを開いて確認する。新規依存・外部参照・美的判断なし。Linux/CI実行・実GPU/実ComfyUI再確認・D2は未実施。最終報告はdocs/R1_INT_REPORT.md。
