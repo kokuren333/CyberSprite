@@ -17,8 +17,10 @@ def require(condition, message, hint="Check the pipeline settings and input arra
 
 
 def integer(value, name, low, high=None):
-    require(isinstance(value, (int, np.integer)) and not isinstance(value, bool),
-            f"{name} must be an integer.")
+    require(
+        isinstance(value, (int, np.integer)) and not isinstance(value, bool),
+        f"{name} must be an integer.",
+    )
     require(value >= low and (high is None or value <= high), f"{name} is out of range.")
     return int(value)
 
@@ -29,9 +31,14 @@ def rgba_frames(images):
     result = list(images)
     require(bool(result), "At least one RGBA frame is required.")
     for im in result:
-        require(isinstance(im, np.ndarray) and im.dtype == np.uint8 and
-                im.ndim == 3 and im.shape[2] == 4 and min(im.shape[:2]) > 0,
-                "Frames must be nonempty H x W x 4 uint8 arrays.")
+        require(
+            isinstance(im, np.ndarray)
+            and im.dtype == np.uint8
+            and im.ndim == 3
+            and im.shape[2] == 4
+            and min(im.shape[:2]) > 0,
+            "Frames must be nonempty H x W x 4 uint8 arrays.",
+        )
     require(all(im.shape == result[0].shape for im in result), "Frame dimensions must match.")
     return result
 
@@ -43,7 +50,7 @@ def lower_median(pixels):
 def interior(image):
     h, w = image.shape[:2]
     dx, dy = (max(1, w // 5) if w >= 4 else 0), (max(1, h // 5) if h >= 4 else 0)
-    return image[dy:h - dy, dx:w - dx]
+    return image[dy : h - dy, dx : w - dx]
 
 
 def neighbors(x, y, w, h, connectivity=8):

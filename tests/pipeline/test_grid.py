@@ -6,12 +6,20 @@ from cybersprite.pipeline.grid import axis_candidates, cell_purity, detect_grid
 
 def rgba(values):
     values = np.asarray(values, dtype=np.uint8)
-    return np.concatenate((np.repeat(values[:, :, None], 3, axis=2), np.full((*values.shape, 1), 255, dtype=np.uint8)), axis=2)
+    return np.concatenate(
+        (
+            np.repeat(values[:, :, None], 3, axis=2),
+            np.full((*values.shape, 1), 255, dtype=np.uint8),
+        ),
+        axis=2,
+    )
 
 
 def test_candidate_scores_and_harmonics():
     candidates = axis_candidates([0, 0, 30, 0, 30, 0, 30, 0], 2, 4)
-    period2 = next(c for c in candidates if c["family"] == "B" and c["cell"] == 2 and c["offset"] == 0)
+    period2 = next(
+        c for c in candidates if c["family"] == "B" and c["cell"] == 2 and c["offset"] == 0
+    )
     assert period2["boundaries"] == [2, 4, 6]
     assert period2["peak"] == 2333
     image = rgba([[0, 255] * 4, [255, 0] * 4] * 4).repeat(4, 0).repeat(4, 1)

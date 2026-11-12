@@ -6,8 +6,8 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-
 from corpus.synthetic import cases, corpus_grid, perturbed, run_case
+
 from cybersprite.pipeline.grid import detect_grid
 
 CASES = list(cases())
@@ -54,6 +54,11 @@ _,report=run_case(image); print(json.dumps(report,sort_keys=True))
 """
     outputs = []
     for seed in ("1", "451"):
-        outputs.append(subprocess.check_output([sys.executable, "-c", code], cwd=ROOT,
-                       env={**os.environ, "PYTHONHASHSEED": seed, "PYTHONPATH": str(ROOT / "src")}))
+        outputs.append(
+            subprocess.check_output(
+                [sys.executable, "-c", code],
+                cwd=ROOT,
+                env={**os.environ, "PYTHONHASHSEED": seed, "PYTHONPATH": str(ROOT / "src")},
+            )
+        )
     assert outputs[0] == outputs[1]

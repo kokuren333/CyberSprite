@@ -23,7 +23,9 @@ TABLE_SHA256 = {
 def load_table(name):
     data = files("cybersprite").joinpath("data", "color", name).read_bytes()
     if hashlib.sha256(data).hexdigest() != TABLE_SHA256[name]:
-        raise ValueError(f"Normative colour table checksum mismatch: {name}; reinstall trusted data.")
+        raise ValueError(
+            f"Normative colour table checksum mismatch: {name}; reinstall trusted data."
+        )
     return json.loads(data)
 
 
@@ -55,8 +57,10 @@ def rgb_to_oklab_fixed(rgb):
 def rgb_to_oklab_fixed_numpy(rgb):
     """Convert an integer array of shape (..., 3) to int64 (..., 3)."""
     rgb = np.asarray(rgb)
-    require(rgb.ndim >= 1 and rgb.shape[-1] == 3 and rgb.dtype.kind in "iu",
-            "RGB array must have integer channels and shape (..., 3).")
+    require(
+        rgb.ndim >= 1 and rgb.shape[-1] == 3 and rgb.dtype.kind in "iu",
+        "RGB array must have integer channels and shape (..., 3).",
+    )
     require(bool(np.all((rgb >= 0) & (rgb <= 255))), "RGB channels must be in 0..255.")
     linear = np.asarray(LIN, dtype=np.int64)[rgb.astype(np.int64)]
     n = (linear @ np.asarray(M1I, dtype=np.int64).T) << 16

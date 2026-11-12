@@ -1,6 +1,7 @@
+import random
+
 import numpy as np
 import pytest
-import random
 
 from cybersprite.pipeline.quantize import BAYER, assign_palette, extract_palette, quantize
 
@@ -18,7 +19,9 @@ def test_exact_and_project_lock_transparency_and_sort():
     assert indices[0].tolist() == [[2, 1, 0]]
     assert report["palette_size"] == 3
     locked = [P[2], P[0], P[1], (127, 127, 127, 127)]
-    indices, palette, report = quantize(im, mode="project", project_palette=locked, transparent_index=1)
+    indices, palette, report = quantize(
+        im, mode="project", project_palette=locked, transparent_index=1
+    )
     assert palette == locked and indices[0].tolist() == [[0, 2, 1]]
     assert report["palette_added"] == []
     with pytest.raises(ValueError, match="E_NEEDS_QUANTIZE"):
@@ -27,7 +30,9 @@ def test_exact_and_project_lock_transparency_and_sort():
 
 def test_fixed_preserves_existing_and_adds_only_used_colors():
     im = frame([(255, 255, 255), (0, 0, 0)])
-    out, palette, report = quantize(im, mode="fixed", source=P + [(255, 0, 0, 255)], project_palette=P[:2])
+    out, palette, report = quantize(
+        im, mode="fixed", source=P + [(255, 0, 0, 255)], project_palette=P[:2]
+    )
     assert palette == P and report["palette_added"] == [P[2]]
     assert out[0].tolist() == [[2, 1]]
     # Duplicate/identical distances choose the lower palette index, and
@@ -38,15 +43,23 @@ def test_fixed_preserves_existing_and_adds_only_used_colors():
 
 def test_opaque_transparent_index_is_never_selected_on_palette_append():
     existing = [(255, 255, 255, 255), (0, 0, 0, 255)]
-    out, palette, report = quantize(frame([(255, 255, 255)]), mode="exact", project_palette=existing)
+    out, palette, report = quantize(
+        frame([(255, 255, 255)]), mode="exact", project_palette=existing
+    )
     assert out[0].tolist() == [[2]] and palette == existing + [existing[0]]
     assert report["palette_added"] == [existing[0]]
 
 
 def test_median_cut_weighted_split_and_real_representatives():
     im = frame([(0, 0, 0)] * 4 + [(80, 80, 80)] * 2 + [(160, 160, 160)] + [(255, 255, 255)])
-    assert extract_palette(im, max_colors=2, refine_iterations=0) == [(0, 0, 0, 255), (160, 160, 160, 255)]
-    assert extract_palette(im, max_colors=2, refine_iterations=8) == [(0, 0, 0, 255), (160, 160, 160, 255)]
+    assert extract_palette(im, max_colors=2, refine_iterations=0) == [
+        (0, 0, 0, 255),
+        (160, 160, 160, 255),
+    ]
+    assert extract_palette(im, max_colors=2, refine_iterations=8) == [
+        (0, 0, 0, 255),
+        (160, 160, 160, 255),
+    ]
     palette = extract_palette(im, max_colors=4, min_color_pixels=2)
     assert palette == [(0, 0, 0, 255), (80, 80, 80, 255)]
     all_colors = [tuple(c) for c in im.reshape(-1, 4).tolist()]
@@ -96,8 +109,16 @@ def test_fixed_full_source_can_select_entry_255_without_overflow():
 def test_seeded_extraction_order_independence_and_real_color_property():
     rng = random.Random(451)
     for _ in range(20):
-        image = np.array([[[rng.randrange(256), rng.randrange(256), rng.randrange(256), 255]
-                           for _ in range(8)] for _ in range(8)], dtype=np.uint8)
+        image = np.array(
+            [
+                [
+                    [rng.randrange(256), rng.randrange(256), rng.randrange(256), 255]
+                    for _ in range(8)
+                ]
+                for _ in range(8)
+            ],
+            dtype=np.uint8,
+        )
         palette = extract_palette(image, max_colors=8)
         assert palette == extract_palette(image[::-1, ::-1], max_colors=8)
         actual = {tuple(c) for c in image.reshape(-1, 4).tolist()}

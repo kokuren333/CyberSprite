@@ -24,8 +24,10 @@ def test_binary_alpha_majority_and_zero_hidden_rgb():
 
 
 def test_median_mode_kcentroid_ties_and_auto_target():
-    im = np.array([[[8, 8, 8, 255], [200, 200, 200, 255]],
-                   [[9, 9, 9, 255], [201, 201, 201, 255]]], dtype=np.uint8)
+    im = np.array(
+        [[[8, 8, 8, 255], [200, 200, 200, 255]], [[9, 9, 9, 255], [201, 201, 201, 255]]],
+        dtype=np.uint8,
+    )
     grid = detect_grid(im, "target", target_w=1, target_h=1)
     expected = {"median": 9, "mode": 8, "kcentroid": 200, "auto": 200, "center": 201}
     for method, value in expected.items():

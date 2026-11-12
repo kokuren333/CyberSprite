@@ -9,7 +9,12 @@ description = "Deterministic indexed-color sprite core"
 readme = "README.md"
 requires-python = ">=3.12"
 license = "Apache-2.0"
-dependencies = ["numpy==2.3.4", "pydantic==2.12.3", "click==8.3.0"]
+dependencies = [
+    "numpy==2.3.4",
+    "pydantic==2.12.3",
+    "click==8.3.0",
+    "pillow>=12",
+]
 
 [project.scripts]
 cybersprite = "cybersprite.cli:main"

@@ -7,8 +7,9 @@ from .cleanup import indexed_image
 from .quantize import BAYER
 
 
-def outline_and_dither(images, palette, *, transparent_index=0, outline=None,
-                       dither=None, chosen_by=None):
+def outline_and_dither(
+    images, palette, *, transparent_index=0, outline=None, dither=None, chosen_by=None
+):
     outline = {"mode": "keep", **(outline or {})}
     dither = {"type": "none", "strength": 255, **(dither or {})}
     require(outline["mode"] in ("keep", "add"), "Outline mode must be keep or add.")
@@ -34,15 +35,21 @@ def outline_and_dither(images, palette, *, transparent_index=0, outline=None,
             require(color[3] == 255, "An added outline color must be opaque.")
             if not any(c == color and i != transparent_index for i, c in enumerate(locked)):
                 if len(locked) >= 256:
-                    raise PipelineError("E_LIMIT_EXCEEDED", "No palette slot remains for the outline color.",
-                                        "Choose an existing palette index or reduce extracted colors.",
-                                        gate="palette_budget", palette_size=len(locked) + 1,
-                                        palette_added=[color])
+                    raise PipelineError(
+                        "E_LIMIT_EXCEEDED",
+                        "No palette slot remains for the outline color.",
+                        "Choose an existing palette index or reduce extracted colors.",
+                        gate="palette_budget",
+                        palette_size=len(locked) + 1,
+                        palette_added=[color],
+                    )
                 locked.append(color)
                 added.append(color)
             color = next(i for i, c in enumerate(locked) if c == color and i != transparent_index)
-        require(color != transparent_index and locked[color][3] == 255,
-                "Outline index must refer to an opaque nontransparent entry.")
+        require(
+            color != transparent_index and locked[color][3] == 255,
+            "Outline index must refer to an opaque nontransparent entry.",
+        )
         connectivity = outline.get("connectivity", 8)
         integer(connectivity, "outline connectivity", 4, 8)
         require(connectivity in (4, 8), "Outline connectivity must be 4 or 8.")
@@ -58,7 +65,12 @@ def outline_and_dither(images, palette, *, transparent_index=0, outline=None,
     else:
         outputs = [image.copy() for image in images]
     owners = {"outline": "preset", "dither": "preset", **(chosen_by or {})}
-    require(all(owner in ("preset", "caller") for owner in owners.values()),
-            "Choice owner must be preset or caller.")
-    return outputs, locked, {"outline": outline, "dither": dither, "chosen_by": owners,
-                             "palette_added": added}
+    require(
+        all(owner in ("preset", "caller") for owner in owners.values()),
+        "Choice owner must be preset or caller.",
+    )
+    return (
+        outputs,
+        locked,
+        {"outline": outline, "dither": dither, "chosen_by": owners, "palette_added": added},
+    )

@@ -4,8 +4,7 @@ from collections import Counter, deque
 
 import numpy as np
 
-from ._common import (PipelineError, integer, interior, lower_median, neighbors,
-                      require, rgba_frames)
+from ._common import PipelineError, integer, interior, lower_median, neighbors, require, rgba_frames
 
 
 def _representative(pixels, center, method):
@@ -20,7 +19,9 @@ def _representative(pixels, center, method):
         winner = min(counts, key=lambda v: (-counts[v], v))
         return lower_median(pixels[keys == winner])[:3]
     rgb = pixels[:, :3].astype(np.int64)
-    order = sorted(range(len(rgb)), key=lambda i: (int(rgb[i].sum()), tuple(int(v) for v in rgb[i])))
+    order = sorted(
+        range(len(rgb)), key=lambda i: (int(rgb[i].sum()), tuple(int(v) for v in rgb[i]))
+    )
     reps = np.stack((rgb[order[0]], rgb[order[-1]]))
     for _ in range(4):
         distances = np.abs(rgb[:, None, :] - reps[None, :, :]).sum(axis=2, dtype=np.int64)
@@ -43,17 +44,20 @@ def remove_background(image, mode="keep", *, color=None, tolerance=0):
     if mode == "keep":
         return result, {"mode": mode, "removed_pixels": 0, "warnings": warnings}
     h, w = image.shape[:2]
-    border = [(x, y) for y in range(h) for x in range(w)
-              if x == 0 or y == 0 or x == w - 1 or y == h - 1]
+    border = [
+        (x, y) for y in range(h) for x in range(w) if x == 0 or y == 0 or x == w - 1 or y == h - 1
+    ]
     if mode == "auto":
         counts = Counter(tuple(int(c) for c in image[y, x]) for x, y in border)
         color = min(counts, key=lambda c: (-counts[c], c))
         if counts[color] * 100 < len(border) * 60:
-            warnings.append("No background color occupies at least 60% of the border; kept all pixels.")
+            warnings.append(
+                "No background color occupies at least 60% of the border; kept all pixels."
+            )
             return result, {"mode": mode, "removed_pixels": 0, "warnings": warnings}
     require(color is not None and len(color) in (3, 4), "Background key needs RGB or RGBA color.")
     color = [integer(c, "background channel", 0, 255) for c in color]
-    match = np.all(np.abs(image[:, :, :len(color)].astype(np.int64) - color) <= tolerance, axis=2)
+    match = np.all(np.abs(image[:, :, : len(color)].astype(np.int64) - color) <= tolerance, axis=2)
     queue, seen = deque((x, y) for x, y in border if match[y, x]), set()
     removed = 0
     while queue:
@@ -63,38 +67,49 @@ def remove_background(image, mode="keep", *, color=None, tolerance=0):
         seen.add((x, y))
         removed += int(result[y, x, 3] != 0)
         result[y, x] = 0
-        queue.extend((xx, yy) for xx, yy in neighbors(x, y, w, h, 4)
-                     if match[yy, xx] and (xx, yy) not in seen)
+        queue.extend(
+            (xx, yy)
+            for xx, yy in neighbors(x, y, w, h, 4)
+            if match[yy, xx] and (xx, yy) not in seen
+        )
     return result, {"mode": mode, "color": color, "removed_pixels": removed, "warnings": warnings}
 
 
-def downsample(images, grid, *, method="auto", alpha_threshold=128, background=None,
-               pixeloe=None):
+def downsample(images, grid, *, method="auto", alpha_threshold=128, background=None, pixeloe=None):
     """Return (frames, report); a plugin is an explicit callback, never auto-discovered."""
     frames = rgba_frames(images)
     integer(alpha_threshold, "alpha_threshold", 0, 255)
-    require(grid["detected"] and grid["columns"] > 0 and grid["rows"] > 0,
-            "Downsampling requires a detected or specified grid.",
-            "Inspect grid candidates, then supply fixed or target grid settings.")
+    require(
+        grid["detected"] and grid["columns"] > 0 and grid["rows"] > 0,
+        "Downsampling requires a detected or specified grid.",
+        "Inspect grid candidates, then supply fixed or target grid settings.",
+    )
     requested = method
     if method == "auto":
         if grid["mode"] == "target":
             method = "pixeloe" if pixeloe is not None else "kcentroid"
         else:
             method = "center" if grid["grid_score"] >= 990 else "mode"
-    require(method in ("center", "median", "mode", "kcentroid", "pixeloe"),
-            "Unknown downsample method.")
+    require(
+        method in ("center", "median", "mode", "kcentroid", "pixeloe"), "Unknown downsample method."
+    )
     if method == "pixeloe" and pixeloe is None:
-        raise PipelineError("E_PLUGIN", "PixelOE downsampling was requested but no plugin was supplied.",
-                            "Install and configure a PixelOE adapter, or select kcentroid.", plugin="pixeloe")
+        raise PipelineError(
+            "E_PLUGIN",
+            "PixelOE downsampling was requested but no plugin was supplied.",
+            "Install and configure a PixelOE adapter, or select kcentroid.",
+            plugin="pixeloe",
+        )
     outputs, reports = [], []
     for frame in frames:
         out = np.zeros((grid["rows"], grid["columns"], 4), dtype=np.uint8)
         if method == "pixeloe":
             out = pixeloe(frame.copy(), grid)
             rgba_frames(out)
-            require(out.shape == (grid["rows"], grid["columns"], 4),
-                    "PixelOE output dimensions must match the grid.")
+            require(
+                out.shape == (grid["rows"], grid["columns"], 4),
+                "PixelOE output dimensions must match the grid.",
+            )
             out = out.copy()
         for y, (top, bottom) in enumerate(grid["y_cells"]):
             for x, (left, right) in enumerate(grid["x_cells"]):

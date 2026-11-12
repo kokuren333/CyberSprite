@@ -52,8 +52,12 @@ def test_cleanup_report_limit_and_no_input_mutation():
 def test_outline_outside_and_choice_provenance():
     image = np.zeros((3, 3), dtype=np.uint8)
     image[1, 1] = 2
-    out, palette, report = outline_and_dither(image, P, outline={"mode": "add", "color": [12, 34, 56, 255], "connectivity": 4},
-                                             chosen_by={"outline": "caller"})
+    out, palette, report = outline_and_dither(
+        image,
+        P,
+        outline={"mode": "add", "color": [12, 34, 56, 255], "connectivity": 4},
+        chosen_by={"outline": "caller"},
+    )
     assert out[0].tolist() == [[0, 4, 0], [4, 2, 4], [0, 4, 0]]
     assert palette[-1] == (12, 34, 56, 255)
     assert report["chosen_by"] == {"outline": "caller", "dither": "preset"}
@@ -66,13 +70,20 @@ def test_outline_outside_and_choice_provenance():
 def test_outline_rgb_matching_opaque_transparent_entry_adds_usable_copy():
     image = np.array([[0, 1, 0]], dtype=np.uint8)
     palette = [(255, 255, 255, 255), (0, 0, 0, 255)]
-    out, palette, _ = outline_and_dither(image, palette, outline={"mode": "add", "color": [255, 255, 255]})
+    out, palette, _ = outline_and_dither(
+        image, palette, outline={"mode": "add", "color": [255, 255, 255]}
+    )
     assert out[0].tolist() == [[2, 1, 2]] and len(palette) == 3
 
 
 def test_outline_budget_error_is_adaptable_to_palette_gate():
     palette = [(0, 0, 0, 0)] + [(i, 0, 0, 255) for i in range(255)]
     with pytest.raises(ValueError, match="E_LIMIT_EXCEEDED") as exc:
-        outline_and_dither(np.array([[0, 1, 0]], dtype=np.uint8), palette,
-                           outline={"mode": "add", "color": [255, 255, 255]})
-    assert exc.value.details["gate"] == "palette_budget" and exc.value.details["palette_size"] == 257
+        outline_and_dither(
+            np.array([[0, 1, 0]], dtype=np.uint8),
+            palette,
+            outline={"mode": "add", "color": [255, 255, 255]},
+        )
+    assert (
+        exc.value.details["gate"] == "palette_budget" and exc.value.details["palette_size"] == 257
+    )

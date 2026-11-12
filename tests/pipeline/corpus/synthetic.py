@@ -15,8 +15,17 @@ from cybersprite.pipeline.grid import detect_grid
 from cybersprite.pipeline.metrics import compute_metrics, evaluate_gates
 from cybersprite.pipeline.quantize import quantize
 
-PALETTE = np.array([[0, 0, 0, 0], [0, 0, 0, 255], [255, 255, 255, 255],
-                    [64, 64, 64, 255], [128, 128, 128, 255], [192, 192, 192, 255]], dtype=np.uint8)
+PALETTE = np.array(
+    [
+        [0, 0, 0, 0],
+        [0, 0, 0, 255],
+        [255, 255, 255, 255],
+        [64, 64, 64, 255],
+        [128, 128, 128, 255],
+        [192, 192, 192, 255],
+    ],
+    dtype=np.uint8,
+)
 
 
 def ground_truths():
@@ -59,16 +68,32 @@ def perturbed(image, variant):
 def run_case(image, *, degraded=False, grid_settings=None):
     grid = detect_grid(image, **(grid_settings or {}))
     downs, down_report = downsample(image, grid, method="auto" if degraded else "center")
-    indices, palette, quant_report = quantize(downs, mode="fixed" if degraded else "exact",
-                                             source=PALETTE.tolist() if degraded else None, max_colors=255)
+    indices, palette, quant_report = quantize(
+        downs,
+        mode="fixed" if degraded else "exact",
+        source=PALETTE.tolist() if degraded else None,
+        max_colors=255,
+    )
     indices, clean_report = cleanup_pixels(indices[0], palette, min_cluster=1)
     final, palette, choice_report = outline_and_dither(indices, palette)
     metrics = compute_metrics(downs, final, palette)
-    gates = evaluate_gates(metrics, grid, grid_thresholds=(990, 1000), fidelity_thresholds=(0, 0),
-                           cleanup={"min_cluster": 1})
+    gates = evaluate_gates(
+        metrics,
+        grid,
+        grid_thresholds=(990, 1000),
+        fidelity_thresholds=(0, 0),
+        cleanup={"min_cluster": 1},
+    )
     decoded = np.asarray(palette, dtype=np.uint8)[final[0]]
-    return decoded, {"grid": grid, "downsample": down_report, "quantize": quant_report,
-                     "cleanup": clean_report, "choices": choice_report, "metrics": metrics, **gates}
+    return decoded, {
+        "grid": grid,
+        "downsample": down_report,
+        "quantize": quant_report,
+        "cleanup": clean_report,
+        "choices": choice_report,
+        "metrics": metrics,
+        **gates,
+    }
 
 
 def calibration_report():
@@ -76,19 +101,32 @@ def calibration_report():
     for name, image, truth, factor in cases():
         grid_settings = corpus_grid(name, factor)
         decoded, report = run_case(image, grid_settings=grid_settings)
-        records.append({"name": name, "category": "a", "factor": factor,
-                        "exact": bool(np.array_equal(decoded, truth)),
-                        "grid_mode": report["grid"]["mode"],
-                        "grid_score": report["grid"]["grid_score"],
-                        "fidelity": report["metrics"]["fidelity"],
-                        "pixel_sha256": report["metrics"]["pixel_sha256"][0]})
+        records.append(
+            {
+                "name": name,
+                "category": "a",
+                "factor": factor,
+                "exact": bool(np.array_equal(decoded, truth)),
+                "grid_mode": report["grid"]["mode"],
+                "grid_score": report["grid"]["grid_score"],
+                "fidelity": report["metrics"]["fidelity"],
+                "pixel_sha256": report["metrics"]["pixel_sha256"][0],
+            }
+        )
         if name.endswith("s4-crop00") or name.endswith("s7-crop11"):
             for variant in ("integer-noise", "edge-mix"):
-                decoded, report = run_case(perturbed(image, variant), degraded=True, grid_settings=grid_settings)
-                records.append({"name": f"{name}-{variant}", "category": "b-style",
-                                "exact": bool(np.array_equal(decoded, truth)),
-                                "grid_score": report["grid"]["grid_score"],
-                                "fidelity": report["metrics"]["fidelity"]})
+                decoded, report = run_case(
+                    perturbed(image, variant), degraded=True, grid_settings=grid_settings
+                )
+                records.append(
+                    {
+                        "name": f"{name}-{variant}",
+                        "category": "b-style",
+                        "exact": bool(np.array_equal(decoded, truth)),
+                        "grid_score": report["grid"]["grid_score"],
+                        "fidelity": report["metrics"]["fidelity"],
+                    }
+                )
     return records
 
 
@@ -97,8 +135,13 @@ def corpus_grid(name, factor):
         # Sparse flat regions do not identify a unique automatic period.
         # Exercise the specified-grid recovery path rather than alter §11.3.2.
         dx, dy = (int(c) for c in name[-2:])
-        return {"mode": "fixed", "cell_w": factor, "cell_h": factor,
-                "offset_x": (factor - dx) % factor, "offset_y": (factor - dy) % factor}
+        return {
+            "mode": "fixed",
+            "cell_w": factor,
+            "cell_h": factor,
+            "offset_x": (factor - dx) % factor,
+            "offset_y": (factor - dy) % factor,
+        }
     return {"mode": "auto"}
 
 
