@@ -138,9 +138,11 @@ def palette_op(ctx, a, name):
     elif a.sort_by is not None:
         labs = [rgb_to_oklab_fixed(rgba(c)[:3]) for c in pal.colors]
         if a.sort_by == "hue":
-            order.sort(
-                key=cmp_to_key(lambda i, j: compare_hue(labs[i], labs[j]) or (i > j) - (i < j))
-            )
+
+            def hue_compare(i: int, j: int) -> int:
+                return compare_hue(labs[i], labs[j]) or (i > j) - (i < j)
+
+            order.sort(key=cmp_to_key(hue_compare))
         elif a.sort_by == "lightness":
             order.sort(key=lambda i: (labs[i][0], i))
         else:

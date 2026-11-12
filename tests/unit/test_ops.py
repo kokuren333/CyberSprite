@@ -172,7 +172,13 @@ def test_class_i_second_call_is_no_op(project, name):
 
 
 def test_registry_coverage_and_contracts():
-    assert {op.name for op in registry().all()} == set(CASES) | {"new_project", "cleanup_pixels"}
+    assert {op.name for op in registry().all()} == set(CASES) | {
+        "new_project",
+        "cleanup_pixels",
+        "import_image",
+        "list_sources",
+        "get_source",
+    }
     for op in registry().all():
         description = op.describe()
         assert description["inputSchema"]["additionalProperties"] is False
@@ -200,9 +206,8 @@ def test_new_project_and_cleanup_contracts(tmp_path):
         with pytest.raises(CyberSpriteError) as error:
             execute("new_project", p, args)
         assert error.value.code == code
-    with pytest.raises(CyberSpriteError) as error:
-        execute("cleanup_pixels", p, {"layer": "L1"}, preview="none")
-    assert error.value.code == "E_UNSUPPORTED" and "M6" in error.value.message
+    cleaned = execute("cleanup_pixels", p, {"layer": "L1"}, preview="none")
+    assert cleaned["no_op"] and cleaned["result"]["positions"] == []
 
 
 @pytest.mark.parametrize(

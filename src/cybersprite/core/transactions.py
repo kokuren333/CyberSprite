@@ -133,15 +133,29 @@ def synchronize(root, p, *, actor="cli"):
 
 
 def transact(
-    registry, path, calls, options, *, op="apply_ops", label=None, actor="cli", previewer=None
+    registry,
+    path,
+    calls,
+    options,
+    *,
+    op="apply_ops",
+    label=None,
+    actor="cli",
+    previewer=None,
+    initial_project=None,
+    prepared=None,
+    held_lock=None,
 ):
     target = project_path(path)
     root = target.parent
     actor = os.environ.get("CYBERSPRITE_ACTOR", actor)
-    lock = nullcontext() if options.dry_run else history.ProjectLock(root, actor)
+    active_lock = held_lock
+    if active_lock is None and not options.dry_run:
+        active_lock = history.ProjectLock(root, actor)
+    lock = nullcontext() if options.dry_run or held_lock is not None else active_lock
     with lock:
-        before = load_project(target)
-        raw = target.read_bytes()
+        before = load_project(target) if initial_project is None else initial_project
+        raw = target.read_bytes() if initial_project is None else dumps_project(before)
         if options.expect_revision is not None and options.expect_revision != before.revision:
             raise CyberSpriteError(
                 "E_REVISION_CONFLICT",
@@ -159,7 +173,7 @@ def transact(
         state = history.read_state(root)
         state, entries, writes = baseline(root, before, state, entries, actor, raw)
         after = deepcopy(before)
-        ctx = OpContext(after, root)
+        ctx = OpContext(after, root, prepared=prepared)
         results = []
         kind = op if op in ("undo", "redo") else "tx"
         restored = None
@@ -187,7 +201,17 @@ def transact(
             for index, call in enumerate(calls):
                 try:
                     definition = registry.get(call["op"])
-                    if definition.kind != "mutate" or call["op"] in ("undo", "redo", "apply_ops"):
+                    ingest = (
+                        definition.kind == "ingest"
+                        and op == call["op"]
+                        and prepared is not None
+                        and len(calls) == 1
+                    )
+                    if (definition.kind != "mutate" and not ingest) or call["op"] in (
+                        "undo",
+                        "redo",
+                        "apply_ops",
+                    ):
                         raise invalid(
                             "Only ordinary mutate operations can appear inside apply_ops.",
                             op=call["op"],
@@ -221,11 +245,11 @@ def transact(
                 "Report the operation sequence to its implementer.",
                 {"issues": [i.as_dict() for i in structural]},
             )
-        no_op = before == after and kind == "tx"
+        no_op = before == after and kind == "tx" and not ctx.side_writes and initial_project is None
         if not no_op:
             after.revision = before.revision + 1
-        previous_report = report(before, root=root)
-        next_report = report(after, root=root)
+        previous_report = report(before, root=root, source_manifest=ctx.previous_source_manifest)
+        next_report = report(after, root=root, source_manifest=ctx.source_manifest)
         changed = changes(before, after, ctx)
         result = {
             "ok": True,
@@ -239,14 +263,15 @@ def transact(
             "changed": changed,
             "validation": validation_delta(previous_report, next_report),
             "preview": {"paths": [], "scale": 1, "omitted_frames": []},
-            "warnings": [],
+            "warnings": ctx.warnings,
         }
         if options.dry_run:
             result["would_commit"] = not no_op
             if previewer and options.preview != "none":
                 result["preview"] = previewer(after, changed, root, options.preview, True)
             return result
-        lock.require_owned()
+        assert active_lock is not None
+        active_lock.require_owned()
         if no_op:
             # Baseline/external bookkeeping is staged until all operations succeed.
             if writes:
@@ -283,6 +308,7 @@ def transact(
                 (target, data),
             ]
         )
+        writes.extend(ctx.side_writes)
         backups = history.save_files(writes)
         preview_folder = root / ".cybersprite/previews"
         pattern = f"r{after.revision:06d}_f*.png"

@@ -18,6 +18,11 @@ class OpContext:
     root: Path
     linked_frames: set[int] = field(default_factory=set)
     clipped_pixels: int = 0
+    prepared: object = None
+    side_writes: list = field(default_factory=list)
+    source_manifest: object = None
+    previous_source_manifest: object = None
+    warnings: list = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -70,7 +75,7 @@ class Op:
 
     def describe(self) -> dict:
         input_fields = {"project": (str, ...)}
-        if self.kind == "mutate":
+        if self.kind in ("mutate", "ingest"):
             input_fields.update(
                 {
                     "expect_revision": (int | None, None),
