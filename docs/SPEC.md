@@ -174,7 +174,7 @@ CyberSprite は、**AI エージェントがピクセル単位で正確にドッ
 |---|---|---|---|---|---|
 | PixelOE | Apache-2.0 | 原文 | 任意 extra `cybersprite[pixeloe]`（プラグイン） | 輪郭を保つダウンスケール（グリッドのない入力向けの第一候補） | PyTorch に依存する重い依存なので必須にしない [D-16]。v1.x で legacy API（NumPy 実装）の移植を検討してよい（Apache-2.0 なので帰属表示つきで可能） |
 | PyTorch | BSD-3-Clause | 未 | PixelOE / Diffusers 経由 | | |
-| Diffusers | Apache-2.0 | 調査 | 任意 extra `cybersprite[diffusers]` | ローカル GPU 生成バックエンド | 重みは同梱しない |
+| Diffusers | Apache-2.0 | 原文（M9） | 利用者が自分で導入した Diffusers を検出して使う（v1 では extra に依存を固定しない [I-014]） | ローカル GPU 生成バックエンド | 重みは同梱しない |
 | stable-diffusion.cpp | MIT | 調査 | 外部コマンド（`command` バックエンド） | ローカル生成 | ユーザーが導入する |
 | InvokeAI | Apache-2.0 | 調査 | 外部サービス（v1.x） | 生成 | |
 | ComfyUI | GPL-3.0 | 調査 | **取り込まない。** ユーザーが自分で起動した外部サービスへの HTTP 連携のみ（v1.x、任意） | 生成 | 依存にしない。コードを読んで写さない |
@@ -2183,7 +2183,7 @@ class GenerationBackend(Protocol):
 
 ### 12.4 `diffusers` バックエンド
 
-- extra `cybersprite[diffusers]` を入れたときだけ使える。入っていなければ `availability` が理由を返す。
+- 利用者が Diffusers と PyTorch を自分で導入したときだけ使える。入っていなければ `availability` が理由を返す。v1 では `cybersprite[diffusers]` に依存を固定しない（PyTorch は環境ごとの導入方法が異なり、推移的依存の全件監査を CyberSprite の配布条件として保証できないため。[I-014]）。
 - モデルは、ユーザー設定 `config.toml` の `[generators.diffusers.models.<名前>]` に、Hugging Face の ID かローカルパス、ライセンス名、任意のアダプタ（LoRA）を書いて登録する。**ツール引数で任意のモデル ID を渡してダウンロードさせることはできない。**
 - 初回利用時、そのモデル（とアダプタ）のライセンス名を表示し、承諾（`cybersprite gen accept-license <名前>`、または `--accept-model-license`）が `models.json` に記録されていなければ `E_LICENSE_NOT_ACCEPTED`。
 - 推奨設定（ドット絵向けの解像度、ステップ数、アダプタ）は `skills/` に書く。仕様では固定しない（モデルの世代交代が速いため）。
