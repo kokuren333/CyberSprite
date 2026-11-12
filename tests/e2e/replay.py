@@ -46,6 +46,9 @@ async def replay(directory, root, *, stdio=False, exports=False):
             assert value["ok"], value
             if call["name"] == "validate":
                 assert value["result"]["ok"]
+            if call["name"].startswith("export_"):
+                assert value["result"]["validation_ok"]
+                assert value["result"]["verified"]
             transcript.append(
                 {
                     "op": call["name"],
