@@ -68,7 +68,7 @@ source_url = "確認したモデルカードのURLを記入"
 
 ```text
 uv run cybersprite gen accept-license local
-uv run cybersprite -p sample.csprite gen run --backend diffusers --model local --prompt "説明" --width 512 --height 512 --seed 42 --params '{"num_inference_steps":30,"guidance_scale":7}'
+uv run cybersprite -p sample.csprite gen run --backend diffusers --model local --prompt "説明" --width 512 --height 512 --seed 42
 ```
 
 `model` は設定の別名だけを受け付ける。バックエンドはローカルの pipeline ディレクトリを `AutoPipelineForText2Image.from_pretrained` で読み、単一ファイルは `StableDiffusionPipeline.from_single_file` で読む。単一ファイル方式は SD 系の対応形式に限る。いずれも `local_files_only=True` で、自動ダウンロードを要求しない。ディレクトリ内に fp16 safetensors があれば `variant="fp16", use_safetensors=True` を指定する。LoRA は別々に読み込んで有効化する。パラメータは `num_inference_steps`、整数の `guidance_scale`、真偽値の `deterministic`（既定 false）。最後の値は生成中だけ決定的アルゴリズムを要求し、cuDNN benchmark と TF32 を無効化する。未対応演算はエラーにし、元のフラグと環境変数は例外時も復元する。生成結果の PNG は CyberSprite 自前 writer を使う。
@@ -79,7 +79,7 @@ GPU スタック未導入、CUDA GPU なし、モデル実体なし、ライセ�
 
 ### R1-F2: 実体の依存監査（2026-11-12）
 
-監査環境はリポジトリ外の `<外部環境>/_genenv`、CPython 3.12.10 / Windows 11。Torch は [PyTorch 公式 CUDA 12.8 index](https://download.pytorch.org/whl/cu128) の Windows cp312 wheel。`nvidia-smi` は RTX 3080 / 20480 MiB、driver 610.88 / CUDA UMD 13.3。CUDA 12.8 の実ランタイム動作は下記のタイムアウトにより未検証。これは今回固定した監査・試行用スタックであり、最新版の推奨を意味しない。
+監査環境はリポジトリ外の `<外部環境>/_genenv`、CPython 3.12.10 / Windows 11。Torch は [PyTorch 公式 CUDA 12.8 index](https://download.pytorch.org/whl/cu128) の Windows cp312 wheel。`nvidia-smi` は RTX 3080 / 20480 MiB、driver 610.88 / CUDA UMD 13.3。CUDA 12.8 のFP16行列演算と下記の実SDXL生成を確認した。これは今回固定した監査・試行用スタックであり、最新版の推奨を意味しない。
 
 `tools/audit_generation_stack.py` は `tools/check_licenses.py` と同じ依存閉包・SPDX判定で全33配布物を列挙し、各 dist-info の LICENSE/LICENCE/COPYING 原文、SHA-256、同梱ネイティブファイル一覧を JSON に保存する。以下はその原文と同梱物を読んだ結果。「可」は確認したライセンスが許可リストに合う意味で、スタック全体の配布許可を意味しない。機械判定だけで native notices の確認を置換しない。
 
@@ -156,9 +156,24 @@ license = "CreativeML Open RAIL-M (2022-08-22)"
 source_url = "https://huggingface.co/nerijs/pixel-art-xl/tree/8bf4a4d9ea283e00a51fafda8e0539f8248ea037"
 ```
 
+要求をUTF-8の `C:/work/generation-request.json` に保存する。Windows PowerShell 5.1でインラインJSONの引用符が落ちることを確認したため、ここでは `gen run` と同じ登録Opを要求ファイルから呼ぶ。
+
+```json
+{
+  "backend": "diffusers",
+  "model": "sdxl-pixel",
+  "prompt": "pixel art, a small wooden chest, simple, flat colors, plain white background",
+  "negative_prompt": "3d render, realistic, text, watermark",
+  "width": 1024,
+  "height": 1024,
+  "seed": 42,
+  "params": {"num_inference_steps": 30, "guidance_scale": 7, "deterministic": true}
+}
+```
+
 ```powershell
 & $genPython -m cybersprite gen accept-license sdxl-pixel
-& $genPython -m cybersprite -p C:/work/check.csprite gen run --backend diffusers --model sdxl-pixel --prompt "pixel art, a small wooden chest, simple, flat colors, plain white background" --negative-prompt "3d render, realistic, text, watermark" --width 1024 --height 1024 --seed 42 --params '{"num_inference_steps":30,"guidance_scale":7,"deterministic":true}'
+& $genPython -m cybersprite -p C:/work/check.csprite op generate_image --args-file C:/work/generation-request.json
 & $genPython -m cybersprite -p C:/work/check.csprite import image --source SRC1 --preset ai
 & $genPython -m cybersprite -p C:/work/check.csprite validate
 ```
@@ -167,15 +182,34 @@ source_url = "https://huggingface.co/nerijs/pixel-art-xl/tree/8bf4a4d9ea283e00a5
 
 GPU試験は既定でスキップする。承諾済みの設定とリポジトリ外の保存先を用意し、`CYBERSPRITE_RUN_GPU=1`、`CYBERSPRITE_GPU_CHECK_DIR`、必要なら `CYBERSPRITE_GPU_MODEL` を設定して外部環境の `python -m pytest tests/generate/test_gpu.py -q` を実行する。試験自身はダウンロードもライセンス承諾もしない。`python -m tools.verify_generation_gpu --out <リポジトリ外> --runs 3 --import-source` は実CLI子プロセスの時間、200 ms間隔の nvidia-smi ボード使用量、原PNGのハッシュ、取り込み応答を保存する。時間にはPython起動・モデルの実体ハッシュ・読込・推論・PNG保存を含み、純粋な推論時間とは区別する。Torchフラグはプロセス全体の状態なので、同一プロセスのDiffusers実行をロックして復元の競合を防ぐ。
 
-### 実機試行の記録と未達項目
+### 実GPU検証の結果と測定範囲
 
-2026-11-12、RTX 3080 / 20480 MiB、driver 610.88、外部環境の上表の版で、実CLI `gen accept-license sdxl-pixel` が成功した。SDXLのディレクトリ識別SHA-256は `686a5b6be3d889b77314461d3c4e457189d01dc0fd5fc86e8cb37d542b97bcf7`、LoRAファイルは `4234637cb80c998f41e348e6a6cb6bc20d8d038b2b0f256b6129b3b5e353eef7`。それぞれ別の承諾として `models.json` に保存された。
+2026-11-12、RTX 3080 / 20480 MiB、driver 610.88、上表の外部環境で、実CLI `gen accept-license sdxl-pixel` が成功した。SDXLのディレクトリ識別SHA-256は `686a5b6be3d889b77314461d3c4e457189d01dc0fd5fc86e8cb37d542b97bcf7`、LoRAファイルは `4234637cb80c998f41e348e6a6cb6bc20d8d038b2b0f256b6129b3b5e353eef7`。それぞれ別の承諾として `models.json` に保存された。
 
-同じCLIで seed=42、1024×1024、30 steps、guidance=7、`deterministic=true` の生成を試したが、1800秒でタイムアウトした。ホストRAMは16GBで、観測時の空きは約13〜270MiB。ページフォルトが増え、推論に到達しないまま終了した。これは生成成功時の時間ではなく、失敗した試行の期限である。観測時のボード使用量は3MiB / GPU 0%だったが、試行全体の厳密なピーク値は取得できていない。原因をRAM不足だけと断定できるスタックトレースは取得していない。
+実CLI `cybersprite gen run` を3回、新規のsourceとして実行した。上記要求のseed=42、1024×1024、30 steps、guidance=7、`deterministic=true`、SDXL fp16とPixel Art XL LoRAを使用した。idempotency keyは使わず毎回推論した。
 
-したがって、画像/秒・推論時間・同一seedのバイト一致・aiプリセットの関門・実生成物の取り込み/validate/export/PNG復号は **未検証**。3回の成功実測や中央値、2〜3枚の画像見本もない。実機合格の受け入れ条件は未達であり、ホストRAMを数GB以上確保してから再実行する必要がある。GPU試験は通常のCIでスキップする。機能変更の前後比較や速度改善の主張は行わない。
+| 回 | CLI全体の時間（秒） | 観測VRAMピーク（MiB、200 ms間隔） |
+|---|---:|---:|
+| 1 | 540.420334100003 | 13342 |
+| 2 | 446.6919937000057 | 13342 |
+| 3 | 337.9346435000043 | 13342 |
+| 中央値 | 446.6919937000057 | 13342 |
 
-試行記録と再実行用設定は `<repo>/_private/gen-check/` に置いた（`failed-attempt.json`、`dependency-audit.json`、`generation-freeze.txt`、`settings/config.toml`、`settings/models.json`、`local-weight-inventory.txt`）。画像はない。重みはHFキャッシュに保持し、リポジトリ・コミットへ入れていない。初回探索ではNoobAI XL、音声用Qwen/HTDemucs、ComfyUIの各種重みがあり、指定SDXL baseとPixel Art XLはなかった。無視規則を外した後追いの全件一覧には、今回取得した5ファイルと試験用のダミーファイルも含む。既存製品のコードや素材は開いていない。
+3枚とも原PNGのSHA-256が `1a7c4e608d08eaae66f1502d4a4a70261ef51552d76a6c43032fefe179cfa395` で一致した。これはこの機械・このモデルと版・この要求の再現確認であり、他GPUや別版の保証ではない。Torch決定的アルゴリズムは厳密モード、cuDNN benchmark/TF32は無効、行列演算精度highest、CUBLAS_WORKSPACE_CONFIG=:4096:8とし、終了時に元へ戻す。
+
+時間はPython起動、承諾照合等のモデル実体ハッシュ、ロード、推論、PNG保存を含む。診断用スタックでは実体ハッシュ読込待ちも観測した（モデルとLoRAの組を1要求あたり4回ハッシュする現在の経路）。純粋な推論時間や速度改善の測定ではない。回ごとの減少はキャッシュ・同時負荷の差を分離しておらず、最適化の効果とは扱わない。VRAM値はボード全体の標本最大で、Torch allocatorの厳密なピークではない。同一プロセスの直列化について、変更前後3回ずつの並行性能比較は未実施。
+
+SRC1の実CLI `import image --source SRC1 --preset ai` は変更なしの全14関門を通過し、revision 0→1でL2/frame 0へ配置した。論理128×128、パレット33（透明予約を含む）、使用32色。grid_score=996、grid_cell_count=128、boundary_alignment=767、snap_fidelity=81、off_palette=0、orphans=0、fidelity=8486958で、設定の上書き・関門無効化はない。生成だけではproject.jsonが作成されないことも確認した。
+
+変更後の唯一のフレーム0のプレビューを確認し、独立 `validate` は `ok=true`、error=0、warning=0。infoのQ-LYR-03は自動作成された空のL1に対する通知で、そのまま残した。実CLIのPNG書き出しは `validation_ok=true` / `verified=true`。最終ファイルは128×128、indexed P、16704 bytes、SHA-256 `0045bc88751cf4ecbb587f5ea22b4ca8fa96542e2277a00f4115f4cd98871e45`、画素SHA-256 `b6ea18d4c632927ace3a776d47cdd08b39df5fc2990809d1bf72217113489d94`。Pillow 13.0.0と独自PNGデコーダのRGBA配列が一致し、書き出したファイルそのものも表示して確認した。美的評価は行っていない。
+
+明示有効化した `tests/generate/test_gpu.py` も実CLIで **1 passed / 329.72秒**。同じseedと正promptだがnegative_promptなしの別画像で、生成子プロセスは328.83690509999724秒だった。この追加画像のai取り込みはorphans=1の関門で拒否（他13関門はpass）となった。stage5を表示して確認し、関門を変更せず、未配置の拒否例として保存した。LoRA読込時の2つのtext encoder通知は、このLoRAの2166 tensor keyがすべてlora_unet_でtext encoderを含まないことと一致する。通知を隠す変更はしていない。
+
+初回はホストRAM16GB、空き約13〜270MiBの状況で1800秒タイムアウトし、画像が得られなかった。これは失敗期限であり生成時間ではない。後のTorch単体プローブはimport 63.6655秒、CUDA 12.8のFP16行列演算に成功した。再試行では上記の実画像を得たが、初回停止の原因をRAMだけとは断定しない。他アプリを強制終了する操作は行っていない。
+
+記録は `<repo>/_private/gen-check/` に保持した。`dependency-audit.json`、`generation-freeze.txt`、`failed-attempt.json`、`torch-probe.json`、`local-weight-inventory.txt`、`settings/config.toml`、`settings/models.json`、`retry/summary.json`、CLI標準出力/エラーログ、`export-proof.json` が証跡。`retry/sdxl-pixel.csprite/source/` に原画像と全段階、`gpu-test/` に追加試験を保存した。`examples/chest-seed42.png` は合格した最終PNG、`chest-seed42-stage2.png` はその途中段階、`chest-no-negative-rejected-stage5.png` は追加画像の拒否例。最後の2つを合格済み成果物と混同しない。
+
+初回探索ではNoobAI XL、animagine XL派生、音声用Qwen/HTDemucs、ComfyUIの各種重みがあったが、指定SDXL baseとPixel Art XLはなかった。パス一覧のみを保存し、指定の公式モデルをHFキャッシュへ取得した。後追いの一覧には今回の取得物と試験ダミーも含む。重み・生成画像はリポジトリにもコミットにも入れていない。他製品のコード・素材は開いていない。
 
 ## エージェント自身の画像生成ツール
 
@@ -220,9 +254,9 @@ uv run cybersprite -p sample.csprite op import_image --args-file import.json
 
 M9では L-10 / L-12 の調査を行っていなかった。R1-F2では上記のSDXL baseとPixel Art XLの特定revisionのカード・利用条件を確認した。他モデル・refiner・L-12は未確認であり、一般のモデル推奨一覧は置かない。
 
-- L-10: SD1.5、SDXL base と使用する refiner、FLUX.1 [schnell]、Pixel Art XL の各モデルカード・同梱 LICENSE・利用条件の版。Pixel Art XL はアダプタ自体と、その指定ベースモデルを別々に確認する。
+- L-10: SD1.5、使用するSDXL refiner、FLUX.1 [schnell]等の各モデルカード・同梱LICENSE・利用条件の版。上記2モデルでも別revisionへ変える場合は再確認する。
 - L-10: PixArt-alpha と PixArt-Sigma の実際に採用するチェックポイントのモデルカードと LICENSE。系列名で同一条件だと決めない。
 - L-10: 上記に追加するすべての LoRA と、そのカードが指定するベースモデル。ダウンロード元、正確な revision、実体ハッシュ、商用利用・再配布・利用制限を記録する。
-- モデルカードの確認先候補（未閲覧。正式な配布元・対象 revision の確認から行う）: `stable-diffusion-v1-5/stable-diffusion-v1-5`、`stabilityai/stable-diffusion-xl-base-1.0`、`stabilityai/stable-diffusion-xl-refiner-1.0`、`black-forest-labs/FLUX.1-schnell`、`nerijs/pixel-art-xl`、`PixArt-alpha/PixArt-XL-2-1024-MS`、`PixArt-alpha/PixArt-Sigma-XL-2-1024-MS`。
+- モデルカードの確認先候補（未閲覧。正式な配布元・対象 revision の確認から行う）: `stable-diffusion-v1-5/stable-diffusion-v1-5`、`stabilityai/stable-diffusion-xl-refiner-1.0`、`black-forest-labs/FLUX.1-schnell`、`PixArt-alpha/PixArt-XL-2-1024-MS`、`PixArt-alpha/PixArt-Sigma-XL-2-1024-MS`。
 - L-12: OpenAI の個人向け利用規約と、適用される法人向け契約・サービス条件の現行版、画像出力の帰属と制限。Codex の当該実行環境で使える画像生成ツールの仕様、モデル情報の公開範囲、保存先、来歴として取得できる情報も確認する。
 - L-09: R1-F2のWindows CUDAスタック監査は不合格と確定し、空extraを維持する。将来、別版・別構成を配布依存へ採用するなら、再度実体を監査して別の判断を記録する。今回の利用者導入を配布用extraの承認と解釈しない。
