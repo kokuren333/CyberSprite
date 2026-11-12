@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cybersprite"
+version = "0.1.0"
+description = "Deterministic indexed-color sprite core"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+dependencies = ["numpy==2.3.4", "pydantic==2.12.3", "click==8.3.0"]
+
+[project.scripts]
+cybersprite = "cybersprite.cli:main"
+csp = "cybersprite.cli:main"
+
+[project.optional-dependencies]
+mcp = []
+gui = []
+pixeloe = []
+diffusers = []
+
+[dependency-groups]
+dev = ["pytest==8.4.2", "ruff==0.14.1", "mypy==1.15.0", "packaging==26.3"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cybersprite"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+pythonpath = ["."]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["src/cybersprite"]
+check_untyped_defs = true

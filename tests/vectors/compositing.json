@@ -1,0 +1,12 @@
+{
+  "format": "cybersprite-compositing-v1",
+  "cases": [
+    {"name": "opaque source", "source": [12, 34, 56, 255], "destination": [90, 80, 70, 128], "expected": [12, 34, 56, 255]},
+    {"name": "transparent source", "source": [255, 0, 0, 0], "destination": [7, 8, 9, 128], "expected": [7, 8, 9, 128]},
+    {"name": "transparent result", "source": [99, 88, 77, 0], "destination": [66, 55, 44, 0], "expected": [0, 0, 0, 0]},
+    {"name": "half red over opaque blue", "source": [255, 0, 0, 128], "destination": [0, 0, 255, 255], "expected": [128, 0, 127, 255]},
+    {"name": "half red over half blue", "source": [255, 0, 0, 128], "destination": [0, 0, 255, 128], "expected": [170, 0, 85, 192]},
+    {"name": "saturate rounded alpha", "source": [255, 255, 255, 1], "destination": [255, 255, 255, 128], "expected": [255, 255, 255, 128]}
+  ],
+  "mul255": [[0,255,0], [255,255,255], [128,128,64], [128,255,128], [1,128,1], [1,127,0]]
+}

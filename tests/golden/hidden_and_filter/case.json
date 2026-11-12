@@ -1,0 +1,25 @@
+{
+  "renders": [
+    {},
+    {
+      "options": {
+        "include_hidden": true
+      }
+    },
+    {
+      "options": {
+        "layers": [
+          "L2"
+        ]
+      }
+    },
+    {
+      "options": {
+        "layers": [
+          "L2"
+        ],
+        "include_hidden": true
+      }
+    }
+  ]
+}

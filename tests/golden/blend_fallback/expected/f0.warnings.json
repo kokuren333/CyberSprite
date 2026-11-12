@@ -1,0 +1,9 @@
+[
+  {
+    "code": "W_BLEND_FALLBACK",
+    "layers": [
+      "L1"
+    ],
+    "message": "Unsupported blend modes were rendered as normal."
+  }
+]

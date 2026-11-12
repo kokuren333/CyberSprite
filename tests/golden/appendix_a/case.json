@@ -1,0 +1,12 @@
+{
+  "canonical": true,
+  "renders": [
+    {},
+    {
+      "frame": 1
+    },
+    {
+      "indexed": true
+    }
+  ]
+}
