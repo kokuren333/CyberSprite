@@ -16,6 +16,13 @@ MIT0_TEXT = "MIT No Attribution\nPermission is hereby granted, free of charge"
         (LGPL_TEXT, "LGPL-2.1-only", False),
         # MIT-0 is permissive and explicitly allowed (I-012), but must still be identified.
         (MIT0_TEXT, "MIT-0", True),
+        (
+            "Derived code licensed under CNRI's Python 1.6\nlicense.\n"
+            "All additions and alterations are licensed under the Apache 2.0 License.",
+            "Apache-2.0 AND CNRI-Python",
+            False,
+        ),
+        ("MIT authors\n* files: *\n  MPL-2.0 2015-2026 author", "MIT AND MPL-2.0", False),
     ],
 )
 def test_actual_grant_precedes_package_metadata(monkeypatch, text, expected, allowed):

@@ -50,6 +50,7 @@ select = ["E", "F", "I", "UP", "B"]
 testpaths = ["tests"]
 addopts = "-ra"
 pythonpath = ["."]
+markers = ["gpu: opt-in local CUDA generation; requires user-installed stack and accepted weights"]
 
 [tool.mypy]
 python_version = "3.12"

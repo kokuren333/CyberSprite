@@ -54,7 +54,7 @@ def configured(tmp_path, monkeypatch):
     text = (
         "[generators.command.fake]\n"
         + f"program={json.dumps(sys.executable)}\n"
-        + f'args={json.dumps(args)}\nlicense="test output terms"\ntimeout_seconds=30\n'
+        + f'args={json.dumps(args)}\nlicense="test output terms"\ntimeout_seconds=180\n'
         + '[generators.command.fake.model]\nid="test/base"\n'
         + 'local_path="model.txt"\nlicense="CC0-1.0"\n'
         + '[[generators.command.fake.model.adapters]]\nid="test/adapter"\n'
@@ -252,7 +252,8 @@ def test_injection_and_unknown_model_refused(configured):
 
 
 @pytest.mark.parametrize("single_file", [False, True])
-def test_diffusers_fake_pipeline(configured, monkeypatch, single_file):
+@pytest.mark.parametrize("fp16_variant", [False, True])
+def test_diffusers_fake_pipeline(configured, monkeypatch, single_file, fp16_variant):
     from cybersprite.config import DiffusersSettings
     from cybersprite.generate.contracts import ModelInfo
 
@@ -293,6 +294,8 @@ def test_diffusers_fake_pipeline(configured, monkeypatch, single_file):
 
     backend = DiffusersBackend(DiffusersSettings())
     location = settings / "model.txt" if single_file else settings
+    if fp16_variant:
+        (settings / "model.fp16.safetensors").write_bytes(b"fake variant, not weights")
     adapter = ModelInfo(
         id="test/adapter",
         license="Unlicense",
@@ -323,15 +326,60 @@ def test_diffusers_fake_pipeline(configured, monkeypatch, single_file):
     )
     assert len(generated) == 2 and generated[0].seed == 19
     assert next(c for c in calls if c[0] == "load")[2]["local_files_only"] is True
+    load_options = next(c for c in calls if c[0] == "load")[2]
+    assert load_options.get("variant") == ("fp16" if fp16_variant and not single_file else None)
+    if fp16_variant and not single_file:
+        assert load_options["use_safetensors"] is True
     kwargs = next(c for c in calls if c[0] == "call")[1]
     assert kwargs["prompt"] == request()["prompt"] and kwargs["guidance_scale"] == 7
     assert kwargs["num_inference_steps"] == 30
+    assert "deterministic" not in kwargs
     assert next(c for c in calls if c[0] == "lora")[2] == {
         "local_files_only": True,
         "adapter_name": "adapter_0",
         "weight_name": "adapter.txt",
     }
     assert ("adapters", ["adapter_0"]) in calls
+
+
+@pytest.mark.parametrize("fail", [False, True])
+@pytest.mark.parametrize("workspace", [None, ":16:8"])
+def test_deterministic_generation_restores_flags_and_environment(monkeypatch, fail, workspace):
+    import os
+
+    from cybersprite.generate.backends import deterministic_generation
+
+    if workspace is None:
+        monkeypatch.delenv("CUBLAS_WORKSPACE_CONFIG", raising=False)
+    else:
+        monkeypatch.setenv("CUBLAS_WORKSPACE_CONFIG", workspace)
+    cudnn = SimpleNamespace(benchmark=True, deterministic=False, allow_tf32=True)
+    matmul = SimpleNamespace(allow_tf32=True)
+    state = [False, True]
+
+    def algorithms(enabled, warn_only=False):
+        state[:] = [enabled, warn_only]
+
+    torch = SimpleNamespace(
+        are_deterministic_algorithms_enabled=lambda: state[0],
+        is_deterministic_algorithms_warn_only_enabled=lambda: state[1],
+        use_deterministic_algorithms=algorithms,
+        backends=SimpleNamespace(cudnn=cudnn, cuda=SimpleNamespace(matmul=matmul)),
+    )
+    try:
+        with deterministic_generation(torch, True):
+            assert state == [True, False]
+            assert os.environ["CUBLAS_WORKSPACE_CONFIG"] == ":4096:8"
+            assert not cudnn.benchmark and cudnn.deterministic
+            assert not cudnn.allow_tf32 and not matmul.allow_tf32
+            if fail:
+                raise RuntimeError("unsupported deterministic operation")
+    except RuntimeError:
+        assert fail
+    assert state == [False, True]
+    assert cudnn.benchmark and not cudnn.deterministic
+    assert cudnn.allow_tf32 and matmul.allow_tf32
+    assert os.environ.get("CUBLAS_WORKSPACE_CONFIG") == workspace
 
 
 def test_lazy_plugins_and_explicit_enable(configured, monkeypatch):

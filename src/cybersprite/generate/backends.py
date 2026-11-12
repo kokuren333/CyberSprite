@@ -1,10 +1,13 @@
 """Configured shell-free commands and optional, lazily imported Diffusers."""
 
 import importlib
+import os
 import secrets
 import shutil
 import subprocess
+from contextlib import contextmanager
 from pathlib import Path
+from threading import RLock
 
 import numpy as np
 from pydantic import Field, ValidationError
@@ -17,6 +20,8 @@ from cybersprite.formats.png import encode_png
 from .contracts import Availability, GeneratedImage
 from .licenses import model_info, require_license
 
+_TORCH_GENERATION_LOCK = RLock()
+
 
 class CommandParams(Model):
     """Command templates have no caller-defined arguments."""
@@ -25,6 +30,50 @@ class CommandParams(Model):
 class DiffusersParams(Model):
     num_inference_steps: int = Field(30, ge=1, le=1000, description="Denoising step count.")
     guidance_scale: int = Field(7, ge=0, le=100, description="Integer guidance scale.")
+    deterministic: bool = Field(
+        False, description="Require deterministic CUDA algorithms on this machine; may fail."
+    )
+
+
+@contextmanager
+def deterministic_generation(torch, enabled):
+    """Scope process-global Torch flags to an explicitly requested generation."""
+    with _TORCH_GENERATION_LOCK, _deterministic_flags(torch, enabled):
+        yield
+
+
+@contextmanager
+def _deterministic_flags(torch, enabled):
+    if not enabled:
+        yield
+        return
+    previous = (
+        torch.are_deterministic_algorithms_enabled(),
+        torch.is_deterministic_algorithms_warn_only_enabled(),
+        torch.backends.cudnn.benchmark,
+        torch.backends.cudnn.deterministic,
+        torch.backends.cudnn.allow_tf32,
+        torch.backends.cuda.matmul.allow_tf32,
+    )
+    workspace = os.environ.get("CUBLAS_WORKSPACE_CONFIG")
+    try:
+        os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+        torch.use_deterministic_algorithms(True)
+        torch.backends.cudnn.benchmark = False
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.allow_tf32 = False
+        torch.backends.cuda.matmul.allow_tf32 = False
+        yield
+    finally:
+        torch.use_deterministic_algorithms(previous[0], warn_only=previous[1])
+        torch.backends.cudnn.benchmark = previous[2]
+        torch.backends.cudnn.deterministic = previous[3]
+        torch.backends.cudnn.allow_tf32 = previous[4]
+        torch.backends.cuda.matmul.allow_tf32 = previous[5]
+        if workspace is None:
+            os.environ.pop("CUBLAS_WORKSPACE_CONFIG", None)
+        else:
+            os.environ["CUBLAS_WORKSPACE_CONFIG"] = workspace
 
 
 class ConfiguredBackend:
@@ -214,9 +263,9 @@ class DiffusersBackend(ConfiguredBackend):
         except (ImportError, OSError) as error:
             raise CyberSpriteError(
                 "E_BACKEND_UNAVAILABLE",
-                "Diffusers extra is not installed or usable.",
-                "See docs/GENERATION.md for the pending optional dependency audit; "
-                "use a configured command backend until the GPU stack is approved.",
+                "Torch/Diffusers is not installed or usable in this Python environment.",
+                "Install the GPU stack in the Python environment running CyberSprite; "
+                "the reserved diffusers extra installs no packages. See docs/GENERATION.md.",
             ) from error
         if not torch.cuda.is_available():
             raise CyberSpriteError(
@@ -236,6 +285,10 @@ class DiffusersBackend(ConfiguredBackend):
     def generate(self, request, out_dir, progress):
         model, params = self.checked(request)
         torch, diffusers = self.runtime()
+        with deterministic_generation(torch, params["deterministic"]):
+            return self._generate(request, out_dir, progress, model, params, torch, diffusers)
+
+    def _generate(self, request, out_dir, progress, model, params, torch, diffusers):
         seed = request.seed if request.seed is not None else secrets.randbits(63)
         try:
             progress(0, "Loading local model.")
@@ -245,7 +298,10 @@ class DiffusersBackend(ConfiguredBackend):
                 if location.is_file()
                 else diffusers.AutoPipelineForText2Image.from_pretrained
             )
-            pipe = factory(str(location), local_files_only=True, torch_dtype=torch.float16)
+            options = dict(local_files_only=True, torch_dtype=torch.float16)
+            if location.is_dir() and any(location.rglob("*.fp16.safetensors")):
+                options.update(variant="fp16", use_safetensors=True)
+            pipe = factory(str(location), **options)
             for i, adapter in enumerate(model.adapters):
                 path = Path(adapter.local_path)
                 options = dict(local_files_only=True, adapter_name=f"adapter_{i}")
@@ -266,7 +322,7 @@ class DiffusersBackend(ConfiguredBackend):
                 height=request.height,
                 num_images_per_prompt=request.count,
                 generator=generator,
-                **params,
+                **{key: value for key, value in params.items() if key != "deterministic"},
             )
             images = []
             for i, image in enumerate(result.images):

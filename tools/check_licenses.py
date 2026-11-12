@@ -116,6 +116,10 @@ def identify_license(dist) -> tuple[str, str]:
     # Fail closed on the actual grant before accepting aggregate metadata (I-356).
     for path, text in texts:
         heading = " ".join(text.split())
+        if re.search(r"licensed under CNRI's Python 1\.6\s+license", text):
+            return "Apache-2.0 AND CNRI-Python", f"Mixed bundled grant: {path}"
+        if re.search(r"\* files: \*\s+MPL-2\.0", text):
+            return "MIT AND MPL-2.0", f"Mixed bundled grant: {path}"
         for title, spdx in (
             ("GNU LESSER GENERAL PUBLIC LICENSE Version 2.1", "LGPL-2.1-only"),
             ("GNU LESSER GENERAL PUBLIC LICENSE Version 3", "LGPL-3.0-only"),
