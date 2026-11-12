@@ -1,0 +1,12 @@
+{
+  "renders": [
+    {},
+    {
+      "frame": 1
+    },
+    {
+      "frame": 1,
+      "indexed": true
+    }
+  ]
+}

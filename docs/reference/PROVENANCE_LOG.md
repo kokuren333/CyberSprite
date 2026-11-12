@@ -5,6 +5,7 @@
 
 | 日付 | 参照者 | 資料 | 何の事実を得たか | 反映先 |
 |---|---|---|---|---|
+| 2026-11-12 | Codex / M1 | 指定パッケージおよび推移的依存のインストール済み dist-info 内 LICENSE 原文（NumPy 2.3.4、pydantic 2.12.3、click 8.3.0、pytest 8.4.2、Ruff 0.14.1、mypy 1.15.0、hatchling 1.27.0 等。詳細は M1_LICENSE_REVIEW.md） | 本体の許諾と、pathspec の MPL-2.0・NumPy wheel の同梱ネイティブライブラリの追加条件を確認した。製品・ライブラリの実装ソースは参照していない | pyproject.toml、tools/check_licenses.py、M1_LICENSE_REVIEW.md、I-113 |
 | 2026-11-11 | 調査担当（第 2 弾調査） | Aseprite ファイル形式仕様 https://github.com/aseprite/aseprite/blob/main/docs/ase-file-specs.md | ヘッダ、色深度、チャンクの種類（レイヤー、セル、タグ、パレット、スライス、タイルセット、ユーザーデータ） | SPEC §5.9 |
 | 2026-11-11 | 調査担当（第 2 弾調査） | Aseprite CLI 文書 https://aseprite.org/docs/cli/ | CLI でできることの範囲（一括処理、シート、分割、範囲指定、一覧） | SPEC §9.5 |
 | 2026-11-11 | 調査担当（第 2 弾調査） | Pixelorama README | ライセンス（MIT）、機能の範囲（タイムライン、タグ、オニオンスキン、タイルマップ、インデックスモード、CLI 書き出し） | NOTES §2.2 |

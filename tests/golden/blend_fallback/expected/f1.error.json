@@ -1,0 +1,16 @@
+{
+  "code": "E_NOT_PALETTE_CLOSED",
+  "message": "Frame is not palette closed.",
+  "details": {
+    "causes": [
+      {
+        "layer": "L1",
+        "frame": 0,
+        "colors": [],
+        "effective_opacity": 255,
+        "blend_mode": "multiply"
+      }
+    ]
+  },
+  "hint": "Use RGBA rendering or explicitly request flatten='nearest'."
+}

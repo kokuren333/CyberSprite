@@ -1,0 +1,9 @@
+{
+  "renders": [
+    {},
+    {
+      "indexed": true,
+      "error": "E_NOT_PALETTE_CLOSED"
+    }
+  ]
+}
