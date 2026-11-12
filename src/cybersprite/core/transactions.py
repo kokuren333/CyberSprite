@@ -175,8 +175,17 @@ def synchronize(root, p, *, actor=None, write=False):
         if writes:
             history.save_files(writes)
             history.commit_journal(root, entries)
-            history.atomic_write(history.paths(root) / "state.json", json_bytes(state))
+            _save_history_state(root, state, p.revision)
     return p
+
+
+def _save_history_state(root, state, revision):
+    state["journal_position"] = {
+        "revision": revision,
+        "segment": "journal.jsonl",
+        "bytes": (history.paths(root) / "journal.jsonl").stat().st_size,
+    }
+    history.atomic_write(history.paths(root) / "state.json", json_bytes(state))
 
 
 def transact(
@@ -332,7 +341,7 @@ def transact(
             if writes:
                 history.save_files(writes)
                 history.commit_journal(root, entries)
-                history.atomic_write(history.paths(root) / "state.json", json_bytes(state))
+                _save_history_state(root, state, before.revision)
             return result
         if kind == "tx":
             state["undo_stack"].append(before.revision)
@@ -373,7 +382,7 @@ def transact(
                 result["warnings"].append({"code": "W_PREVIEW_UNAVAILABLE", "message": str(error)})
         check_deadline()
         history.commit_journal(root, entries, result)
-        history.atomic_write(history.paths(root) / "state.json", json_bytes(state))
+        _save_history_state(root, state, after.revision)
         for function in (
             history.retain,
             sources.retain_history,

@@ -181,6 +181,16 @@ def read_state(root):
         state = json.loads(committed_bytes(path, root))
         if not all(type(v) is int for k in ("undo_stack", "redo_stack") for v in state[k]):
             raise ValueError("Invalid history stacks.")
+        position = state.get("journal_position")
+        if position is not None and (
+            not isinstance(position, dict)
+            or type(position.get("bytes")) is not int
+            or position["bytes"] < 0
+            or type(position.get("revision")) is not int
+            or position["revision"] < 0
+            or position.get("segment") != "journal.jsonl"
+        ):
+            raise ValueError("Invalid committed journal position.")
         return state
     except (OSError, ValueError, KeyError, TypeError) as error:
         raise CyberSpriteError(
@@ -282,7 +292,22 @@ def read_journal(root, limit=None, *, after_revision=None):
 
 def repair_tail(root):
     path = paths(root) / "journal.jsonl"
-    if not path.exists() or not path.stat().st_size:
+    marker = read_state(root).get("journal_position")
+    committed = marker["bytes"] if marker and marker["revision"] > 0 else 0
+
+    def require_committed(end):
+        if end < committed:
+            raise CyberSpriteError(
+                "E_HISTORY_UNAVAILABLE",
+                "Committed journal bytes are missing.",
+                "Restore the journal tail from backup before retrying an idempotency key. "
+                "Keep project.json when resetting corrupt derived history.",
+                {"committed_bytes": committed, "available_bytes": end},
+            )
+
+    size = path.stat().st_size if path.exists() else 0
+    require_committed(size)
+    if not size:
         return
     with path.open("r+b") as stream:
         stream.seek(-1, 2)
@@ -298,6 +323,7 @@ def repair_tail(root):
                 pos = start + offset + 1
                 break
             pos = start
+        require_committed(pos)
         stream.truncate(pos)
         stream.flush()
         os.fsync(stream.fileno())

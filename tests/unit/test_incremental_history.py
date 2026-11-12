@@ -56,6 +56,30 @@ def test_tail_spans_blocks_and_ignores_torn_line(project):
     assert journal.read_bytes() == b""
 
 
+def test_committed_tail_loss_does_not_silently_repeat_key(project):
+    ops.execute("set_pixel", project, POINT, idempotency_key="committed", preview="none")
+    journal = history.paths(project) / "journal.jsonl"
+    journal.write_bytes(journal.read_bytes()[:-5])
+    before = files(project)
+    from cybersprite.core.errors import CyberSpriteError
+
+    with pytest.raises(CyberSpriteError) as error:
+        ops.execute("set_pixel", project, {**POINT, "color": 2}, idempotency_key="committed")
+    assert error.value.code == "E_HISTORY_UNAVAILABLE"
+    assert files(project) == before
+
+
+def test_uncommitted_torn_suffix_is_repaired_after_real_commit(project):
+    ops.execute("set_pixel", project, POINT, preview="none")
+    journal = history.paths(project) / "journal.jsonl"
+    original = journal.read_bytes()
+    with journal.open("ab") as stream:
+        stream.write(b'{"revision":')
+    with history.ProjectLock(project, "repair"):
+        pass
+    assert journal.read_bytes() == original
+
+
 def test_replay_exact_inline_envelope_rebuild_and_window(project):
     first = ops.execute("set_pixel", project, POINT, idempotency_key="one", preview="inline")
     assert first["preview"]["images"]
