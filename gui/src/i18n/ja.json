@@ -135,5 +135,19 @@
   "done": "完了",
   "size": "大きさ",
   "zoomLevel": "拡大率",
-  "opacity": "不透明度"
+  "opacity": "不透明度",
+  "platform": "プラットフォーム",
+  "platformNone": "なし（従来どおり自由な大きさ）",
+  "platformAny": "大きさ自由",
+  "platformFixed": "固定",
+  "platformSuggested": "目安",
+  "platformOther": "その他",
+  "platformHint": "選ぶと、下の引数に大きさとパレットの既定値が入ります。引数はそのまま編集できます。",
+  "platformChecks": "プラットフォームの検査",
+  "modelTerms": "モデルの利用条件",
+  "termsOk": "商用利用可",
+  "termsRestricted": "商用可（利用制限あり）",
+  "termsNonCommercial": "非商用のみ",
+  "termsReview": "要確認",
+  "termsNote": "使う前に、アダプタとベースモデルの条件を合わせて確認してください。"
 }

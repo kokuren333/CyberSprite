@@ -3,6 +3,7 @@ import { useText, type TextKey } from '../i18n';
 import { fileUrl } from '../api/files';
 import { act, rpc, useEditor, view, refresh } from '../store';
 import { Icon, Notch, PanelHead, type IconName } from './chrome';
+import { displayLevel, isPlatformRule } from '../platforms';
 const isAgent = (actor: string) => actor.startsWith('agent');
 const clock = (time?: string) => time ? new Date(time).toTimeString().slice(0, 5) : '';
 const levelIcon: Record<string, IconName> = { error: 'error', warning: 'warning', info: 'info' };
@@ -52,11 +53,20 @@ export function AgentPanel() {
         <div className="vsum"><span className={`vstate ${validation?.ok ? 'ok' : 'ng'}`}><Icon name={validation?.ok ? 'validate-ok' : 'error'} /><b>{validation?.ok ? t('validOk') : t('validNg')}</b></span>
           <span className="mono soft">{t('errors')} {counts.error ?? 0} · {t('warnings')} {counts.warning ?? 0} · {t('infos')} {counts.info ?? 0}</span>
           <button className="pad small" onClick={() => void act(async () => { const value = await rpc('validate.run'); if (s.project) view({ project: { ...s.project, validation: value.result } }); })}>{t('refresh')}</button></div>
-        <ul className="validation-issues">{validation?.issues.map((issue: any, i: number) => {
-          const level = issue.level ?? issue.severity ?? 'info', frame = issue.where?.frames?.[0] ?? issue.where?.frame;
-          return <li key={i}><button className={`issue ${level}`} onClick={() => view({ frame: frame ?? s.frame, layer: issue.where?.layer ?? s.layer, selection: issue.where?.bbox ? { type: 'rect', ...issue.where.bbox } : s.selection })}>
-            <Icon name={levelIcon[level] ?? 'info'} /><span className="issue-body"><span className="issue-head"><code className="mono">{issue.rule ?? issue.code}</code><span className="soft">{t(level as TextKey) ?? level}{frame !== undefined ? ` · f${frame}` : ''}</span></span><span>{issue.message}</span></span></button></li>;
-        })}</ul>
+        {(() => {
+          const issues: any[] = validation?.issues ?? [], general = issues.filter(i => !isPlatformRule(i.rule)), platform = issues.filter(i => isPlatformRule(i.rule));
+          const row = (issue: any, i: number) => {
+            const level = displayLevel(issue.rule, issue.level ?? issue.severity ?? 'info'), frame = issue.where?.frames?.[0] ?? issue.where?.frame;
+            return <li key={i}><button className={`issue ${level}`} onClick={() => view({ frame: frame ?? s.frame, layer: issue.where?.layer ?? s.layer, selection: issue.where?.bbox ? { type: 'rect', ...issue.where.bbox } : s.selection })}>
+              <Icon name={levelIcon[level] ?? 'info'} /><span className="issue-body"><span className="issue-head"><code className="mono">{issue.rule ?? issue.code}</code><span className="soft">{t(level as TextKey) ?? level}{frame !== undefined ? ` · f${frame}` : ''}</span></span><span>{issue.message}</span></span></button></li>;
+          };
+          return <>
+            <ul className="validation-issues">{general.map(row)}</ul>
+            {platform.length > 0 && <section className="vgroup" aria-labelledby="vgroup-platform">
+              <h3 className="vgroup-head" id="vgroup-platform"><span>{t('platformChecks')}</span>{s.project?.summary.platform && <code className="mono soft">{s.project.summary.platform.id}</code>}<span className="mono soft">{platform.length}</span></h3>
+              <ul className="validation-issues platform-issues">{platform.map(row)}</ul></section>}
+          </>;
+        })()}
         <details className="metrics"><summary>{t('metrics')}</summary><pre className="validation-metrics">{JSON.stringify(validation?.metrics, null, 2)}</pre></details>
         {s.delta && <details className="metrics"><summary>{t('lastDelta')}</summary><pre className="validation-delta">{JSON.stringify(s.delta, null, 2)}</pre></details>}
       </div>}

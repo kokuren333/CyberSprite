@@ -135,5 +135,19 @@
   "done": "Done",
   "size": "Size",
   "zoomLevel": "Zoom",
-  "opacity": "Opacity"
+  "opacity": "Opacity",
+  "platform": "Platform",
+  "platformNone": "None (free size, as before)",
+  "platformAny": "any size",
+  "platformFixed": "fixed",
+  "platformSuggested": "suggested",
+  "platformOther": "Other",
+  "platformHint": "Choosing a platform fills the size and palette defaults in the arguments below; you can still edit them.",
+  "platformChecks": "Platform checks",
+  "modelTerms": "Model terms",
+  "termsOk": "Commercial use OK",
+  "termsRestricted": "Commercial OK with use restrictions",
+  "termsNonCommercial": "Non-commercial only",
+  "termsReview": "Needs review",
+  "termsNote": "Review the adapter and base model terms together before using the result."
 }

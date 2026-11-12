@@ -5,7 +5,7 @@ import type { Brush, Point, Region } from '../raster';
 export type Tool = 'pencil' | 'eraser' | 'line' | 'rect' | 'ellipse' | 'fill' | 'eyedropper' | 'select' | 'move' | 'hand' | 'zoom';
 export type Layer = { id: string; name: string; type: string; visible: boolean; locked: boolean; opacity: number; children?: Layer[]; cels?: any[] };
 export type Tag = { id: string; name: string; from: number; to: number; direction: string; repeat: number };
-export type ProjectData = { summary: { name: string; width: number; height: number; revision: number }; layers: Layer[]; frames: { duration_ms: number }[]; tags: Tag[]; palette: { colors: string[]; transparent_index: number }; validation: any; history: any; sources: any; slices: any[] };
+export type ProjectData = { summary: { name: string; width: number; height: number; revision: number; platform?: { id: string; canvas: { w: number; h: number; fixed: boolean } | null } | null }; layers: Layer[]; frames: { duration_ms: number }[]; tags: Tag[]; palette: { colors: string[]; transparent_index: number }; validation: any; history: any; sources: any; slices: any[] };
 export type OpSchema = { name: string; kind: string; inputSchema: any; idempotency: string; description: string };
 export const flattenLayers = (layers: Layer[]): Layer[] => layers.flatMap(l => [l, ...flattenLayers(l.children ?? [])]);
 export function reconcileView(data: ProjectData, layer: string, frame: number) {

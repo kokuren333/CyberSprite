@@ -268,6 +268,9 @@ input[type="checkbox"]:disabled { border-style: dashed; background: var(--cs-boa
 .issue-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: var(--fs-s); }
 .issue-head { display: flex; gap: 8px; }
 .issue-head code { font-weight: 700; }
+.vgroup { display: flex; flex-direction: column; gap: 4px; padding-top: 6px; border-top: 1px solid var(--ui-sep); }
+.vgroup-head { display: flex; align-items: center; gap: 8px; margin: 0; font-size: var(--fs-s); font-weight: 700; }
+.vgroup-head .mono:last-child { margin-left: auto; }
 .metrics summary { font-size: var(--fs-s); color: var(--ui-text-soft); cursor: default; }
 .metrics pre, .small-pre { margin: 6px 0 0; padding: 6px; font-size: 11px; line-height: 1.35; background: var(--cs-board); border: 1px solid var(--ui-sep); max-height: 220px; overflow: auto; }
 .diff-form { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -371,6 +374,19 @@ dialog::backdrop { background: var(--ui-scrim); opacity: 0.35; }
 .op-schema summary { font-size: var(--fs-s); color: var(--ui-text-soft); }
 .op-schema pre, .operation-result, .export-plan { margin: 0; padding: 8px; font-size: 11px; line-height: 1.35; max-height: 240px; overflow: auto; background: var(--cs-board); border: 1px solid var(--ui-sep); }
 .note { display: flex; align-items: center; gap: 8px; padding: 6px 8px; font-size: var(--fs-s); border: 1px solid var(--cs-warn); background: var(--ui-warn-bg); }
+.platform-summary code { font-weight: 700; margin-right: 2px; }
+.terms { display: flex; flex-direction: column; gap: 4px; }
+.terms-title { margin: 0; font-weight: 600; }
+.terms-list { display: flex; flex-direction: column; gap: 4px; }
+.terms-badge { position: relative; display: flex; gap: 8px; padding: 6px 8px 6px 10px; border: 1px solid var(--ui-sep); background: var(--cs-panel); font-size: var(--fs-s); }
+.terms-badge::before { content: ""; position: absolute; left: -1px; top: -1px; bottom: -1px; width: 3px; background: var(--ui-on-line); }
+.terms-badge.restricted, .terms-badge.review { background: var(--ui-warn-bg); }
+.terms-badge.restricted::before, .terms-badge.review::before { background: var(--cs-warn); }
+.terms-badge.nc { background: var(--ui-error-bg); }
+.terms-badge.nc::before { background: var(--cs-error); }
+.terms-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.terms-head { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+.terms-note { margin: 0; font-size: var(--fs-s); }
 .dialog-error { display: flex; align-items: center; gap: 8px; font-size: var(--fs-s); }
 .dialog-error:empty { display: none; }
 .dlg-actions { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-top: 1px solid var(--ui-sep); background: var(--cs-board); }
@@ -389,7 +405,7 @@ dialog::backdrop { background: var(--ui-scrim); opacity: 0.35; }
 :root[data-contrast="high"] .act.sel, :root[data-contrast="high"] tbody tr.sel .layer-head { box-shadow: inset 4px 0 0 var(--ui-on-line); }
 :root[data-contrast="high"] .tool-button[aria-pressed="true"],
 :root[data-contrast="high"] .pad.on, :root[data-contrast="high"] .pad[aria-checked="true"], :root[data-contrast="high"] label.pad:has(input:checked) { box-shadow: inset 0 0 0 1px var(--ui-on-line); }
-:root[data-contrast="high"] .issue::before { width: 4px; }
+:root[data-contrast="high"] .issue::before, :root[data-contrast="high"] .terms-badge::before { width: 4px; }
 :root[data-contrast="high"] .panel { box-shadow: none; }
 
 /* ---------- reduced motion: stop every animation (OS setting or app setting) ---------- */
