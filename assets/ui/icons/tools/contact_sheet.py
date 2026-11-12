@@ -48,7 +48,9 @@ def main() -> None:
             tile.alpha_composite(im, (2, 2))
             strip.paste(tile, (2 + i * 20, 2 + j * 20))
     strip.save(out / "strip-x1.png")
-    strip.resize((strip.width * 3, strip.height * 3), Image.NEAREST).save(out / "strip-x1-zoom3.png")
+    strip.resize((strip.width * 3, strip.height * 3), Image.NEAREST).save(
+        out / "strip-x1-zoom3.png"
+    )
 
 
 if __name__ == "__main__":

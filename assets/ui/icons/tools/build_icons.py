@@ -30,11 +30,33 @@ import icon_grids  # noqa: E402
 
 PALETTE = ICONS / "ui-icons.gpl"
 LAYER = "icon"
-PALETTE_NAMES = ["transparent", "ink", "trace-deep", "trace", "trace-soft", "white",
-                 "warn", "error", "agent", "ink-soft", "agent-soft"]
+PALETTE_NAMES = [
+    "transparent",
+    "ink",
+    "trace-deep",
+    "trace",
+    "trace-soft",
+    "white",
+    "warn",
+    "error",
+    "agent",
+    "ink-soft",
+    "agent-soft",
+]
 # design character -> palette index character used by draw_rows format "sym"
-SYM = {".": ".", "#": "1", "d": "2", "c": "3", "s": "4", "w": "5",
-       "g": "6", "r": "7", "v": "8", "k": "9", "p": "a"}
+SYM = {
+    ".": ".",
+    "#": "1",
+    "d": "2",
+    "c": "3",
+    "s": "4",
+    "w": "5",
+    "g": "6",
+    "r": "7",
+    "v": "8",
+    "k": "9",
+    "p": "a",
+}
 
 
 def csp(*args: str, stdin: str | None = None) -> dict:
@@ -52,29 +74,71 @@ def build_one(name: str, rows: list[str], renders: Path | None) -> dict:
     proj = ICONS / f"{name}.csprite"
     log = {"name": name, "created": False, "drawn": False}
     if not proj.exists():
-        r = csp("new", str(proj), "--size", "16x16", "--palette", str(PALETTE),
-                "--name", name, "--layer-name", LAYER)
+        r = csp(
+            "new",
+            str(proj),
+            "--size",
+            "16x16",
+            "--palette",
+            str(PALETTE),
+            "--name",
+            name,
+            "--layer-name",
+            LAYER,
+        )
         if not r["ok"]:
             raise RuntimeError(f"new {name}: {r}")
         log["created"] = True
     # `new --palette x.gpl` keeps the colours but drops the .gpl colour names, so name them
     pal = csp("-p", str(proj), "palette", "show")["result"]["colors"]
     if [c["name"] for c in pal] != PALETTE_NAMES:
-        tx = {"label": "name ui palette",
-              "ops": [{"op": "set_palette", "args": {
-                  "colors": [c["color"][:7] for c in pal],
-                  "names": {str(i): n for i, n in enumerate(PALETTE_NAMES)}}}]}
+        tx = {
+            "label": "name ui palette",
+            "ops": [
+                {
+                    "op": "set_palette",
+                    "args": {
+                        "colors": [c["color"][:7] for c in pal],
+                        "names": {str(i): n for i, n in enumerate(PALETTE_NAMES)},
+                    },
+                }
+            ],
+        }
         r = csp("-p", str(proj), "apply", "-", "--preview", "none", stdin=json.dumps(tx))
         if not r["ok"]:
             raise RuntimeError(f"name palette {name}: {r}")
     want = ["".join(SYM[c] for c in row) for row in rows]
-    cur = csp("-p", str(proj), "pixels", "--layer", LAYER, "--frame", "0",
-              "--rect", "0,0,16,16", "--as", "sym")
+    cur = csp(
+        "-p",
+        str(proj),
+        "pixels",
+        "--layer",
+        LAYER,
+        "--frame",
+        "0",
+        "--rect",
+        "0,0,16,16",
+        "--as",
+        "sym",
+    )
     have = cur["result"]["rows"] if cur["ok"] else None
     if have != want:
-        tx = {"label": f"draw icon {name}",
-              "ops": [{"op": "draw_rows", "args": {"layer": LAYER, "frame": 0, "x": 0, "y": 0,
-                                                   "format": "sym", "rows": want}}]}
+        tx = {
+            "label": f"draw icon {name}",
+            "ops": [
+                {
+                    "op": "draw_rows",
+                    "args": {
+                        "layer": LAYER,
+                        "frame": 0,
+                        "x": 0,
+                        "y": 0,
+                        "format": "sym",
+                        "rows": want,
+                    },
+                }
+            ],
+        }
         r = csp("-p", str(proj), "apply", "-", "--preview", "none", stdin=json.dumps(tx))
         if not r["ok"]:
             raise RuntimeError(f"apply {name}: {r}")
@@ -85,14 +149,26 @@ def build_one(name: str, rows: list[str], renders: Path | None) -> dict:
     res = v["result"]
     log["validate_ok"] = res["ok"]
     log["counts"] = res["counts"]
-    log["issues"] = [(i["rule"], i["level"], i["message"]) for i in res["issues"]
-                     if i["level"] != "info" or i["rule"] != "Q-PAL-02"]
+    log["issues"] = [
+        (i["rule"], i["level"], i["message"])
+        for i in res["issues"]
+        if i["level"] != "info" or i["rule"] != "Q-PAL-02"
+    ]
     if renders:
         for scale in (1, 4):
             d = renders / f"x{scale}"
             d.mkdir(parents=True, exist_ok=True)
-            r = csp("-p", str(proj), "render", "--frame", "0", "--scale", str(scale),
-                    "--out", str(d / f"{name}.png"))
+            r = csp(
+                "-p",
+                str(proj),
+                "render",
+                "--frame",
+                "0",
+                "--scale",
+                str(scale),
+                "--out",
+                str(d / f"{name}.png"),
+            )
             if not r["ok"]:
                 raise RuntimeError(f"render {name}: {r}")
     return log
