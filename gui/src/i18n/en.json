@@ -1,0 +1,9 @@
+{
+  "file":"File", "edit":"Edit", "sprite":"Sprite", "layer":"Layer", "frame":"Frame", "select":"Select", "view":"View", "agent":"Agent", "help":"Help",
+  "new":"New project", "open":"Open project", "close":"Close project", "import":"Import", "export":"Export", "undo":"Undo", "redo":"Redo", "saved":"Saved",
+  "palette":"Palette", "foreground":"Foreground", "background":"Background", "tool":"Tool", "brush":"Brush", "shape":"Shape", "filled":"Filled", "perfect":"Pixel perfect", "connectivity":"Connectivity",
+  "pencil":"Pencil", "eraser":"Eraser", "line":"Line", "rect":"Rectangle", "ellipse":"Ellipse", "fill":"Fill", "eyedropper":"Eyedropper", "hand":"Pan", "zoom":"Zoom", "move":"Move", "selectTool":"Rectangle selection",
+  "canvas":"Canvas", "timeline":"Timeline", "play":"Play", "stop":"Stop", "onion":"Onion skin", "grid":"Grid", "duration":"Duration (ms)", "previous":"Previous frame", "next":"Next frame",
+  "Activity":"Activity", "Validate":"Validate", "Diff":"Diff", "Sources":"Sources", "refresh":"Refresh", "restore":"Undo to here", "compare":"Compare", "from":"From revision", "to":"To revision",
+  "project":"Project path", "operation":"Operation", "arguments":"Arguments (JSON)", "apply":"Apply", "cancel":"Cancel", "preview":"Preview", "force":"Force export despite validation errors", "noProject":"Open or create a project", "disconnected":"Disconnected", "connected":"Connected", "status":"Status", "settings":"Settings", "language":"Language", "about":"CyberSprite — Apache-2.0", "source":"Source", "underlay":"Source underlay", "clear":"Clear", "empty":"Empty", "present":"Present", "linked":"Linked", "result":"Result", "schema":"Argument schema", "all":"All frames", "coordinate":"Coordinate", "color":"Color", "square":"Square", "circle":"Circle", "notAvailable":"This operation is unavailable in this build. Integrate M5/M6 and reconnect.", "validation":"Validation", "revision":"Revision", "zoomIn":"Zoom in", "zoomOut":"Zoom out"
+}

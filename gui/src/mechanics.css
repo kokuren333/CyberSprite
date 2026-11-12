@@ -1,0 +1,6 @@
+/* Interaction mechanics only. Presentation belongs to the Opus design pass. */
+.sprite-canvas, .diff-image, .stage-image, .source-image { image-rendering: pixelated; }
+.sprite-canvas { touch-action: none; }
+.canvas-viewport { overflow: auto; max-height: 70vh; max-width: 100%; }
+dialog { max-width: 90vw; max-height: 90vh; overflow: auto; }
+.op-schema pre, .operation-result, .agent-content pre { white-space: pre-wrap; overflow-wrap: anywhere; }
