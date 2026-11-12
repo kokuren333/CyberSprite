@@ -163,6 +163,17 @@ def test_palette_findings_retain_each_block_position():
     assert [v["bbox"]["x"] for v in issue["where"]["findings"]] == [0, 2]
 
 
+def test_unique_tiles_preserve_distinct_indices_with_identical_rgba():
+    p = project(
+        [[1, 2]],
+        palette=["#00000000", "#ffffffff", "#ffffffff"],
+        platform={"system": {"tile": {"w": 1, "h": 1, "unique_max": 1}}},
+    )
+    result = report(p)
+    assert result["metrics"]["platform"]["unique_tiles"] == 2
+    assert any(i["rule"] == "Q-PLT-06" for i in result["issues"])
+
+
 def test_palette_units_follow_rectangular_tile_renderer():
     p = project([[1, 2]], platform={"system": {"palette": {"rows": 1, "row_size": 4}}})
     p.tilesets = [

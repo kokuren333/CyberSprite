@@ -2,6 +2,7 @@
 
 import numpy as np
 
+from .errors import CyberSpriteError
 from .models import GroupLayer, TilemapLayer
 from .pixels import pixels_from_rows, rgba
 from .platform import nearest_rgb, tick_durations
@@ -165,7 +166,12 @@ def evaluate(p, colors_per_frame):
 
     if tile:
         for f in range(len(p.frames)):
-            image = render_indexed(p, f, {"flatten": "nearest"})
+            try:
+                image = render_indexed(p, f)
+            except CyberSpriteError as error:
+                if error.code != "E_NOT_PALETTE_CLOSED":
+                    raise
+                image = render_indexed(p, f, {"flatten": "nearest"})
             for y in range(0, h, tile.h):
                 for x in range(0, w, tile.w):
                     data = np.full((tile.h, tile.w), p.palette.transparent_index, dtype=np.uint8)

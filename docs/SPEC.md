@@ -1052,7 +1052,7 @@ hero.csprite/
 
 検証報告の `metrics.platform` に、`id`、不透明色の最大数、表せない色の数、ユニークなタイルの数（反転を考慮する場合としない場合）、`tick` からずれたフレームの数を、判定の有無によらず常に入れる。
 
-Q-PLT-04は非groupの各セルを独立に調べる（非表示も含む）。object/layerはその層・フレーム全体、tile/blockはキャンバス原点を格子原点とする。透明番号は行計算から除外する。slot0=colorの行境界は`(i-1) div row_size`、他は`i div row_size`。colorでは透明画素を許さず、transparent/sharedでは透明番号以外の行頭画素を許さない。行数超過、混在行、禁止slotを資源・frame・矩形付きで報告する。Q-PLT-06の数は全フレームの合成像と全tileset（未参照も含む、空tile0は除く）を対象とし、透明で右下を補い、同じ寸法のタイルだけを同一視する。system.tile.flipsで生成できる反転群の辞書順最小bytesを代表とする。
+Q-PLT-04は非groupの各セルを独立に調べる（非表示も含む）。object/layerはその層・フレーム全体、tile/blockはキャンバス原点を格子原点とする。透明番号は行計算から除外する。slot0=colorの行境界は`(i-1) div row_size`、他は`i div row_size`。colorでは透明画素を許さず、transparent/sharedでは透明番号以外の行頭画素を許さない。行数超過、混在行、禁止slotを資源・frame・矩形付きで報告する。Q-PLT-06の数は全フレームの合成像と全tileset（未参照も含む、空tile0は除く）を対象とし、透明で右下を補い、同じ寸法のタイルだけを同一視する。system.tile.flipsで生成できる反転群の辞書順最小bytesを代表とする。同じRGBAでも異なる番号のパターンは保持する。パレット非閉包frameだけは従来のnearest合成像を参考指標に使い、nativeの表現可能性の根拠にはしない。
 
 **色を合わせる Op。** Q-PLT-02 を直すために `conform_palette`（種別 `mutate`、冪等性 I）を足す。パレットの各色を、最も近い表せる色（付録 B の距離）に**明示的に**置き換え、変えた色の前後を結果に並べる。予行で確かめてから使う。編集で色を黙って近似する経路は作らない（原則 2）。
 
