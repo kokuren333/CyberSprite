@@ -1,0 +1,518 @@
+{
+  "version": 1,
+  "independent_generations": 16,
+  "images": [
+    {
+      "id": "character_seed",
+      "prompt": "Use case: stylized-concept. Asset type: original calibration image for pixel-grid recovery engineering tests. Primary request: one original small pixel-art-like character, a walking seed courier with a square satchel, isolated on a flat ivory background. Apparent pixel size about 8 input pixels. Crisp square pixel clusters, limited colors, no text, no logos, no existing characters. Canvas 1024 by 1024, subject fills central 60 percent. Do not use references.",
+      "tool": "image_gen.imagegen",
+      "model": "unknown (tool does not expose model ID)",
+      "date": "2026-11-12",
+      "license": "unknown (generator output terms; no license assertion)",
+      "category": "d",
+      "apparent_step": 8,
+      "source_sha256": "9ecb02e086ed8228ad394bb53e5bd5a5fda6b31031efe5ab72e961c10e2340e2",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "file": "character_seed.png",
+      "sha256": "caafae9f979d57a1c97e8265bfab61d492de21ecf88308b84e02ee4a26479b06",
+      "size": [
+        1004,
+        1004
+      ],
+      "processing": {
+        "crop_xyxy": [
+          125,
+          125,
+          1129,
+          1129
+        ],
+        "resized": false,
+        "encoding": "Pillow lossless PNG, optimize=True, compress_level=9"
+      },
+      "ground_truth": null
+    },
+    {
+      "id": "item_lantern",
+      "prompt": "Use case: stylized-concept. Asset type: original calibration image for pixel-grid recovery engineering tests. Primary request: one original pixel-art-like item: a seedpod lantern with a bent handle. Style: crisp square clusters. Apparent pixel size about 4 input pixels. Isolated on a flat ivory background, canvas 1024 by 1024, subject fills central 60 percent. No text, logos, existing characters, or references.",
+      "tool": "image_gen.imagegen",
+      "model": "unknown (tool does not expose model ID)",
+      "date": "2026-11-12",
+      "license": "unknown (generator output terms; no license assertion)",
+      "category": "d",
+      "apparent_step": 4,
+      "source_sha256": "acbbaa3b987761bc0433819266ddfe22085bcebe73774fa27fd70575b511187e",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "file": "item_lantern.png",
+      "sha256": "20c38237e4fa78a261af25fabeb23d4681608fffbceddfb3b4f0e10170871d98",
+      "size": [
+        1004,
+        1004
+      ],
+      "processing": {
+        "crop_xyxy": [
+          125,
+          125,
+          1129,
+          1129
+        ],
+        "resized": false,
+        "encoding": "Pillow lossless PNG, optimize=True, compress_level=9"
+      },
+      "ground_truth": null
+    },
+    {
+      "id": "tile_marsh",
+      "prompt": "Use case: stylized-concept. Asset type: original calibration image for pixel-grid recovery engineering tests. Primary request: one original repeating marsh stone tile with tiny reeds. Style: crisp square clusters. Apparent pixel size about 6 input pixels. Isolated on a flat ivory background, canvas 1024 by 1024, subject fills central 60 percent. No text, logos, existing characters, or references.",
+      "tool": "image_gen.imagegen",
+      "model": "unknown (tool does not expose model ID)",
+      "date": "2026-11-12",
+      "license": "unknown (generator output terms; no license assertion)",
+      "category": "d",
+      "apparent_step": 6,
+      "source_sha256": "5d58c333ed9df5938fbe1373cf56547a53920eee78090ea4de7bd01b8412e1b8",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "file": "tile_marsh.png",
+      "sha256": "5464f8f6fcb6e8681e3794028340347a227bc94a06226c419ce6f07715e32737",
+      "size": [
+        1004,
+        1004
+      ],
+      "processing": {
+        "crop_xyxy": [
+          125,
+          125,
+          1129,
+          1129
+        ],
+        "resized": false,
+        "encoding": "Pillow lossless PNG, optimize=True, compress_level=9"
+      },
+      "ground_truth": null
+    },
+    {
+      "id": "character_clock",
+      "prompt": "Use case: stylized-concept. Asset type: original calibration image for pixel-grid recovery engineering tests. Primary request: one original pixel-art-like character: a tiny clockwork gardener. Style: soft antialiasing and slight compression-like speckle. Apparent pixel size about 10 input pixels. Isolated on a flat ivory background, canvas 1024 by 1024, subject fills central 60 percent. No text, logos, existing characters, or references.",
+      "tool": "image_gen.imagegen",
+      "model": "unknown (tool does not expose model ID)",
+      "date": "2026-11-12",
+      "license": "unknown (generator output terms; no license assertion)",
+      "category": "d",
+      "apparent_step": 10,
+      "source_sha256": "4d2a95d53c91fe5db69273394f97dcc3d788f4d041b7424cbfeb561ec910e070",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "file": "character_clock.png",
+      "sha256": "68a755a75c8db8ddbd0c2868d6ddc4e4af4da7f0bbf0ef9bccd0f2ca6a8b97ce",
+      "size": [
+        1004,
+        1004
+      ],
+      "processing": {
+        "crop_xyxy": [
+          125,
+          125,
+          1129,
+          1129
+        ],
+        "resized": false,
+        "encoding": "Pillow lossless PNG, optimize=True, compress_level=9"
+      },
+      "ground_truth": null
+    },
+    {
+      "id": "item_compass",
+      "prompt": "Use case: stylized-concept. Asset type: original calibration image for pixel-grid recovery engineering tests. Primary request: one original pixel-art-like item: a wooden star compass. Style: soft edges, uneven pixel cluster sizes. Apparent pixel size about 12 input pixels. Isolated on a flat ivory background, canvas 1024 by 1024, subject fills central 60 percent. No text, logos, existing characters, or references.",
+      "tool": "image_gen.imagegen",
+      "model": "unknown (tool does not expose model ID)",
+      "date": "2026-11-12",
+      "license": "unknown (generator output terms; no license assertion)",
+      "category": "d",
+      "apparent_step": 12,
+      "source_sha256": "3bf05b59cc8c6d2e38bfbd1bbf2d1dff6fe980b071e356e6323b7c74fe611580",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "file": "item_compass.png",
+      "sha256": "4aed1a50f6b16695889a4143996f9f08784d9553eca86c79ae85eddd9541d450",
+      "size": [
+        1004,
+        1004
+      ],
+      "processing": {
+        "crop_xyxy": [
+          125,
+          125,
+          1129,
+          1129
+        ],
+        "resized": false,
+        "encoding": "Pillow lossless PNG, optimize=True, compress_level=9"
+      },
+      "ground_truth": null
+    },
+    {
+      "id": "views_moss",
+      "prompt": "Use case: stylized-concept. Asset type: original calibration image for pixel-grid recovery engineering tests. Primary request: three-view turnaround of one original moss surveyor character, front side back in one row. Style: pixel-art-like square clusters, no labels. Apparent pixel size about 8 input pixels. Isolated on a flat ivory background, canvas 1024 by 1024, subject fills central 60 percent. No text, logos, existing characters, or references.",
+      "tool": "image_gen.imagegen",
+      "model": "unknown (tool does not expose model ID)",
+      "date": "2026-11-12",
+      "license": "unknown (generator output terms; no license assertion)",
+      "category": "d",
+      "apparent_step": 8,
+      "source_sha256": "5b549161838020e9676bfbc8ef92a023c5fd8e0ab38c5a0f882eb4b9ab9e8068",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "file": "views_moss.png",
+      "sha256": "5409e6ae3f8d66c1289a2f8fed0414630e9355ef82c538e182e989ca92c6f449",
+      "size": [
+        1254,
+        1004
+      ],
+      "processing": {
+        "crop_xyxy": [
+          0,
+          125,
+          1254,
+          1129
+        ],
+        "resized": false,
+        "encoding": "Pillow lossless PNG, optimize=True, compress_level=9"
+      },
+      "ground_truth": null
+    },
+    {
+      "id": "views_robot",
+      "prompt": "Use case: stylized-concept. Asset type: original calibration image for pixel-grid recovery engineering tests. Primary request: three-view turnaround of one original kettle-shaped robot, front side back in one row. Style: pixel-art-like with soft antialiasing, no labels. Apparent pixel size about 6 input pixels. Isolated on a flat ivory background, canvas 1024 by 1024, subject fills central 60 percent. No text, logos, existing characters, or references.",
+      "tool": "image_gen.imagegen",
+      "model": "unknown (tool does not expose model ID)",
+      "date": "2026-11-12",
+      "license": "unknown (generator output terms; no license assertion)",
+      "category": "d",
+      "apparent_step": 6,
+      "source_sha256": "e58ee39afd3f3d9819c0175a84d250482ee26754daa9bf3d57580c7131ca9194",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "file": "views_robot.png",
+      "sha256": "6676873b9c5ead6164a9f3aca581b4d11fb11f94db3f10cd8fc0adb2245bd072",
+      "size": [
+        1254,
+        1004
+      ],
+      "processing": {
+        "crop_xyxy": [
+          0,
+          125,
+          1254,
+          1129
+        ],
+        "resized": false,
+        "encoding": "Pillow lossless PNG, optimize=True, compress_level=9"
+      },
+      "ground_truth": null
+    },
+    {
+      "id": "tile_roof",
+      "prompt": "Use case: stylized-concept. Asset type: original calibration image for pixel-grid recovery engineering tests. Primary request: one original repeating blue clay rooftop tile. Style: crisp square clusters. Apparent pixel size about 4 input pixels. Isolated on a flat ivory background, canvas 1024 by 1024, subject fills central 60 percent. No text, logos, existing characters, or references.",
+      "tool": "image_gen.imagegen",
+      "model": "unknown (tool does not expose model ID)",
+      "date": "2026-11-12",
+      "license": "unknown (generator output terms; no license assertion)",
+      "category": "d",
+      "apparent_step": 4,
+      "source_sha256": "7100e1043924c89c6a6787bf50dec9422bc7a5553b426b9e4d693888b7a228ed",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "file": "tile_roof.png",
+      "sha256": "169c0a95e2353d573b0f5363b6dbc6b96308970d796e6e822aec2c9ef51ab55c",
+      "size": [
+        1004,
+        1004
+      ],
+      "processing": {
+        "crop_xyxy": [
+          125,
+          125,
+          1129,
+          1129
+        ],
+        "resized": false,
+        "encoding": "Pillow lossless PNG, optimize=True, compress_level=9"
+      },
+      "ground_truth": null
+    },
+    {
+      "id": "item_shell",
+      "prompt": "Use case: stylized-concept. Asset type: original calibration image for pixel-grid recovery engineering tests. Primary request: one original pixel-art-like spiral shell instrument. Style: slight JPEG-like halos around square clusters. Apparent pixel size about 9 input pixels. Isolated on a flat ivory background, canvas 1024 by 1024, subject fills central 60 percent. No text, logos, existing characters, or references.",
+      "tool": "image_gen.imagegen",
+      "model": "unknown (tool does not expose model ID)",
+      "date": "2026-11-12",
+      "license": "unknown (generator output terms; no license assertion)",
+      "category": "d",
+      "apparent_step": 9,
+      "source_sha256": "2f39261eab586dbe16c6bf1443166004053d240f680b410c7b35cf560735bc3a",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "file": "item_shell.png",
+      "sha256": "8723f4c1b77c8f59823ad372642a90d63a9dfa281c9e1688be63d713b8033de4",
+      "size": [
+        1004,
+        1004
+      ],
+      "processing": {
+        "crop_xyxy": [
+          125,
+          125,
+          1129,
+          1129
+        ],
+        "resized": false,
+        "encoding": "Pillow lossless PNG, optimize=True, compress_level=9"
+      },
+      "ground_truth": null
+    },
+    {
+      "id": "character_diver",
+      "prompt": "Use case: stylized-concept. Asset type: original calibration image for pixel-grid recovery engineering tests. Primary request: one original pixel-art-like deep pond diver with a round helmet. Style: crisp square clusters. Apparent pixel size about 5 input pixels. Isolated on a flat ivory background, canvas 1024 by 1024, subject fills central 60 percent. No text, logos, existing characters, or references.",
+      "tool": "image_gen.imagegen",
+      "model": "unknown (tool does not expose model ID)",
+      "date": "2026-11-12",
+      "license": "unknown (generator output terms; no license assertion)",
+      "category": "d",
+      "apparent_step": 5,
+      "source_sha256": "95b7596ca9210da3436ce27914f645c48c5561aa0df1c173caa9e355b13ba735",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "file": "character_diver.png",
+      "sha256": "85488461ac27229c5cb3284c5df4ceb3667dc761cc65476373ba266795633058",
+      "size": [
+        1004,
+        1004
+      ],
+      "processing": {
+        "crop_xyxy": [
+          125,
+          125,
+          1129,
+          1129
+        ],
+        "resized": false,
+        "encoding": "Pillow lossless PNG, optimize=True, compress_level=9"
+      },
+      "ground_truth": null
+    },
+    {
+      "id": "tile_crystal",
+      "prompt": "Use case: stylized-concept. Asset type: original calibration image for pixel-grid recovery engineering tests. Primary request: one original repeating crystal cave floor tile. Style: uneven square clusters with soft edges. Apparent pixel size about 12 input pixels. Isolated on a flat ivory background, canvas 1024 by 1024, subject fills central 60 percent. No text, logos, existing characters, or references.",
+      "tool": "image_gen.imagegen",
+      "model": "unknown (tool does not expose model ID)",
+      "date": "2026-11-12",
+      "license": "unknown (generator output terms; no license assertion)",
+      "category": "d",
+      "apparent_step": 12,
+      "source_sha256": "c9295e26a4978dfc349b33477591cfabeba89a3392c434e055b8eeedb62af52f",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "file": "tile_crystal.png",
+      "sha256": "b0ff8874d97223d997bb63d0f3d05045ba8d5c0f53d5a7f295d207f535af999b",
+      "size": [
+        1004,
+        1004
+      ],
+      "processing": {
+        "crop_xyxy": [
+          125,
+          125,
+          1129,
+          1129
+        ],
+        "resized": false,
+        "encoding": "Pillow lossless PNG, optimize=True, compress_level=9"
+      },
+      "ground_truth": null
+    },
+    {
+      "id": "views_beetle",
+      "prompt": "Use case: stylized-concept. Asset type: original calibration image for pixel-grid recovery engineering tests. Primary request: three-view turnaround of one original beetle mail carrier, front side back in one row. Style: crisp pixel-art-like square clusters, no labels. Apparent pixel size about 10 input pixels. Isolated on a flat ivory background, canvas 1024 by 1024, subject fills central 60 percent. No text, logos, existing characters, or references.",
+      "tool": "image_gen.imagegen",
+      "model": "unknown (tool does not expose model ID)",
+      "date": "2026-11-12",
+      "license": "unknown (generator output terms; no license assertion)",
+      "category": "d",
+      "apparent_step": 10,
+      "source_sha256": "aeb61007a616aa081b74cad07801f70c0a8242e433199d1ca26831953d0bc262",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "file": "views_beetle.png",
+      "sha256": "b05ad5fc82b57a8a3f4cc95e4c44384fe52afa88f94b7ecc5ed68af2ba559120",
+      "size": [
+        1254,
+        1004
+      ],
+      "processing": {
+        "crop_xyxy": [
+          0,
+          125,
+          1254,
+          1129
+        ],
+        "resized": false,
+        "encoding": "Pillow lossless PNG, optimize=True, compress_level=9"
+      },
+      "ground_truth": null
+    },
+    {
+      "id": "item_flask",
+      "prompt": "Use case: stylized-concept. Asset type: original calibration image for pixel-grid recovery engineering tests. Primary request: one original pixel-art-like triangular terracotta flask. Style: soft antialiasing around square clusters. Apparent pixel size about 7 input pixels. Isolated on a flat ivory background, canvas 1024 by 1024, subject fills central 60 percent. No text, logos, existing characters, or references.",
+      "tool": "image_gen.imagegen",
+      "model": "unknown (tool does not expose model ID)",
+      "date": "2026-11-12",
+      "license": "unknown (generator output terms; no license assertion)",
+      "category": "d",
+      "apparent_step": 7,
+      "source_sha256": "cb666166e9d0999439c2fdf3ade89686987686ca58c4cab49f9026335e25f961",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "file": "item_flask.png",
+      "sha256": "df17b7ae96503eeedd36c69bccd21f83cf499d53459a466d83d97dfb5c7e7831",
+      "size": [
+        1004,
+        1004
+      ],
+      "processing": {
+        "crop_xyxy": [
+          125,
+          125,
+          1129,
+          1129
+        ],
+        "resized": false,
+        "encoding": "Pillow lossless PNG, optimize=True, compress_level=9"
+      },
+      "ground_truth": null
+    },
+    {
+      "id": "illustration_plant",
+      "prompt": "Use case: stylized-concept. Asset type: original calibration image for pixel-grid recovery engineering tests. Primary request: one original non-pixel watercolor illustration of a fictional plant in a pot. Style: smooth gradients and soft brushwork, no pixel grid.  Isolated on a flat ivory background, canvas 1024 by 1024, subject fills central 60 percent. No text, logos, existing characters, or references.",
+      "tool": "image_gen.imagegen",
+      "model": "unknown (tool does not expose model ID)",
+      "date": "2026-11-12",
+      "license": "unknown (generator output terms; no license assertion)",
+      "category": "d-nonpixel-control",
+      "apparent_step": 0,
+      "source_sha256": "2c1655f5b39acf218ee9c21df1844f71ad81f5b1b05e1bec66c9f44f173165b3",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "file": "illustration_plant.png",
+      "sha256": "12edc9042d612671450a8d4b728d8b65dac669143039802df2e2d0ee72e4d040",
+      "size": [
+        804,
+        804
+      ],
+      "processing": {
+        "crop_xyxy": [
+          225,
+          225,
+          1029,
+          1029
+        ],
+        "resized": false,
+        "encoding": "Pillow lossless PNG, optimize=True, compress_level=9"
+      },
+      "ground_truth": null
+    },
+    {
+      "id": "illustration_boat",
+      "prompt": "Use case: stylized-concept. Asset type: original calibration image for pixel-grid recovery engineering tests. Primary request: one original non-pixel ink-and-wash illustration of a tiny folded leaf boat. Style: smooth edges and continuous tones, no pixel grid.  Isolated on a flat ivory background, canvas 1024 by 1024, subject fills central 60 percent. No text, logos, existing characters, or references.",
+      "tool": "image_gen.imagegen",
+      "model": "unknown (tool does not expose model ID)",
+      "date": "2026-11-12",
+      "license": "unknown (generator output terms; no license assertion)",
+      "category": "d-nonpixel-control",
+      "apparent_step": 0,
+      "source_sha256": "4def0bbfcc4bf70a1bb262f11dad2e9ea035fe329aa41bc2e67dd649a8d52b17",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "file": "illustration_boat.png",
+      "sha256": "b9e2beecd90b7e6be7882af9e9ad16814367ee015e4b00a69b721fe6f803781a",
+      "size": [
+        804,
+        804
+      ],
+      "processing": {
+        "crop_xyxy": [
+          225,
+          225,
+          1029,
+          1029
+        ],
+        "resized": false,
+        "encoding": "Pillow lossless PNG, optimize=True, compress_level=9"
+      },
+      "ground_truth": null
+    },
+    {
+      "id": "illustration_hills",
+      "prompt": "Use case: stylized-concept. Asset type: original calibration image for pixel-grid recovery engineering tests. Primary request: one original non-pixel gouache illustration of rounded hills and a small windmill. Style: continuous brushwork, no pixel grid.  Isolated on a flat ivory background, canvas 1024 by 1024, subject fills central 60 percent. No text, logos, existing characters, or references.",
+      "tool": "image_gen.imagegen",
+      "model": "unknown (tool does not expose model ID)",
+      "date": "2026-11-12",
+      "license": "unknown (generator output terms; no license assertion)",
+      "category": "d-nonpixel-control",
+      "apparent_step": 0,
+      "source_sha256": "36ad7144d419937869b4f0d80416fdd4043f612fbd218d613e48fd666eeb9785",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "file": "illustration_hills.png",
+      "sha256": "3c6b188555f080a3d165c6a049d593cccce166129f8969235e0aeb82c6e36901",
+      "size": [
+        804,
+        804
+      ],
+      "processing": {
+        "crop_xyxy": [
+          225,
+          225,
+          1029,
+          1029
+        ],
+        "resized": false,
+        "encoding": "Pillow lossless PNG, optimize=True, compress_level=9"
+      },
+      "ground_truth": null
+    }
+  ]
+}

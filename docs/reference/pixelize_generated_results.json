@@ -1,0 +1,3497 @@
+{
+  "builtin": [
+    {
+      "name": "character_seed",
+      "category": "d",
+      "accepted": true,
+      "size": [
+        56,
+        56
+      ],
+      "grid": {
+        "mode": "auto",
+        "detected": true,
+        "cell_w": 18,
+        "cell_h": 18,
+        "columns": 56,
+        "rows": 56,
+        "grid_score": 950,
+        "alignment": 213,
+        "snap_variance": 832
+      },
+      "gates": [
+        {
+          "name": "grid_detected",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_score",
+          "value": 950,
+          "threshold": [
+            415,
+            707
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_cell_count",
+          "value": 56,
+          "threshold": {
+            "warn_below": 12,
+            "input_min": 96
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "boundary_alignment",
+          "value": 213,
+          "threshold": {
+            "fail_below": 80,
+            "warn_below": 250
+          },
+          "outcome": "warn"
+        },
+        {
+          "name": "candidate_agreement",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "snap_fidelity",
+          "value": 832,
+          "threshold": {
+            "fail_above": 3000,
+            "warn_above": 500
+          },
+          "outcome": "warn"
+        },
+        {
+          "name": "palette_budget",
+          "value": 25,
+          "threshold": {
+            "max": 256,
+            "frozen": false
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "off_palette",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "orphans",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "colors_per_frame",
+          "value": 24,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fidelity",
+          "value": 1242978,
+          "threshold": [
+            466954543,
+            233477271
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "size",
+          "value": [
+            [
+              56,
+              56
+            ]
+          ],
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fits_canvas",
+          "value": true,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "frame_consistency",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        }
+      ],
+      "runs_ms": [
+        5901.004
+      ],
+      "median_ms": 5901.004,
+      "repeat_identical_decision": true
+    },
+    {
+      "name": "item_lantern",
+      "category": "d",
+      "accepted": true,
+      "size": [
+        79,
+        79
+      ],
+      "grid": {
+        "mode": "auto",
+        "detected": true,
+        "cell_w": 13,
+        "cell_h": 13,
+        "columns": 79,
+        "rows": 79,
+        "grid_score": 927,
+        "alignment": 199,
+        "snap_variance": 615
+      },
+      "gates": [
+        {
+          "name": "grid_detected",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_score",
+          "value": 927,
+          "threshold": [
+            415,
+            707
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_cell_count",
+          "value": 79,
+          "threshold": {
+            "warn_below": 12,
+            "input_min": 96
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "boundary_alignment",
+          "value": 199,
+          "threshold": {
+            "fail_below": 80,
+            "warn_below": 250
+          },
+          "outcome": "warn"
+        },
+        {
+          "name": "candidate_agreement",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "snap_fidelity",
+          "value": 615,
+          "threshold": {
+            "fail_above": 3000,
+            "warn_above": 500
+          },
+          "outcome": "warn"
+        },
+        {
+          "name": "palette_budget",
+          "value": 33,
+          "threshold": {
+            "max": 256,
+            "frozen": false
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "off_palette",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "orphans",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "colors_per_frame",
+          "value": 31,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fidelity",
+          "value": 11415063,
+          "threshold": [
+            466954543,
+            233477271
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "size",
+          "value": [
+            [
+              79,
+              79
+            ]
+          ],
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fits_canvas",
+          "value": true,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "frame_consistency",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        }
+      ],
+      "runs_ms": [
+        6966.8363
+      ],
+      "median_ms": 6966.8363,
+      "repeat_identical_decision": true
+    },
+    {
+      "name": "tile_marsh",
+      "category": "d",
+      "accepted": true,
+      "size": [
+        79,
+        79
+      ],
+      "grid": {
+        "mode": "auto",
+        "detected": true,
+        "cell_w": 13,
+        "cell_h": 13,
+        "columns": 79,
+        "rows": 79,
+        "grid_score": 916,
+        "alignment": 398,
+        "snap_variance": 222
+      },
+      "gates": [
+        {
+          "name": "grid_detected",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_score",
+          "value": 916,
+          "threshold": [
+            415,
+            707
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_cell_count",
+          "value": 79,
+          "threshold": {
+            "warn_below": 12,
+            "input_min": 96
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "boundary_alignment",
+          "value": 398,
+          "threshold": {
+            "fail_below": 80,
+            "warn_below": 250
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "candidate_agreement",
+          "value": false,
+          "threshold": true,
+          "outcome": "warn"
+        },
+        {
+          "name": "snap_fidelity",
+          "value": 222,
+          "threshold": {
+            "fail_above": 3000,
+            "warn_above": 500
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "palette_budget",
+          "value": 33,
+          "threshold": {
+            "max": 256,
+            "frozen": false
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "off_palette",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "orphans",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "colors_per_frame",
+          "value": 32,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fidelity",
+          "value": 7724374,
+          "threshold": [
+            466954543,
+            233477271
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "size",
+          "value": [
+            [
+              79,
+              79
+            ]
+          ],
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fits_canvas",
+          "value": true,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "frame_consistency",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        }
+      ],
+      "runs_ms": [
+        6193.8017
+      ],
+      "median_ms": 6193.8017,
+      "repeat_identical_decision": true
+    },
+    {
+      "name": "character_clock",
+      "category": "d",
+      "accepted": false,
+      "size": [
+        92,
+        92
+      ],
+      "grid": {
+        "mode": "auto",
+        "detected": true,
+        "cell_w": 11,
+        "cell_h": 11,
+        "columns": 92,
+        "rows": 92,
+        "grid_score": 892,
+        "alignment": 254,
+        "snap_variance": 359
+      },
+      "gates": [
+        {
+          "name": "grid_detected",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_score",
+          "value": 892,
+          "threshold": [
+            415,
+            707
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_cell_count",
+          "value": 92,
+          "threshold": {
+            "warn_below": 12,
+            "input_min": 96
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "boundary_alignment",
+          "value": 254,
+          "threshold": {
+            "fail_below": 80,
+            "warn_below": 250
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "candidate_agreement",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "snap_fidelity",
+          "value": 359,
+          "threshold": {
+            "fail_above": 3000,
+            "warn_above": 500
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "palette_budget",
+          "value": 33,
+          "threshold": {
+            "max": 256,
+            "frozen": false
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "off_palette",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "orphans",
+          "value": 1,
+          "threshold": 0,
+          "outcome": "fail"
+        },
+        {
+          "name": "colors_per_frame",
+          "value": 31,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fidelity",
+          "value": 19783458,
+          "threshold": [
+            466954543,
+            233477271
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "size",
+          "value": [
+            [
+              92,
+              92
+            ]
+          ],
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fits_canvas",
+          "value": true,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "frame_consistency",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        }
+      ],
+      "runs_ms": [
+        11198.8351
+      ],
+      "median_ms": 11198.8351,
+      "repeat_identical_decision": true
+    },
+    {
+      "name": "item_compass",
+      "category": "d",
+      "accepted": false,
+      "size": [
+        1004,
+        1004
+      ],
+      "grid": {
+        "mode": "auto",
+        "detected": false,
+        "cell_w": null,
+        "cell_h": null,
+        "columns": 0,
+        "rows": 0,
+        "grid_score": 0,
+        "alignment": 0,
+        "snap_variance": 0
+      },
+      "gates": [
+        {
+          "name": "grid_detected",
+          "value": false,
+          "threshold": true,
+          "outcome": "fail"
+        },
+        {
+          "name": "grid_score",
+          "value": 0,
+          "threshold": [
+            415,
+            707
+          ],
+          "outcome": "fail"
+        },
+        {
+          "name": "palette_budget",
+          "value": 33,
+          "threshold": {
+            "max": 256,
+            "frozen": false
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "off_palette",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "orphans",
+          "value": 2,
+          "threshold": 0,
+          "outcome": "fail"
+        },
+        {
+          "name": "colors_per_frame",
+          "value": 32,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fidelity",
+          "value": 806204,
+          "threshold": [
+            466954543,
+            233477271
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "size",
+          "value": [
+            [
+              1004,
+              1004
+            ]
+          ],
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fits_canvas",
+          "value": true,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "frame_consistency",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        }
+      ],
+      "runs_ms": [
+        91828.9455
+      ],
+      "median_ms": 91828.9455,
+      "repeat_identical_decision": true
+    },
+    {
+      "name": "views_moss",
+      "category": "d",
+      "accepted": false,
+      "size": [
+        1254,
+        1004
+      ],
+      "grid": {
+        "mode": "auto",
+        "detected": false,
+        "cell_w": null,
+        "cell_h": null,
+        "columns": 0,
+        "rows": 0,
+        "grid_score": 0,
+        "alignment": 0,
+        "snap_variance": 0
+      },
+      "gates": [
+        {
+          "name": "grid_detected",
+          "value": false,
+          "threshold": true,
+          "outcome": "fail"
+        },
+        {
+          "name": "grid_score",
+          "value": 0,
+          "threshold": [
+            415,
+            707
+          ],
+          "outcome": "fail"
+        },
+        {
+          "name": "palette_budget",
+          "value": 33,
+          "threshold": {
+            "max": 256,
+            "frozen": false
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "off_palette",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "orphans",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "colors_per_frame",
+          "value": 32,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fidelity",
+          "value": 1201131,
+          "threshold": [
+            466954543,
+            233477271
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "size",
+          "value": [
+            [
+              1254,
+              1004
+            ]
+          ],
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fits_canvas",
+          "value": true,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "frame_consistency",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        }
+      ],
+      "runs_ms": [
+        167965.9427
+      ],
+      "median_ms": 167965.9427,
+      "repeat_identical_decision": true
+    },
+    {
+      "name": "views_robot",
+      "category": "d",
+      "accepted": false,
+      "size": [
+        1254,
+        1004
+      ],
+      "grid": {
+        "mode": "auto",
+        "detected": false,
+        "cell_w": null,
+        "cell_h": null,
+        "columns": 0,
+        "rows": 0,
+        "grid_score": 0,
+        "alignment": 0,
+        "snap_variance": 0
+      },
+      "gates": [
+        {
+          "name": "grid_detected",
+          "value": false,
+          "threshold": true,
+          "outcome": "fail"
+        },
+        {
+          "name": "grid_score",
+          "value": 0,
+          "threshold": [
+            415,
+            707
+          ],
+          "outcome": "fail"
+        },
+        {
+          "name": "palette_budget",
+          "value": 33,
+          "threshold": {
+            "max": 256,
+            "frozen": false
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "off_palette",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "orphans",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "colors_per_frame",
+          "value": 32,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fidelity",
+          "value": 949137,
+          "threshold": [
+            466954543,
+            233477271
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "size",
+          "value": [
+            [
+              1254,
+              1004
+            ]
+          ],
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fits_canvas",
+          "value": true,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "frame_consistency",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        }
+      ],
+      "runs_ms": [
+        139455.8783
+      ],
+      "median_ms": 139455.8783,
+      "repeat_identical_decision": true
+    },
+    {
+      "name": "tile_roof",
+      "category": "d",
+      "accepted": true,
+      "size": [
+        39,
+        39
+      ],
+      "grid": {
+        "mode": "auto",
+        "detected": true,
+        "cell_w": 26,
+        "cell_h": 26,
+        "columns": 39,
+        "rows": 39,
+        "grid_score": 934,
+        "alignment": 290,
+        "snap_variance": 779
+      },
+      "gates": [
+        {
+          "name": "grid_detected",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_score",
+          "value": 934,
+          "threshold": [
+            415,
+            707
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_cell_count",
+          "value": 39,
+          "threshold": {
+            "warn_below": 12,
+            "input_min": 96
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "boundary_alignment",
+          "value": 290,
+          "threshold": {
+            "fail_below": 80,
+            "warn_below": 250
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "candidate_agreement",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "snap_fidelity",
+          "value": 779,
+          "threshold": {
+            "fail_above": 3000,
+            "warn_above": 500
+          },
+          "outcome": "warn"
+        },
+        {
+          "name": "palette_budget",
+          "value": 17,
+          "threshold": {
+            "max": 256,
+            "frozen": false
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "off_palette",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "orphans",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "colors_per_frame",
+          "value": 16,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fidelity",
+          "value": 4668427,
+          "threshold": [
+            466954543,
+            233477271
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "size",
+          "value": [
+            [
+              39,
+              39
+            ]
+          ],
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fits_canvas",
+          "value": true,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "frame_consistency",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        }
+      ],
+      "runs_ms": [
+        4519.5082
+      ],
+      "median_ms": 4519.5082,
+      "repeat_identical_decision": true
+    },
+    {
+      "name": "item_shell",
+      "category": "d",
+      "accepted": true,
+      "size": [
+        63,
+        63
+      ],
+      "grid": {
+        "mode": "auto",
+        "detected": true,
+        "cell_w": 16,
+        "cell_h": 16,
+        "columns": 63,
+        "rows": 63,
+        "grid_score": 906,
+        "alignment": 195,
+        "snap_variance": 655
+      },
+      "gates": [
+        {
+          "name": "grid_detected",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_score",
+          "value": 906,
+          "threshold": [
+            415,
+            707
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_cell_count",
+          "value": 63,
+          "threshold": {
+            "warn_below": 12,
+            "input_min": 96
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "boundary_alignment",
+          "value": 195,
+          "threshold": {
+            "fail_below": 80,
+            "warn_below": 250
+          },
+          "outcome": "warn"
+        },
+        {
+          "name": "candidate_agreement",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "snap_fidelity",
+          "value": 655,
+          "threshold": {
+            "fail_above": 3000,
+            "warn_above": 500
+          },
+          "outcome": "warn"
+        },
+        {
+          "name": "palette_budget",
+          "value": 33,
+          "threshold": {
+            "max": 256,
+            "frozen": false
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "off_palette",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "orphans",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "colors_per_frame",
+          "value": 32,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fidelity",
+          "value": 23951012,
+          "threshold": [
+            466954543,
+            233477271
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "size",
+          "value": [
+            [
+              63,
+              63
+            ]
+          ],
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fits_canvas",
+          "value": true,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "frame_consistency",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        }
+      ],
+      "runs_ms": [
+        7610.3856
+      ],
+      "median_ms": 7610.3856,
+      "repeat_identical_decision": true
+    },
+    {
+      "name": "character_diver",
+      "category": "d",
+      "accepted": true,
+      "size": [
+        58,
+        58
+      ],
+      "grid": {
+        "mode": "auto",
+        "detected": true,
+        "cell_w": 17,
+        "cell_h": 17,
+        "columns": 58,
+        "rows": 58,
+        "grid_score": 884,
+        "alignment": 185,
+        "snap_variance": 1717
+      },
+      "gates": [
+        {
+          "name": "grid_detected",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_score",
+          "value": 884,
+          "threshold": [
+            415,
+            707
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_cell_count",
+          "value": 58,
+          "threshold": {
+            "warn_below": 12,
+            "input_min": 96
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "boundary_alignment",
+          "value": 185,
+          "threshold": {
+            "fail_below": 80,
+            "warn_below": 250
+          },
+          "outcome": "warn"
+        },
+        {
+          "name": "candidate_agreement",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "snap_fidelity",
+          "value": 1717,
+          "threshold": {
+            "fail_above": 3000,
+            "warn_above": 500
+          },
+          "outcome": "warn"
+        },
+        {
+          "name": "palette_budget",
+          "value": 33,
+          "threshold": {
+            "max": 256,
+            "frozen": false
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "off_palette",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "orphans",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "colors_per_frame",
+          "value": 31,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fidelity",
+          "value": 24955135,
+          "threshold": [
+            466954543,
+            233477271
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "size",
+          "value": [
+            [
+              58,
+              58
+            ]
+          ],
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fits_canvas",
+          "value": true,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "frame_consistency",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        }
+      ],
+      "runs_ms": [
+        9568.3533
+      ],
+      "median_ms": 9568.3533,
+      "repeat_identical_decision": true
+    },
+    {
+      "name": "tile_crystal",
+      "category": "d",
+      "accepted": true,
+      "size": [
+        19,
+        19
+      ],
+      "grid": {
+        "mode": "auto",
+        "detected": true,
+        "cell_w": 53,
+        "cell_h": 53,
+        "columns": 19,
+        "rows": 19,
+        "grid_score": 830,
+        "alignment": 343,
+        "snap_variance": 1007
+      },
+      "gates": [
+        {
+          "name": "grid_detected",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_score",
+          "value": 830,
+          "threshold": [
+            415,
+            707
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_cell_count",
+          "value": 19,
+          "threshold": {
+            "warn_below": 12,
+            "input_min": 96
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "boundary_alignment",
+          "value": 343,
+          "threshold": {
+            "fail_below": 80,
+            "warn_below": 250
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "candidate_agreement",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "snap_fidelity",
+          "value": 1007,
+          "threshold": {
+            "fail_above": 3000,
+            "warn_above": 500
+          },
+          "outcome": "warn"
+        },
+        {
+          "name": "palette_budget",
+          "value": 30,
+          "threshold": {
+            "max": 256,
+            "frozen": false
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "off_palette",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "orphans",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "colors_per_frame",
+          "value": 13,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fidelity",
+          "value": 118017888,
+          "threshold": [
+            466954543,
+            233477271
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "size",
+          "value": [
+            [
+              19,
+              19
+            ]
+          ],
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fits_canvas",
+          "value": true,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "frame_consistency",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        }
+      ],
+      "runs_ms": [
+        4399.6273
+      ],
+      "median_ms": 4399.6273,
+      "repeat_identical_decision": true
+    },
+    {
+      "name": "views_beetle",
+      "category": "d",
+      "accepted": false,
+      "size": [
+        1254,
+        1004
+      ],
+      "grid": {
+        "mode": "auto",
+        "detected": false,
+        "cell_w": null,
+        "cell_h": null,
+        "columns": 0,
+        "rows": 0,
+        "grid_score": 0,
+        "alignment": 0,
+        "snap_variance": 0
+      },
+      "gates": [
+        {
+          "name": "grid_detected",
+          "value": false,
+          "threshold": true,
+          "outcome": "fail"
+        },
+        {
+          "name": "grid_score",
+          "value": 0,
+          "threshold": [
+            415,
+            707
+          ],
+          "outcome": "fail"
+        },
+        {
+          "name": "palette_budget",
+          "value": 33,
+          "threshold": {
+            "max": 256,
+            "frozen": false
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "off_palette",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "orphans",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "colors_per_frame",
+          "value": 32,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fidelity",
+          "value": 1236241,
+          "threshold": [
+            466954543,
+            233477271
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "size",
+          "value": [
+            [
+              1254,
+              1004
+            ]
+          ],
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fits_canvas",
+          "value": true,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "frame_consistency",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        }
+      ],
+      "runs_ms": [
+        177456.2481
+      ],
+      "median_ms": 177456.2481,
+      "repeat_identical_decision": true
+    },
+    {
+      "name": "item_flask",
+      "category": "d",
+      "accepted": true,
+      "size": [
+        146,
+        146
+      ],
+      "grid": {
+        "mode": "auto",
+        "detected": true,
+        "cell_w": 7,
+        "cell_h": 7,
+        "columns": 146,
+        "rows": 146,
+        "grid_score": 980,
+        "alignment": 126,
+        "snap_variance": 44
+      },
+      "gates": [
+        {
+          "name": "grid_detected",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_score",
+          "value": 980,
+          "threshold": [
+            415,
+            707
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_cell_count",
+          "value": 146,
+          "threshold": {
+            "warn_below": 12,
+            "input_min": 96
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "boundary_alignment",
+          "value": 126,
+          "threshold": {
+            "fail_below": 80,
+            "warn_below": 250
+          },
+          "outcome": "warn"
+        },
+        {
+          "name": "candidate_agreement",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "snap_fidelity",
+          "value": 44,
+          "threshold": {
+            "fail_above": 3000,
+            "warn_above": 500
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "palette_budget",
+          "value": 33,
+          "threshold": {
+            "max": 256,
+            "frozen": false
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "off_palette",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "orphans",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "colors_per_frame",
+          "value": 31,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fidelity",
+          "value": 1689107,
+          "threshold": [
+            466954543,
+            233477271
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "size",
+          "value": [
+            [
+              146,
+              146
+            ]
+          ],
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fits_canvas",
+          "value": true,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "frame_consistency",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        }
+      ],
+      "runs_ms": [
+        13133.4674
+      ],
+      "median_ms": 13133.4674,
+      "repeat_identical_decision": true
+    },
+    {
+      "name": "illustration_plant",
+      "category": "d-nonpixel-control",
+      "accepted": true,
+      "size": [
+        20,
+        21
+      ],
+      "grid": {
+        "mode": "auto",
+        "detected": true,
+        "cell_w": 39,
+        "cell_h": 39,
+        "columns": 20,
+        "rows": 21,
+        "grid_score": 786,
+        "alignment": 212,
+        "snap_variance": 765
+      },
+      "gates": [
+        {
+          "name": "grid_detected",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_score",
+          "value": 786,
+          "threshold": [
+            415,
+            707
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_cell_count",
+          "value": 20,
+          "threshold": {
+            "warn_below": 12,
+            "input_min": 96
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "boundary_alignment",
+          "value": 212,
+          "threshold": {
+            "fail_below": 80,
+            "warn_below": 250
+          },
+          "outcome": "warn"
+        },
+        {
+          "name": "candidate_agreement",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "snap_fidelity",
+          "value": 765,
+          "threshold": {
+            "fail_above": 3000,
+            "warn_above": 500
+          },
+          "outcome": "warn"
+        },
+        {
+          "name": "palette_budget",
+          "value": 33,
+          "threshold": {
+            "max": 256,
+            "frozen": false
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "off_palette",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "orphans",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "colors_per_frame",
+          "value": 28,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fidelity",
+          "value": 29069532,
+          "threshold": [
+            466954543,
+            233477271
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "size",
+          "value": [
+            [
+              20,
+              21
+            ]
+          ],
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fits_canvas",
+          "value": true,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "frame_consistency",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        }
+      ],
+      "runs_ms": [
+        3799.3214
+      ],
+      "median_ms": 3799.3214,
+      "repeat_identical_decision": true
+    },
+    {
+      "name": "illustration_boat",
+      "category": "d-nonpixel-control",
+      "accepted": true,
+      "size": [
+        26,
+        26
+      ],
+      "grid": {
+        "mode": "auto",
+        "detected": true,
+        "cell_w": 31,
+        "cell_h": 31,
+        "columns": 26,
+        "rows": 26,
+        "grid_score": 857,
+        "alignment": 179,
+        "snap_variance": 830
+      },
+      "gates": [
+        {
+          "name": "grid_detected",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_score",
+          "value": 857,
+          "threshold": [
+            415,
+            707
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "grid_cell_count",
+          "value": 26,
+          "threshold": {
+            "warn_below": 12,
+            "input_min": 96
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "boundary_alignment",
+          "value": 179,
+          "threshold": {
+            "fail_below": 80,
+            "warn_below": 250
+          },
+          "outcome": "warn"
+        },
+        {
+          "name": "candidate_agreement",
+          "value": false,
+          "threshold": true,
+          "outcome": "warn"
+        },
+        {
+          "name": "snap_fidelity",
+          "value": 830,
+          "threshold": {
+            "fail_above": 3000,
+            "warn_above": 500
+          },
+          "outcome": "warn"
+        },
+        {
+          "name": "palette_budget",
+          "value": 33,
+          "threshold": {
+            "max": 256,
+            "frozen": false
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "off_palette",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "orphans",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "colors_per_frame",
+          "value": 26,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fidelity",
+          "value": 29137658,
+          "threshold": [
+            466954543,
+            233477271
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "size",
+          "value": [
+            [
+              26,
+              26
+            ]
+          ],
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fits_canvas",
+          "value": true,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "frame_consistency",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        }
+      ],
+      "runs_ms": [
+        3310.6858
+      ],
+      "median_ms": 3310.6858,
+      "repeat_identical_decision": true
+    },
+    {
+      "name": "illustration_hills",
+      "category": "d-nonpixel-control",
+      "accepted": false,
+      "size": [
+        804,
+        804
+      ],
+      "grid": {
+        "mode": "auto",
+        "detected": false,
+        "cell_w": null,
+        "cell_h": null,
+        "columns": 0,
+        "rows": 0,
+        "grid_score": 0,
+        "alignment": 0,
+        "snap_variance": 0
+      },
+      "gates": [
+        {
+          "name": "grid_detected",
+          "value": false,
+          "threshold": true,
+          "outcome": "fail"
+        },
+        {
+          "name": "grid_score",
+          "value": 0,
+          "threshold": [
+            415,
+            707
+          ],
+          "outcome": "fail"
+        },
+        {
+          "name": "palette_budget",
+          "value": 33,
+          "threshold": {
+            "max": 256,
+            "frozen": false
+          },
+          "outcome": "pass"
+        },
+        {
+          "name": "off_palette",
+          "value": 0,
+          "threshold": 0,
+          "outcome": "pass"
+        },
+        {
+          "name": "orphans",
+          "value": 1,
+          "threshold": 0,
+          "outcome": "fail"
+        },
+        {
+          "name": "colors_per_frame",
+          "value": 32,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fidelity",
+          "value": 2125267,
+          "threshold": [
+            466954543,
+            233477271
+          ],
+          "outcome": "pass"
+        },
+        {
+          "name": "size",
+          "value": [
+            [
+              804,
+              804
+            ]
+          ],
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "fits_canvas",
+          "value": true,
+          "threshold": null,
+          "outcome": "pass"
+        },
+        {
+          "name": "frame_consistency",
+          "value": true,
+          "threshold": true,
+          "outcome": "pass"
+        }
+      ],
+      "runs_ms": [
+        332399.5667
+      ],
+      "median_ms": 332399.5667,
+      "repeat_identical_decision": true
+    }
+  ],
+  "xprite": [
+    {
+      "source": "character_seed.png",
+      "category": "d",
+      "method": "xprite",
+      "size": [
+        220,
+        223
+      ],
+      "grid": {
+        "width": 220,
+        "height": 223,
+        "cellWidth": 4.5636363636363635,
+        "cellHeight": 4.502242152466367,
+        "offsetX": 0,
+        "offsetY": 0,
+        "cutsX": [
+          0,
+          2.68,
+          7.21,
+          11.73,
+          16.25,
+          20.77,
+          25.3,
+          29.82,
+          34.34,
+          38.86,
+          43.39,
+          47.91,
+          52.43,
+          56.95,
+          61.48,
+          66,
+          72,
+          77,
+          82,
+          87,
+          92,
+          97,
+          102,
+          107,
+          112,
+          117,
+          121,
+          125,
+          130,
+          135,
+          140,
+          145,
+          150,
+          155,
+          160,
+          165,
+          170,
+          175,
+          181,
+          186,
+          191,
+          196,
+          201,
+          206,
+          210,
+          213,
+          216,
+          220,
+          224,
+          229,
+          234,
+          239,
+          244,
+          249,
+          254,
+          259,
+          264,
+          269,
+          274,
+          279,
+          283,
+          287,
+          292,
+          297,
+          301,
+          305,
+          309,
+          313,
+          317,
+          320,
+          323,
+          327,
+          331,
+          335,
+          340,
+          345,
+          350,
+          355,
+          360,
+          365,
+          370,
+          374,
+          378,
+          382,
+          387,
+          391,
+          395,
+          399,
+          403,
+          408,
+          413,
+          417,
+          421,
+          425,
+          429,
+          433,
+          438,
+          442,
+          446,
+          450,
+          454,
+          459,
+          464,
+          469,
+          473,
+          477,
+          482,
+          487,
+          492,
+          497,
+          502,
+          507,
+          512,
+          516,
+          520,
+          525,
+          530,
+          535,
+          540,
+          545,
+          550,
+          555,
+          560,
+          565,
+          569,
+          573,
+          578,
+          583,
+          588,
+          593,
+          597,
+          602,
+          606,
+          610,
+          615,
+          620,
+          624,
+          628,
+          632,
+          637,
+          642,
+          646,
+          649,
+          653,
+          657,
+          661,
+          665,
+          669,
+          673,
+          677,
+          681,
+          685,
+          690,
+          695,
+          700,
+          705,
+          709,
+          713,
+          716,
+          720,
+          725,
+          730,
+          735,
+          739,
+          743,
+          747,
+          752,
+          757,
+          762,
+          767,
+          771,
+          775,
+          779,
+          783,
+          788,
+          793,
+          798,
+          803,
+          808,
+          814,
+          819,
+          824,
+          829,
+          834,
+          839,
+          844,
+          849,
+          854,
+          859,
+          863.52,
+          868.05,
+          872.57,
+          877.09,
+          881.61,
+          886.14,
+          890.66,
+          895.18,
+          899.7,
+          904.23,
+          908.75,
+          913.27,
+          917.79,
+          922.32,
+          926.84,
+          931.36,
+          935.88,
+          940.41,
+          944.93,
+          949.45,
+          953.97,
+          958.5,
+          963.02,
+          967.54,
+          972.06,
+          976.59,
+          981.11,
+          985.63,
+          990.15,
+          994.68,
+          999.2,
+          1004
+        ],
+        "cutsY": [
+          0,
+          6,
+          10,
+          14,
+          18,
+          23,
+          28,
+          33,
+          38,
+          43,
+          48,
+          52,
+          56,
+          61,
+          66,
+          71,
+          76,
+          81,
+          86,
+          91,
+          96,
+          101,
+          106,
+          111,
+          116,
+          122,
+          128,
+          133,
+          138,
+          143,
+          148,
+          152,
+          156,
+          160,
+          165,
+          171,
+          176,
+          181,
+          186,
+          191,
+          196,
+          201,
+          206,
+          211,
+          216,
+          220,
+          224,
+          228,
+          231,
+          235,
+          239,
+          243,
+          248,
+          253,
+          258,
+          263,
+          268,
+          273,
+          278,
+          283,
+          287,
+          291,
+          295,
+          299,
+          303,
+          308,
+          313,
+          318,
+          322,
+          326,
+          330,
+          334,
+          338,
+          341,
+          345,
+          350,
+          355,
+          360,
+          364,
+          368,
+          372,
+          375,
+          378,
+          382,
+          386,
+          391,
+          396,
+          401,
+          406,
+          411,
+          416,
+          421,
+          425,
+          429,
+          433,
+          438,
+          443,
+          448,
+          454,
+          460,
+          465,
+          469,
+          473,
+          477,
+          481,
+          485,
+          489,
+          493,
+          497,
+          502,
+          506,
+          510,
+          514,
+          518,
+          522,
+          526,
+          530,
+          534,
+          539,
+          544,
+          549,
+          554,
+          559,
+          564,
+          569,
+          574,
+          578,
+          582,
+          586,
+          590,
+          594,
+          598,
+          602,
+          606,
+          610,
+          614,
+          618,
+          622,
+          626,
+          630,
+          635,
+          639,
+          643,
+          648,
+          653,
+          658,
+          663,
+          667,
+          671,
+          675,
+          679,
+          683,
+          688,
+          693,
+          698,
+          703,
+          707,
+          712,
+          717,
+          722,
+          727,
+          732,
+          736,
+          739,
+          743,
+          747,
+          751,
+          756,
+          761,
+          766,
+          771,
+          776,
+          780,
+          784,
+          788,
+          792,
+          796,
+          801,
+          806,
+          811,
+          816,
+          821,
+          826,
+          831,
+          835,
+          839,
+          843,
+          848,
+          853,
+          858,
+          863,
+          867,
+          871,
+          875,
+          880,
+          885,
+          890,
+          894,
+          898,
+          901,
+          904,
+          908,
+          913,
+          918,
+          923,
+          926,
+          929,
+          933,
+          938,
+          943,
+          947,
+          951,
+          955,
+          959,
+          964,
+          969,
+          973,
+          977,
+          982,
+          987,
+          992,
+          996,
+          1000.44,
+          1004
+        ],
+        "confidence": 0.8501048232387312,
+        "reliable": true,
+        "algorithm": "edge-grid",
+        "placed": true
+      },
+      "accepted": null,
+      "classification": "uncertain",
+      "confidence": 0.505,
+      "raw_only": true,
+      "elapsed_ms": 107660.1227,
+      "output_sha256": "127aba5377aff7861c913007511f22ee85f9d5ac8d403443a237c5e9bc2d001c"
+    },
+    {
+      "source": "item_lantern.png",
+      "category": "d",
+      "method": "xprite",
+      "size": [
+        72,
+        76
+      ],
+      "grid": {
+        "width": 72,
+        "height": 76,
+        "cellWidth": 13.944444444444445,
+        "cellHeight": 13.210526315789474,
+        "offsetX": 0,
+        "offsetY": 0,
+        "cutsX": [
+          0,
+          8.14,
+          22.7,
+          37.25,
+          51.8,
+          66.35,
+          80.9,
+          95.45,
+          110,
+          128,
+          145,
+          160,
+          174,
+          186,
+          198,
+          212,
+          228,
+          242,
+          254,
+          267,
+          280,
+          293,
+          305,
+          317,
+          330,
+          344,
+          358,
+          370,
+          384,
+          398,
+          413,
+          430,
+          445,
+          459,
+          474,
+          489,
+          503,
+          519,
+          535,
+          550,
+          565,
+          579,
+          590,
+          603,
+          618,
+          634,
+          650,
+          661,
+          674,
+          690,
+          706,
+          722,
+          734,
+          747,
+          762,
+          775,
+          788,
+          800,
+          814,
+          826,
+          839,
+          853,
+          869,
+          884,
+          899,
+          912,
+          926,
+          938,
+          952,
+          965,
+          977,
+          991.55,
+          1004
+        ],
+        "cutsY": [
+          0,
+          16,
+          33,
+          46,
+          60,
+          74,
+          89,
+          103,
+          116,
+          127,
+          140,
+          153,
+          166,
+          180,
+          192,
+          203,
+          214,
+          227,
+          241,
+          256,
+          270,
+          284,
+          297,
+          309,
+          321,
+          333,
+          345,
+          357,
+          373,
+          388,
+          402,
+          416,
+          431,
+          445,
+          456,
+          468,
+          480,
+          494,
+          507,
+          520,
+          534,
+          549,
+          563,
+          576,
+          590,
+          604,
+          619,
+          633,
+          647,
+          659,
+          672,
+          684,
+          697,
+          710,
+          723,
+          734,
+          746,
+          759,
+          771,
+          784,
+          796,
+          809,
+          823,
+          835,
+          847,
+          860,
+          873,
+          885,
+          897,
+          910,
+          923,
+          934,
+          946,
+          958,
+          971,
+          985,
+          1004
+        ],
+        "confidence": 0.13823263058398333,
+        "reliable": true,
+        "algorithm": "edge-grid",
+        "placed": true
+      },
+      "accepted": null,
+      "classification": "uncertain",
+      "confidence": 0.505,
+      "raw_only": true,
+      "elapsed_ms": 95746.8989,
+      "output_sha256": "d6ef85d1d281e48da24a9993040c82c9e48a07b76a46ddb2518ba4ad7630d9a6"
+    },
+    {
+      "source": "tile_marsh.png",
+      "category": "d",
+      "method": "xprite",
+      "size": [
+        104,
+        106
+      ],
+      "grid": {
+        "width": 104,
+        "height": 106,
+        "cellWidth": 9.653846153846153,
+        "cellHeight": 9.471698113207546,
+        "offsetX": 0,
+        "offsetY": 0,
+        "cutsX": [
+          0,
+          12.23,
+          21.7,
+          31.17,
+          40.64,
+          50.11,
+          59.58,
+          69.06,
+          78.53,
+          88,
+          98,
+          108,
+          118,
+          127,
+          136,
+          146,
+          155,
+          166,
+          176,
+          185,
+          194,
+          204,
+          214,
+          223,
+          232,
+          241,
+          250,
+          259,
+          268,
+          278,
+          288,
+          298,
+          310,
+          321,
+          331,
+          340,
+          350,
+          360,
+          369,
+          379,
+          389,
+          399,
+          408,
+          418,
+          428,
+          438,
+          450,
+          462,
+          473,
+          482,
+          493,
+          502,
+          510,
+          520,
+          530,
+          539,
+          548,
+          558,
+          568,
+          578,
+          588,
+          597,
+          606,
+          615,
+          625,
+          635,
+          644,
+          653,
+          662,
+          670,
+          679,
+          689,
+          699,
+          708,
+          718,
+          729,
+          739,
+          749,
+          758,
+          767,
+          776,
+          786,
+          796,
+          805,
+          815,
+          825,
+          835,
+          846,
+          855,
+          865,
+          876,
+          887,
+          898,
+          907,
+          915,
+          923,
+          932.47,
+          941.94,
+          951.42,
+          960.89,
+          970.36,
+          979.83,
+          989.3,
+          998.77,
+          1004
+        ],
+        "cutsY": [
+          0,
+          12.23,
+          21.7,
+          31.17,
+          40.64,
+          50.11,
+          59.58,
+          69.06,
+          78.53,
+          88,
+          96,
+          104,
+          115,
+          126,
+          135,
+          144,
+          154,
+          164,
+          174,
+          183,
+          193,
+          204,
+          214,
+          223,
+          231,
+          239,
+          248,
+          257,
+          266,
+          275,
+          285,
+          294,
+          303,
+          312,
+          321,
+          330,
+          339,
+          349,
+          359,
+          368,
+          377,
+          387,
+          397,
+          406,
+          416,
+          425,
+          434,
+          444,
+          453,
+          463,
+          472,
+          482,
+          492,
+          502,
+          511,
+          521,
+          530,
+          540,
+          550,
+          560,
+          571,
+          582,
+          592,
+          602,
+          612,
+          621,
+          630,
+          639,
+          649,
+          659,
+          669,
+          680,
+          691,
+          702,
+          712,
+          722,
+          731,
+          739,
+          747,
+          755,
+          764,
+          774,
+          782,
+          790,
+          799,
+          808,
+          817,
+          827,
+          837,
+          846,
+          856,
+          866,
+          876,
+          886,
+          896,
+          905,
+          914,
+          923,
+          932.47,
+          941.94,
+          951.42,
+          960.89,
+          970.36,
+          979.83,
+          989.3,
+          998.77,
+          1004
+        ],
+        "confidence": 0.1190452730120052,
+        "reliable": true,
+        "algorithm": "edge-grid",
+        "placed": true
+      },
+      "accepted": null,
+      "classification": "uncertain",
+      "confidence": 0.505,
+      "raw_only": true,
+      "elapsed_ms": 67475.0654,
+      "output_sha256": "9c89bb0ea4dda8b5929de52b98b6ab7de57e017f239cbb974d0937c78e95d760"
+    },
+    {
+      "source": "character_clock.png",
+      "method": "xprite",
+      "error": "Xprite worker exceeded its 120-second deadline.",
+      "accepted": null
+    },
+    {
+      "source": "item_compass.png",
+      "method": "xprite",
+      "error": "Xprite worker exceeded its 120-second deadline.",
+      "accepted": null
+    },
+    {
+      "source": "views_moss.png",
+      "method": "xprite",
+      "error": "Xprite worker exceeded its 120-second deadline.",
+      "accepted": null
+    },
+    {
+      "source": "views_robot.png",
+      "method": "xprite",
+      "error": "Xprite worker exceeded its 120-second deadline.",
+      "accepted": null
+    },
+    {
+      "source": "tile_roof.png",
+      "method": "xprite",
+      "error": "Xprite worker exceeded its 120-second deadline.",
+      "accepted": null
+    },
+    {
+      "source": "item_shell.png",
+      "method": "xprite",
+      "error": "Xprite worker exceeded its 120-second deadline.",
+      "accepted": null
+    },
+    {
+      "source": "character_diver.png",
+      "method": "xprite",
+      "error": "file:///<xprite-eval>/dist/pixelate.js:187\n            throw new Error(\"No consistent pixel grid was detected. Turn off Automatic grid and choose cell sizes.\");\n                  ^\n\nError: No consistent pixel grid was detected. Turn off Automatic grid and choose cell sizes.\n    at sampleImageAsync (file:///<xprite-eval>/dist/pixelate.js:187:19)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Module.pixelateImageAsync (file:///<xprite-eval>/dist/pixelate.js:206:21)\n    at async run (file:///<workspace>/tools/pixelize_xprite.mjs:14:16)\n    at async file:///<workspace>/tools/pixelize_xprite.mjs:25:71\n\nNode.js v24.15.0\n",
+      "accepted": null
+    },
+    {
+      "source": "tile_crystal.png",
+      "method": "xprite",
+      "error": "Xprite worker exceeded its 120-second deadline.",
+      "accepted": null
+    },
+    {
+      "source": "views_beetle.png",
+      "category": "d",
+      "method": "xprite",
+      "size": [
+        207,
+        163
+      ],
+      "grid": {
+        "width": 207,
+        "height": 163,
+        "cellWidth": 6.057971014492754,
+        "cellHeight": 6.159509202453988,
+        "offsetX": 0,
+        "offsetY": 0,
+        "cutsX": [
+          0,
+          6.71,
+          12.74,
+          18.77,
+          24.8,
+          30.83,
+          36.86,
+          42.88,
+          48.91,
+          54.94,
+          60.97,
+          67,
+          75,
+          82,
+          88,
+          94,
+          99,
+          105,
+          111,
+          117,
+          123,
+          130,
+          136,
+          142,
+          147,
+          152,
+          157,
+          162,
+          167,
+          172,
+          177,
+          183,
+          189,
+          195,
+          201,
+          208,
+          215,
+          221,
+          227,
+          233,
+          239,
+          244,
+          250,
+          257,
+          263,
+          269,
+          274,
+          279,
+          285,
+          291,
+          297,
+          303,
+          308,
+          313,
+          318,
+          323,
+          329,
+          335,
+          341,
+          348,
+          355,
+          362,
+          369,
+          376,
+          382,
+          387,
+          393,
+          399,
+          406,
+          413,
+          420,
+          426,
+          432,
+          438,
+          444,
+          450,
+          456,
+          462,
+          468,
+          474,
+          480,
+          486,
+          492,
+          498,
+          504,
+          510,
+          516,
+          523,
+          530,
+          537,
+          543,
+          549,
+          555,
+          561,
+          566,
+          571,
+          576,
+          581,
+          586,
+          592,
+          598,
+          605,
+          611,
+          618,
+          624,
+          630,
+          636,
+          642,
+          649,
+          656,
+          663,
+          669,
+          675,
+          681,
+          686,
+          692,
+          698,
+          704,
+          710,
+          716,
+          722,
+          728,
+          734,
+          740,
+          747,
+          754,
+          761,
+          767,
+          773,
+          779,
+          785,
+          791,
+          797,
+          803,
+          809,
+          815,
+          821,
+          827,
+          833,
+          839,
+          845,
+          852,
+          859,
+          865,
+          871,
+          878,
+          885,
+          892,
+          899,
+          906,
+          913,
+          919,
+          925,
+          930,
+          936,
+          943,
+          950,
+          956,
+          962,
+          968,
+          975,
+          982,
+          988,
+          994,
+          1000,
+          1006,
+          1012,
+          1019,
+          1025,
+          1031,
+          1037,
+          1043,
+          1049,
+          1054,
+          1059,
+          1065,
+          1071,
+          1077,
+          1082,
+          1087,
+          1092,
+          1097,
+          1103,
+          1109,
+          1115,
+          1120,
+          1126,
+          1131,
+          1137,
+          1144,
+          1151,
+          1157,
+          1163,
+          1168,
+          1174,
+          1180,
+          1188,
+          1194.03,
+          1200.06,
+          1206.09,
+          1212.12,
+          1218.14,
+          1224.17,
+          1230.2,
+          1236.23,
+          1242.26,
+          1248.29,
+          1254
+        ],
+        "cutsY": [
+          0,
+          4.02,
+          10.3,
+          16.57,
+          22.85,
+          29.12,
+          35.4,
+          41.67,
+          47.95,
+          54.22,
+          60.5,
+          66.77,
+          73.05,
+          79.32,
+          85.6,
+          91.87,
+          98.15,
+          104.42,
+          110.7,
+          116.97,
+          123.25,
+          129.52,
+          135.8,
+          142.07,
+          148.35,
+          154.62,
+          160.9,
+          167.18,
+          173.45,
+          179.73,
+          186,
+          191,
+          196,
+          202,
+          208,
+          214,
+          221,
+          227,
+          232,
+          237,
+          243,
+          249,
+          255,
+          261,
+          268,
+          275,
+          281,
+          287,
+          293,
+          300,
+          307,
+          314,
+          321,
+          327,
+          332,
+          337,
+          342,
+          348,
+          354,
+          360,
+          366,
+          372,
+          378,
+          384,
+          390,
+          396,
+          402,
+          408,
+          414,
+          420,
+          426,
+          433,
+          439,
+          445,
+          451,
+          458,
+          464,
+          471,
+          477,
+          483,
+          489,
+          496,
+          502,
+          508,
+          515,
+          521,
+          527,
+          533,
+          539,
+          545,
+          551,
+          556,
+          561,
+          567,
+          572,
+          578,
+          584,
+          590,
+          596,
+          602,
+          608,
+          614,
+          620,
+          626,
+          632,
+          638,
+          644,
+          650,
+          656,
+          662,
+          667,
+          673,
+          679,
+          686,
+          693,
+          700,
+          706,
+          712,
+          718,
+          723,
+          728,
+          734,
+          740,
+          747,
+          753,
+          759,
+          766,
+          772,
+          778,
+          784,
+          791,
+          798,
+          806,
+          813,
+          820,
+          826,
+          832,
+          838,
+          845,
+          852,
+          858,
+          864,
+          870.28,
+          876.55,
+          882.83,
+          889.1,
+          895.37,
+          901.65,
+          907.92,
+          914.2,
+          920.47,
+          926.75,
+          933.02,
+          939.3,
+          945.57,
+          951.85,
+          958.12,
+          964.4,
+          970.67,
+          976.95,
+          983.22,
+          989.5,
+          995.77,
+          1004
+        ],
+        "confidence": 0.03010595320087041,
+        "reliable": true,
+        "algorithm": "edge-grid",
+        "placed": true
+      },
+      "accepted": null,
+      "classification": "uncertain",
+      "confidence": 0.565,
+      "raw_only": true,
+      "elapsed_ms": 100810.3243,
+      "output_sha256": "36d1e6f35cd89ff1d461eb6611000015021ca393c805a0ad24f2007a85d605b3"
+    },
+    {
+      "source": "item_flask.png",
+      "category": "d",
+      "method": "xprite",
+      "size": [
+        49,
+        62
+      ],
+      "grid": {
+        "width": 49,
+        "height": 62,
+        "cellWidth": 20.489795918367346,
+        "cellHeight": 16.193548387096776,
+        "offsetX": 0,
+        "offsetY": 0,
+        "cutsX": [
+          0,
+          19,
+          39,
+          58,
+          77,
+          97,
+          118,
+          138,
+          159,
+          179,
+          200,
+          220,
+          241,
+          262,
+          282,
+          303,
+          324,
+          345,
+          366,
+          387,
+          412,
+          433,
+          453,
+          474,
+          495,
+          515,
+          536,
+          556,
+          576,
+          597,
+          617,
+          638,
+          659,
+          679,
+          700,
+          720,
+          741,
+          762,
+          783,
+          803,
+          824,
+          845,
+          866,
+          886,
+          907,
+          926,
+          946,
+          965,
+          985,
+          1004
+        ],
+        "cutsY": [
+          0,
+          17,
+          34,
+          51,
+          63,
+          76,
+          96,
+          111,
+          131,
+          151,
+          172,
+          191,
+          211,
+          226,
+          241,
+          259,
+          277,
+          294,
+          312,
+          329,
+          346,
+          363,
+          379,
+          395,
+          410,
+          426,
+          441,
+          457,
+          472,
+          487,
+          502,
+          517,
+          532,
+          547,
+          562,
+          578,
+          593,
+          608,
+          623,
+          638,
+          653,
+          668,
+          683,
+          698,
+          713,
+          728,
+          743,
+          758,
+          774,
+          789,
+          804,
+          820,
+          835,
+          851,
+          865,
+          879,
+          894,
+          910,
+          929,
+          949,
+          967,
+          986,
+          1004
+        ],
+        "confidence": 0.7349925638623319,
+        "reliable": true,
+        "algorithm": "edge-grid"
+      },
+      "accepted": null,
+      "classification": "uncertain",
+      "confidence": 0.505,
+      "raw_only": true,
+      "elapsed_ms": 78100.5094,
+      "output_sha256": "1b575291f61d6c3b6d1d7781395f631be72a9e525e3b04bd0c537f768809e21b"
+    },
+    {
+      "source": "illustration_plant.png",
+      "method": "xprite",
+      "error": "file:///<xprite-eval>/dist/pixelate.js:187\n            throw new Error(\"No consistent pixel grid was detected. Turn off Automatic grid and choose cell sizes.\");\n                  ^\n\nError: No consistent pixel grid was detected. Turn off Automatic grid and choose cell sizes.\n    at sampleImageAsync (file:///<xprite-eval>/dist/pixelate.js:187:19)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Module.pixelateImageAsync (file:///<xprite-eval>/dist/pixelate.js:206:21)\n    at async run (file:///<workspace>/tools/pixelize_xprite.mjs:14:16)\n    at async file:///<workspace>/tools/pixelize_xprite.mjs:25:71\n\nNode.js v24.15.0\n",
+      "accepted": null
+    },
+    {
+      "source": "illustration_boat.png",
+      "method": "xprite",
+      "error": "[Errno 22] Invalid argument",
+      "accepted": null
+    },
+    {
+      "source": "illustration_hills.png",
+      "method": "xprite",
+      "error": "file:///<xprite-eval>/dist/pixelate.js:187\n            throw new Error(\"No consistent pixel grid was detected. Turn off Automatic grid and choose cell sizes.\");\n                  ^\n\nError: No consistent pixel grid was detected. Turn off Automatic grid and choose cell sizes.\n    at sampleImageAsync (file:///<xprite-eval>/dist/pixelate.js:187:19)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Module.pixelateImageAsync (file:///<xprite-eval>/dist/pixelate.js:206:21)\n    at async run (file:///<workspace>/tools/pixelize_xprite.mjs:14:16)\n    at async file:///<workspace>/tools/pixelize_xprite.mjs:25:71\n\nNode.js v24.15.0\n",
+      "accepted": null
+    }
+  ]
+}

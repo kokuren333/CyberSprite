@@ -1,4 +1,4 @@
-"""Measure the original-art corpus and derive §11.9 thresholds (no art generation)."""
+"""Measure current final AUTO gates; retain v4 positive-vector helpers (§11.9)."""
 
 import argparse
 import io
@@ -177,6 +177,16 @@ def next_version(defaults, previous, rows, grid, fidelity):
 
 
 def calibrate():
+    defaults_path = ROOT / "src/cybersprite/data/pipeline_defaults.json"
+    if json.loads(defaults_path.read_bytes())["calibration"]["version"] >= 5:
+        if __package__:
+            from .calibrate_pixelize_gates import calibrate as final_gates
+        else:
+            from calibrate_pixelize_gates import calibrate as final_gates
+
+        # Version 4 positive vectors remain recorded; do not restore its pending-d defaults.
+        final_gates(ROOT / "build/pixelize-calibration")
+        return
     rows = list(records())
     assert all(r["exact"] for r in rows if r["category"] == "a")
     grid = thresholds(rows, "grid_score", True)

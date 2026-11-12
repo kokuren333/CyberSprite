@@ -1,0 +1,1879 @@
+{
+  "date": "2026-11-12",
+  "scope": "Prospective Windows CPython 3.12 runtime resolution, including manually added slangpy environment marker. 25 distributions, no web/dev/torch extras. Bundled native trees and Linux not certified.",
+  "dependencies": [
+    {
+      "name": "av",
+      "version": "19.0.2",
+      "declared_spdx": "BSD-3-Clause",
+      "artifact": "av-19.0.2-cp312-abi3-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/32/5a/743a83666ded197df8b9957e2800bef9a39d52b23be2ca211bbd14b5fb22/av-19.0.2-cp312-abi3-win_amd64.whl",
+      "sha256": "3ce5a1d7b916d13c16ac58f1756f0fee4af2d53f02bc1403e18550b50d375a22",
+      "licenses_opened": [
+        {
+          "path": "av-19.0.2.dist-info/licenses/AUTHORS.rst",
+          "sha256": "2abfebe175cefe78fcb14db260a3c8972d3b52156f50dedd0bc416ac4f884a96",
+          "bytes": 6472
+        },
+        {
+          "path": "av-19.0.2.dist-info/licenses/LICENSE.txt",
+          "sha256": "f32ebcb6007dcc05eea369b3820e6391b0a7ef1ed763f30f1aca15dfdbacbe96",
+          "bytes": 1528
+        }
+      ],
+      "requires_dist": null,
+      "reviewed_spdx": "BSD-3-Clause (wrapper only; bundled FFmpeg not cleared)",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "colorama",
+      "version": "0.4.6",
+      "declared_spdx": "",
+      "artifact": "colorama-0.4.6-py2.py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl",
+      "sha256": "4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6",
+      "licenses_opened": [
+        {
+          "path": "colorama-0.4.6.dist-info/licenses/LICENSE.txt",
+          "sha256": "cac35c02686e5d04a5a7140bfb3b36e73aed496656e891102e428886d7930318",
+          "bytes": 1491
+        }
+      ],
+      "requires_dist": null,
+      "reviewed_spdx": "BSD-3-Clause",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "filelock",
+      "version": "4.2.10",
+      "declared_spdx": "MIT",
+      "artifact": "filelock-4.2.10-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/ef/90/5d0096a325aa0f83ba7a3968bfb485b67e32c947bdf9cd0fcb4b485be718/filelock-4.2.10-py3-none-any.whl",
+      "sha256": "9479aaeb4db20b5a53e3da28493edd24720b66b8a0b84030aa56ccdf243d6857",
+      "licenses_opened": [
+        {
+          "path": "filelock-4.2.10.dist-info/licenses/LICENSE",
+          "sha256": "608c89d5060ae9921adccf3236695bc654a9946e12323ef6c021dfa04e294d48",
+          "bytes": 1088
+        }
+      ],
+      "requires_dist": null,
+      "reviewed_spdx": "MIT",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "fsspec",
+      "version": "2026.9.0",
+      "declared_spdx": "BSD-3-Clause",
+      "artifact": "fsspec-2026.9.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/6c/c0/a98505f18594f1bce828bb159cec0fcf9860562f1a2c85913409fc8f3d9e/fsspec-2026.9.0-py3-none-any.whl",
+      "sha256": "8dd6e646e99ea382bd85f97a45e6b526a442d79423a7dc673f1e2756d05fcb5f",
+      "licenses_opened": [
+        {
+          "path": "fsspec-2026.9.0.dist-info/licenses/LICENSE",
+          "sha256": "2dc35496ce53a7307915c008a844aad53e772b49b34cdd00445067691407ec94",
+          "bytes": 1513
+        }
+      ],
+      "requires_dist": [
+        "adlfs; extra == \"abfs\"",
+        "adlfs; extra == \"adl\"",
+        "pyarrow>=1; extra == \"arrow\"",
+        "dask; extra == \"dask\"",
+        "distributed; extra == \"dask\"",
+        "pre-commit; extra == \"dev\"",
+        "ruff>=0.5; extra == \"dev\"",
+        "numpydoc; extra == \"doc\"",
+        "sphinx; extra == \"doc\"",
+        "sphinx-design; extra == \"doc\"",
+        "sphinx-rtd-theme; extra == \"doc\"",
+        "yarl; extra == \"doc\"",
+        "dropbox; extra == \"dropbox\"",
+        "dropboxdrivefs; extra == \"dropbox\"",
+        "requests; extra == \"dropbox\"",
+        "adlfs; extra == \"full\"",
+        "aiohttp!=4.0.0a0,!=4.0.0a1; extra == \"full\"",
+        "dask; extra == \"full\"",
+        "distributed; extra == \"full\"",
+        "dropbox; extra == \"full\"",
+        "dropboxdrivefs; extra == \"full\"",
+        "fusepy; extra == \"full\"",
+        "gcsfs>=2026.4.0; extra == \"full\"",
+        "libarchive-c; extra == \"full\"",
+        "ocifs; extra == \"full\"",
+        "panel; extra == \"full\"",
+        "paramiko; extra == \"full\"",
+        "pyarrow>=1; extra == \"full\"",
+        "pygit2; extra == \"full\"",
+        "requests; extra == \"full\"",
+        "s3fs>=2026.6.0; extra == \"full\"",
+        "smbprotocol; extra == \"full\"",
+        "tqdm; extra == \"full\"",
+        "fusepy; extra == \"fuse\"",
+        "gcsfs>=2026.4.0; extra == \"gcs\"",
+        "pygit2; extra == \"git\"",
+        "requests; extra == \"github\"",
+        "gcsfs>=2026.4.0; extra == \"gs\"",
+        "panel; extra == \"gui\"",
+        "pyarrow>=1; extra == \"hdfs\"",
+        "aiohttp!=4.0.0a0,!=4.0.0a1; extra == \"http\"",
+        "libarchive-c; extra == \"libarchive\"",
+        "ocifs; extra == \"oci\"",
+        "s3fs>=2026.6.0; extra == \"s3\"",
+        "paramiko; extra == \"sftp\"",
+        "smbprotocol; extra == \"smb\"",
+        "paramiko; extra == \"ssh\"",
+        "aiohttp!=4.0.0a0,!=4.0.0a1; extra == \"test\"",
+        "numpy; extra == \"test\"",
+        "pytest; extra == \"test\"",
+        "pytest-asyncio!=0.22.0; extra == \"test\"",
+        "pytest-benchmark; extra == \"test\"",
+        "pytest-cov; extra == \"test\"",
+        "pytest-mock; extra == \"test\"",
+        "pytest-recording; extra == \"test\"",
+        "pytest-rerunfailures; extra == \"test\"",
+        "requests; extra == \"test\"",
+        "aiobotocore<3.0.0,>=2.5.4; extra == \"test-downstream\"",
+        "dask[dataframe,test]; extra == \"test-downstream\"",
+        "moto[server]<5,>4; extra == \"test-downstream\"",
+        "pytest-timeout; extra == \"test-downstream\"",
+        "xarray; extra == \"test-downstream\"",
+        "zarr; extra == \"test-downstream\"",
+        "adlfs; extra == \"test-full\"",
+        "aiohttp!=4.0.0a0,!=4.0.0a1; extra == \"test-full\"",
+        "backports-zstd; python_version < \"3.14\" and extra == \"test-full\"",
+        "cloudpickle; extra == \"test-full\"",
+        "dask; extra == \"test-full\"",
+        "distributed; extra == \"test-full\"",
+        "dropbox; extra == \"test-full\"",
+        "dropboxdrivefs; extra == \"test-full\"",
+        "fastparquet; extra == \"test-full\"",
+        "fusepy; extra == \"test-full\"",
+        "gcsfs>=2026.4.0; extra == \"test-full\"",
+        "jinja2; extra == \"test-full\"",
+        "kerchunk; extra == \"test-full\"",
+        "libarchive-c; extra == \"test-full\"",
+        "lz4; extra == \"test-full\"",
+        "notebook; extra == \"test-full\"",
+        "numpy; extra == \"test-full\"",
+        "ocifs; extra == \"test-full\"",
+        "pandas<3.0.0; extra == \"test-full\"",
+        "panel; extra == \"test-full\"",
+        "paramiko; extra == \"test-full\"",
+        "pyarrow>=1; extra == \"test-full\"",
+        "pyftpdlib; extra == \"test-full\"",
+        "pygit2; extra == \"test-full\"",
+        "pytest; extra == \"test-full\"",
+        "pytest-asyncio!=0.22.0; extra == \"test-full\"",
+        "pytest-benchmark; extra == \"test-full\"",
+        "pytest-cov; extra == \"test-full\"",
+        "pytest-mock; extra == \"test-full\"",
+        "pytest-recording; extra == \"test-full\"",
+        "pytest-rerunfailures; extra == \"test-full\"",
+        "python-snappy; extra == \"test-full\"",
+        "requests; extra == \"test-full\"",
+        "s3fs>=2026.6.0; extra == \"test-full\"",
+        "smbprotocol; extra == \"test-full\"",
+        "tqdm; extra == \"test-full\"",
+        "urllib3; extra == \"test-full\"",
+        "zarr<3.2.0; extra == \"test-full\"",
+        "zstandard; python_version < \"3.14\" and extra == \"test-full\"",
+        "tqdm; extra == \"tqdm\""
+      ],
+      "reviewed_spdx": "BSD-3-Clause",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "jinja2",
+      "version": "3.1.6",
+      "declared_spdx": null,
+      "artifact": "jinja2-3.1.6-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/62/a1/3d680cbfd5f4b8f15abc1d571870c5fc3e594bb582bc3b64ea099db13e56/jinja2-3.1.6-py3-none-any.whl",
+      "sha256": "85ece4451f492d0c13c5dd7c13a64681a86afae63a5f347908daf103ce6d2f67",
+      "licenses_opened": [
+        {
+          "path": "jinja2-3.1.6.dist-info/licenses/LICENSE.txt",
+          "sha256": "3b49dcee4105eb37bac10faf1be260408fe85d252b8e9df2e0979fc1e094437b",
+          "bytes": 1475
+        }
+      ],
+      "requires_dist": [
+        "MarkupSafe>=2.0",
+        "Babel>=2.7; extra == \"i18n\""
+      ],
+      "reviewed_spdx": "BSD-3-Clause",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "kornia",
+      "version": "0.9.0",
+      "declared_spdx": "Apache-2.0",
+      "artifact": "kornia-0.9.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/c5/ee/6bffb3fc85446de03fa7e397954ba4dd1bc5edab92b4b8be3ce09c9ccd1b/kornia-0.9.0-py3-none-any.whl",
+      "sha256": "7a1632fe004a305c94f2b979fc6ab4df26e01f925e74bdb9f8b8a03a1229caaf",
+      "licenses_opened": [
+        {
+          "path": "kornia-0.9.0.dist-info/licenses/LICENSE",
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9",
+          "bytes": 10173
+        }
+      ],
+      "requires_dist": [
+        "kornia-rs>=0.2.0",
+        "numpy>=1.21",
+        "torch>=2.5.1",
+        "coverage; extra == \"dev\"",
+        "onnx; extra == \"dev\"",
+        "onnxruntime; extra == \"dev\"",
+        "onnxscript; extra == \"dev\"",
+        "pillow; extra == \"dev\"",
+        "pre-commit; extra == \"dev\"",
+        "pytest-timeout; extra == \"dev\"",
+        "pytest>=7; extra == \"dev\"",
+        "setuptools; extra == \"dev\"",
+        "matplotlib; extra == \"docs\"",
+        "onnx; extra == \"docs\"",
+        "pillow; extra == \"docs\"",
+        "pydata-sphinx-theme<0.24,>=0.21; extra == \"docs\"",
+        "sphinx; extra == \"docs\"",
+        "sphinx-autodoc-defaultargs; extra == \"docs\"",
+        "sphinx-autodoc-typehints; extra == \"docs\"",
+        "sphinx-copybutton>=0.3; extra == \"docs\"",
+        "sphinx-design; extra == \"docs\"",
+        "sphinx-notfound-page; extra == \"docs\"",
+        "sphinxcontrib-bibtex; extra == \"docs\"",
+        "sphinxcontrib-gtagjs; extra == \"docs\"",
+        "sphinxcontrib-youtube; extra == \"docs\"",
+        "pillow; extra == \"image\"",
+        "onnx; extra == \"onnx\"",
+        "onnxruntime; extra == \"onnx\"",
+        "onnxscript; extra == \"onnx\"",
+        "diffusers; extra == \"sd\"",
+        "transformers; extra == \"sd\""
+      ],
+      "reviewed_spdx": "Apache-2.0",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "kornia-rs",
+      "version": "0.2.0",
+      "declared_spdx": null,
+      "artifact": "kornia_rs-0.2.0-cp312-cp312-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/4d/14/a1863c42b142fa7018105e7ef028b700a04c86a7a221d67e83fe2697ff31/kornia_rs-0.2.0-cp312-cp312-win_amd64.whl",
+      "sha256": "1a222a68555d1b974f0a96694ed2d3965d0e084860da1ba2d7fcffc541bd9b36",
+      "licenses_opened": [
+        {
+          "path": "kornia_rs-0.2.0.dist-info/licenses/LICENSE",
+          "sha256": "1eb85fc97224598dad1852b5d6483bbcf0aa8608790dcc657a5a2a761ae9c8c6",
+          "bytes": 11558
+        }
+      ],
+      "requires_dist": [
+        "nvidia-cuda-nvrtc-cu12; platform_system == \"Linux\" and extra == \"cuda\"",
+        "pytest; extra == \"dev\"",
+        "pytest-run-parallel; extra == \"dev\"",
+        "numpy; extra == \"dev\"",
+        "torch; extra == \"dev\""
+      ],
+      "reviewed_spdx": "Apache-2.0 (bundled dependencies require separate review)",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "markupsafe",
+      "version": "3.0.4",
+      "declared_spdx": "BSD-3-Clause",
+      "artifact": "markupsafe-3.0.4-cp312-cp312-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/3f/bf/62495e180b7000aaf30000fff849e933f74264638057176cf46852500adc/markupsafe-3.0.4-cp312-cp312-win_amd64.whl",
+      "sha256": "11935df9bf455ed0c04eb87bcd720f02b1fe5e02128a9430f23aed6f93336fc7",
+      "licenses_opened": [
+        {
+          "path": "markupsafe-3.0.4.dist-info/licenses/LICENSE.txt",
+          "sha256": "4631ec0db5fd90a547e336817264c6798214338146f8ac94b4a57f96ee8c9ec4",
+          "bytes": 1503
+        }
+      ],
+      "requires_dist": null,
+      "reviewed_spdx": "BSD-3-Clause",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "mpmath",
+      "version": "1.3.0",
+      "declared_spdx": "BSD",
+      "artifact": "mpmath-1.3.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/43/e3/7d92a15f894aa0c9c4b49b8ee9ac9850d6e63b03c9c32c0367a13ae62209/mpmath-1.3.0-py3-none-any.whl",
+      "sha256": "a0b2b9fe80bbcd81a6647ff13108738cfb482d481d826cc0e02f5b35e5c88d2c",
+      "licenses_opened": [
+        {
+          "path": "mpmath-1.3.0.dist-info/LICENSE",
+          "sha256": "c26cae81da4508e5e249985777a33821f183223ebb74d7f8cfbf90fe7eef2fb7",
+          "bytes": 1537
+        }
+      ],
+      "requires_dist": [
+        "pytest (>=4.6) ; extra == 'develop'",
+        "pycodestyle ; extra == 'develop'",
+        "pytest-cov ; extra == 'develop'",
+        "codecov ; extra == 'develop'",
+        "wheel ; extra == 'develop'",
+        "sphinx ; extra == 'docs'",
+        "gmpy2 (>=2.1.0a4) ; (platform_python_implementation != \"PyPy\") and extra == 'gmpy'",
+        "pytest (>=4.6) ; extra == 'tests'"
+      ],
+      "reviewed_spdx": "BSD-3-Clause",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "networkx",
+      "version": "3.7",
+      "declared_spdx": "BSD-3-Clause",
+      "artifact": "networkx-3.7-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/7e/cd/fe58041e9011f307c490e3e17dd48cc516448f7c698a3f2d9d9d65d7e6a8/networkx-3.7-py3-none-any.whl",
+      "sha256": "e3fd2c13a7814cee3746340d8d7f8598a67f16a58bf47fb7f8793fab6efca1b0",
+      "licenses_opened": [
+        {
+          "path": "networkx-3.7.dist-info/licenses/LICENSE.txt",
+          "sha256": "6025f323ea29dc2f0ee0abd9523bf910186f55b0e148e6ebf646c55566278e2e",
+          "bytes": 1763
+        }
+      ],
+      "requires_dist": [
+        "asv>=0.6.5; extra == \"benchmarking\"",
+        "py-rattler<0.22,>=0.21; extra == \"benchmarking\"",
+        "virtualenv; extra == \"benchmarking\"",
+        "numpy>=2.2; extra == \"default\"",
+        "scipy>=1.15; extra == \"default\"",
+        "matplotlib>=3.10; extra == \"default\"",
+        "pandas>=2.3; extra == \"default\"",
+        "pre-commit>=4.1; extra == \"developer\"",
+        "mypy>=1.15; extra == \"developer\"",
+        "sphinx>=8.0; extra == \"doc\"",
+        "pydata-sphinx-theme>=0.16; extra == \"doc\"",
+        "sphinx-gallery>=0.18; extra == \"doc\"",
+        "numpydoc>=1.8.0; extra == \"doc\"",
+        "pillow>=10; extra == \"doc\"",
+        "texext>=0.6.7; extra == \"doc\"",
+        "myst-nb>=1.1; extra == \"doc\"",
+        "intersphinx-registry; extra == \"doc\"",
+        "osmnx>=2.0.0; extra == \"example\"",
+        "momepy>=0.7.2; extra == \"example\"",
+        "contextily>=1.6; extra == \"example\"",
+        "seaborn>=0.13; extra == \"example\"",
+        "cairocffi>=1.7; extra == \"example\"",
+        "igraph>=0.11; extra == \"example\"",
+        "scikit-learn>=1.6; extra == \"example\"",
+        "iplotx>=0.9.0; extra == \"example\"",
+        "hiveplotlib>=0.28; extra == \"example\"",
+        "lxml>=4.6; extra == \"extra\"",
+        "pygraphviz>=2.0; extra == \"extra\"",
+        "pydot>=3.0.1; extra == \"extra\"",
+        "sympy>=1.10; extra == \"extra\"",
+        "build>=0.10; extra == \"release\"",
+        "twine>=4.0; extra == \"release\"",
+        "wheel>=0.40; extra == \"release\"",
+        "changelist==0.5; extra == \"release\"",
+        "pytest>=7.2; extra == \"test\"",
+        "pytest-cov>=4.0; extra == \"test\"",
+        "pytest-xdist>=3.0; extra == \"test\"",
+        "pytest-mpl; extra == \"test-extras\"",
+        "pytest-randomly; extra == \"test-extras\""
+      ],
+      "reviewed_spdx": "BSD-3-Clause",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "numpy",
+      "version": "2.5.4",
+      "declared_spdx": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0",
+      "artifact": "numpy-2.5.4-cp312-cp312-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/12/33/fefe62073dc8acfd0f2b9ed7c003af2f50aa61555e113e6db02b8f79f145/numpy-2.5.4-cp312-cp312-win_amd64.whl",
+      "sha256": "a7b1b6353e36a7e50de2973a38d705c88ee93adcf120673cee7f45a4a3fa223a",
+      "licenses_opened": [
+        {
+          "path": "numpy/ma/LICENSE",
+          "sha256": "d78dbb208b80d92b4d333e41a4baae50d12444f46e53199fa7726a91de6e2da7",
+          "bytes": 1616
+        },
+        {
+          "path": "numpy/random/LICENSE.md",
+          "sha256": "b4bc2f4fa1c95778f1ed3dd8f14706bece399475b978f9f34b5d3cd72521b48a",
+          "bytes": 3582
+        },
+        {
+          "path": "numpy/_core/include/numpy/random/LICENSE.txt",
+          "sha256": "d544761558b510866c21f7e8a2d5716fca76e0b98117e3b6b86314db7244d150",
+          "bytes": 1039
+        },
+        {
+          "path": "numpy-2.5.4.dist-info/licenses/LICENSE.txt",
+          "sha256": "a804dff0ead9fadc5293456410bcbfc32bf024be9c4513459663fb7b442d2341",
+          "bytes": 45831
+        },
+        {
+          "path": "numpy-2.5.4.dist-info/licenses/numpy/fft/pocketfft/LICENSE.md",
+          "sha256": "8db000e158c162e7249787852d8c69764706502ccee725c06641b31c1e95c8af",
+          "bytes": 1523
+        },
+        {
+          "path": "numpy-2.5.4.dist-info/licenses/numpy/linalg/lapack_lite/LICENSE.txt",
+          "sha256": "19060ef465e1797d682ee0fc3081bd25ab1395e995e43d25c9d13c95d9a3cd6b",
+          "bytes": 2314
+        },
+        {
+          "path": "numpy-2.5.4.dist-info/licenses/numpy/ma/LICENSE",
+          "sha256": "d78dbb208b80d92b4d333e41a4baae50d12444f46e53199fa7726a91de6e2da7",
+          "bytes": 1616
+        },
+        {
+          "path": "numpy-2.5.4.dist-info/licenses/numpy/random/LICENSE.md",
+          "sha256": "b4bc2f4fa1c95778f1ed3dd8f14706bece399475b978f9f34b5d3cd72521b48a",
+          "bytes": 3582
+        },
+        {
+          "path": "numpy-2.5.4.dist-info/licenses/numpy/random/src/distributions/LICENSE.md",
+          "sha256": "cf5619f25b112d5ce7c896efffc8e610bcb345dfadcc19f2c1460aa48fff2c9e",
+          "bytes": 2805
+        },
+        {
+          "path": "numpy-2.5.4.dist-info/licenses/numpy/random/src/mt19937/LICENSE.md",
+          "sha256": "92c10699884321f1c2947fe2a70ab23b0fbf1507f756d89dd08f38c61fc3d4fa",
+          "bytes": 2986
+        },
+        {
+          "path": "numpy-2.5.4.dist-info/licenses/numpy/random/src/pcg64/LICENSE.md",
+          "sha256": "41190663b77bee5302386495a07b7eabfbfa571aa0ae2f11da6764162062fc4f",
+          "bytes": 1176
+        },
+        {
+          "path": "numpy-2.5.4.dist-info/licenses/numpy/random/src/philox/LICENSE.md",
+          "sha256": "322ac46d870c8aeead6c53adcccc839296fb3c8e456eae155081297daf7f8013",
+          "bytes": 1540
+        },
+        {
+          "path": "numpy-2.5.4.dist-info/licenses/numpy/random/src/sfc64/LICENSE.md",
+          "sha256": "28cad82ce1379dc529df30da78ec012d7d0d1d576b03ddcb93388aee53659f59",
+          "bytes": 1253
+        },
+        {
+          "path": "numpy-2.5.4.dist-info/licenses/numpy/random/src/splitmix64/LICENSE.md",
+          "sha256": "454ec7350e478e037061850b67395753b425b1cb0a34bbc26290b020bf89d763",
+          "bytes": 340
+        },
+        {
+          "path": "numpy-2.5.4.dist-info/licenses/numpy/_core/include/numpy/libdivide/LICENSE.txt",
+          "sha256": "d544761558b510866c21f7e8a2d5716fca76e0b98117e3b6b86314db7244d150",
+          "bytes": 1039
+        },
+        {
+          "path": "numpy-2.5.4.dist-info/licenses/numpy/_core/src/common/pythoncapi-compat/COPYING",
+          "sha256": "aea41976c720f91bd19725c16916a1ace40eb1ea42620d340e587a5de4bbcea0",
+          "bytes": 704
+        },
+        {
+          "path": "numpy-2.5.4.dist-info/licenses/numpy/_core/src/highway/LICENSE",
+          "sha256": "d208152e2777ffd0126eacc1bd21c0320d69e4e6b622d21a2a12a47e8ef73763",
+          "bytes": 21155
+        },
+        {
+          "path": "numpy-2.5.4.dist-info/licenses/numpy/_core/src/multiarray/dragon4_LICENSE.txt",
+          "sha256": "b0fd592d4ead563148e3977e7b589169d46a5ef2ff133c755a81af880a3fc919",
+          "bytes": 1441
+        },
+        {
+          "path": "numpy-2.5.4.dist-info/licenses/numpy/_core/src/npysort/x86-simd-sort/LICENSE.md",
+          "sha256": "a732977853530066790c42817087f4829b518dd98d340c916acbfd227e39d3cb",
+          "bytes": 1542
+        },
+        {
+          "path": "numpy-2.5.4.dist-info/licenses/numpy/_core/src/umath/svml/LICENSE",
+          "sha256": "585483905b13d4b42f800c55ba99e89d6e2e33ccd5f503e201c07531d148ff41",
+          "bytes": 1573
+        }
+      ],
+      "requires_dist": null,
+      "reviewed_spdx": "BSD-3-Clause AND bundled notices",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "opencv-python",
+      "version": "5.0.0.93",
+      "declared_spdx": "Apache 2.0",
+      "artifact": "opencv_python-5.0.0.93-cp37-abi3-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/21/f0/9fa6e85cb10c8eb36a0222d27e50fe381b86ce49a55446bf39f491727564/opencv_python-5.0.0.93-cp37-abi3-win_amd64.whl",
+      "sha256": "f90ba04b8f73bc5c3814037699739f0156f597338a98f05956c684e7c3ca10d2",
+      "licenses_opened": [
+        {
+          "path": "cv2/LICENSE-3RD-PARTY.txt",
+          "sha256": "c1d60169b55cee56452b227c2fd2a7b9ddda3dd3741065f1c6201072be73fadb",
+          "bytes": 183251
+        },
+        {
+          "path": "cv2/LICENSE.txt",
+          "sha256": "edef0fac1eb08d29d34563f724742e078da2513e196133a12c6ad9ff01e26107",
+          "bytes": 1090
+        },
+        {
+          "path": "opencv_python-5.0.0.93.dist-info/LICENSE-3RD-PARTY.txt",
+          "sha256": "c1d60169b55cee56452b227c2fd2a7b9ddda3dd3741065f1c6201072be73fadb",
+          "bytes": 183251
+        },
+        {
+          "path": "opencv_python-5.0.0.93.dist-info/LICENSE.txt",
+          "sha256": "edef0fac1eb08d29d34563f724742e078da2513e196133a12c6ad9ff01e26107",
+          "bytes": 1090
+        }
+      ],
+      "requires_dist": [
+        "numpy<2.0; python_version < \"3.9\"",
+        "numpy>=2; python_version >= \"3.9\""
+      ],
+      "reviewed_spdx": "Apache-2.0 AND bundled notices (LGPL FFmpeg risk)",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "opencv-python-headless",
+      "version": "5.0.0.93",
+      "declared_spdx": "Apache 2.0",
+      "artifact": "opencv_python_headless-5.0.0.93-cp37-abi3-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/b8/88/763b967f7efd7226b82c9fae16d560cba049b1f0c036647e65c610fd636e/opencv_python_headless-5.0.0.93-cp37-abi3-win_amd64.whl",
+      "sha256": "829717b6a95554f273e49e357cee3b3a2a26b6f4842fbc1bed2b45bdd8f87e0e",
+      "licenses_opened": [
+        {
+          "path": "cv2/LICENSE-3RD-PARTY.txt",
+          "sha256": "c1d60169b55cee56452b227c2fd2a7b9ddda3dd3741065f1c6201072be73fadb",
+          "bytes": 183251
+        },
+        {
+          "path": "cv2/LICENSE.txt",
+          "sha256": "edef0fac1eb08d29d34563f724742e078da2513e196133a12c6ad9ff01e26107",
+          "bytes": 1090
+        },
+        {
+          "path": "opencv_python_headless-5.0.0.93.dist-info/LICENSE-3RD-PARTY.txt",
+          "sha256": "c1d60169b55cee56452b227c2fd2a7b9ddda3dd3741065f1c6201072be73fadb",
+          "bytes": 183251
+        },
+        {
+          "path": "opencv_python_headless-5.0.0.93.dist-info/LICENSE.txt",
+          "sha256": "edef0fac1eb08d29d34563f724742e078da2513e196133a12c6ad9ff01e26107",
+          "bytes": 1090
+        }
+      ],
+      "requires_dist": [
+        "numpy<2.0; python_version < \"3.9\"",
+        "numpy>=2; python_version >= \"3.9\""
+      ],
+      "reviewed_spdx": "Apache-2.0 AND bundled notices (LGPL FFmpeg risk)",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "pillow",
+      "version": "13.0.0",
+      "declared_spdx": "MIT-CMU",
+      "artifact": "pillow-13.0.0-cp312-cp312-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/ff/cd/73a79ecdc822076002eb24b5e1e4a530b0bb5310fcb6d239abbec877110b/pillow-13.0.0-cp312-cp312-win_amd64.whl",
+      "sha256": "ff3fe9eb621fbb9db4c4be33ab946f6bac5f98ab50ca8d3260503653656c961b",
+      "licenses_opened": [
+        {
+          "path": "pillow-13.0.0.dist-info/licenses/LICENSE",
+          "sha256": "988ffe8ab3480b0f4e9a0ab2702bffd73d9fb6b47198043fb3ba101a62fac236",
+          "bytes": 78481
+        }
+      ],
+      "requires_dist": [
+        "furo; extra == \"docs\"",
+        "olefile; extra == \"docs\"",
+        "sphinx>=8.2; extra == \"docs\"",
+        "sphinx-autobuild; extra == \"docs\"",
+        "sphinx-copybutton; extra == \"docs\"",
+        "sphinx-inline-tabs; extra == \"docs\"",
+        "sphinxext-opengraph; extra == \"docs\"",
+        "olefile; extra == \"fpx\"",
+        "olefile; extra == \"mic\"",
+        "arro3-compute; extra == \"test-arrow\"",
+        "arro3-core; extra == \"test-arrow\"",
+        "nanoarrow; extra == \"test-arrow\"",
+        "pyarrow; extra == \"test-arrow\"",
+        "coverage>=7.4.2; extra == \"tests\"",
+        "defusedxml; extra == \"tests\"",
+        "markdown2; extra == \"tests\"",
+        "olefile; extra == \"tests\"",
+        "packaging; extra == \"tests\"",
+        "psutil; (sys_platform == \"linux\" or sys_platform == \"darwin\") and extra == \"tests\"",
+        "pytest; extra == \"tests\"",
+        "pytest-cov; extra == \"tests\"",
+        "pytest-timeout; extra == \"tests\"",
+        "pytest-xdist; extra == \"tests\"",
+        "setuptools; extra == \"tests\"",
+        "trove-classifiers>=2024.10.12; extra == \"tests\"",
+        "defusedxml; extra == \"xmp\""
+      ],
+      "reviewed_spdx": "MIT-CMU AND bundled notices",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "pixeloe",
+      "version": "1.0.0",
+      "declared_spdx": "Apache-2.0",
+      "artifact": "pixeloe-1.0.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/20/4d/fdb0ccfdf93ee25aa4d5c1006b317d354e1ddec813048ba0e17387323a76/pixeloe-1.0.0-py3-none-any.whl",
+      "sha256": "6bdf16a41be71a4fdee182d6280ef61ea90af7da9a431909b81ad8540d239a78",
+      "licenses_opened": [
+        {
+          "path": "pixeloe-1.0.0.dist-info/licenses/LICENSE",
+          "sha256": "b53edca8313061a2384416ea2757c74e9de44f2b4f4406ecd1c2b17df386563c",
+          "bytes": 11344
+        }
+      ],
+      "requires_dist": [
+        "opencv-python",
+        "numpy",
+        "pillow",
+        "torch",
+        "torchvision",
+        "kornia",
+        "slangpy>=0.43.1; (sys_platform == \"win32\" and platform_machine == \"AMD64\") or (sys_platform == \"linux\" and (platform_machine == \"x86_64\" or platform_machine == \"aarch64\")) or (sys_platform == \"darwin\" and platform_machine == \"arm64\" and platform_release >= \"25\")",
+        "slangpy>=0.43.1; extra == \"slang\"",
+        "gradio>=4.0.0; extra == \"gradio\"",
+        "toml; extra == \"gradio\"",
+        "gradio>=4.0.0; extra == \"standalone\"",
+        "toml; extra == \"standalone\"",
+        "pywebview; extra == \"standalone\"",
+        "gradio>=4.0.0; extra == \"all\"",
+        "toml; extra == \"all\"",
+        "pywebview; extra == \"all\"",
+        "black; extra == \"dev\"",
+        "build; extra == \"dev\"",
+        "pytest; extra == \"dev\"",
+        "pytest-cov; extra == \"dev\"",
+        "ruff; extra == \"dev\"",
+        "twine; extra == \"dev\""
+      ],
+      "reviewed_spdx": "Apache-2.0",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "proper-pixel-art",
+      "version": "2.0.0",
+      "declared_spdx": "MIT",
+      "artifact": "proper_pixel_art-2.0.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/6d/1b/2307a29a960df0c70c54fb04031edc2ecaf5503ad7db2f25e335c8faa974/proper_pixel_art-2.0.0-py3-none-any.whl",
+      "sha256": "523501435923707a84a6f233608fa58469afc36ded708b8987495c0c35746103",
+      "licenses_opened": [
+        {
+          "path": "proper_pixel_art-2.0.0.dist-info/licenses/LICENSE",
+          "sha256": "928ed8e3b1c578dcac320b199ec80bc23d4e1e644a23a55a3e407453b62c4009",
+          "bytes": 1070
+        }
+      ],
+      "requires_dist": [
+        "av>=12.0",
+        "numpy>=2.2.4",
+        "opencv-python-headless>=4.11.0.86",
+        "pillow>=12.1.0",
+        "pyyaml>=6.0",
+        "scipy>=1.13",
+        "tqdm>=4.66",
+        "gradio>=5.0.0; extra == \"web\""
+      ],
+      "reviewed_spdx": "MIT",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "pyyaml",
+      "version": "6.0.3",
+      "declared_spdx": "MIT",
+      "artifact": "pyyaml-6.0.3-cp312-cp312-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/86/bf/899e81e4cce32febab4fb42bb97dcdf66bc135272882d1987881a4b519e9/pyyaml-6.0.3-cp312-cp312-win_amd64.whl",
+      "sha256": "5fcd34e47f6e0b794d17de1b4ff496c00986e1c83f7ab2fb8fcfe9616ff7477b",
+      "licenses_opened": [
+        {
+          "path": "pyyaml-6.0.3.dist-info/licenses/LICENSE",
+          "sha256": "8d3928f9dc4490fd635707cb88eb26bd764102a7282954307d3e5167a577e8a4",
+          "bytes": 1101
+        }
+      ],
+      "requires_dist": null,
+      "reviewed_spdx": "MIT",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "scipy",
+      "version": "1.18.1",
+      "declared_spdx": "Legacy metadata contains full license text; see actual wheel license members and reviewed_spdx.",
+      "artifact": "scipy-1.18.1-cp312-cp312-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/39/e7/979fd14e75008623df31ba70d6bb144700f68feadcea042021c06a05bf82/scipy-1.18.1-cp312-cp312-win_amd64.whl",
+      "sha256": "5e4d44984abc0020154ea81b247adeddcc3ac5527b975ff798bd1ba0adc513c2",
+      "licenses_opened": [
+        {
+          "path": "scipy/fft/_duccfft/LICENSE.md",
+          "sha256": "c04661685cff9d8035fe1c4c3ab357e7f7633cafc06a73e9d90c3c5fede8a86a",
+          "bytes": 1523
+        },
+        {
+          "path": "scipy/integrate/LICENSE_DOP",
+          "sha256": "6cc2ed6e35b8f376ff3d8f86aeef4e0c34c2309bd6f4a0565936d577839ba023",
+          "bytes": 3648
+        },
+        {
+          "path": "scipy/spatial/qhull_src/COPYING_QHULL.txt",
+          "sha256": "2a6ebb495e26dd5f88cbc40c593733da6edb27b64936f70409cd5a1acafb1c32",
+          "bytes": 1759
+        },
+        {
+          "path": "scipy/_lib/_uarray/LICENSE",
+          "sha256": "e4c4acc31e8287066d7c995d26e3ef902ca1977ee187b260b11c278366503811",
+          "bytes": 1543
+        },
+        {
+          "path": "scipy-1.18.1.dist-info/LICENSE.txt",
+          "sha256": "f0f5c56b298ec9795df1199edc328a987242716d14a1bde6813112e22dc15f99",
+          "bytes": 45881
+        }
+      ],
+      "requires_dist": [
+        "numpy<2.8,>=2.0.0",
+        "pytest>=8.0.0; extra == \"test\"",
+        "pytest-cov; extra == \"test\"",
+        "pytest-timeout; extra == \"test\"",
+        "pytest-xdist; extra == \"test\"",
+        "asv; extra == \"test\"",
+        "mpmath; extra == \"test\"",
+        "gmpy2; extra == \"test\"",
+        "threadpoolctl; extra == \"test\"",
+        "scikit-umfpack; extra == \"test\"",
+        "pooch; extra == \"test\"",
+        "hypothesis>=6.30; extra == \"test\"",
+        "array-api-strict>=2.3.1; extra == \"test\"",
+        "Cython; extra == \"test\"",
+        "meson; extra == \"test\"",
+        "ninja; sys_platform != \"emscripten\" and extra == \"test\"",
+        "scipy-doctest>=2.0.0; extra == \"test\"",
+        "sphinx<8.2.0,>=5.0.0; extra == \"doc\"",
+        "intersphinx_registry; extra == \"doc\"",
+        "pydata-sphinx-theme>=0.15.2; extra == \"doc\"",
+        "sphinx-copybutton; extra == \"doc\"",
+        "sphinx-design>=0.4.0; extra == \"doc\"",
+        "matplotlib>=3.5; extra == \"doc\"",
+        "numpydoc; extra == \"doc\"",
+        "jupytext; extra == \"doc\"",
+        "myst-nb>=1.2.0; extra == \"doc\"",
+        "pooch; extra == \"doc\"",
+        "jupyterlite-sphinx>=0.19.1; extra == \"doc\"",
+        "jupyterlite-pyodide-kernel; extra == \"doc\"",
+        "linkify-it-py; extra == \"doc\"",
+        "tabulate; extra == \"doc\"",
+        "click<8.3.0; extra == \"dev\"",
+        "spin; extra == \"dev\"",
+        "mypy==1.19.1; extra == \"dev\"",
+        "pyrefly==0.63.0; extra == \"dev\"",
+        "typing_extensions; extra == \"dev\"",
+        "types-psutil; extra == \"dev\"",
+        "pycodestyle; extra == \"dev\"",
+        "ruff>=0.12.0; extra == \"dev\"",
+        "cython-lint>=0.12.2; extra == \"dev\""
+      ],
+      "reviewed_spdx": "BSD-3-Clause AND bundled notices",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "setuptools",
+      "version": "84.2.1",
+      "declared_spdx": "MIT",
+      "artifact": "setuptools-84.2.1-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/ef/55/6dc6d6bb953bdfc52519a0059592c52b6e3b8ad51cf8256dffceb55b0610/setuptools-84.2.1-py3-none-any.whl",
+      "sha256": "ca140b45d5325a9478f880e351484f62fef15f336462e449ca0c03c873d589c2",
+      "licenses_opened": [
+        {
+          "path": "setuptools/_vendor/importlib_metadata-8.7.1.dist-info/licenses/LICENSE",
+          "sha256": "458502e12d97bbf64438606a20044aa85eb05fb0a8a807bb35dbec253fd1fc04",
+          "bytes": 10278
+        },
+        {
+          "path": "setuptools/_vendor/jaraco_context-6.1.0.dist-info/licenses/LICENSE",
+          "sha256": "9755a18519666e5f0f4cae3daad3d7012bcae48a600b31237d75e9fe134e6683",
+          "bytes": 1076
+        },
+        {
+          "path": "setuptools/_vendor/jaraco_functools-4.4.0.dist-info/licenses/LICENSE",
+          "sha256": "5a57cb4db85e2a2dd88c290628908add57e3451449e0a9a71fdfb38776fd759d",
+          "bytes": 1076
+        },
+        {
+          "path": "setuptools/_vendor/more_itertools-10.8.0.dist-info/licenses/LICENSE",
+          "sha256": "09f1c8c9e941af3e584d59641ea9b87d83c0cb0fd007eb5ef391a7e2643c1a46",
+          "bytes": 1053
+        },
+        {
+          "path": "setuptools/_vendor/packaging-26.3.dist-info/licenses/LICENSE",
+          "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48",
+          "bytes": 197
+        },
+        {
+          "path": "setuptools/_vendor/packaging-26.3.dist-info/licenses/LICENSE.APACHE",
+          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+          "bytes": 10174
+        },
+        {
+          "path": "setuptools/_vendor/packaging-26.3.dist-info/licenses/LICENSE.BSD",
+          "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5",
+          "bytes": 1344
+        },
+        {
+          "path": "setuptools/_vendor/platformdirs-4.4.0.dist-info/licenses/LICENSE",
+          "sha256": "29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6",
+          "bytes": 1089
+        },
+        {
+          "path": "setuptools/_vendor/tomli-2.4.0.dist-info/licenses/LICENSE",
+          "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+          "bytes": 1072
+        },
+        {
+          "path": "setuptools/_vendor/wheel-0.46.3.dist-info/licenses/LICENSE.txt",
+          "sha256": "30c23618679108f3e8ea1d2a658c7ca417bdfc891c98ef1a89fa4ff0c9828654",
+          "bytes": 1107
+        },
+        {
+          "path": "setuptools/_vendor/zipp-3.23.0.dist-info/licenses/LICENSE",
+          "sha256": "5a57cb4db85e2a2dd88c290628908add57e3451449e0a9a71fdfb38776fd759d",
+          "bytes": 1076
+        },
+        {
+          "path": "setuptools-84.2.1.dist-info/licenses/LICENSE",
+          "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+          "bytes": 1023
+        },
+        {
+          "path": "setuptools/_vendor/autocommand-2.2.2.dist-info/LICENSE",
+          "sha256": "ade78d04982d69972d444a8e14a94f87a2334dd3855cc80348ea8e240aa0df2d",
+          "bytes": 7634
+        },
+        {
+          "path": "setuptools/_vendor/backports.tarfile-1.2.0.dist-info/LICENSE",
+          "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+          "bytes": 1023
+        },
+        {
+          "path": "setuptools/_vendor/jaraco.text-4.0.0.dist-info/LICENSE",
+          "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+          "bytes": 1023
+        }
+      ],
+      "requires_dist": [
+        "pytest!=8.1.*,>=6; extra == \"test\"",
+        "virtualenv>=13.0.0; extra == \"test\"",
+        "wheel>=0.44.0; extra == \"test\"",
+        "pip>=19.1; extra == \"test\"",
+        "packaging>=26.3; extra == \"test\"",
+        "jaraco.envs>=2.2; extra == \"test\"",
+        "pytest-xdist>=3; extra == \"test\"",
+        "jaraco.path>=3.7.2; extra == \"test\"",
+        "build[virtualenv]>=1.0.3; extra == \"test\"",
+        "filelock>=3.4.0; extra == \"test\"",
+        "ini2toml[lite]>=0.14; extra == \"test\"",
+        "tomli-w>=1.0.0; extra == \"test\"",
+        "pytest-timeout; extra == \"test\"",
+        "pytest-perf; sys_platform != \"cygwin\" and extra == \"test\"",
+        "jaraco.develop>=7.21; (python_version >= \"3.9\" and sys_platform != \"cygwin\") and extra == \"test\"",
+        "pytest-home>=0.5; extra == \"test\"",
+        "pytest-subprocess; extra == \"test\"",
+        "pyproject-hooks!=1.1; extra == \"test\"",
+        "jaraco.test>=5.5; extra == \"test\"",
+        "sphinx>=3.5; extra == \"doc\"",
+        "jaraco.packaging>=9.3; extra == \"doc\"",
+        "rst.linker>=1.9; extra == \"doc\"",
+        "furo; extra == \"doc\"",
+        "sphinx-lint; extra == \"doc\"",
+        "jaraco.tidelift>=1.4; extra == \"doc\"",
+        "pygments-github-lexers==0.0.5; extra == \"doc\"",
+        "sphinx-favicon; extra == \"doc\"",
+        "sphinx-inline-tabs; extra == \"doc\"",
+        "sphinx-reredirects; extra == \"doc\"",
+        "sphinxcontrib-towncrier; extra == \"doc\"",
+        "sphinx-notfound-page<2,>=1; extra == \"doc\"",
+        "pyproject-hooks!=1.1; extra == \"doc\"",
+        "towncrier<24.7; extra == \"doc\"",
+        "packaging>=26.3; extra == \"core\"",
+        "more_itertools>=8.8; extra == \"core\"",
+        "jaraco.text>=3.7; extra == \"core\"",
+        "importlib_metadata>=6; python_version < \"3.10\" and extra == \"core\"",
+        "tomli>=2.0.1; python_version < \"3.11\" and extra == \"core\"",
+        "wheel>=0.43.0; extra == \"core\"",
+        "jaraco.functools>=4; extra == \"core\"",
+        "more_itertools; extra == \"core\"",
+        "pytest-checkdocs>=2.14; extra == \"check\"",
+        "pytest-ruff>=0.2.1; sys_platform != \"cygwin\" and extra == \"check\"",
+        "ruff>=0.13.0; sys_platform != \"cygwin\" and extra == \"check\"",
+        "pytest-cov; extra == \"cover\"",
+        "pytest-enabler>=3.4; extra == \"enabler\"",
+        "pytest-mypy>=1.0.1; platform_python_implementation != \"PyPy\" and extra == \"type\"",
+        "mypy==1.18.*; extra == \"type\"",
+        "importlib_metadata>=7.0.2; python_version < \"3.10\" and extra == \"type\"",
+        "jaraco.develop>=7.21; sys_platform != \"cygwin\" and extra == \"type\""
+      ],
+      "reviewed_spdx": "MIT AND bundled notices",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "sympy",
+      "version": "1.14.0",
+      "declared_spdx": "BSD",
+      "artifact": "sympy-1.14.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/a2/09/77d55d46fd61b4a135c444fc97158ef34a095e5681d0a6c10b75bf356191/sympy-1.14.0-py3-none-any.whl",
+      "sha256": "e091cc3e99d2141a0ba2847328f5479b05d94a6635cb96148ccb3f34671bd8f5",
+      "licenses_opened": [
+        {
+          "path": "sympy/parsing/latex/LICENSE.txt",
+          "sha256": "007bc30a58fa40a996e772047120de4eaf31f5110e4f9c3b5f93fcdfbe2eaca1",
+          "bytes": 1075
+        },
+        {
+          "path": "sympy-1.14.0.dist-info/licenses/AUTHORS",
+          "sha256": "82b1038521b0696c63c90b31ed4a0a2c9c4c16871c648b157b07ca44b6f18f8d",
+          "bytes": 55779
+        },
+        {
+          "path": "sympy-1.14.0.dist-info/licenses/LICENSE",
+          "sha256": "07a5e9819f727b4986ad2829c7a29a6320d42575f720eb24d71b7fef573a0286",
+          "bytes": 7885
+        }
+      ],
+      "requires_dist": [
+        "mpmath<1.4,>=1.1.0",
+        "pytest>=7.1.0; extra == \"dev\"",
+        "hypothesis>=6.70.0; extra == \"dev\""
+      ],
+      "reviewed_spdx": "BSD-3-Clause",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "torch",
+      "version": "2.15.0",
+      "declared_spdx": "Apache-2.0 AND Apache-2.0 WITH LLVM-exception AND BSD-2-Clause AND BSD-3-Clause AND BSL-1.0 AND ISC AND MIT AND Zlib",
+      "artifact": "torch-2.15.0-cp312-cp312-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/74/0b/a57c0b58a64b7a197dc40fc464bb96c0de867f95a2b1cbb3ec9e54414fde/torch-2.15.0-cp312-cp312-win_amd64.whl",
+      "sha256": "f2bd0a3709a7493a6ef2ac5a654111242a854439f7558f910b6b653b56f7504d",
+      "licenses_opened": [
+        {
+          "path": "torch/_vendor/packaging/LICENSE",
+          "sha256": "8ef81e4c883c5ccb2a08026cc74ba3193279dd5149b36839d976c0a896637d87",
+          "bytes": 200
+        },
+        {
+          "path": "torch/_vendor/packaging/LICENSE.APACHE",
+          "sha256": "eb3d7b5485466acbd81f2b496f595ab637d2792e268206b27d99e793bdb67549",
+          "bytes": 10351
+        },
+        {
+          "path": "torch/_vendor/packaging/LICENSE.BSD",
+          "sha256": "67daf15b478dbd91bcd83bff907efff68471d42d2138226b89f039d658d53435",
+          "bytes": 1367
+        },
+        {
+          "path": "torch/_vendor/quack/LICENSE",
+          "sha256": "1eb85fc97224598dad1852b5d6483bbcf0aa8608790dcc657a5a2a761ae9c8c6",
+          "bytes": 11558
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/LICENSE",
+          "sha256": "0fc92425d130d9c87a5eb7427082e3afdbff6ef169bc678e15abba4c2d37c934",
+          "bytes": 3548
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/FP16/LICENSE",
+          "sha256": "68349589306bdfa3631ac7f84633956bf21b6a448ed5e43383ea75a8a5f54e4c",
+          "bytes": 1168
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/FXdiv/LICENSE",
+          "sha256": "9e7b48284b1aef91999d1967d093711bab8f3bbbaf31e0670ab7a3af077c0a2b",
+          "bytes": 1127
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/NNPACK/LICENSE",
+          "sha256": "a4dadeb3d59219de6cdf5cb6bf920760103eed9ae5af2e71b0e8462645397b66",
+          "bytes": 1376
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/NVTX/LICENSE.txt",
+          "sha256": "c3b19baa37cf18bac07b65700824acadcfa617316f02af10d3852ed20f4f6ab8",
+          "bytes": 12706
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/VulkanMemoryAllocator/LICENSE.txt",
+          "sha256": "e5fc8b0b0357a75d63649c8f2552576aaa6941c361a013710bb53afc64d3a8aa",
+          "bytes": 1118
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/XNNPACK/LICENSE",
+          "sha256": "4805a18e3c617424da5b7f6d8b9fde3df2fb6a5e26a6b6663a6cdb66db664d8c",
+          "bytes": 1591
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/aiter/LICENSE",
+          "sha256": "844e3a38ca6f748e10eb63f07eb343ddca3b5a0a6bb40b0f621fcc54ea03deb3",
+          "bytes": 1121
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/aiter/3rdparty/composable_kernel/LICENSE",
+          "sha256": "99ec4452f4047b6c53016a502bf94451eb317eff5aab5f63cebc16f94020d64f",
+          "bytes": 1754
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/composable_kernel/LICENSE",
+          "sha256": "99ec4452f4047b6c53016a502bf94451eb317eff5aab5f63cebc16f94020d64f",
+          "bytes": 1754
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/concurrentqueue/moodycamel/LICENSE.md",
+          "sha256": "a0f53fe6abd691d725dd9478cd906e9010c80f06c3de3f83f74576e574d5a3d4",
+          "bytes": 3328
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/cpp-httplib/LICENSE",
+          "sha256": "bb546eae5924d8ee842e0e567e6d533c5824bdebccf605f99a5b3429034e6697",
+          "bytes": 1097
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/cpuinfo/LICENSE",
+          "sha256": "8477bdd6a4d9f5178e5dfda1e32239c7b09c9d6da3804ae3e5c1a80210c0dd21",
+          "bytes": 1451
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/cpuinfo/deps/clog/LICENSE",
+          "sha256": "8c29231fd0034d4b1caaae8c0a63bce71f95cd8c4b0494c8588930b75c3d2155",
+          "bytes": 1410
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/cudnn_frontend/LICENSE-MIT.txt",
+          "sha256": "7eacf2f44274c7a788870af113765e7504a9aec1d14401a96bcce4a0695c6686",
+          "bytes": 1137
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/cudnn_frontend/LICENSE.txt",
+          "sha256": "1d7c37e5f8ec57c338972d730e98f6dd0cc67018554628e84d7fde5149f0da7b",
+          "bytes": 11643
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/cudnn_frontend/python/cudnn/moe_ep/_megamoe_backend/cutedsl_src/LICENSE.Apache-2.0",
+          "sha256": "1eb85fc97224598dad1852b5d6483bbcf0aa8608790dcc657a5a2a761ae9c8c6",
+          "bytes": 11558
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/cutlass/LICENSE.txt",
+          "sha256": "10e174914fb737aec2d32762bd2e45861acb5ebf1656bee6cf575a6019a08cf0",
+          "bytes": 1895
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/fbgemm/LICENSE",
+          "sha256": "5d5d5b022ecf828c796a64ad7afcfd62971bf58a52b71668cd48137ca02824c5",
+          "bytes": 1565
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/fbgemm/external/asmjit/LICENSE.md",
+          "sha256": "5b0f48131c666e80bae8d194389dba07bcb61831edc3ab7d7ce90f4a6a8d2ee4",
+          "bytes": 879
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/fbgemm/external/composable_kernel/LICENSE",
+          "sha256": "99ec4452f4047b6c53016a502bf94451eb317eff5aab5f63cebc16f94020d64f",
+          "bytes": 1754
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/fbgemm/external/cpuinfo/LICENSE",
+          "sha256": "8477bdd6a4d9f5178e5dfda1e32239c7b09c9d6da3804ae3e5c1a80210c0dd21",
+          "bytes": 1451
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/fbgemm/external/cpuinfo/deps/clog/LICENSE",
+          "sha256": "8c29231fd0034d4b1caaae8c0a63bce71f95cd8c4b0494c8588930b75c3d2155",
+          "bytes": 1410
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/fbgemm/external/cutlass/LICENSE.txt",
+          "sha256": "3288ff56f62ade1ef032bd860b6d92482f83f1d3073ad5125b87228b9c11e0a8",
+          "bytes": 1888
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/flash-attention/LICENSE",
+          "sha256": "c364d38c8ee8070159ad68f56a8bab4917b8d020548da33a01e036505c8e4add",
+          "bytes": 1587
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/flash-attention/csrc/composable_kernel/LICENSE",
+          "sha256": "99ec4452f4047b6c53016a502bf94451eb317eff5aab5f63cebc16f94020d64f",
+          "bytes": 1754
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/flash-attention/csrc/cutlass/LICENSE.txt",
+          "sha256": "3288ff56f62ade1ef032bd860b6d92482f83f1d3073ad5125b87228b9c11e0a8",
+          "bytes": 1888
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/flash-attention/flash_attn/cute/LICENSE",
+          "sha256": "c364d38c8ee8070159ad68f56a8bab4917b8d020548da33a01e036505c8e4add",
+          "bytes": 1587
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/flash-attention/third_party/aiter/LICENSE",
+          "sha256": "844e3a38ca6f748e10eb63f07eb343ddca3b5a0a6bb40b0f621fcc54ea03deb3",
+          "bytes": 1121
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/flash-attention/third_party/aiter/3rdparty/composable_kernel/LICENSE",
+          "sha256": "99ec4452f4047b6c53016a502bf94451eb317eff5aab5f63cebc16f94020d64f",
+          "bytes": 1754
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/flatbuffers/LICENSE",
+          "sha256": "3ddf9be5c28fe27dad143a5dc76eea25222ad1dd68934a047064e56ed2fa40c5",
+          "bytes": 11560
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/fmt/LICENSE",
+          "sha256": "e53b24254a17f6acdaf967557c287dca7e920b22cc6290f6a84d57c34d942a6e",
+          "bytes": 1114
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/gemmlowp/gemmlowp/LICENSE",
+          "sha256": "3ddf9be5c28fe27dad143a5dc76eea25222ad1dd68934a047064e56ed2fa40c5",
+          "bytes": 11560
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/gloo/LICENSE",
+          "sha256": "6247f690b423835966eba51cad47b4c7d6a72ca226733dd1c473e4624fe6bb23",
+          "bytes": 1555
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/gloo/gloo/transport/uv/LICENSE.uvw",
+          "sha256": "de585e354ff6b8dfb25196f7b9f0f8282e2f1334a92e2f4eb65edee3581c940d",
+          "bytes": 1102
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/ideep/LICENSE",
+          "sha256": "e1b43a11adfb7a5bd52089243a273ab85f0a695d0437bb34a418969501392573",
+          "bytes": 1081
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/ideep/mkl-dnn/LICENSE",
+          "sha256": "b1dd911e534a75dd4dfd8dbc11a3193bd177c8390e7fcf462f98d2c8c235e112",
+          "bytes": 11814
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/ideep/mkl-dnn/third_party/ittnotify/LICENSE.BSD",
+          "sha256": "853617931515e363f5277679c5f9d18b191d63a313e628e63961d535478fc6e0",
+          "bytes": 1530
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/ideep/mkl-dnn/third_party/opencl/LICENSE",
+          "sha256": "3ddf9be5c28fe27dad143a5dc76eea25222ad1dd68934a047064e56ed2fa40c5",
+          "bytes": 11560
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/kineto/LICENSE",
+          "sha256": "97729794764240cc12e0e22fe31b0cea824741c601bd09bd91b832e285e1f8c5",
+          "bytes": 1642
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/kineto/libkineto/third_party/dynolog_headers/LICENSE",
+          "sha256": "f08a94bfb0bdc1d7f1cb59badaf0f8c551b10db871185622dbf1fd036affa9cb",
+          "bytes": 1107
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/llvm-openmp/LICENSE.txt",
+          "sha256": "eb3eab74fe9245818659556acf23e81b8c8a24915a4a244a23804f3fcdf1fd9c",
+          "bytes": 17315
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/mimalloc/LICENSE",
+          "sha256": "82ade5d7d9b029044b5fbbc326207fc47c2d44ee4dd71e8a559c36d728217de9",
+          "bytes": 1096
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/miniz-3.0.2/LICENSE",
+          "sha256": "0115478d567121238cf6cc1c0c361926cf07a49d9e4c9e66da97fac6a01646b3",
+          "bytes": 1184
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/mslk/LICENSE",
+          "sha256": "322bba2f33f594948052de342fd7d5bd26892e2a92ba75fbb5a433eff0b229c7",
+          "bytes": 1563
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/mslk/external/composable_kernel/LICENSE",
+          "sha256": "99ec4452f4047b6c53016a502bf94451eb317eff5aab5f63cebc16f94020d64f",
+          "bytes": 1754
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/mslk/external/cutlass/LICENSE.txt",
+          "sha256": "3288ff56f62ade1ef032bd860b6d92482f83f1d3073ad5125b87228b9c11e0a8",
+          "bytes": 1888
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/mslk/mslk/attention/flash_attn/LICENSE",
+          "sha256": "c364d38c8ee8070159ad68f56a8bab4917b8d020548da33a01e036505c8e4add",
+          "bytes": 1587
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/nlohmann/LICENSE.MIT",
+          "sha256": "b9715282b2f1db1359a919bb3a542dd4362fd9e38ae72d421367eb11abe62eec",
+          "bytes": 1097
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/onnx/LICENSE",
+          "sha256": "3ddf9be5c28fe27dad143a5dc76eea25222ad1dd68934a047064e56ed2fa40c5",
+          "bytes": 11560
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/perfetto/LICENSE",
+          "sha256": "6bef87f6b4eda6c3cf0f42f780967e192df6412e4933f0ffb106638629aa3364",
+          "bytes": 15275
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/pocketfft/LICENSE.md",
+          "sha256": "8db000e158c162e7249787852d8c69764706502ccee725c06641b31c1e95c8af",
+          "bytes": 1523
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/protobuf/LICENSE",
+          "sha256": "f4df8b2457697851385d9ebb93267832c1dfa24e0e61881952f6b0c452663dc9",
+          "bytes": 1764
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/psimd/LICENSE",
+          "sha256": "6bc97741b2f00a1d0a2f8e9be4c8af7ff837f968fe8e494864caf57026cfdbcb",
+          "bytes": 1173
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/pthreadpool/LICENSE",
+          "sha256": "2aae36e3c88f88b5e8afff5ca8d05480745ba7ad7e8d62867293c604efc0ce46",
+          "bytes": 1404
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/pybind11/LICENSE",
+          "sha256": "5494773a5dcf654c0c3c844fbb11cfc4f898ea0ea44cf467f29e5c99097da6e7",
+          "bytes": 1713
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/sleef/LICENSE.txt",
+          "sha256": "beb8e42e9d6b4284e03304d05a81a0755200a965fc8d0a5e0aea1e84cf805d6e",
+          "bytes": 1361
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/tensorpipe/LICENSE.txt",
+          "sha256": "a51531fad20e44cae492c601bc0997d961c17a74f25f9473ff62eb70e108277d",
+          "bytes": 1565
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/tensorpipe/third_party/libnop/LICENSE",
+          "sha256": "abd3ed80490d1d168f12f6ced5a558398640e6d375382c7b85d290689a222822",
+          "bytes": 590
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/tensorpipe/third_party/libuv/LICENSE",
+          "sha256": "7aab26dd7e0e6661accc1fd9fc19410e01b466aa0ac36ea668b2013152a8ca23",
+          "bytes": 1098
+        },
+        {
+          "path": "torch-2.15.0.dist-info/licenses/third_party/tensorpipe/third_party/libuv/LICENSE-extra",
+          "sha256": "ffb82250d2784f2e1a1590dc96243429bc3254ca345238450cf9cb8245e2a760",
+          "bytes": 1639
+        }
+      ],
+      "requires_dist": [
+        "filelock",
+        "typing-extensions>=4.13.0",
+        "setuptools>=77.0.3",
+        "sympy>=1.13.3",
+        "networkx>=2.5.1",
+        "jinja2",
+        "fsspec>=0.8.5",
+        "cuda-toolkit[cublas,cudart,cufft,cufile,cupti,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.2.2; platform_system == \"Linux\"",
+        "cuda-bindings<14,>=13.0.3; platform_system == \"Linux\" and python_version < \"3.15\"",
+        "nvidia-cudnn-cu13==9.26.0.51; platform_system == \"Linux\"",
+        "nvidia-cusparselt-cu13==0.8.1; platform_system == \"Linux\"",
+        "nvidia-nccl-cu13==2.30.7; platform_system == \"Linux\"",
+        "nvidia-nvshmem-cu13==3.7.2; platform_system == \"Linux\"",
+        "triton~=3.9.0; platform_system == \"Linux\" and python_version < \"3.16\"",
+        "optree>=0.13.0; extra == \"optree\"",
+        "opt-einsum>=3.3; extra == \"opt-einsum\"",
+        "pyyaml; extra == \"pyyaml\""
+      ],
+      "reviewed_spdx": "BSD-3-Clause AND bundled notices (not cleared)",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "torchvision",
+      "version": "0.29.2",
+      "declared_spdx": "BSD",
+      "artifact": "torchvision-0.29.2-py3-none-macosx_14_0_arm64.whl",
+      "url": "https://files.pythonhosted.org/packages/60/ec/ce97c46e5322b588b95be388f2c21878d014ca20838478e7aab59edd128a/torchvision-0.29.2-py3-none-macosx_14_0_arm64.whl",
+      "sha256": "d412494ff011f24c884a3cffd33eba1cb45a0299d4e26c1e175113f9d3b3ebc7",
+      "licenses_opened": [
+        {
+          "path": "torchvision-0.29.2.dist-info/LICENSE",
+          "sha256": "6502f676851cfe25f8af75531dfb32375b7325b73c37e7b43741fa422893e71d",
+          "bytes": 1517
+        }
+      ],
+      "requires_dist": [
+        "numpy",
+        "torch>=2.14.0",
+        "pillow!=8.3.*,>=5.3.0",
+        "gdown>=4.7.3; extra == \"gdown\"",
+        "scipy; extra == \"scipy\""
+      ],
+      "reviewed_spdx": "BSD-3-Clause (macOS artifact; Windows binary not verified)",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "tqdm",
+      "version": "4.70.1",
+      "declared_spdx": "MPL-2.0 AND MIT",
+      "artifact": "tqdm-4.70.1-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/a7/03/921a3d3c75785aca9ebfbfcabfbc3a1be12e2ab5265deb026d55a5a3f83e/tqdm-4.70.1-py3-none-any.whl",
+      "sha256": "c293e525e6fef9c20e8728fd4612df02a0aa31bb5fe91ecd93e123b1b7bffa73",
+      "licenses_opened": [
+        {
+          "path": "tqdm-4.70.1.dist-info/licenses/LICENCE",
+          "sha256": "fcff87c3a47ce8028a8512aa182d4fcf0ad1c90544ee75cf9b343684cac194de",
+          "bytes": 1985
+        }
+      ],
+      "requires_dist": [
+        "colorama; platform_system == \"Windows\"",
+        "requests; extra == \"discord\"",
+        "envwrap; extra == \"discord\"",
+        "slack-sdk; extra == \"slack\"",
+        "envwrap; extra == \"slack\"",
+        "requests; extra == \"telegram\"",
+        "envwrap; extra == \"telegram\"",
+        "ipywidgets>=6; extra == \"notebook\""
+      ],
+      "reviewed_spdx": "MPL-2.0 AND MIT",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "typing-extensions",
+      "version": "4.16.0",
+      "declared_spdx": "PSF-2.0",
+      "artifact": "typing_extensions-4.16.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl",
+      "sha256": "481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8",
+      "licenses_opened": [
+        {
+          "path": "typing_extensions-4.16.0.dist-info/licenses/LICENSE",
+          "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+          "bytes": 13936
+        }
+      ],
+      "requires_dist": null,
+      "reviewed_spdx": "PSF-2.0",
+      "verification": "Opened actual wheel license members via HTTP Range + zipfile; no package source imported or installed."
+    },
+    {
+      "name": "slangpy",
+      "version": "0.43.1",
+      "declared_spdx": "Apache-2.0",
+      "artifact": "slangpy-0.43.1-cp312-cp312-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/a7/af/81eaf29a574e27c143da02653fc82cdeb97ab1047bba61b76c772d223bbf/slangpy-0.43.1-cp312-cp312-win_amd64.whl",
+      "sha256": "878021bd2a8dad27eae9aae4f252b6ebbd7d29f3ae545c02bce6c619968720eb",
+      "licenses_opened": [
+        {
+          "path": "slangpy/data/fonts/LICENSE.txt",
+          "sha256": "fe6047aa519980caa40f0fb635ec2a698ec10c1927df479cce7cd6329d82af60",
+          "bytes": 4214
+        },
+        {
+          "path": "slangpy/data/test_images/LICENSE.txt",
+          "sha256": "aee9af993b4518420685383eb70eb2a38b996d8118c9a5c58e0849b3ed98cc33",
+          "bytes": 255
+        },
+        {
+          "path": "slangpy-0.43.1.dist-info/licenses/LICENSE",
+          "sha256": "61f6d4d529404f6f8270c30bbe15d755157424cc83a1af563b4840adfd8b5466",
+          "bytes": 1519
+        }
+      ],
+      "requires_dist": [
+        "typing_extensions",
+        "numpy>=1.26.0",
+        "slangpy-torch==0.7.0; extra == \"torch\""
+      ],
+      "reviewed_spdx": "Apache-2.0 WITH LLVM-exception AND OFL-1.1 (fonts) AND public-domain image notices; not approved as a whole tree",
+      "verification": "Opened actual Windows cp312 wheel LICENSE members using Range reads; no code imported."
+    }
+  ],
+  "tools": [
+    {
+      "name": "fixer",
+      "repo": "Retro-Diffusion/pixel-art-fixer",
+      "commit": "ef376e57e1c272633ca2dbf5f29ec3fcf6596465",
+      "license_url": "https://raw.githubusercontent.com/Retro-Diffusion/pixel-art-fixer/ef376e57e1c272633ca2dbf5f29ec3fcf6596465/LICENSE",
+      "license_sha256": "e4c677e8b9d718020b20bd0fe323ae433022a97f1d946be85e882db81cf467c0",
+      "how_verified": "Official repository LICENSE text opened before reading API source"
+    },
+    {
+      "name": "proper",
+      "repo": "KennethJAllen/proper-pixel-art",
+      "commit": "4de0dda5ba066491b5b5fac3500365db4dfd665e",
+      "license_url": "https://raw.githubusercontent.com/KennethJAllen/proper-pixel-art/4de0dda5ba066491b5b5fac3500365db4dfd665e/LICENSE",
+      "license_sha256": "928ed8e3b1c578dcac320b199ec80bc23d4e1e644a23a55a3e407453b62c4009",
+      "how_verified": "Official repository LICENSE text opened before reading API source"
+    },
+    {
+      "name": "pixeloe",
+      "repo": "KohakuBlueleaf/PixelOE",
+      "commit": "7ce444b36d3876a151d845d4493240e904454d89",
+      "license_url": "https://raw.githubusercontent.com/KohakuBlueleaf/PixelOE/7ce444b36d3876a151d845d4493240e904454d89/LICENSE",
+      "license_sha256": "b53edca8313061a2384416ea2757c74e9de44f2b4f4406ecd1c2b17df386563c",
+      "how_verified": "Official repository LICENSE text opened before reading API source"
+    },
+    {
+      "name": "@xprite/pixelate",
+      "version": "0.1.2",
+      "commit": "49c62fccaaa776281c522089b1c8d30b3028cbd5",
+      "license": "MIT",
+      "license_sha256": "287dff439109f44d2551825cfad90de54845b64294d79f0d5566eca3699f57bc",
+      "how_verified": "Official npm tarball package/LICENSE text opened before evaluating dist code; no runtime dependencies in package metadata"
+    }
+  ],
+  "linux_resolution": "CPython 3.12, x86_64-manylinux_2_34: 43 distributions. Names/versions resolved; license artifacts may differ in architecture and do not certify bundled binaries.",
+  "linux_additional_dependencies": [
+    {
+      "name": "cuda-bindings",
+      "version": "13.5.0",
+      "declared_spdx": "Apache-2.0",
+      "artifact": "cuda_bindings-13.5.0-cp312-cp312-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/e5/ea/87bd4fa1e1e70d3895b4e46606902fa7974111a81002dbd0418b68fb5b74/cuda_bindings-13.5.0-cp312-cp312-win_amd64.whl",
+      "sha256": "2e8d562f928fe0bb254b1ade02133f9f6bc5e395efd2f1fbdb8533d64bf16e1f",
+      "licenses_opened": [
+        {
+          "path": "cuda_bindings-13.5.0.dist-info/licenses/LICENSE",
+          "sha256": "dc94465a4d540f776490e4b7a73d717d09fffbb1d5a7a6eaab47a0ca6f6624ab",
+          "bytes": 11436
+        }
+      ],
+      "requires_dist": [
+        "cuda-pathfinder>=1.4.2",
+        "cuda-toolkit[nvfatbin,nvjitlink,nvrtc,nvvm]==13.*; extra == \"all\"",
+        "cuda-toolkit[cufile]==13.*; sys_platform == \"linux\" and extra == \"all\"",
+        "cuda-toolkit==13.*; extra == \"all\"",
+        "nvidia-cudla==13.*; (platform_system == \"Linux\" and platform_machine == \"aarch64\") and extra == \"all\""
+      ],
+      "reviewed_spdx": "Apache-2.0",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    },
+    {
+      "name": "cuda-pathfinder",
+      "version": "1.8.6",
+      "declared_spdx": "Apache-2.0",
+      "artifact": "cuda_pathfinder-1.8.6-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/6a/9e/08555797c979322def080814686417ea93f66d38f5c48ebab6867a85a21e/cuda_pathfinder-1.8.6-py3-none-any.whl",
+      "sha256": "bf6b3b06323cf95a11d671818392da5da23ddbbb4dfc4b77ca10622783c25980",
+      "licenses_opened": [
+        {
+          "path": "cuda_pathfinder-1.8.6.dist-info/licenses/LICENSE",
+          "sha256": "dc94465a4d540f776490e4b7a73d717d09fffbb1d5a7a6eaab47a0ca6f6624ab",
+          "bytes": 11436
+        }
+      ],
+      "requires_dist": null,
+      "reviewed_spdx": "Apache-2.0",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    },
+    {
+      "name": "cuda-toolkit",
+      "version": "13.2.2",
+      "declared_spdx": null,
+      "artifact": "cuda_toolkit-13.2.2-py2.py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/3d/62/854e4a141f5e87e5425513bad2a742a6260acfe06ef148001b5362148f31/cuda_toolkit-13.2.2-py2.py3-none-any.whl",
+      "sha256": "d12edc1aad1356236a2ee10c0d794b1aff5d3e79bfeca54867c3bb8e5afd87b0",
+      "licenses_opened": [],
+      "requires_dist": [
+        "nvidia-cublas==13.4.1.3.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-cuda-cccl==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-cuda-crt==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-cuda-culibos==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\") and extra == \"all\"",
+        "nvidia-cuda-cuobjdump==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-cuda-cupti==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-cuda-cuxxfilt==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-cuda-nvcc==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-cuda-nvdisasm==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-cuda-nvrtc==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-cuda-opencl==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-cuda-profiler-api==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-cuda-runtime==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-cuda-sanitizer-api==13.2.87.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-cuda-tileiras==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-cudla==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\") and extra == \"all\"",
+        "nvidia-cufft==12.2.0.57.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-cufile==1.17.1.22.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\") and extra == \"all\"",
+        "nvidia-curand==10.4.2.66.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-cusolver==12.2.0.11.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-cusparse==12.7.10.12.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-npp==13.1.0.59.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-nvfatbin==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-nvjitlink<14,>=13.2.86; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-nvjpeg==13.1.0.59.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-nvml-dev==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-nvptxcompiler==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-nvtx==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-nvvm==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"all\"",
+        "nvidia-cuda-cccl==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"cccl\"",
+        "nvidia-cuda-crt==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"crt\"",
+        "nvidia-cublas==13.4.1.3.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"cublas\"",
+        "nvidia-cuda-nvrtc==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"cublas\"",
+        "nvidia-cuda-runtime==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"cudart\"",
+        "nvidia-cudla==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\") and extra == \"cudla\"",
+        "nvidia-cufft==12.2.0.57.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"cufft\"",
+        "nvidia-nvjitlink<14,>=13.2.86; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"cufft\"",
+        "nvidia-cufile==1.17.1.22.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\") and extra == \"cufile\"",
+        "nvidia-cuda-culibos==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\") and extra == \"culibos\"",
+        "nvidia-cuda-cuobjdump==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"cuobjdump\"",
+        "nvidia-cuda-cupti==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"cupti\"",
+        "nvidia-curand==10.4.2.66.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"curand\"",
+        "nvidia-cublas==13.4.1.3.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"cusolver\"",
+        "nvidia-cusolver==12.2.0.11.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"cusolver\"",
+        "nvidia-cusparse==12.7.10.12.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"cusolver\"",
+        "nvidia-nvjitlink<14,>=13.2.86; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"cusolver\"",
+        "nvidia-cusparse==12.7.10.12.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"cusparse\"",
+        "nvidia-nvjitlink<14,>=13.2.86; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"cusparse\"",
+        "nvidia-cuda-cuxxfilt==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"cuxxfilt\"",
+        "nvidia-npp==13.1.0.59.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"npp\"",
+        "nvidia-cuda-crt==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"nvcc\"",
+        "nvidia-cuda-nvcc==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"nvcc\"",
+        "nvidia-cuda-runtime==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"nvcc\"",
+        "nvidia-nvvm==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"nvcc\"",
+        "nvidia-cuda-nvdisasm==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"nvdisasm\"",
+        "nvidia-nvfatbin==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"nvfatbin\"",
+        "nvidia-nvjitlink<14,>=13.2.86; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"nvjitlink\"",
+        "nvidia-nvjpeg==13.1.0.59.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"nvjpeg\"",
+        "nvidia-nvml-dev==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"nvml\"",
+        "nvidia-nvptxcompiler==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"nvptxcompiler\"",
+        "nvidia-cuda-nvrtc==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"nvrtc\"",
+        "nvidia-nvtx==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"nvtx\"",
+        "nvidia-nvvm==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"nvvm\"",
+        "nvidia-cuda-opencl==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"opencl\"",
+        "nvidia-cuda-profiler-api==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"profiler\"",
+        "nvidia-cuda-sanitizer-api==13.2.87.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"sanitizer\"",
+        "nvidia-cuda-nvcc==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"tileiras\"",
+        "nvidia-cuda-tileiras==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"tileiras\"",
+        "nvidia-nvjitlink<14,>=13.2.86; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"tileiras\"",
+        "nvidia-nvvm==13.2.86.*; (sys_platform == \"linux\" and platform_machine == \"aarch64\" or sys_platform == \"linux\" and platform_machine == \"x86_64\" or sys_platform == \"win32\" and platform_machine == \"AMD64\") and extra == \"tileiras\""
+      ],
+      "reviewed_spdx": "UNVERIFIED: no actual license text present in wheel",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    },
+    {
+      "name": "nvidia-cublas",
+      "version": "13.4.1.3",
+      "declared_spdx": null,
+      "artifact": "nvidia_cublas-13.4.1.3-py3-none-manylinux_2_27_aarch64.whl",
+      "url": "https://files.pythonhosted.org/packages/d0/a0/5cd9d4b08a8320f7ca150ee0d66c97e98092922e338336cb4b62da7500c3/nvidia_cublas-13.4.1.3-py3-none-manylinux_2_27_aarch64.whl",
+      "sha256": "4eb1472bf92b741e7cf24da7978dde251b58ddec2092d9f6a04f3623eb4e9a15",
+      "licenses_opened": [
+        {
+          "path": "nvidia_cublas-13.4.1.3.dist-info/licenses/License.txt",
+          "sha256": "ad6f5853fba0ca0d159d0f58d49ae49830c2f8c93f7a92648b9ce90adb4c6ccd",
+          "bytes": 59262
+        }
+      ],
+      "requires_dist": [
+        "nvidia-cuda-nvrtc"
+      ],
+      "reviewed_spdx": "LicenseRef-NVIDIA (not allowlisted; see actual wheel EULA)",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    },
+    {
+      "name": "nvidia-cuda-cccl",
+      "version": "13.3.5.0.6",
+      "declared_spdx": "LicenseRef-NVIDIA-Proprietary",
+      "artifact": "nvidia_cuda_cccl-13.3.5.0.6-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl",
+      "url": "https://files.pythonhosted.org/packages/81/dc/9a056ef9bd05c55ddaed3afce160702e4ce8303b9ec1b38066044c18dcd2/nvidia_cuda_cccl-13.3.5.0.6-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl",
+      "sha256": "6f30b8076b3e69951c459c94ae190bde51924b320076ebaec376d36848b4c76e",
+      "licenses_opened": [
+        {
+          "path": "nvidia/cu13/cccl/LICENSE",
+          "sha256": "f96f51edda77fb9897de29d924d615e6bd153f4969db85fc6b7a22d7a624631e",
+          "bytes": 22452
+        },
+        {
+          "path": "nvidia_cuda_cccl-13.3.5.0.6.dist-info/licenses/License.txt",
+          "sha256": "ad6f5853fba0ca0d159d0f58d49ae49830c2f8c93f7a92648b9ce90adb4c6ccd",
+          "bytes": 59262
+        }
+      ],
+      "requires_dist": null,
+      "reviewed_spdx": "Apache-2.0 WITH LLVM-exception AND LicenseRef-NVIDIA (actual bundled EULA opened)",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    },
+    {
+      "name": "nvidia-cuda-cupti",
+      "version": "13.2.86",
+      "declared_spdx": null,
+      "artifact": "nvidia_cuda_cupti-13.2.86-py3-none-manylinux_2_25_aarch64.whl",
+      "url": "https://files.pythonhosted.org/packages/e1/ab/52414925ea803a5f86b994ae97d951e5943ed27a6f1da4a5c4ac09e308af/nvidia_cuda_cupti-13.2.86-py3-none-manylinux_2_25_aarch64.whl",
+      "sha256": "d9a5c133f73fcb9013f3ada0da6fb54d4117618d81f3f5a0419417ea6ee829d4",
+      "licenses_opened": [
+        {
+          "path": "nvidia_cuda_cupti-13.2.86.dist-info/licenses/License.txt",
+          "sha256": "ad6f5853fba0ca0d159d0f58d49ae49830c2f8c93f7a92648b9ce90adb4c6ccd",
+          "bytes": 59262
+        }
+      ],
+      "requires_dist": null,
+      "reviewed_spdx": "LicenseRef-NVIDIA (not allowlisted; see actual wheel EULA)",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    },
+    {
+      "name": "nvidia-cuda-nvrtc",
+      "version": "13.2.86",
+      "declared_spdx": null,
+      "artifact": "nvidia_cuda_nvrtc-13.2.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl",
+      "url": "https://files.pythonhosted.org/packages/1e/39/c58835ec8392a91b8d7bad83760eafc3085f64788b722ec2b44a27b3ca3e/nvidia_cuda_nvrtc-13.2.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl",
+      "sha256": "8111c5130e967b78222ea2124145f8efe9ce201b752b2579a2513100a53be1c5",
+      "licenses_opened": [
+        {
+          "path": "nvidia_cuda_nvrtc-13.2.86.dist-info/licenses/License.txt",
+          "sha256": "ad6f5853fba0ca0d159d0f58d49ae49830c2f8c93f7a92648b9ce90adb4c6ccd",
+          "bytes": 59262
+        }
+      ],
+      "requires_dist": null,
+      "reviewed_spdx": "LicenseRef-NVIDIA (not allowlisted; see actual wheel EULA)",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    },
+    {
+      "name": "nvidia-cuda-runtime",
+      "version": "13.2.86",
+      "declared_spdx": null,
+      "artifact": "nvidia_cuda_runtime-13.2.86-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl",
+      "url": "https://files.pythonhosted.org/packages/89/d4/fa981071e3d9f29158ca16c69ee617831cd6df4dd47024149c16eec717f8/nvidia_cuda_runtime-13.2.86-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl",
+      "sha256": "37844957894bfdecf90243568d21a2cb251b66106915b71459a23c8e6ef2da69",
+      "licenses_opened": [
+        {
+          "path": "nvidia_cuda_runtime-13.2.86.dist-info/licenses/License.txt",
+          "sha256": "ad6f5853fba0ca0d159d0f58d49ae49830c2f8c93f7a92648b9ce90adb4c6ccd",
+          "bytes": 59262
+        }
+      ],
+      "requires_dist": null,
+      "reviewed_spdx": "LicenseRef-NVIDIA (not allowlisted; see actual wheel EULA)",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    },
+    {
+      "name": "nvidia-cudnn-cu13",
+      "version": "9.26.0.51",
+      "declared_spdx": null,
+      "artifact": "nvidia_cudnn_cu13-9.26.0.51-py3-none-manylinux_2_27_aarch64.whl",
+      "url": "https://files.pythonhosted.org/packages/c5/1c/01e1dd3dec6ffe0baaff7e722b8946d867353d05a01301f128f1730fde0b/nvidia_cudnn_cu13-9.26.0.51-py3-none-manylinux_2_27_aarch64.whl",
+      "sha256": "8e5b4f5eccff721416f70ecf4353172fc4d5cdd8ca869fe6f983a4a5b0147b20",
+      "licenses_opened": [
+        {
+          "path": "nvidia_cudnn_cu13-9.26.0.51.dist-info/licenses/License.txt",
+          "sha256": "49cf79bdb35734b52fe6203013b3bd759f81e998cd32aa2c65c51db9a88c61d2",
+          "bytes": 18174
+        }
+      ],
+      "requires_dist": [
+        "nvidia-cublas"
+      ],
+      "reviewed_spdx": "LicenseRef-NVIDIA (not allowlisted; see actual wheel EULA)",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    },
+    {
+      "name": "nvidia-cufft",
+      "version": "12.2.0.57",
+      "declared_spdx": null,
+      "artifact": "nvidia_cufft-12.2.0.57-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl",
+      "url": "https://files.pythonhosted.org/packages/07/8d/f650e6d527f9d22b5ded906c000eaebb037721c06d4ecd906df62f300979/nvidia_cufft-12.2.0.57-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl",
+      "sha256": "1ed438568ae1088ba2c25789d10205d4104b8b140b7bd942e39a787947a0fb74",
+      "licenses_opened": [
+        {
+          "path": "nvidia_cufft-12.2.0.57.dist-info/licenses/License.txt",
+          "sha256": "ad6f5853fba0ca0d159d0f58d49ae49830c2f8c93f7a92648b9ce90adb4c6ccd",
+          "bytes": 59262
+        }
+      ],
+      "requires_dist": [
+        "nvidia-nvjitlink"
+      ],
+      "reviewed_spdx": "LicenseRef-NVIDIA (not allowlisted; see actual wheel EULA)",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    },
+    {
+      "name": "nvidia-cufile",
+      "version": "1.17.1.22",
+      "declared_spdx": null,
+      "artifact": "nvidia_cufile-1.17.1.22-py3-none-manylinux_2_27_aarch64.whl",
+      "url": "https://files.pythonhosted.org/packages/fe/fd/4b4157512a131a51e1514d40d0199b1c5b7b10c6856db274ff22e5fe15be/nvidia_cufile-1.17.1.22-py3-none-manylinux_2_27_aarch64.whl",
+      "sha256": "bec33d7f1f12691dce330275246587569c2ed90b1ce43b0f94b3e1ce9268744b",
+      "licenses_opened": [
+        {
+          "path": "nvidia_cufile-1.17.1.22.dist-info/licenses/License.txt",
+          "sha256": "ad6f5853fba0ca0d159d0f58d49ae49830c2f8c93f7a92648b9ce90adb4c6ccd",
+          "bytes": 59262
+        }
+      ],
+      "requires_dist": null,
+      "reviewed_spdx": "LicenseRef-NVIDIA (not allowlisted; see actual wheel EULA)",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    },
+    {
+      "name": "nvidia-cusolver",
+      "version": "12.2.0.11",
+      "declared_spdx": null,
+      "artifact": "nvidia_cusolver-12.2.0.11-py3-none-manylinux_2_27_aarch64.whl",
+      "url": "https://files.pythonhosted.org/packages/60/df/9e6b603f1d64040ce3e076e9bce1b78e2d588d0aabc9783f351cecd861ab/nvidia_cusolver-12.2.0.11-py3-none-manylinux_2_27_aarch64.whl",
+      "sha256": "8be097fca28de6be0990ab216ee9b804dd51077e1d1d83acf6c9850650bdc64d",
+      "licenses_opened": [
+        {
+          "path": "nvidia_cusolver-12.2.0.11.dist-info/licenses/License.txt",
+          "sha256": "ad6f5853fba0ca0d159d0f58d49ae49830c2f8c93f7a92648b9ce90adb4c6ccd",
+          "bytes": 59262
+        }
+      ],
+      "requires_dist": [
+        "nvidia-cublas",
+        "nvidia-nvjitlink",
+        "nvidia-cusparse"
+      ],
+      "reviewed_spdx": "LicenseRef-NVIDIA (not allowlisted; see actual wheel EULA)",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    },
+    {
+      "name": "nvidia-cusparse",
+      "version": "12.7.10.12",
+      "declared_spdx": null,
+      "artifact": "nvidia_cusparse-12.7.10.12-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl",
+      "url": "https://files.pythonhosted.org/packages/60/35/abbd278fb6d039fcfb5175efa10a21007a11878bec59920d84854b47d766/nvidia_cusparse-12.7.10.12-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl",
+      "sha256": "597eff2cd83e3ab1d1e3a0dce9c9c879d77cf64ec2659bfdb5af6a5d02e7aaa9",
+      "licenses_opened": [
+        {
+          "path": "nvidia_cusparse-12.7.10.12.dist-info/licenses/License.txt",
+          "sha256": "ad6f5853fba0ca0d159d0f58d49ae49830c2f8c93f7a92648b9ce90adb4c6ccd",
+          "bytes": 59262
+        }
+      ],
+      "requires_dist": [
+        "nvidia-nvjitlink"
+      ],
+      "reviewed_spdx": "LicenseRef-NVIDIA (not allowlisted; see actual wheel EULA)",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    },
+    {
+      "name": "nvidia-cusparselt-cu13",
+      "version": "0.8.1",
+      "declared_spdx": "NVIDIA Proprietary Software",
+      "artifact": "nvidia_cusparselt_cu13-0.8.1-py3-none-manylinux2014_aarch64.whl",
+      "url": "https://files.pythonhosted.org/packages/46/e1/cdc1797eadf82d3a9a575a19b33fdc871a97edbec42c00b5b5e914f4aff4/nvidia_cusparselt_cu13-0.8.1-py3-none-manylinux2014_aarch64.whl",
+      "sha256": "4dca476c50bf4780d46cd0bfbd82e2bc10a08e4fef7950917ce8d7578d22a23f",
+      "licenses_opened": [
+        {
+          "path": "nvidia/cusparselt/LICENSE.txt",
+          "sha256": "e8d158885a681b95ec7a6fc06dd8d4a52989f374cb1380c8a4c8fb27fd3d5d5e",
+          "bytes": 17948
+        }
+      ],
+      "requires_dist": null,
+      "reviewed_spdx": "LicenseRef-NVIDIA (not allowlisted; see actual wheel EULA)",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    },
+    {
+      "name": "nvidia-nccl-cu13",
+      "version": "2.30.7",
+      "declared_spdx": null,
+      "artifact": "nvidia_nccl_cu13-2.30.7-py3-none-manylinux_2_18_aarch64.whl",
+      "url": "https://files.pythonhosted.org/packages/d1/21/a73174c6157101bdf1ffc22b517f76ff0082613989dd9bc8f43e8034caac/nvidia_nccl_cu13-2.30.7-py3-none-manylinux_2_18_aarch64.whl",
+      "sha256": "ca786ffa5a647c75d4d1f5cc72a6c4f537947e2ba8823d7c8aaf768e7a7b9f77",
+      "licenses_opened": [
+        {
+          "path": "nvidia_nccl_cu13-2.30.7.dist-info/licenses/License.txt",
+          "sha256": "0f0174a6b4e0b33ac26375bf729533075b32f4c51a5b6802a3d742d7dcdc9a76",
+          "bytes": 1895
+        }
+      ],
+      "requires_dist": null,
+      "reviewed_spdx": "BSD-3-Clause (actual NCCL license opened; bundled tree not certified)",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    },
+    {
+      "name": "nvidia-nvjitlink",
+      "version": "13.5.37",
+      "declared_spdx": "LicenseRef-NVIDIA-Proprietary",
+      "artifact": "nvidia_nvjitlink-13.5.37-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl",
+      "url": "https://files.pythonhosted.org/packages/cc/1f/2321702b8d60b4b4dd18b957f61612dbac9cb1c07e940cf6582106b7c8b8/nvidia_nvjitlink-13.5.37-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl",
+      "sha256": "280d7cb9649704145f074b8dbde500de04ce02d0872e066e20a83c17bcaa93eb",
+      "licenses_opened": [
+        {
+          "path": "nvidia_nvjitlink-13.5.37.dist-info/licenses/License.txt",
+          "sha256": "ad6f5853fba0ca0d159d0f58d49ae49830c2f8c93f7a92648b9ce90adb4c6ccd",
+          "bytes": 59262
+        }
+      ],
+      "requires_dist": null,
+      "reviewed_spdx": "LicenseRef-NVIDIA (not allowlisted; see actual wheel EULA)",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    },
+    {
+      "name": "nvidia-nvshmem-cu13",
+      "version": "3.7.2",
+      "declared_spdx": null,
+      "artifact": "nvidia_nvshmem_cu13-3.7.2-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl",
+      "url": "https://files.pythonhosted.org/packages/81/11/1767ef120299972822a43aceffbc81ac813aad2089d817e36e4e12aa4c9c/nvidia_nvshmem_cu13-3.7.2-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl",
+      "sha256": "0e748308b9e0a8a8d81859353f3e6c98fbe85a85f652a915a2ba60149a0bd124",
+      "licenses_opened": [
+        {
+          "path": "nvidia_nvshmem_cu13-3.7.2.dist-info/licenses/License.txt",
+          "sha256": "ad6f5853fba0ca0d159d0f58d49ae49830c2f8c93f7a92648b9ce90adb4c6ccd",
+          "bytes": 59262
+        }
+      ],
+      "requires_dist": [
+        "nvidia-cuda-cccl"
+      ],
+      "reviewed_spdx": "LicenseRef-NVIDIA (not allowlisted; see actual wheel EULA)",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    },
+    {
+      "name": "nvidia-nvtx",
+      "version": "13.2.86",
+      "declared_spdx": null,
+      "artifact": "nvidia_nvtx-13.2.86-py3-none-manylinux1_x86_64.manylinux_2_5_x86_64.whl",
+      "url": "https://files.pythonhosted.org/packages/49/ee/16bde09927e7ffacd50b117cd7d1dc764d145f03249fc41fdf6dfba3301f/nvidia_nvtx-13.2.86-py3-none-manylinux1_x86_64.manylinux_2_5_x86_64.whl",
+      "sha256": "968ce72baee2a01791c7d3254000eac81f24677b0b91c62d21b449a1f309c245",
+      "licenses_opened": [
+        {
+          "path": "nvidia_nvtx-13.2.86.dist-info/licenses/License.txt",
+          "sha256": "9e45e856bedccee9f67254082ca11851d954de2fed7448c4bed19ad9aab99a91",
+          "bytes": 12262
+        }
+      ],
+      "requires_dist": null,
+      "reviewed_spdx": "Apache-2.0 (actual NVTX license opened)",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    },
+    {
+      "name": "triton",
+      "version": "3.9.0",
+      "declared_spdx": "MIT",
+      "artifact": "triton-3.9.0-cp311-cp311-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
+      "url": "https://files.pythonhosted.org/packages/4a/0e/a2176f4ddc2a0c77796d7834cd9bb088cdba4d89e080716b36970dce4ad0/triton-3.9.0-cp311-cp311-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
+      "sha256": "feaaec13578ca84301d561d034cb08b3ae293d7f0b7ab6b8ddbb2d6796363716",
+      "licenses_opened": [
+        {
+          "path": "triton-3.9.0.dist-info/licenses/LICENSE",
+          "sha256": "92640fb97222fd0a698ff28ce0c3782c172623f8d6c609b557636a80f28fb946",
+          "bytes": 1132
+        }
+      ],
+      "requires_dist": [
+        "importlib-metadata; python_version < \"3.10\""
+      ],
+      "reviewed_spdx": "MIT AND bundled notices (not cleared)",
+      "verification": "Opened actual wheel license members using HTTP Range; no CUDA/GPL/proprietary source code opened. See artifact architecture; not installed."
+    }
+  ]
+}
