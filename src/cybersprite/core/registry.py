@@ -132,6 +132,13 @@ class Op:
                     "would_commit": (bool | None, None),
                 }
             )
+        if self.name == "import_image":
+            output_fields.update(
+                {
+                    "checked": (list[str] | None, None),
+                    "pipeline_accepted": (bool | None, None),
+                }
+            )
         output_model = create_model(self.name + "Output", __base__=Model, **output_fields)
         output_schema = output_model.model_json_schema(by_alias=True)
         if self.kind == "ingest":

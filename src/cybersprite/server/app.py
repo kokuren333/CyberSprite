@@ -20,6 +20,7 @@ from cybersprite.core.errors import CyberSpriteError, invalid
 from cybersprite.core.models import Rect
 from cybersprite.core.quality import cached_frame_rgba
 from cybersprite.core.render import RenderOptions, render
+from cybersprite.formats.common import export_policy
 from cybersprite.mcp.contracts import with_path_metadata
 from cybersprite.mcp.paths import PathPolicy
 
@@ -89,7 +90,8 @@ class Service:
         definition = with_path_metadata(ops.registry().get(name))
         schema = definition.args.model_json_schema()
         arguments = self.policy.arguments(arguments, schema)
-        self.check_outputs(arguments, schema, project)
+        if definition.kind != "export":
+            self.check_outputs(arguments, schema, project)
         if name == "apply_ops":
             parsed = definition.parse({k: v for k, v in arguments.items() if k in {"ops", "label"}})
             for call in parsed.ops:
@@ -99,7 +101,13 @@ class Service:
                 self.check_outputs(call.args, schema, project)
             arguments["ops"] = [call.model_dump() for call in parsed.ops]
         self.policy.check_project(project)
-        value = ops.execute(name, project, arguments, actor="gui")
+        with export_policy(self.policy.root, self.policy.allowed):
+            value = ops.execute(name, project, arguments, actor="gui")
+        if definition.kind == "export":
+            # Format exporters already report paths relative to the surface root.
+            # Convert them for the generic project-relative response adapter.
+            for file in value["result"].get("files", []):
+                file["path"] = str(self.policy.root / file["path"])
         return self.policy.result(value, project)
 
     def check_outputs(self, value, schema, project, definitions=None):
@@ -304,6 +312,7 @@ class Service:
         }
         if method == "pipeline.preview":
             values["dry_run"] = True
+            values["pipeline_only"] = True
         if method == "history.undo" and "to_revision" in values:
             revision = values.pop("to_revision")
             current = self.run_op("get_history", project, {})["revision"]

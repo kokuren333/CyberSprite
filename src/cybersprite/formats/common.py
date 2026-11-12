@@ -1,6 +1,7 @@
 """Export policy, deterministic selectors, and mandatory read-after-write verification."""
 
 import hashlib
+import os
 import re
 import struct
 from contextlib import contextmanager
@@ -167,8 +168,64 @@ def gate(p, args, root=None):
     }
 
 
-def preflight(paths, overwrite):
+def _folded_parts(path):
+    # Conservatively reserve case aliases even on a case-sensitive filesystem.
+    return tuple(part.casefold() for part in path.parts)
+
+
+def protect_project_output(path, project_root=None, *, original=None):
+    """Reject final export destinations that alias project-owned files or directories."""
+    roots = [] if project_root is None else [Path(project_root).absolute()]
+    for parent in path.parents:
+        if (parent / "project.json").is_file() and parent not in roots:
+            roots.append(parent)
+    for root in roots:
+        canonical = root / "project.json"
+        reserved = [canonical, root / "source", root / ".cybersprite"]
+        candidates = [path, original or path]
+        protected = any(
+            _folded_parts(candidate)[: len(base.parts)] == _folded_parts(base)
+            for candidate in candidates
+            for item in reserved
+            for base in (item, item.resolve())
+        )
+        if not protected and path.exists():
+            # samefile catches hard links, including aliases outside the project.
+            protected = canonical.exists() and os.path.samefile(path, canonical)
+            if not protected and path.stat().st_nlink > 1:
+                for directory in reserved[1:]:
+                    if directory.is_dir():
+                        for folder, dirs, files in os.walk(directory, followlinks=False):
+                            dirs.sort()
+                            if any(
+                                os.path.samefile(path, Path(folder) / name)
+                                for name in sorted(files)
+                            ):
+                                protected = True
+                                break
+                    if protected:
+                        break
+        if protected:
+            raise CyberSpriteError(
+                "E_PATH_NOT_ALLOWED",
+                "Export destination is reserved for the project, its sources, or its history.",
+                "Choose a path outside the project directory or under an allowed export "
+                "directory outside project.json, source/, and .cybersprite/.",
+                {
+                    "reason": "protected_project_file",
+                    "path": path.as_posix(),
+                    "project": root.resolve().as_posix(),
+                },
+            )
+
+
+def preflight(paths, overwrite, *, project_root=None):
     resolved = [output_path(path) for path in paths]
+    policy_root = (_POLICY.get() or (Path.cwd(), []))[0]
+    for value, path in zip(paths, resolved, strict=True):
+        protect_project_output(
+            path, project_root, original=Path(os.path.abspath(policy_root / value))
+        )
     if len(set(resolved)) != len(resolved):
         raise invalid("Export filenames collide; use distinct frame/split placeholders.")
     for path in resolved:

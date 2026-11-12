@@ -4,6 +4,7 @@
 
 import base64
 import json
+import os
 import socket
 import subprocess
 import sys
@@ -28,7 +29,7 @@ from cybersprite.server.app import create_app
 @pytest.fixture
 def live(tmp_path):
     project = tmp_path / "test.csprite"
-    ops.execute("new_project", project, {"width": 8, "height": 8, "frames": 3})
+    ops.execute("new_project", project, {"width": 8, "height": 8, "frames": 3, "name": "project"})
     sock = socket.socket()
     sock.bind(("127.0.0.1", 0))
     origin = f"http://127.0.0.1:{sock.getsockname()[1]}"
@@ -242,10 +243,77 @@ def test_pipeline_and_export_registry_forwarding(live, monkeypatch):
                 100,
             ]
         assert seen == [
-            ("import_image", {"dry_run": True}, "gui"),
+            ("import_image", {"dry_run": True, "pipeline_only": True}, "gui"),
             ("import_image", {}, "gui"),
             ("export_image", {}, "gui"),
         ]
+
+
+def test_export_rpc_uses_root_and_allow_dir_outside_cwd(live, tmp_path):
+    from pathlib import Path
+
+    from cybersprite.formats.png import decode_png
+    from cybersprite.mcp.paths import PathPolicy
+
+    root = live[1].policy.root
+    assert not root.is_relative_to(Path.cwd())
+    allowed = tmp_path.parent / (tmp_path.name + "-allowed")
+    allowed.mkdir()
+    live[1].policy = PathPolicy(root, [allowed])
+    with ws(live) as c:
+        for out in (root / "ok.png", allowed / "ok.png"):
+            value = result(c, "export.run", {"out": str(out), "frames": [0]})
+            assert value["result"]["verified"]
+            assert (
+                value["result"]["files"][0]["path"] == Path(os.path.relpath(out, root)).as_posix()
+            )
+            assert decode_png(out.read_bytes()).pixels.shape == (8, 8)
+        forbidden = tmp_path.parent / (tmp_path.name + "-forbidden.png")
+        response, _ = call(c, "export.run", {"out": str(forbidden)})
+        assert response["error"]["data"]["code"] == "E_PATH_NOT_ALLOWED"
+        assert not forbidden.exists()
+
+
+@pytest.mark.parametrize("name", ["project.json", "{name}.json", "PROJECT.JSON", "alias.png"])
+def test_export_rpc_final_paths_preserve_project_and_history(live, name):
+    project = live[2]
+    # Name expansion must happen before the protection check.
+    model = load_project(project)
+    if name == "alias.png":
+        os.link(project / "project.json", project / name)
+    before = {
+        p.relative_to(project).as_posix(): p.read_bytes() for p in project.rglob("*") if p.is_file()
+    }
+    with ws(live) as c:
+        response, _ = call(c, "export.run", {"out": str(project / name), "frames": [0]})
+        assert response["error"]["data"]["code"] == "E_PATH_NOT_ALLOWED"
+        assert response["error"]["data"]["details"]["reason"] == "protected_project_file"
+    after = {
+        p.relative_to(project).as_posix(): p.read_bytes() for p in project.rglob("*") if p.is_file()
+    }
+    assert before == after and load_project(project) == model
+
+
+def test_pipeline_preview_rpc_keeps_conversion_only_contract(live, tmp_path):
+    import numpy as np
+
+    from cybersprite.formats.png import encode_png
+
+    image = tmp_path / "input.png"
+    image.write_bytes(encode_png(np.full((2, 2, 4), 255, dtype=np.uint8)))
+    with ws(live) as c:
+        value = result(
+            c,
+            "pipeline.preview",
+            {
+                "files": str(image),
+                "preset": "exact",
+                "target": {"mode": "layer", "layer": "missing"},
+            },
+        )
+        assert value["pipeline_accepted"] and "would_commit" not in value
+        assert value["checked"] == ["pipeline"]
+        assert not (live[2] / "source").exists()
 
 
 def test_nested_path_restrictions_new_project_and_conflicts(live):
