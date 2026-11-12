@@ -195,3 +195,13 @@
 - 唯一の更新器で既存15・新規3のgolden期待値を生成して全差分を確認した。既存PNG・画素配列・画素ハッシュ・正本は不変。新しい独自分割PNGは既存互換配列PNGとバイト同一。M5全出力はハッシュシード17/319でも一致した。
 - 実CLIで2×1・2フレーム・透明番号2・日本語タグ/スライスを作成し、検証デルタ・全フレームプレビュー・書出しPNG/JSONを確認した。validation_ok/verified=true、error/warning=0、未使用色0。情報3件は独立同一セルと1画素クラスタの工学ベクタによる意図どおりの指摘として保持。git管理外の `build/fix6-review/` に実ファイルと記録を残した。
 - 判断I-901〜I-904。SPEC変更は付録D.1と§6.4.1、§13.2/13.4。新規依存・外部参照・ビジュアル判断なし。LinuxはI-007のとおり未実行、main統合はオーケストレーターが行う。詳細は [FIX6_IMPLEMENTATION_REPORT.md](FIX6_IMPLEMENTATION_REPORT.md)。
+
+## R1-E2: 保護描画・設計原画・検証デルタ（2026-11-12）
+- 描画14 Opの保護mask、ellipse/polygon・and/or/not領域、outside輪郭の色除外、preview rect、@色名・sym legend、Q-PIX点差分とupdated_issues、source専用登録add_source・side guideを追加した。CLI/MCPは共通Opを使用し、共有セルのlinked_framesを維持する。
+- 全体 `uv run pytest -q --tb=short`: **1464 passed / 2 skipped（807.93秒）**。追加53件を含む。skipは既存のWindowsシンボリックリンク作成権限2件。Ruff check/format、core/ops mypy37ファイル、schema drift、repository検査も成功した。
+- 実CLI12呼び出しで3段階の保護描画、outside outlineの2回目no_op、crop、設計原画登録とguide、validate、RGBA PNG書き出しと復号照合を確認した。error 0 / warning 0 / info 1で、Q-PAL-02は未使用の既定色5〜16を意図どおり保持する。validation_ok/verified=true。crop・guide・書き出した実PNGを開いて確認した。MCP実SDKでも同じ機能と返却filesのguideへの往復、300段領域の直接・mask・batchでのE_LIMIT_EXCEEDEDを検証した。
+- goldenは唯一の更新器で応答JSON10件を更新し、全差分を確認した。点差分と既存issue更新だけで、PNG・正本・画素配列・画素hashは不変。詳細な対象と理由は実装報告に記録した。
+- before/afterの速度比較は未実施。速度向上の主張はなく、テスト実時間は競合したWindows環境での機能検証時間である。完全なQ-PIX点集合の追加時間・メモリはR1-B2統合後の確認事項として残る。
+- 判断I-1461〜I-1475。SPECの領域・輪郭・preview・色名・delta・sourcesと付録C、sources schema、skillsの引数事実を更新した。追加依存・外部参照なし。実装と契約更新は9546d6b / 79413c1 / 58335c7 / 6dedadf。
+- 限定: 種集合除外とinsideの一般冪等性は両立しないため、Iの保証はoutsideだけ、insideはN（I-1463）。guide under/GUI、ramps、H-08/H-06、platform既定値は範囲外。LinuxはCI待ち。見た目の良否は判断していない。統合時は非直列化の完全点集合とMCPの事前領域制限・guideパス往復を維持する。
+- 詳細: [R1_E2_IMPLEMENTATION_REPORT.md](R1_E2_IMPLEMENTATION_REPORT.md)。最終コミット後にも書き出したファイルを確認する。
