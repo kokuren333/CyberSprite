@@ -18,17 +18,19 @@
 - [x] MCP SDKで作成→描画→validate→conform_palette→export、結果スキーマを検査。
 - [x] 実CLIの作成→描画→補正予行→補正→検証→プレビュー→書き出し。最終PNGを自前デコーダとPillowで照合し、ファイルも開いて確認。
 - [x] Ruff check/format、core/ops mypy（39ファイル）、schema drift、repository check。
-- [ ] 全体pytestの集計を反映（検査中）。
+- [x] 最終全体pytestは1455 passed / 2 skipped。スキップは既存のWindowsシンボリックリンク権限2件。
 
 ## 検証とgolden
 
-途中のplatform個別試験は **33 passed（450.01秒）**。新規の取り込み試験を加えて再実行中。全体試験はMCP/GUI extraを有効にして実行している。最初のextra無しの全体実行はMCP未導入による収集失敗だったため、全体合格には数えない。
+最新のplatform個別試験 `uv run --extra mcp --extra gui pytest tests/test_platforms.py -q --tb=short` は **41 passed（22.31秒）**。取り込み既定値の履歴・冪等再送、JSON Pointerの途中の配列添字も含む。最終全体試験 `uv run --extra mcp --extra gui pytest -q --tb=short` は **1455 passed / 2 skipped（582.06秒）**、終了コード0。ログは `build/r1-e1-review/pytest-final.log`。スキップは `tests/mcp/test_paths.py:117` と `tests/unit/test_m5_exports.py:465` の既存Windowsシンボリックリンク権限制約である。最初の全体試験で検出したCLI終了コード表の `E_LINKED_CEL` 欠落は修正し、付録Cとの全件照合も最終全体試験に含めて通過した。
+
+最終の静的検査は `uv run ruff check .`、`uv run ruff format --check .`（180ファイル）、`uv run mypy src/cybersprite/core src/cybersprite/ops`（39ファイル）、`uv run python tools/gen_schemas.py --check`、`uv run python tools/check_repository.py` がすべて成功。`uv build --wheel --out-dir build/r1-e1-dist` も成功し、wheel内の29定義がsourceとバイト同一で、platformモデルとNOTICEも含まれることを確認した。
 
 既存goldenの変更は `frame_remapping/tx0.json, tx1.json`、`raster_ops/tx0.json, tx1.json`、`transactions/tx0.json, tx2.json, tx6.json, tx7.json` の8件。すべてvalidation.metrics_deltaのcolors_used/colors_per_frame/colors_per_frame_maxだけである。フレームの透明番号を1色と数えていた値を除いた。正本・PNG・画素配列・画素ハッシュには変更がない。読み取り専用の `tools/r1_e1_audit_goldens.py` で全差分を列挙し、`tools/update_goldens.py --case ...` でこの3ケースだけを更新した。
 
 新規 `m11_nds` / `m11_dmg` はnew_projectを実プリセットIDから構築し、原点1画素の工学ベクタを持つ。各8期待ファイル（正本、応答、PNG、画素、ハッシュ、警告）でsnapshotと最終レンダリングを固定する。
 
-実CLIの記録は `build/r1-e1-review/accept-z79ycw3b/records.json`、最終PNGは同ディレクトリの `nds.csprite/final.png`。検証はerror=0、warning=2、info=2、exportはvalidation_ok/verified=true。PNGは80×80、SHA-256=`1a3a8b23ada189f5a9c823c13689c1917cdd2f45f7017d66a58052032448579d`。
+最後のコード変更後にも実CLIを再実行した。記録は `build/r1-e1-review/accept-2b7st7ed/records.json`、最終PNGは同ディレクトリの `nds.csprite/final.png`。検証はerror=0、warning=2、info=2、exportはvalidation_ok/verified=true。PNGは80×80、SHA-256=`1a3a8b23ada189f5a9c823c13689c1917cdd2f45f7017d66a58052032448579d`。前回とバイト同一で、実ファイルを再度開いて確認した。
 
 警告2件は意図して残した工学ベクタの性質である。(1) Q-PLT-05: 80×80のcanvasは単一のNDS物体サイズではなく複数物体の合成を要する。(2) Q-PLT-05: 1画素だけのセルは8×8の倍数でも単一物体サイズでもない。infoは未使用パレット番号2（明示補正の対象色を残した）と、単独画素クラスタ（試験対象そのもの）。美的評価には使っていない。
 
@@ -37,14 +39,19 @@
 - I-1401: platformの名称とschema_version=1。Fable §3.1.3/§3.8を優先し、旧正本を自動移行しない。移行機構は合成fixtureで別に保証する。
 - I-1402: 行はindex div row_size、共有位置変更の既定はerror、相対移動はscope必須のmove_cel。Fable §3.2.1/§3.8を優先し、警告の読み飛ばしを防ぐ。
 - I-1403: M11〜M13の段階分けとR1-18の透明除外。Fable §3.9に従う。
-- I-1404: JSON Pointer辞書、tickの検査方法とタグの位相。仕様の未定義部分を整数規則で補った。
-- I-1405〜I-1410: master_colors固定、既定パレットの予算、全候補Oklab最小と同距離RGB順、plugin発見の接合点、重複IDの順序、予約メタデータでの往復。
-- I-1411: H-20の参照規律を仕様化。I-1412: free本体はalpha:any、機種のbinary制約は各機種で明示する。
-- I-1413: 定義内のパレット名は登録ID、独自色は配列とし、ファイルパスは明示引数だけから受ける。MCPのパス制限を定義データで迂回させない。
-- I-1414: 同じ規則・フレーム・層に複数の違反があるとき、異なる色番号・最近色・スライス・タグをwhere.findingsに保持する。
-- I-1415: system.tileにもコアと同じ1〜256の寸法上限を適用し、既定値と指標計算による上限の迂回を防ぐ。
-- I-1416: 取り込みの既定値はロック内で決定して履歴にも保存する。冪等再送では変更後のplatformを再解釈せず、当初の来歴を返す。
-- I-1417: E_LINKED_CELはCLI終了コード3。終了コードと付録Cの全件照合にも追加した。
+- I-1404: JSON Pointer辞書、tickの検査方法とタグの位相。Fable §3.1.4/§3.1.5の未定義部分を整数規則で補った。
+- I-1405: master_colorsも保存する。Fable §3.1.3/§3.1.5のsnapshot原則とCodex §6.1に従い、外部色表の更新で検証結果が変わる経路を除いた。
+- I-1406: 色予算で制限するのは既定パレットだけ。Fable §3.1.4/§3.1.6に従い明示引数を優先し、DMG背景の4階調と物体の3不透明色を区別した。
+- I-1407: 表現可能な全候補から付録Bの固定整数Oklab距離最小を選び、同距離はRGB辞書順。Fable §3.1.6の単一量子化とconform_paletteの最近色要件に従い、独立したチャンネル丸めとの差をRGB555ベクタで固定した。
+- I-1408: plugin発見を1関数に隔離。Fable §3.1.5のentry pointと今回のR1-C接合指示に従い、JSON定義を返す最小契約を採用した。
+- I-1409: 利用者定義の同IDはパス辞書順の後勝ち、plugin間の同IDはE_PLUGIN。Fable §3.1.5で未定義の同順位だけを補い、走査順への依存を除いた。
+- I-1410: 予約メタデータでもsnapshotを往復する。Codex §6.1の既存形式との互換境界に従い、platformなしのデータは変更しない。
+- I-1411: Fable §3.5/§3.9のH-20を仕様化。I-1412: Fable §3.1.2の「レトロからモダン」を満たすためfree本体はalpha:anyとし、binary制約は各機種で明示する。
+- I-1413: 定義内のパレット名は登録ID、独自色は配列とし、ファイルパスは明示引数だけから受ける。Codex §6.1のデータ定義という境界を維持し、MCPのパス制限を迂回させない。
+- I-1414: 同じ規則・フレーム・層に複数の違反があるとき、異なる色番号・最近色・スライス・タグをwhere.findingsに保持する。Codex §6.2の資源IDを正確に報告する要件に従う。
+- I-1415: system.tileにもコアと同じ1〜256の寸法上限を適用し、既定値と指標計算による上限の迂回を防ぐ。Codex §6.1の既存上限維持に従う。
+- I-1416: 取り込みの既定値はロック内で決定して履歴にも保存する。Fable §3.1.5/§3.1.6のsnapshotと既定値来歴を満たすため、冪等再送では現在のplatformを再解釈せず当初の来歴を返す。
+- I-1417: Fable §3.2.1で追加するE_LINKED_CELは、編集拒否としてCLI終了コード3。未指定の終了コードを補い、付録Cの全件照合にも追加した。
 
 ## 仕様変更
 
