@@ -261,3 +261,12 @@
 - 前後性能値は対象なし（新規経路であり、既存性能の改善を主張しない）。並行稼働中のWindowsでPython起動・ファイル読込に長い待ちを観測し、通常の偽サーバー試験は期限60秒、期限試験だけ1秒とした。製品既定の全体600秒/HTTP10秒は維持する。
 - 実ComfyUI・実GPU・Linuxは未実行。GPUと依存監査はR1-F2へ、GUIのバッジ表示と参照原画の見た目はOpusへ引き継ぐ。Diffusersの呼出し署名は維持。main統合はオーケストレーターが行う。
 - 受け入れ基準は全項目合格。設計分岐・検証の生値・未実施事項は [R1_F1_IMPLEMENTATION_REPORT.md](R1_F1_IMPLEMENTATION_REPORT.md) に記録した。
+
+## R1-GUI: GUI と意匠の確認（2026-11-12）
+
+- 新規作成ダイアログにプラットフォームの選択（`list_platforms` を system ごとの optgroup で、題名と大きさ・固定/目安つき、「なし」は従来どおり）。選ぶと引数に platform と大きさを入れ、明示パレットを外す。ステータスバーに設定時だけ ID、検証タブに「プラットフォームの検査」見出し（Q-PLT-* と情報扱いの Q-CRF-01）。変更はすべて既存の Op 経路（`op.apply`）のまま。
+- `list_platforms` の各項目に継承を解いた system・role・canvas を追加。`list_generators` の各 model に `gen models` と同じ badges を追加。GUI は操作結果のバッジを 4 種の訳語とサーバの原文の併記で表示する（`components/Terms.tsx`）。
+- review シート: 実 CLI で `nds/sprite-80` と `dmg/sprite-16` の見本（3 コマ・pingpong タグ、DMG は自作の guide 付きも）を作り、PNG を開いて判断した。番号だけの見出し、2px の詰まった間隔、市松の拡大パネルが紙地に溶ける点、シルエットの縁と市松の競合、パネル番号とコマ番号の紛れを直した（I-1859〜I-1862、§6.7.1）。整数配置のままで、review の golden は無いため更新なし。単体試験を 1 件追加。
+- 内蔵 craft: nds `ramp_steps [1,5]`、dmg `[1,3]` だけ authored で追加し、作風に関わる文字列と比率は null（I-1863〜I-1865）。m11 の golden 6 件を更新器で更新（snapshot の 2 項目だけ）。
+- 確認: `npm test` 698 passed・コントラスト 100 組合格、`npm run build` 成功、`npm run test:e2e` 5 passed（新規: 選択→作成→ID 表示→CLI の 1 画素で Q-PLT-05 が見出しの下だけに出る）。Python は下記の報告の数値。スクリーンショットは `docs/design/gui/platform-main-en.png`、`platform-new-project-ja.png`、`model-terms-en.png`。
+- 判断 I-1851〜I-1865。範囲外: プラットフォーム定義の編集（v1.x）、来歴タブの source ごとのバッジ（get_source の結果にバッジが無い）、取り込み・書き出しの専用フォームと設定ダイアログ（R1-17/R1-30）。

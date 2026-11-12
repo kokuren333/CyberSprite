@@ -1,6 +1,6 @@
 # GUI の起動と構成
 
-GUI はテーマ「Circuit White」の案 C「Solder Mask」（`docs/design/theme-options/SELECTION.md` の緩和策つき）で描く。画面の見本は `docs/design/gui/`（英語、高コントラスト、日本語、設定ダイアログ）。データ経路と Op の呼び方は下の「接続とデータ」のとおりで、見た目の層はそこに手を入れていない。
+GUI はテーマ「Circuit White」の案 C「Solder Mask」（`docs/design/theme-options/SELECTION.md` の緩和策つき）で描く。画面の見本は `docs/design/gui/`（英語、高コントラスト、日本語、設定ダイアログ、プラットフォームの選択と検査、モデルの利用条件）。データ経路と Op の呼び方は下の「接続とデータ」のとおりで、見た目の層はそこに手を入れていない。
 
 ```powershell
 uv sync --locked --extra gui
@@ -52,6 +52,14 @@ JSON-RPC 2.0 の名前付き引数を使う。通常要求、通知、バッチ�
 `project.changed` は `{project,revision,actor,changed}`。250 ms ごとに mtime+size を見て、変化時だけ正本を読み、リビジョンを比較する。複数コミットを観測した場合はジャーナルの各行を通知する。`job.progress` は長い処理の開始0%と完了100%。処理内の段階別進捗は後続 Op がフックを提供してから拡張する。
 
 サーバは同じ `ops.execute(..., actor='gui')` を呼ぶ。合成は core の render のみ。フロントは RGBA を整数倍で表示し、描きかけだけ共通ラスタ規則で仮描画する。Zustand の tool/layer/frame/colors/selection は表示状態で、Op の対象はポインタ押下時に固定して明示する。構造変更は expect_revision を付け、描画には付けない。再接続時は構造を再取得し、途切れた変更要求を自動再送しない。
+
+## プラットフォームと利用条件（R1-GUI）
+
+- 新規プロジェクトのダイアログは、開いた直後に `op.apply {op:"list_platforms"}` を 1 回呼ぶ（プロジェクトがまだ無くても使える query）。選択肢は継承を解いた `system` ごとの `<optgroup>` で、`ID — 題名 · 幅×高さ 固定/目安`（canvas が無ければ「大きさ自由」）。選ぶと引数 JSON を `platform`、canvas の幅と高さ、明示パレットなし（プラットフォームの既定パレットを使う）に置き換える。「なし」は従来の `{width:32,height:32,platform:null,...}`。引数はその後も手で直せる。値の組立ては `gui/src/platforms.ts` の純関数で、vitest で固定した。
+- ステータスバーは `summary.platform` があるときだけ「プラットフォーム」と ID を出す（`data-testid="platform-id"`）。
+- 検証タブは Q-PLT-* と Q-CRF-01 を「プラットフォームの検査」見出し（ID と件数つき）の下に分ける。Q-CRF-01 は常に情報として表示する。関門の判定はサーバの `ok` のままで、GUI は並べ替えるだけ。
+- 生成モデルの利用条件は `components/Terms.tsx`。操作ダイアログの結果（`generate_image` の `model_terms`、`list_generators` の `models[].badges`）から、`id`・`license`・`badge` を持つ項目を集めて表示する。文言は 4 種（商用利用可 / 商用可（利用制限あり） / 非商用のみ / 要確認）を訳し、サーバの英語の `badge` と `commercial_use` も同じ行に残す。色だけに頼らず、アイコンと語で区別する。背景と帯は既存の検証行と同じトークンで、`check:contrast` に行を足した。
+- 見本: `docs/design/gui/platform-main-en.png`、`platform-new-project-ja.png`、`model-terms-en.png`。
 
 ## 確認と後続作業
 
