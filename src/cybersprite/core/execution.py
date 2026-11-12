@@ -57,7 +57,7 @@ def _records(root):
         ) from error
 
 
-def committed_bytes(path, root):
+def committed_bytes(path: str | Path, root: str | Path) -> bytes:
     """Readers observe pre-save bytes until the durable intent is removed."""
     path = Path(path)
     scope = _active.get()
@@ -83,6 +83,7 @@ def committed_bytes(path, root):
             if records == _records(root):
                 if missing:
                     raise FileNotFoundError(path)
+                assert data is not None
                 return data
             check_deadline()
     return path.read_bytes()

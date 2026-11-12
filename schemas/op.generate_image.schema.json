@@ -2,7 +2,7 @@
   "additionalProperties": false,
   "properties": {
     "backend": {
-      "description": "Configured backend name: diffusers or command:<name>.",
+      "description": "Configured backend: diffusers, comfyui or command:<name>.",
       "title": "Backend",
       "type": "string"
     },
@@ -78,6 +78,22 @@
       "description": "Accept configured model and adapter terms.",
       "title": "Accept Model License",
       "type": "boolean"
+    },
+    "use": {
+      "default": "canvas",
+      "description": "Source purpose: design reference or later canvas import; never places pixels.",
+      "enum": [
+        "design",
+        "canvas"
+      ],
+      "title": "Use",
+      "type": "string"
+    },
+    "rights_note": {
+      "default": "",
+      "description": "Known rights concerns or output terms to preserve in provenance.",
+      "title": "Rights Note",
+      "type": "string"
     },
     "project": {
       "description": "Project directory or project.json path.",

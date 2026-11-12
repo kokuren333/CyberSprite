@@ -2,16 +2,69 @@
   "additionalProperties": false,
   "properties": {
     "width": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
       "description": "Width in integer pixels.",
-      "minimum": 1,
-      "title": "Width",
-      "type": "integer"
+      "title": "Width"
     },
     "height": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
       "description": "Height in integer pixels.",
-      "minimum": 1,
-      "title": "Height",
-      "type": "integer"
+      "title": "Height"
+    },
+    "platform": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Platform ID or data-only definition; omission uses user defaults.",
+      "title": "Platform"
+    },
+    "platform_file": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Platform JSON file path.",
+      "title": "Platform File",
+      "x-cybersprite-path": "input"
+    },
+    "platform_overrides": {
+      "additionalProperties": true,
+      "description": "Platform override values keyed by JSON Pointer.",
+      "title": "Platform Overrides",
+      "type": "object"
     },
     "palette": {
       "anyOf": [
@@ -151,8 +204,6 @@
     }
   },
   "required": [
-    "width",
-    "height",
     "project"
   ],
   "title": "new_projectInput",

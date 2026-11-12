@@ -79,7 +79,8 @@ def compact(schema):
                 else compact(value)
             )
             for key, value in schema.items()
-            if key not in {"title", "description"}
+            if key not in {"title", "description", "discriminator"}
+            and not key.startswith("x-cybersprite-")
         }
     return schema
 
@@ -118,8 +119,40 @@ def compact_input(schema):
             for key, value in node.items()
             if key != "$defs" and not (key == "default" and value is None)
         }
-        if "anyOf" in result and all(set(item) == {"type"} for item in result["anyOf"]):
-            result["type"] = list(dict.fromkeys(item["type"] for item in result.pop("anyOf")))
+        # Nullable constraints apply only to their matching JSON type, so an optional
+        # integer/string/array can share one shape with null without repeating anyOf.
+        variants = result.get("anyOf")
+        if variants and len(variants) == 2 and {"type": "null"} in variants:
+            target = next(item for item in variants if item != {"type": "null"})
+            if "type" in target and not ({"enum", "const"} & target.keys()):
+                result.pop("anyOf")
+                result.update(target)
+                types = target["type"] if isinstance(target["type"], list) else [target["type"]]
+                result["type"] = [*types, "null"]
+        # Projection can turn several large variants into the same object shape.
+        # Such branches overlap: oneOf would reject every object instead of
+        # advertising the intended broad shape. Keep a valid union of unique shapes.
+        for key in ("anyOf", "oneOf"):
+            if key not in result:
+                continue
+            unique = []
+            for item in result[key]:
+                if item not in unique:
+                    unique.append(item)
+            if {"type": "object"} in unique:
+                unique = [
+                    item
+                    for item in unique
+                    if item.get("type") != "object" or item == {"type": "object"}
+                ]
+            if len(unique) == 1:
+                result.pop(key)
+                result.update(unique[0])
+            elif unique != result[key]:
+                result.pop(key)
+                result["anyOf"] = unique
+        if "enum" in result or "const" in result:
+            result.pop("type", None)  # Values already determine their JSON types.
         return result
 
     return visit(compact(schema))

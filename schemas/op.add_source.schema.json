@@ -1,0 +1,226 @@
+{
+  "$defs": {
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "license": {
+          "description": "Usage license identifier; use unknown when usage terms are unknown.",
+          "minLength": 1,
+          "title": "License",
+          "type": "string"
+        },
+        "kind": {
+          "default": "imported",
+          "description": "Source origin: imported or generated.",
+          "enum": [
+            "imported",
+            "generated"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "provider": {
+          "default": "file",
+          "description": "Input provider name, for example file.",
+          "title": "Provider",
+          "type": "string"
+        },
+        "prompt": {
+          "default": "",
+          "description": "Original generation prompt; empty for non-generated input.",
+          "title": "Prompt",
+          "type": "string"
+        },
+        "negative_prompt": {
+          "default": "",
+          "description": "Original negative generation prompt, if any.",
+          "title": "Negative Prompt",
+          "type": "string"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Generator model identifier and version, if any."
+        },
+        "url": {
+          "default": "",
+          "description": "Source attribution URL, if available.",
+          "title": "Url",
+          "type": "string"
+        },
+        "rights_note": {
+          "default": "",
+          "description": "Additional usage-rights or attribution notes.",
+          "title": "Rights Note",
+          "type": "string"
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Original generation seed, if known.",
+          "title": "Seed"
+        },
+        "params": {
+          "additionalProperties": true,
+          "description": "Original generation parameters retained as provenance.",
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "license"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "SourceAdapter": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "license": {
+          "minLength": 1,
+          "title": "License",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "license"
+      ],
+      "title": "SourceAdapter",
+      "type": "object"
+    },
+    "SourceModel": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "license": {
+          "minLength": 1,
+          "title": "License",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        },
+        "adapters": {
+          "items": {
+            "$ref": "#/$defs/SourceAdapter"
+          },
+          "title": "Adapters",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "license",
+        "sha256",
+        "adapters"
+      ],
+      "title": "SourceModel",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "files": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4096,
+          "minItems": 1,
+          "type": "array"
+        }
+      ],
+      "description": "Design image paths to retain without placing pixels on the canvas.",
+      "title": "Files",
+      "x-cybersprite-path": "input"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance",
+      "description": "Origin and license; use unknown if unknown."
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "files",
+    "provenance",
+    "project"
+  ],
+  "title": "add_sourceInput",
+  "type": "object"
+}

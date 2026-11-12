@@ -43,6 +43,17 @@
       "title": "Frame",
       "type": "integer"
     },
+    "linked": {
+      "default": "error",
+      "description": "Shared position/opacity edits: error, all, or unlink this frame.",
+      "enum": [
+        "error",
+        "all",
+        "unlink"
+      ],
+      "title": "Linked",
+      "type": "string"
+    },
     "x": {
       "anyOf": [
         {

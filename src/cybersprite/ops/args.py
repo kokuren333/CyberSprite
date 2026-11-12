@@ -54,7 +54,7 @@ class CombinedRegion(Model):
 
     @model_validator(mode="before")
     @classmethod
-    def bounded_tree(cls, value):
+    def bounded_tree(cls, value: Any) -> Any:
         if isinstance(value, dict):
             try:
                 check_region_tree(value)

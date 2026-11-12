@@ -178,7 +178,8 @@ def test_http_generation_provenance_replay_outlet_and_placement(comfy):
     assert result["warnings"][0]["code"] == "W_MODEL_TERMS"
     assert not (project / "project.json").exists()
     source = read_manifest(project).sources[0]
-    assert source.rights_note == "Review third-party rights" and source.params["use"] == "design"
+    assert source.rights_note == "Review third-party rights"
+    assert source.use == source.params["use"] == "design"
     assert source.params["server_url"].startswith("http://127.0.0.1:")
     assert source.model.sha256 == hashlib.sha256(workflow.read_bytes()).hexdigest()
     saved = project / source.params["workflow"]["path"]
@@ -216,6 +217,7 @@ def test_http_generation_provenance_replay_outlet_and_placement(comfy):
     placed = ops.execute("import_image", project, {"source": "SRC1", "preset": "exact"})
     issues = placed["validation"]["new_issues"]
     assert any(i["rule"] == "Q-SRC-04" for i in issues)
+    assert read_manifest(project).sources[0].use == "canvas"
     saved.write_bytes(b"changed")
     with pytest.raises(CyberSpriteError, match="workflow is missing or changed"):
         ops.execute(

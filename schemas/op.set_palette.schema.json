@@ -1,4 +1,35 @@
 {
+  "$defs": {
+    "Ramp": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "maxLength": 255,
+          "minLength": 1,
+          "pattern": "^[^:]+$",
+          "title": "Name",
+          "type": "string"
+        },
+        "indices": {
+          "items": {
+            "maximum": 255,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 256,
+          "minItems": 1,
+          "title": "Indices",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "indices"
+      ],
+      "title": "Ramp",
+      "type": "object"
+    }
+  },
   "additionalProperties": false,
   "properties": {
     "colors": {
@@ -24,6 +55,22 @@
       "default": null,
       "description": "Palette-index keys mapped to human-readable color names.",
       "title": "Names"
+    },
+    "ramps": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/Ramp"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Explicit dark-to-light material index lists; an empty list clears ramps.",
+      "title": "Ramps"
     },
     "transparent_index": {
       "anyOf": [

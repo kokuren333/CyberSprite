@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from datetime import datetime
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -90,7 +90,7 @@ class Palette(Model):
     ramps: list[Ramp] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def valid_ramps(self):
+    def valid_ramps(self) -> Self:
         names, indices = set(), set()
         for ramp in self.ramps:
             if ramp.name in names:
@@ -272,7 +272,7 @@ class Project(Model):
 
     @field_validator("platform")
     @classmethod
-    def resolved_master(cls, value):
+    def resolved_master(cls, value: Platform | None) -> Platform | None:
         if value and value.system.color.model == "master" and not value.system.color.master_colors:
             raise ValueError("A platform snapshot using master colors requires master_colors.")
         return value

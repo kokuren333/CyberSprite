@@ -17,7 +17,8 @@
           "palette",
           "sources",
           "validation",
-          "history"
+          "history",
+          "platform"
         ],
         "type": "string"
       },

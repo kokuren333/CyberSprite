@@ -1961,7 +1961,7 @@ cybersprite mcp serve [--root <ディレクトリ>] [--allow-dir <ディレク�
 
 - `--enable-generation` を付けたときだけ `list_generators` と `generate_image` を公開する。
 - MCP のスキーマは説明用の冗長なタイトルを省略し、成功・失敗の共通フィールドを 1 つの封筒にまとめる。結果の相対パス化は、完全な応答スキーマの `format: "path"` で指定したフィールドだけに適用する。レイヤー経路や任意メタデータ中の文字列は変換しない。
-- ツール一覧はコンパクトな宣言を返す。入力は必須キー・スカラー制約と小さな入れ子の形を掲載し、大きな入れ子は型だけを掲載する。出力は共通封筒の必須キーと成功・失敗の分岐を掲載する。完全な引数・結果の検証とパス検査には省略前の登録定義を使い、詳細は `ops describe` と `schema op` で取得できる。外部参照の取得は要求しない。
+- ツール一覧はコンパクトな宣言を返す。入力は必須キー・スカラー制約と小さな入れ子の形を掲載し、大きな入れ子は型だけを掲載する。出力は共通封筒の必須キーと成功・失敗の分岐を掲載する。完全な引数・結果の検証とパス検査には省略前の登録定義を使い、詳細は `ops describe` と `schema op` で取得できる。外部参照の取得は要求しない。MCP一覧ではパス・領域の内部注釈とdiscriminatorを省き、nullableな同型制約と重複した投影分岐を有効な型・和へまとめる。省略前の定義と実行時検査は保持する。
 - モデル登録とワークフロー検査は人間用 CLI だけで行う。`generate_image` は任意のワークフロー JSON やサーバ URL を受け付けず、ComfyUI では登録名と明示された入力の値だけを選択できる（§12.7）。
 - プラグインの Op は、`--allow-plugin-op` で名前を挙げたものだけを公開する。
 - `--read-only` は `query` のツールだけを公開する。
@@ -2534,7 +2534,7 @@ class GenerationBackend(Protocol):
                  progress: Callable[[float, str], None]) -> list[GeneratedImage]: ...
 ```
 
-- `GenerationRequest`: `prompt`、`negative_prompt`、`width`、`height`、`seed`（省略時はバックエンドが決め、結果に記録する）、`count`、`model`、`params`（バックエンド固有。スキーマをバックエンドが公開する）、`use`（`design` / `canvas`、既定 `canvas`）、`rights_note`（既定空文字）。`use` は来歴の `params.use` に記録する。`design` は参照原画、`canvas` は後続の `import_image source=SRC<n>` 用で、どちらも生成時には配置しない。
+- `GenerationRequest`: `prompt`、`negative_prompt`、`width`、`height`、`seed`（省略時はバックエンドが決め、結果に記録する）、`count`、`model`、`params`（バックエンド固有。スキーマをバックエンドが公開する）、`use`（`design` / `canvas`、既定 `canvas`）、`rights_note`（既定空文字）。`use` は来歴の `Source.use` と `params.use` に同じ値を記録する。`design` は参照原画、`canvas` は後続の `import_image source=SRC<n>` 用で、どちらも生成時には配置しない。
 - `GeneratedImage`: `path`（`out_dir` の中）、`seed`、`model`（`ModelInfo`）、`params`（実際に使った値）。
 - コアは、返されたファイルを `source/SRC<n>/` に収め、`kind: "generated"` の来歴を書く。
 
@@ -2643,7 +2643,7 @@ license = "model card license name"
 
 プラグインは `Q-<提供者>-nn` の形で規則を足せる（§15）。
 
-platformがある場合だけ§5.13.5のQ-PLT-01/02/03/05/07/08を実行する。水準はerror/error/error/warning/info/info。
+platformがある場合だけ§5.13.5のQ-PLT-01〜08とQ-CRF-01を実行する。Q-PLTの水準は同節の表に従い、Q-CRF-01はoff以外info固定とする。
 
 ### 13.3 検証の設定（`project.json` の `validation`）
 

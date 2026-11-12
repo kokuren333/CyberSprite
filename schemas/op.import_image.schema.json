@@ -58,6 +58,25 @@
     "CleanupSettings": {
       "additionalProperties": false,
       "properties": {
+        "method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional plugin indexed cleanup method.",
+          "title": "Method"
+        },
+        "params": {
+          "additionalProperties": true,
+          "description": "Plugin-specific parameters.",
+          "title": "Params",
+          "type": "object"
+        },
         "min_cluster": {
           "default": 2,
           "description": "Remove smaller same-index components; one disables cleanup.",
@@ -128,16 +147,14 @@
         "method": {
           "default": "auto",
           "description": "Cell representative method; pixeloe requires a configured plugin.",
-          "enum": [
-            "auto",
-            "center",
-            "median",
-            "mode",
-            "kcentroid",
-            "pixeloe"
-          ],
           "title": "Method",
           "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "description": "Plugin-specific parameters.",
+          "title": "Params",
+          "type": "object"
         },
         "alpha_threshold": {
           "default": 128,
@@ -154,6 +171,39 @@
     "GateSettings": {
       "additionalProperties": false,
       "properties": {
+        "grid_cell_count": {
+          "description": "Warn below this cell count when input span reaches [cells, input pixels].",
+          "items": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Grid Cell Count",
+          "type": "array"
+        },
+        "boundary_alignment": {
+          "description": "Minimum auto boundary alignment [fail, warn].",
+          "items": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Boundary Alignment",
+          "type": "array"
+        },
+        "snap_fidelity": {
+          "description": "Maximum source-to-cell RGB mean squared error [auto fail, warn].",
+          "items": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Snap Fidelity",
+          "type": "array"
+        },
         "grid_score": {
           "anyOf": [
             {
@@ -199,6 +249,25 @@
     "GridSettings": {
       "additionalProperties": false,
       "properties": {
+        "method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional plugin grid preprocessing method.",
+          "title": "Method"
+        },
+        "params": {
+          "additionalProperties": true,
+          "description": "Plugin-specific parameters.",
+          "title": "Params",
+          "type": "object"
+        },
         "mode": {
           "default": "auto",
           "description": "Detect a rational grid, specify integer cells, divide into target counts, or keep input pixels.",
@@ -252,6 +321,14 @@
           "maximum": 255,
           "minimum": 0,
           "title": "Purity Tolerance",
+          "type": "integer"
+        },
+        "candidate_agreement": {
+          "default": 950,
+          "description": "Warn when a different runner-up pitch reaches this score ratio (per mille).",
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Candidate Agreement",
           "type": "integer"
         },
         "cell_w": {
@@ -355,6 +432,25 @@
     "PaletteSettings": {
       "additionalProperties": false,
       "properties": {
+        "method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional plugin quantization method.",
+          "title": "Method"
+        },
+        "params": {
+          "additionalProperties": true,
+          "description": "Plugin-specific parameters.",
+          "title": "Params",
+          "type": "object"
+        },
         "mode": {
           "default": "extract",
           "description": "Use project colors, supplied colors, perceptual extraction, or exact input colors.",
@@ -466,6 +562,18 @@
     "PipelineSettings": {
       "additionalProperties": false,
       "properties": {
+        "reconstruct": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PluginStepSettings"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional composite preprocessing before the single quantization step."
+        },
         "grid": {
           "$ref": "#/$defs/GridSettings",
           "description": "Grid detection, phase, rational cell counts, and purity."
@@ -500,6 +608,27 @@
         }
       },
       "title": "PipelineSettings",
+      "type": "object"
+    },
+    "PluginStepSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "description": "Registered reconstruct method; replaces grid and downsample.",
+          "title": "Method",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "description": "Plugin-specific parameters.",
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "method"
+      ],
+      "title": "PluginStepSettings",
       "type": "object"
     },
     "Provenance": {

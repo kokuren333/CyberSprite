@@ -1,0 +1,94 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "out": {
+      "description": "Raw tile output path.",
+      "title": "Out",
+      "type": "string",
+      "x-cybersprite-path": "output"
+    },
+    "overwrite": {
+      "default": true,
+      "description": "Replace existing output files when true.",
+      "title": "Overwrite",
+      "type": "boolean"
+    },
+    "allow_invalid": {
+      "default": false,
+      "description": "Explicitly export even when validation has errors, recording a warning.",
+      "title": "Allow Invalid",
+      "type": "boolean"
+    },
+    "format": {
+      "default": "gb-2bpp",
+      "description": "Native exporter name; initially gb-2bpp.",
+      "title": "Format",
+      "type": "string"
+    },
+    "tileset": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Tileset ID or unique name.",
+      "title": "Tileset"
+    },
+    "layer": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Non-group layer ID or unique name.",
+      "title": "Layer"
+    },
+    "palette_out": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reserved; not yet supported.",
+      "title": "Palette Out",
+      "x-cybersprite-path": "output"
+    },
+    "map_out": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reserved; not yet supported.",
+      "title": "Map Out",
+      "x-cybersprite-path": "output"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    }
+  },
+  "required": [
+    "out",
+    "project"
+  ],
+  "title": "export_nativeInput",
+  "type": "object"
+}

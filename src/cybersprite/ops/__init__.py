@@ -33,7 +33,7 @@ from .ingest_args import (
 
 
 def _lazy_apply(module, function, *args, **kwargs):
-    if "name" in kwargs:
+    if "name" in kwargs and hasattr(args[0], "project"):
         from .platform_ops import apply_defaults
 
         args[0].defaults_from_platform.extend(

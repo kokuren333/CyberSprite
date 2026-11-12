@@ -9,18 +9,34 @@
       "type": "string"
     },
     "tile_w": {
+      "anyOf": [
+        {
+          "maximum": 256,
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
       "description": "Tile width in pixels (1-256).",
-      "maximum": 256,
-      "minimum": 1,
-      "title": "Tile W",
-      "type": "integer"
+      "title": "Tile W"
     },
     "tile_h": {
+      "anyOf": [
+        {
+          "maximum": 256,
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
       "description": "Tile height in pixels (1-256).",
-      "maximum": 256,
-      "minimum": 1,
-      "title": "Tile H",
-      "type": "integer"
+      "title": "Tile H"
     },
     "base_index": {
       "default": 1,
@@ -92,8 +108,6 @@
   },
   "required": [
     "name",
-    "tile_w",
-    "tile_h",
     "project"
   ],
   "title": "add_tilesetInput",

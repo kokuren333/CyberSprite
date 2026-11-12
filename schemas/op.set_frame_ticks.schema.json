@@ -1,0 +1,130 @@
+{
+  "$defs": {
+    "Tick": {
+      "additionalProperties": false,
+      "properties": {
+        "num": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Num",
+          "type": "integer"
+        },
+        "den": {
+          "default": 60,
+          "minimum": 1,
+          "title": "Den",
+          "type": "integer"
+        }
+      },
+      "title": "Tick",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "frames": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "items": {
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "default": "all",
+      "description": "Zero-based frame selection or tag:name.",
+      "title": "Frames"
+    },
+    "ticks": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "items": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "type": "array"
+        }
+      ],
+      "description": "Positive tick count per frame, or one count for every selected frame.",
+      "title": "Ticks"
+    },
+    "tick": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Tick"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Seconds per tick; omission uses the platform tick."
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ticks",
+    "project"
+  ],
+  "title": "set_frame_ticksInput",
+  "type": "object"
+}

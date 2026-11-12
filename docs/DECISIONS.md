@@ -307,9 +307,9 @@
 | 2026-11-12 | I-1473 | §10.12、R1-21 | add_sourceの永続再送キーをexpect_revisionより先に照合し、既存キーの引数相違は先に拒否する | Fable R1-21の順序を新しいsource専用経路にも適用し、登録後に描画が進んでも同じ再送を成功させる | Codex / R1-E2 |
 | 2026-11-12 | I-1474 | §6.7.1、H-11 | guide.fileは登録相対パスまたは登録実体に一致する絶対パスだけを受け、MCPでは入力パスとして解決する | Fable §3.4の登録原画制限を守り、MCPが返すworkspace相対filesをguideへそのまま往復できるようにする | Codex / R1-E2 |
 | 2026-11-12 | I-1475 | §6.4.1、§6.4.9、H-13 | maskの標識でanyOfより先に木を制限し、境界前のdeepcopyを廃す。apply_opsも子Opの型付き引数を先に検査する | Codex §5 row 3の再帰注意をoptional mask・コピー・バッチにも適用し、深い入力を再帰例外ではなくE_LIMIT_EXCEEDEDにする | Codex / R1-E2 |
-| 2026-11-12 | I-1901 | ?6.2??10.4??13.4 | E1/E2?????B2??????????B1?project_lock/save_context/??????????summary???????platform?????? | Fable H-02/H-13?R1-07/09/10?????????? | Codex / R1-INT |
-| 2026-11-12 | I-1902 | ?13.4?H-17 | B2???????????????????????????????????????????????????????????BFS64????? | Fable H-17?E2?????????64?????????????? | Codex / R1-INT |
-| 2026-11-12 | I-1903 | ?5.11??6.7.1??10.12 | crop???????????????add_source???????DecodeBudget????source??????????????files?MCP?????????? | A2/B1/M??????E2??????????????????????? | Codex / R1-INT |
+| 2026-11-12 | I-1901 | §6.2、§10.4、§13.4 | E1/E2の既定値をB2の遅延適用へ接続し、B1のproject_lock/save_context/索引再送を維持する。summaryは品質検証せずplatform宣言だけ返す | Fable H-02/H-13とR1-07/09/10の両方を保持する統合 | Codex / R1-INT |
+| 2026-11-12 | I-1902 | §13.4、H-17 | B2の成分マスク・帰属キャッシュを維持し、実描画順の逆順で不透明な上層を除外する。点差分の完全集合は成分マスクから得て公開BFS64点と分ける | Fable H-17とE2の遮蔽契約を保ち、64点以降の差分・寄与も失わない | Codex / R1-INT |
+| 2026-11-12 | I-1903 | §5.11、§6.7.1、§10.12 | crop後の寸法にも出力予算を適用し、add_sourceの全入力に共通DecodeBudgetを使う。source登録を保存文脈へ接続し、返却filesをMCPのパス注釈で変換する | A2/B1/Mの共通境界をE2にも適用し、原画のパス往復と例外復元を保証する | Codex / R1-INT |
 
 | 2026-11-12 | I-1501 | §5.13.3、§15.2 | platforms探索を共通PluginManagerへ接続し、enabled/disabled・factory前plugin_api=1・データの整数検査を共用する | R1-CとE1の独立した許可経路を統合する。Fable §3.1.5と追加指示task 0に従う | Codex / R1-E3 |
 | 2026-11-12 | I-1502 | §6.7.1、H-08 | reviewは番号付きパネルとpanels座標表を返し、実寸と整数倍率を保持、辺8192・面積16777216・再生4096を生成前に制限する | Fable §3.3.2の実寸確認を黙った縮小で損なわず、意匠判断を後続へ残す | Codex / R1-E3 |
@@ -338,7 +338,7 @@
 | 2026-11-12 | I-1608 | §12.4、R1-14 | ローカル実体限定のI-703を仕様に明記し、rights_noteをgenerate_imageからsourceへ渡す。Diffusersの呼出し署名とGPUスタックは変更しない | Fable §3.6とR1-14に合わせ、GPU確認・依存監査を並行R1-F2に分離する | Codex / R1-F1 |
 | 2026-11-12 | I-1609 | §13.6、R1-F1検証 | 実子プロセスを起動する既存の生成試験だけ、設定fixtureの期限を30秒から120秒にした。製品の既定値とTimeoutExpiredを注入する期限試験は変更しない | 並行稼働中に自作fake_command.pyのPython起動が30秒を超え、生成試験68件中2件が同じTimeoutExpiredで失敗した。起動速度を生成の正しさの条件にしない | Codex / R1-F1 |
 | 2026-11-12 | I-1610 | §13.2、§13.6 | Q-SRC-04は既存のsource用検出・非検出試験へ追加し、商用条件unknown/yesと配置有無を検査する。sourceがない汎用fixtureからは既存Q-SRC-01〜03同様に除く | 全体試験で自動列挙された新規ルールにsourceなしfixtureが割り当たり、1458件成功・2件skip中の1件だけ失敗した。機能を弱めず共通試験にも正式な正例・負例を置く | Codex / R1-F1 |
-| 2026-11-12 | I-1904 | ?5.10??12.3 | ???????E2?Source.use?F1?params.use??????? | Fable H-11/H-21???????????????????????????????? | Codex / R1-INT |
+| 2026-11-12 | I-1904 | §5.10、§12.3 | 生成時の用途をE2のSource.useとF1のparams.useへ同時記録する | Fable H-11/H-21の同じ用途を二つの統合契約で矛盾させず、両側の既存読取を保持する | Codex / R1-INT |
 | 2026-11-12 | I-1641 | §2.2、§12.4、REVIEW_1 §3.6-4 | 具体的な Windows CUDA スタックの監査後も選択肢(b)を採り、diffusers extra は空の予約名を維持する。主lock・許可リスト・第三者台帳に生成依存を足さない | regexのCNRI、certifi/tqdmのMPL、setuptoolsのvendor LGPL、torch同梱NVIDIA DLLが許可リストに合わない。I-014/I-708を追認し利用者の別環境導入を文書化する | Codex / R1-F2 |
 | 2026-11-12 | I-1642 | §12.4、REVIEW_1 §3.6-4 | 実機検証はリポジトリ外のCPython 3.12環境でTorch 2.8.0+cu128とDiffusers 0.35.2/Transformers 4.57.1/PEFT 0.17.1を使い、主環境へインストールしない | 公式CUDA indexの実wheelを監査対象とし、LoRAのPEFT推移依存も閉包へ含め、他作業のlockと生成スタックを分離する | Codex / R1-F2 |
 | 2026-11-12 | I-1643 | §12.4 | ローカルディレクトリのfp16 safetensorsを検出した場合だけvariant=fp16/use_safetensors=trueを渡す。単一ファイルの既存経路は保つ | 指定のSDXL fp16取得物には無印の重みがなく、既存from_pretrained呼出しでは読めない。F1のモデル登録フィールド追加に依存しない実行経路の修正とする | Codex / R1-F2 |
@@ -380,3 +380,4 @@
 | 2026-11-12 | I-1863 | §5.13.5 | 内蔵 craft は `nds` に `ramp_steps: [1,5]`、`dmg` に `ramp_steps: [1,3]` だけを authored で入れる。下限 1 は単色の素材を指摘しないため。上限は色予算からの一般則（NDS 15 不透明色で 1 素材 6 段以上は他の素材と輪郭の色が足りなくなる。DMG は 3 不透明色が物理的な上限） | Fable §3.1.7/§3.3.3。市販作品から測った値を使わず、色数の算術で説明できる範囲だけにする。info で関門にはしない | Opus / R1-GUI |
 | 2026-11-12 | I-1864 | §5.13.5 | `outline.style`・`dither`・`light` と、fill/depth/flat/region/parts の数値範囲は内蔵定義では null のまま | 線の流儀、ディザ、光源の向きは作風の選択であり、AGENTS §2（表現を縛らない）に反する。比率は根拠なく決めると推測になる。測定値は M12/M13 の corpus 付き measured で扱う | Opus / R1-GUI |
 | 2026-11-12 | I-1865 | §5.13.2 | craft を変えた `nds`・`dmg` と、それを継承する `nds/sprite-80`・`nds/sprite-96`・`dmg/background`・`dmg/sprite-16`・`dmg/tileset-8` の `preset_version` を 2 に上げる。m11_nds/m11_dmg の golden は唯一の更新器で 6 ファイルを更新し、差分が preset_version と ramp_steps だけ（PNG・画素・hash 不変）であることを確認した | 解決結果の snapshot が変わるので、どの版から作ったかを来歴で区別できるようにする | Opus / R1-GUI |
+| 2026-11-12 | I-1905 | §10.1.2、R1-08 | 全87ツールを標準公開したまま内部注釈・discriminator・enumの型重複を除き、nullable制約を共通の型配列へまとめる。投影で重複したoneOfは有効な和へ直す | Fable R1-08とR1-Mの完全検証/コンパクト一覧の分離に従い、サイズとオフラインJSON Schemaの妥当性を両立する | Codex / R1-INT |

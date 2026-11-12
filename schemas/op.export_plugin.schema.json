@@ -1,0 +1,53 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "out": {
+      "description": "Single output path.",
+      "title": "Out",
+      "type": "string",
+      "x-cybersprite-path": "output"
+    },
+    "overwrite": {
+      "default": true,
+      "description": "Replace existing output files when true.",
+      "title": "Overwrite",
+      "type": "boolean"
+    },
+    "allow_invalid": {
+      "default": false,
+      "description": "Explicitly export even when validation has errors, recording a warning.",
+      "title": "Allow Invalid",
+      "type": "boolean"
+    },
+    "format": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Enabled exporter entry-point name; omission uses extension.",
+      "title": "Format"
+    },
+    "options": {
+      "additionalProperties": true,
+      "description": "Options validated by the exporter options model.",
+      "title": "Options",
+      "type": "object"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    }
+  },
+  "required": [
+    "out",
+    "project"
+  ],
+  "title": "export_pluginInput",
+  "type": "object"
+}

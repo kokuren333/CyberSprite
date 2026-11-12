@@ -40,6 +40,205 @@
       "title": "ColorRegion",
       "type": "object"
     },
+    "CombinedRegion": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "and",
+            "or",
+            "not"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "of": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "all": "#/$defs/AllRegion",
+                "and": "#/$defs/CombinedRegion",
+                "color": "#/$defs/ColorRegion",
+                "ellipse": "#/$defs/EllipseRegion",
+                "mask": "#/$defs/MaskRegion",
+                "not": "#/$defs/CombinedRegion",
+                "or": "#/$defs/CombinedRegion",
+                "polygon": "#/$defs/PolygonRegion",
+                "rect": "#/$defs/RectRegion",
+                "wand": "#/$defs/WandRegion"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/AllRegion"
+              },
+              {
+                "$ref": "#/$defs/RectRegion"
+              },
+              {
+                "$ref": "#/$defs/EllipseRegion"
+              },
+              {
+                "$ref": "#/$defs/PolygonRegion"
+              },
+              {
+                "$ref": "#/$defs/MaskRegion"
+              },
+              {
+                "$ref": "#/$defs/ColorRegion"
+              },
+              {
+                "$ref": "#/$defs/WandRegion"
+              },
+              {
+                "$ref": "#/$defs/CombinedRegion"
+              }
+            ]
+          },
+          "title": "Of",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "of"
+      ],
+      "title": "CombinedRegion",
+      "type": "object"
+    },
+    "DrawingMask": {
+      "additionalProperties": false,
+      "properties": {
+        "only_on": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Only On"
+        },
+        "not_on": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Not On"
+        },
+        "region": {
+          "discriminator": {
+            "mapping": {
+              "all": "#/$defs/AllRegion",
+              "and": "#/$defs/CombinedRegion",
+              "color": "#/$defs/ColorRegion",
+              "ellipse": "#/$defs/EllipseRegion",
+              "mask": "#/$defs/MaskRegion",
+              "not": "#/$defs/CombinedRegion",
+              "or": "#/$defs/CombinedRegion",
+              "polygon": "#/$defs/PolygonRegion",
+              "rect": "#/$defs/RectRegion",
+              "wand": "#/$defs/WandRegion"
+            },
+            "propertyName": "type"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/AllRegion"
+            },
+            {
+              "$ref": "#/$defs/RectRegion"
+            },
+            {
+              "$ref": "#/$defs/EllipseRegion"
+            },
+            {
+              "$ref": "#/$defs/PolygonRegion"
+            },
+            {
+              "$ref": "#/$defs/MaskRegion"
+            },
+            {
+              "$ref": "#/$defs/ColorRegion"
+            },
+            {
+              "$ref": "#/$defs/WandRegion"
+            },
+            {
+              "$ref": "#/$defs/CombinedRegion"
+            }
+          ],
+          "title": "Region"
+        }
+      },
+      "title": "DrawingMask",
+      "type": "object"
+    },
+    "EllipseRegion": {
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "title": "X",
+          "type": "integer"
+        },
+        "y": {
+          "title": "Y",
+          "type": "integer"
+        },
+        "w": {
+          "minimum": 0,
+          "title": "W",
+          "type": "integer"
+        },
+        "h": {
+          "minimum": 0,
+          "title": "H",
+          "type": "integer"
+        },
+        "type": {
+          "const": "ellipse",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h",
+        "type"
+      ],
+      "title": "EllipseRegion",
+      "type": "object"
+    },
     "MaskRegion": {
       "additionalProperties": false,
       "properties": {
@@ -71,6 +270,35 @@
         "rows"
       ],
       "title": "MaskRegion",
+      "type": "object"
+    },
+    "PolygonRegion": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "polygon",
+          "title": "Type",
+          "type": "string"
+        },
+        "points": {
+          "items": {
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "type": "array"
+          },
+          "minItems": 2,
+          "title": "Points",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "points"
+      ],
+      "title": "PolygonRegion",
       "type": "object"
     },
     "RectRegion": {
@@ -166,7 +394,7 @@
           "type": "string"
         }
       ],
-      "description": "Palette index or an exact palette color; editing never approximates colors.",
+      "description": "Palette index, @name, or an exact palette color; editing never approximates colors.",
       "title": "Color"
     },
     "placement": {
@@ -179,6 +407,35 @@
       "title": "Placement",
       "type": "string"
     },
+    "exclude_colors": {
+      "anyOf": [
+        {
+          "items": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Colors excluded from outline seeds; excluding the outside outline color is idempotent.",
+      "title": "Exclude Colors"
+    },
+    "selective": {
+      "default": false,
+      "description": "Use the neighboring material ramp's darkest index for outline pixels.",
+      "title": "Selective",
+      "type": "boolean"
+    },
     "connectivity": {
       "default": 4,
       "description": "Neighbor connectivity: 4 uses edges, 8 also includes diagonals.",
@@ -190,12 +447,17 @@
       "type": "integer"
     },
     "region": {
-      "description": "Explicit all, rectangle, mask, color, or wand selection in canvas coordinates.",
+      "description": "Canvas selection: all, rect, ellipse, polygon, mask, color, wand, bounded and/or/not tree.",
       "discriminator": {
         "mapping": {
           "all": "#/$defs/AllRegion",
+          "and": "#/$defs/CombinedRegion",
           "color": "#/$defs/ColorRegion",
+          "ellipse": "#/$defs/EllipseRegion",
           "mask": "#/$defs/MaskRegion",
+          "not": "#/$defs/CombinedRegion",
+          "or": "#/$defs/CombinedRegion",
+          "polygon": "#/$defs/PolygonRegion",
           "rect": "#/$defs/RectRegion",
           "wand": "#/$defs/WandRegion"
         },
@@ -209,6 +471,12 @@
           "$ref": "#/$defs/RectRegion"
         },
         {
+          "$ref": "#/$defs/EllipseRegion"
+        },
+        {
+          "$ref": "#/$defs/PolygonRegion"
+        },
+        {
           "$ref": "#/$defs/MaskRegion"
         },
         {
@@ -216,9 +484,25 @@
         },
         {
           "$ref": "#/$defs/WandRegion"
+        },
+        {
+          "$ref": "#/$defs/CombinedRegion"
         }
       ],
       "title": "Region"
+    },
+    "mask": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DrawingMask"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Optional protection: only_on/not_on colors and region, tested once before drawing.",
+      "x-cybersprite-region-mask": true
     },
     "project": {
       "description": "Project directory or project.json path.",

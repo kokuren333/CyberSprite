@@ -1,0 +1,34 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Optional platform ID to resolve and show.",
+      "title": "Id"
+    },
+    "guide": {
+      "default": false,
+      "description": "Include a deterministic guide of at most 2048 UTF-8 bytes.",
+      "title": "Guide",
+      "type": "boolean"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    }
+  },
+  "required": [
+    "project"
+  ],
+  "title": "list_platformsInput",
+  "type": "object"
+}

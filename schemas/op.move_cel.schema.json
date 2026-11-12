@@ -1,0 +1,94 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "layer": {
+      "description": "Target layer ID, unique name, or group path.",
+      "title": "Layer",
+      "type": "string"
+    },
+    "frame": {
+      "description": "Zero-based frame index.",
+      "title": "Frame",
+      "type": "integer"
+    },
+    "dx": {
+      "default": 0,
+      "description": "Horizontal integer displacement; positive moves right.",
+      "title": "Dx",
+      "type": "integer"
+    },
+    "dy": {
+      "default": 0,
+      "description": "Vertical integer displacement; positive moves down.",
+      "title": "Dy",
+      "type": "integer"
+    },
+    "scope": {
+      "description": "Move this frame after detaching, or every shared frame.",
+      "enum": [
+        "frame",
+        "shared"
+      ],
+      "title": "Scope",
+      "type": "string"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "layer",
+    "frame",
+    "scope",
+    "project"
+  ],
+  "title": "move_celInput",
+  "type": "object"
+}
