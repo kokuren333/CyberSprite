@@ -1685,7 +1685,7 @@ cybersprite mcp serve [--root <ディレクトリ>] [--allow-dir <ディレク�
 | `minimal` | `new_project` `get_info` `get_pixels` `get_palette` `validate` `render_preview` `diff_preview` `apply_ops` `undo` `import_image` `export_image` `export_sheet` `export_animation`。個別の変更は `apply_ops` にまとめる。ツール定義がコンテキストを圧迫する場合に使う |
 
 - `--enable-generation` を付けたときだけ `list_generators` と `generate_image` を公開する。
-- MCP のスキーマは説明用の冗長なタイトルを省略し、成功・失敗の共通フィールドを 1 つの封筒にまとめる。ファイルパスには `format: "path"` を付け、結果の相対パス化はこの情報だけを使う。レイヤー経路などの文字列は変換しない。
+- MCP のスキーマは説明用の冗長なタイトルを省略し、成功・失敗の共通フィールドを 1 つの封筒にまとめる。結果の相対パス化は、完全な応答スキーマの `format: "path"` で指定したフィールドだけに適用する。レイヤー経路や任意メタデータ中の文字列は変換しない。
 - ツール一覧はコンパクトな宣言を返す。入力は必須キー・スカラー制約と小さな入れ子の形を掲載し、大きな入れ子は型だけを掲載する。出力は共通封筒の必須キーと成功・失敗の分岐を掲載する。完全な引数・結果の検証とパス検査には省略前の登録定義を使い、詳細は `ops describe` と `schema op` で取得できる。外部参照の取得は要求しない。
 - プラグインの Op は、`--allow-plugin-op` で名前を挙げたものだけを公開する。
 - `--read-only` は `query` のツールだけを公開する。

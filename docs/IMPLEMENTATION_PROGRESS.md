@@ -231,3 +231,12 @@
 - 同じ開発機・各3値の中央値は、Hの10 / 1000 / 10000行が **104 / 400 / 4449→82 / 83 / 73 ms**。32×32×10のMCP set_pixelは **543→170 ms**、validateは **272→21 ms**。実編集の200 / 1000 / 1200件目の直近50件は **224 / 347 / 407→193 / 197 / 208 ms**。生値・fixture・書込側の比の逆転を含む限界は `docs/PERFORMANCE.md`、再現は `tools/bench_persistence.py` に記録した。
 - 実CLIで古い期待リビジョン付き再送、undo/redo、履歴、検証、preview、PNG出力を実行した。最終error/warning=0、info=2（工学ベクタの未使用色と1画素クラスタを意図して保持）。出力はvalidation_ok/verified=trueで、最終PNGの実bytesを再復号・表示確認した。再現は `tools/r1_b1_acceptance.py`。
 - 判断I-1101〜I-1116、SPEC変更は§6.2/§6.3/§10.1.4。追加依存、第三者台帳変更、外部コード参照、意匠変更なし。LinuxとPython 3.13の実行はCI待ち。単一Op内部への強制割込みはせず、次の境界で期限を検出する仕様。main統合はオーケストレーターが行う。
+
+## R1-M: 残りの軽微指摘（2026-11-12）
+
+- `dc50e96` で R1-08/12/23/24/25/28/29/31/32 の指定範囲を修正した。MCP の共通封筒とコンパクト宣言、スキーマ注釈によるファイルパス変換、背景を保つ flatten と可視合成を保つ merge、警告・エラー、sheet/80 Op のスキーマと drift、CLI の反復 include と 8765、明示的なゴールデン更新、GUI の生成 opt-in、初回 import の L1 再利用を実装した。quality.py 内部は未編集。
+- 最終全体 `uv run pytest -q --tb=short` は **1735 passed / 5 skipped（1003.04秒）**。skipはWindowsのsymlink作成権限による既存5件。追加回帰・独立復号・シナリオ2は **72 passed**、MCP パス・契約・CLIは **112 passed / 1 skipped**、パス注釈の追試は **10 passed**、独立復号マーカーは **7 passed**。Ruff check/format、core/ops mypy 38ファイル、schema drift、repository検査は成功。
+- 同一環境で各3回のツール定義 bytes は standard **377768/377768/377768→99478/99478/99478**、minimal **76556/76556/76556→17247/17247/17247**（各中央値も同値）。ツール数は78/13のまま。速度の主張ではなく、レビューと同じJSON直列化でのサイズ測定である。
+- 実CLIで新規→背景消去→矩形→flatten→info→validate→PNG/GIF/APNG/シートPNGを書き出した。指摘0件、validation_ok/verified=true。Pillowで全フレームと最終ファイルを復号比較し、実シートPNGも開いて確認した。再現は `tools/r1_m_acceptance.py`。
+- ゴールデンは共通更新器を通した scenario2 の project.json 1件だけ。空レイヤーを除去しID/counterをL1/1へ変更、画像と画素ハッシュは不変。通常の25ケースは更新なし。判断 **I-1701〜I-1711**、仕様の局所変更と設計分岐は [R1_M_REPORT.md](R1_M_REPORT.md) に記録した。
+- 新規依存・外部参照・意匠変更はない。Linuxの実行、M0の未撮影GUI画面とI-005の棚卸し追記、R1-17/30の見た目、R1-22の台帳は未実施または指示どおり対象外。MCPの複雑な入れ子の詳細は一覧では省略し、完全な定義をCLI/schemaと実行時に保持する。main統合はオーケストレーターが行う。
