@@ -29,11 +29,6 @@ def changes(before, after, ctx):
         k for k in set(oldlayers) | set(newlayers) if oldlayers.get(k) != newlayers.get(k)
     )
     frame_changes = []
-    global_change = (
-        before.canvas != after.canvas
-        or before.palette != after.palette
-        or set(oldlayers) != set(newlayers)
-    )
     for f in range(max(len(before.frames), len(after.frames))):
         w = max(before.canvas.width, after.canvas.width)
         h = max(before.canvas.height, after.canvas.height)
@@ -47,29 +42,7 @@ def changes(before, after, ctx):
             new[: data.shape[0], : data.shape[1]] = data
         mask = np.any(old != new, axis=2)
         count = int(np.count_nonzero(mask))
-        data_changed = (
-            global_change
-            or f in ctx.linked_frames
-            or f >= min(len(before.frames), len(after.frames))
-        )
-        if not data_changed:
-            data_changed = before.frames[f] != after.frames[f]
-            for key in layers:
-                left, right = oldlayers.get(key), newlayers.get(key)
-                if (
-                    left is None
-                    or right is None
-                    or not hasattr(left, "cels")
-                    or not hasattr(right, "cels")
-                ):
-                    data_changed = True
-                elif [c for c in left.cels if c.frame == f] != [
-                    c for c in right.cels if c.frame == f
-                ]:
-                    data_changed = True
-                elif left.model_dump(exclude={"cels"}) != right.model_dump(exclude={"cels"}):
-                    data_changed = True
-        if count or data_changed:
+        if count:
             frame_changes.append({"frame": f, "pixels_changed": count, "bbox": bbox(mask)})
     return {
         "data": before != after,

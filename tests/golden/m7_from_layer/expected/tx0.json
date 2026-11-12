@@ -1,0 +1,44 @@
+{
+  "ok": true,
+  "op": "tileset_from_layer",
+  "project": "golden.csprite",
+  "revision": {
+    "before": 0,
+    "after": 1
+  },
+  "no_op": false,
+  "replayed": false,
+  "dry_run": false,
+  "result": {
+    "tileset": "TS1",
+    "tiles": 5
+  },
+  "changed": {
+    "data": true,
+    "frames": [],
+    "layers": [
+      "L1"
+    ],
+    "linked_frames": [],
+    "clipped_pixels": 0
+  },
+  "validation": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "new_issues": [],
+    "resolved_issues": [],
+    "metrics_delta": {
+      "tilesets": {
+        "before": 0,
+        "after": 1
+      }
+    }
+  },
+  "preview": {
+    "paths": [],
+    "scale": 1,
+    "omitted_frames": []
+  },
+  "warnings": []
+}

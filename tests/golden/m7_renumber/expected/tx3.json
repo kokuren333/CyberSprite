@@ -1,0 +1,48 @@
+{
+  "ok": true,
+  "op": "delete_tiles",
+  "project": "golden.csprite",
+  "revision": {
+    "before": 3,
+    "after": 4
+  },
+  "no_op": false,
+  "replayed": false,
+  "dry_run": false,
+  "result": {},
+  "changed": {
+    "data": true,
+    "frames": [],
+    "layers": [
+      "L1"
+    ],
+    "linked_frames": [],
+    "clipped_pixels": 0
+  },
+  "validation": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "new_issues": [],
+    "resolved_issues": [
+      {
+        "rule": "Q-TIL-01",
+        "level": "info",
+        "message": "Tileset findings: TS1: unused [1]; duplicate pairs [].",
+        "where": {
+          "frames": [],
+          "layer": null,
+          "bbox": null,
+          "points": []
+        }
+      }
+    ],
+    "metrics_delta": {}
+  },
+  "preview": {
+    "paths": [],
+    "scale": 1,
+    "omitted_frames": []
+  },
+  "warnings": []
+}

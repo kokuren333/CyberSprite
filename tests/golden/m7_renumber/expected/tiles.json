@@ -1,0 +1,18 @@
+{
+  "format": "cybersprite-tileset",
+  "schema_version": 1,
+  "image": "tiles.png",
+  "tileset": "TS1",
+  "tiles": [
+    {
+      "index": 1,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 3,
+        "h": 3
+      },
+      "user_data": null
+    }
+  ]
+}

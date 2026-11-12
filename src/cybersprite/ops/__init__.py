@@ -37,6 +37,7 @@ from .palette import palette_op
 from .previews import transaction_previews
 from .queries import construct, query, summary
 from .structure import layer_op, metadata_op, tag_slice_op
+from .tiles import tile_op
 
 DRAWING = {
     "set_pixel",
@@ -77,6 +78,16 @@ PALETTE = {
 LAYERS = {"add_layer", "update_layer", "delete_layer", "duplicate_layer", "merge_layers", "flatten"}
 TAG_SLICE = {"add_tag", "update_tag", "delete_tag", "add_slice", "update_slice", "delete_slice"}
 CANVAS = {"resize_canvas", "crop_canvas", "scale_sprite", "transform_sprite"}
+TILES = {
+    "add_tileset",
+    "set_tile_pixels",
+    "delete_tiles",
+    "move_tiles",
+    "set_tile",
+    "set_tiles",
+    "get_tiles",
+    "tileset_from_layer",
+}
 QUERY = {
     "get_info",
     "get_pixels",
@@ -85,8 +96,12 @@ QUERY = {
     "render_preview",
     "diff_preview",
     "get_history",
+    "get_tiles",
 }
 NON_IDEMPOTENT = {
+    "delete_tiles",
+    "move_tiles",
+    "tileset_from_layer",
     "transform_region",
     "outline",
     "cleanup_pixels",
@@ -104,6 +119,8 @@ NON_IDEMPOTENT = {
     "apply_ops",
 }
 CONDITIONAL = {
+    "add_tileset",
+    "set_tile_pixels",
     "new_project",
     "add_palette_colors",
     "copy_cel",
@@ -116,6 +133,8 @@ CONDITIONAL = {
     "crop_canvas",
 }
 DESTRUCTIVE = {
+    "delete_tiles",
+    "tileset_from_layer",
     "delete_layer",
     "delete_frames",
     "delete_tag",
@@ -142,6 +161,17 @@ def _result(name):
             positions_truncated=(bool, ...),
         )
     fields: dict[str, Any] = {
+        "set_tile_pixels": {"tile": (int, ...)},
+        "move_tiles": {"mapping": (dict[str, int], ...)},
+        "tileset_from_layer": {"tileset": (str, ...), "tiles": (int, ...)},
+        "get_tiles": {
+            "col": (int, ...),
+            "row": (int, ...),
+            "w": (int, ...),
+            "h": (int, ...),
+            "rows": (list[str], ...),
+            "tileset": (str, ...),
+        },
         "add_frame": {"frames": (list[int], ...)},
         "delete_frames": {"deleted": (list[int], ...), "removed_tags": (list[str], ...)},
         "move_frames": {"mapping": (dict[str, int], ...)},
@@ -211,7 +241,14 @@ def _result(name):
     }
     if name in DRAWING:
         return PixelResult
-    if name in {"add_layer", "duplicate_layer", "merge_layers", "add_tag", "add_slice"}:
+    if name in {
+        "add_layer",
+        "duplicate_layer",
+        "merge_layers",
+        "add_tag",
+        "add_slice",
+        "add_tileset",
+    }:
         return create_model(name + "Result", __base__=Model, id=(str, ...))
     if name not in fields:
         return EmptyResult
@@ -240,6 +277,7 @@ def registry():
                         (LAYERS, layer_op),
                         (TAG_SLICE, tag_slice_op),
                         (CANVAS, canvas_op),
+                        (TILES, tile_op),
                         (QUERY, query),
                         ({"set_project_meta", "set_validation"}, metadata_op),
                     )

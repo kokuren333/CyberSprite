@@ -1,0 +1,10 @@
+{"name":"new_project","arguments":{"project":"tiles.csprite","width":24,"height":3,"frames":2,"palette":["#00000000","#880000ff","#008800ff","#000088ff"],"name":"Scenario 3"}}
+{"name":"add_tileset","arguments":{"project":"tiles.csprite","name":"Glyphs","tile_w":3,"tile_h":3,"preview":"none"},"expect":{"id":"TS1"}}
+{"name":"set_tile_pixels","arguments":{"project":"tiles.csprite","tileset":"TS1","tile":"new","rows":["010000","020000","030303"],"preview":"none"},"expect":{"tile":1}}
+{"name":"add_layer","arguments":{"project":"tiles.csprite","name":"Map","type":"tilemap","tileset":"TS1","preview":"none"},"expect":{"id":"L2"}}
+{"name":"set_tiles","arguments":{"project":"tiles.csprite","layer":"L2","frame":0,"col":0,"row":0,"rows":["1 1x 1y 1xy 1d 1xd 1yd 1xyd"],"preview":"none"}}
+{"name":"link_cel","arguments":{"project":"tiles.csprite","layer":"L2","source_frame":0,"frames":[1],"preview":"none"}}
+{"name":"set_tile_pixels","arguments":{"project":"tiles.csprite","tileset":"TS1","tile":1,"rows":["010000","020000","030302"],"preview":"none"},"expect":{"tile":1}}
+{"name":"validate","arguments":{"project":"tiles.csprite"}}
+{"name":"render_preview","arguments":{"project":"tiles.csprite","frames":[0,1],"scale":8,"inline":true}}
+{"name":"export_tileset","arguments":{"project":"tiles.csprite","tileset":"TS1","out":"tiles.png","data_out":"tiles.json","compression":"stored"}}

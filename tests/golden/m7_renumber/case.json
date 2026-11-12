@@ -1,0 +1,68 @@
+{
+  "transactions": [
+    {
+      "op": "set_tile_pixels",
+      "args": {
+        "tileset": "TS1",
+        "tile": "new",
+        "rows": [
+          "020202",
+          "020202",
+          "020202"
+        ]
+      }
+    },
+    {
+      "op": "set_tile_pixels",
+      "args": {
+        "tileset": "TS1",
+        "tile": 1,
+        "rows": [
+          "010000",
+          "020000",
+          "030301"
+        ]
+      }
+    },
+    {
+      "op": "move_tiles",
+      "args": {
+        "tileset": "TS1",
+        "from": 2,
+        "to": 2,
+        "before": 1
+      }
+    },
+    {
+      "op": "delete_tiles",
+      "args": {
+        "tileset": "TS1",
+        "tiles": [
+          1
+        ]
+      }
+    }
+  ],
+  "renders": [
+    {
+      "frame": 0,
+      "indexed": true
+    },
+    {
+      "frame": 1,
+      "indexed": true
+    }
+  ],
+  "exports": [
+    {
+      "name": "tiles",
+      "op": "export_tileset",
+      "args": {
+        "tileset": "TS1",
+        "out": "tiles.png",
+        "data_out": "tiles.json",
+        "compression": "stored"
+      }
+    }
+  ]
+}

@@ -19,6 +19,16 @@
 | M8 GUI | サーバ・土台は完了（main）。見た目の実装は進行中（Opus、`m8-ui`） | テーマ案 C を選定済み（I-011） |
 | M9 生成バックエンド | 進行中（Codex、`m9-generate`） | |
 | M10 仕上げ | 未着手 | |
+| M0 準備と実機参照 | **完了** | 下記 |
+| M1 コア基盤 | **完了**（main に統合） | Windows で 168 テスト。Linux は CI 設定のみ（I-007） |
+| M2 Op とトランザクション | **完了**（main に統合） | 59 Op、22 品質規則、履歴・取り消し、プレビュー・差分。ラスタライズは先行ブランチ `m2-raster` で作成 |
+| M3 CLI | int-m356 に統合・Windows 検証完了 | INT-1 報告参照 |
+| M4 MCP サーバ | int-m356 に統合・Windows 検証完了 | 依存の保留は既存 I-012 で解消 |
+| M5 形式 | int-m356 に統合・Windows 検証完了 | CLI/MCP と実書出しを接続 |
+| M6 変換パイプライン | int-m356 に統合・Windows 検証完了 | 取り込み・来歴・配置・較正を統合。(a)255/255完全一致。生成(d)とLinux実行は未了 |
+| M7 タイルマップ | m7-tiles 上で Windows 検証完了 | 77 Op、8反転ゴールデン、MCPシナリオ3。統合はオーケストレーターが行う |
+| M8 GUI | テーマ 3 案を作成し案 C を選定（I-011） | 実装は M7 の後 |
+| M9 / M10 | 未着手 | |
 
 main のテスト（2026-11-12 11:00、Windows / Python 3.12）: Python 1160 passed / 2 skipped、GUI（vitest）625 passed。
 
@@ -71,9 +81,9 @@ main のテスト（2026-11-12 11:00、Windows / Python 3.12）: Python 1160 pas
 | e2e-01 #7 | 図形系 Op（`ellipse` など）の result に `pixels_written` がない | M3 後の修正 |
 | e2e-01 #8 | undo / redo の結果にプレビューがない | M3 後の修正 |
 | e2e-01 #10 | Q-PIX-02 の `where.layer` が null（どのレイヤーか分からない） | M3 後の修正 |
-| e2e-02 #2 | `new --palette <.gpl>` で色名が捨てられる | 修正項目 |
-| e2e-02 #3 | 名前だけの `set_palette` でも `changed.frames` にフレームが出る | 修正項目 |
-| e2e-02 #6 | `docs/CLI.md` に `pixels --rect` の既定範囲の説明がない | 修正項目 |
+| e2e-02 #2 | `new --palette <.gpl>` で色名が捨てられる | M7 で修正・load_palette置換/追記も回帰確認 |
+| e2e-02 #3 | 名前だけの `set_palette` でも `changed.frames` にフレームが出る | M7 で全OpのRGBA差に統一して修正 |
+| e2e-02 #6 | `docs/CLI.md` に `pixels --rect` の既定範囲の説明がない | M7 でトリム矩形・全キャンバス指定とcwd出力制約を追記 |
 | e2e-01 #1〜4、#9 | 書き出し、`preview` / `pixels` / `validate` のオプション、`docs/CLI.md` | M3 / M5（作業中） |
 
 ## M6: 変換パイプライン — Windows 検証完了（2026-11-12）
@@ -105,3 +115,13 @@ main のテスト（2026-11-12 11:00、Windows / Python 3.12）: Python 1160 pas
 - 実 CLI GUI を起動し、Google Chrome headless の初期スクリーンショットと、実キャンバス/revision を待ったスクリーンショットを開いた。判断 I-651〜I-660。仕様 §14.6 に認証初期ページの説明を補足した。
 - M5/M6 未統合のため W3/W5 の実ファイル通し確認は統合後。Linux は I-007 により CI 設定のみ。全体 mypy は既存22ファイルの86エラーで、server の診断はない。Opus の restyle と Python 台帳/来歴ログへの反映は後続作業。
 - 詳細、依存原文、受け入れ状況は [M8_SERVER_REPORT.md](M8_SERVER_REPORT.md)、起動方法と UI className 一覧は [GUI.md](GUI.md)。
+
+## M7: タイルマップ — Windows 検証完了（2026-11-12）
+
+- §10.10 の7 Op と、作業指示で必要な move_tiles を実装し、全体を77 Opにした。格子原点・リンク共有・空タイル不変・全参照再番号付け・反転一致付き画像変換を実装し、全体変形／色置換のM2スタブを除去した。
+- M5の配置と自己検査をタイル書出しへ再利用し、4096フレーム上限をタイル数へ適用していた経路を1フレームの一時描画に修正した。既存.asepriteアダプタの複数セット・8フラグ・base_index・match_flips・リンク・user_data・非0透明番号を12件の往復試験で保証した。
+- 正方形・非正方形の8反転、共有修正と再番号付け、画像変換の4ケース・95期待ファイルを唯一の更新器で生成し、手書き期待配列・PNG・正本・検証デルタを確認した。ハッシュシード17/319で全95ファイルが一致。既存ゴールデンは空の0差分フレームを2応答から除いた箇所だけを変更した。
+- `uv run pytest -q --tb=short`: **1244 passed, 2 skipped、256.17秒**。スキップは既存のWindowsシンボリックリンク権限2件。最終の型注釈整理後も関連 **122 passed**。Ruff check/format・スキーマ・repository・ライセンス監査・diff checkは成功。mypyは**既存78件、新規0件**。
+- MCPシナリオ3は実Clientのin-process/stdio両方で成功し、正本と実出力PNGのハッシュを固定した。CLIは14呼出しで作成→8反転配置→リンク→共有修正→検証→PNG/tileset/.aseprite出力と実ファイル再復号を完走した。全exportでvalidation_ok/verified=true、警告0、プレビューと実出力PNGを開いて確認した。最終コミット後の再実行先は `build/m7-review-final/`。
+- e2e-02 #2/#3/#6 を修正。判断I-501〜I-511。仕様の補足はmatch_flipsのv1変換利用、add_tileset.if_exists、move_tiles、changed.framesのRGBA差限定。追加依存・外部参照・意匠判断なし。P-01の反転順は仕様に一致済みなのでKNOWN_ISSUESの追記は不要。
+- LinuxはI-007のとおりCI待ち。mainへの統合とオーケストレーターによる独立実機確認は未実施。詳細は [M7_IMPLEMENTATION_REPORT.md](M7_IMPLEMENTATION_REPORT.md)。

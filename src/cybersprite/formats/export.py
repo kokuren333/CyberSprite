@@ -250,7 +250,9 @@ def export_palette(p, a, root=None):
 
 def export_tileset(p, a, root=None):
     result = gate(p, a, root)
-    matches = [t for t in p.tilesets if t.id == a.tileset or t.name == a.tileset]
+    matches = [t for t in p.tilesets if t.id == a.tileset]
+    if not matches:
+        matches = [t for t in p.tilesets if t.name == a.tileset]
     if not matches:
         fail("E_TILESET_NOT_FOUND", "Export tileset was not found.", reference=a.tileset)
     if len(matches) != 1:
@@ -261,22 +263,14 @@ def export_tileset(p, a, root=None):
     q = new_project(
         width=ts.tile_w,
         height=ts.tile_h,
-        frames=max(1, len(indices)),
+        frames=1,
         palette=p.palette.colors,
         name=p.name,
     )
     q.palette.transparent_index = p.palette.transparent_index
-    q.frames = [Frame() for _ in range(max(1, len(indices)))]
-    q.layers = [
-        ImageLayer(
-            id="L1",
-            name=ts.name,
-            cels=[
-                ImageCel(frame=f, x=0, y=0, w=ts.tile_w, h=ts.tile_h, pixels=ts.tiles[index].pixels)
-                for f, index in enumerate(indices)
-            ],
-        )
-    ]
+    q.frames = [Frame()]
+    tile_layer = ImageLayer(id="L1", name=ts.name, cels=[])
+    q.layers = [tile_layer]
     sheet_args = SheetArgs.model_validate(
         {
             k: getattr(a, k)
@@ -300,7 +294,10 @@ def export_tileset(p, a, root=None):
     )
     items = []
     for frame, index in enumerate(indices):
-        rendered = indexed_result(q, frame, dict(scale=a.scale))
+        tile_layer.cels = [
+            ImageCel(frame=0, x=0, y=0, w=ts.tile_w, h=ts.tile_h, pixels=ts.tiles[index].pixels)
+        ]
+        rendered = indexed_result(q, 0, dict(scale=a.scale))
         h, w = rendered.pixels.shape[:2]
         items.append(
             Item(

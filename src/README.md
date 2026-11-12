@@ -1,6 +1,6 @@
 # src/
 
-Python パッケージ `cybersprite` の置き場所。M1〜M6 のヘッドレス基盤、Op・トランザクション、CLI、MCP、形式、変換を統合済み（69 Op）。
+Python パッケージ `cybersprite` の置き場所。M1〜M7 のヘッドレス基盤、Op・トランザクション、CLI、MCP、形式、変換、タイルマップを統合済み（77 Op）。
 
 `src/` レイアウトにしているのは、インストールしていない状態のコードをテストが誤って読み込むのを防ぐためである。
 
@@ -41,3 +41,9 @@ M2 のコミット処理は `normalize_cels` → `require_valid` → `dumps_proj
 - `pipeline/cli_api.py` の `convert(input_path, output_path, **options)` と `detect_grid(path, **options)` は M3 用。`convert` は `preset`、`pipeline`（または各設定節）、`on_gate_fail`、`stages` を受ける。結果は JSON 化可能な辞書、失敗は `CyberSpriteError`。CLI はこの API を呼び、入出力引数は input_path/output_path として渡す。
 
 較正の正本は [tests/pipeline/CALIBRATION.md](../tests/pipeline/CALIBRATION.md)。MCP のシナリオ2は M4 統合前のため直接 Op の pytest で同じ流れを検査し、生成(d)の入力は M9 待ちとしている。
+
+## M7 のタイル操作
+
+`ops/tiles.py` がタイルセット作成、画素編集、削除・移動の全参照付替え、配置・読取、画像レイヤーからの重複統合を担当する。登録契約は既存と同じ `ops/args.py`・`ops/descriptions.py` にある。`ops/canvas.py` の全体変形はタイル画像を保持して配置と反転フラグを合成する。非正方形の90/270度だけは具体的な `E_UNSUPPORTED` を返す。
+
+`formats/export.py` は M5 の配置・自己検査付き writer を再利用し、1フレームの一時プロジェクトで65536枚までのタイルを列挙できる。`.aseprite` は M5 の `aseprite_io.py` をそのまま使い、複数セット・8反転・リンク・base_index・match_flips・タイルの user_data・非0透明番号を M7 の往復試験で保証する。MCP のシナリオ3は実 in-process/stdio Client の両方で同じ JSONL を再生する。

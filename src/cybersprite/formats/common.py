@@ -40,11 +40,12 @@ def output_path(value):
     root, allowed = _POLICY.get() or (Path.cwd().resolve(), [Path.cwd().resolve()])
     path = (root / value).resolve()
     if not any(path.is_relative_to(directory) for directory in allowed):
-        fail(
+        raise CyberSpriteError(
             "E_PATH_NOT_ALLOWED",
             "Export path is outside allowed directories.",
-            path=path.as_posix(),
-            allowed=[p.as_posix() for p in allowed],
+            f"For CLI exports, run from a parent directory or use a path under {root.as_posix()}. "
+            "For MCP, use its configured root or an allow-dir.",
+            {"path": path.as_posix(), "allowed": [p.as_posix() for p in allowed]},
         )
     return path
 

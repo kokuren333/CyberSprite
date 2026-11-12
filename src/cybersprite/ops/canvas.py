@@ -141,11 +141,18 @@ def canvas_op(ctx, a, name):
     oldw, oldh = p.canvas.width, p.canvas.height
     for layer, _ in walk_layers(p.layers):
         unlocked(p, layer)
-    if name == "transform_sprite" and any(
-        layer.type == "tilemap" for layer, _ in walk_layers(p.layers)
-    ):
-        # TODO(M7): transform tile placements and flip flags without modifying tile images.
-        fail("E_UNSUPPORTED", "transform_sprite on tilemaps is available in M7.")
+    if name == "transform_sprite" and a.rotate in (90, 270):
+        for layer, _ in walk_layers(p.layers):
+            if isinstance(layer, TilemapLayer):
+                ts = next(ts for ts in p.tilesets if ts.id == layer.tileset)
+                if ts.tile_w != ts.tile_h:
+                    fail(
+                        "E_UNSUPPORTED",
+                        "Quarter-turns require square tiles; use 180 or flips.",
+                        tileset=ts.id,
+                        tile_w=ts.tile_w,
+                        tile_h=ts.tile_h,
+                    )
     if name in ("resize_canvas", "crop_canvas"):
         if name == "resize_canvas":
             w, h = a.width, a.height
@@ -228,6 +235,47 @@ def canvas_op(ctx, a, name):
                             cel.x, cel.y, cel.w, cel.h, oldw, oldh, a.flip, a.rotate
                         )
                         cel.pixels = pixels_to_rows(data)
+            elif isinstance(layer, TilemapLayer):
+                ts = next(ts for ts in p.tilesets if ts.id == layer.tileset)
+                for tile_cel in layer.cels:
+                    if isinstance(tile_cel, LinkCel):
+                        continue
+                    refs = tiles_from_rows(tile_cel.tiles, tile_cel.w, tile_cel.h)
+                    if a.flip == "h":
+                        refs = [row[::-1] for row in refs]
+                    elif a.flip == "v":
+                        refs = refs[::-1]
+                    for _ in range(a.rotate // 90):
+                        refs = [list(row) for row in zip(*refs[::-1], strict=True)]
+                    transformed = []
+                    for row in refs:
+                        entries = []
+                        for ref in row:
+                            if not ref.index:
+                                entries.append(ref)
+                                continue
+                            flip_x, flip_y, diagonal = ref.x, ref.y, ref.d
+                            flip_x = flip_x != (a.flip == "h")
+                            flip_y = flip_y != (a.flip == "v")
+                            if ts.tile_w == ts.tile_h:
+                                for _ in range(a.rotate // 90):
+                                    flip_x, flip_y, diagonal = not flip_y, flip_x, not diagonal
+                            elif a.rotate == 180:
+                                flip_x, flip_y = not flip_x, not flip_y
+                            entries.append(TileRef(ref.index, flip_x, flip_y, diagonal))
+                        transformed.append(entries)
+                    tile_cel.x, tile_cel.y, _w, _h = rect_transform(
+                        tile_cel.x,
+                        tile_cel.y,
+                        tile_cel.w * ts.tile_w,
+                        tile_cel.h * ts.tile_h,
+                        oldw,
+                        oldh,
+                        a.flip,
+                        a.rotate,
+                    )
+                    tile_cel.w, tile_cel.h = len(transformed[0]), len(transformed)
+                    tile_cel.tiles = tiles_to_rows(transformed)
         for slc in p.slices:
             for key in slc.keys:
                 w, h = key.w, key.h

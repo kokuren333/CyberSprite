@@ -1,0 +1,127 @@
+{
+  "format": "cybersprite-project",
+  "schema_version": 1,
+  "revision": 3,
+  "name": "M7 tiles",
+  "canvas": {
+    "width": 27,
+    "height": 9,
+    "grid": {
+      "x": 0,
+      "y": 0,
+      "w": 16,
+      "h": 16
+    },
+    "pixel_ratio": {
+      "w": 1,
+      "h": 1
+    },
+    "color_profile": "srgb"
+  },
+  "palette": {
+    "transparent_index": 0,
+    "frozen": false,
+    "colors": [
+      "#00000000",
+      "#880000ff",
+      "#008800ff",
+      "#000088ff"
+    ],
+    "names": {}
+  },
+  "frames": [
+    {
+      "duration_ms": 100
+    },
+    {
+      "duration_ms": 100
+    }
+  ],
+  "layers": [
+    {
+      "id": "L1",
+      "name": "Map",
+      "type": "tilemap",
+      "visible": true,
+      "locked": false,
+      "opacity": 255,
+      "blend_mode": "normal",
+      "continuous": false,
+      "tileset": "TS1",
+      "cels": [
+        {
+          "frame": 0,
+          "x": 1,
+          "y": 2,
+          "w": 8,
+          "h": 1,
+          "opacity": 255,
+          "z_index": 0,
+          "tiles": [
+            "2 2x 2y 2xy 2d 2xd 2yd 2xyd"
+          ]
+        },
+        {
+          "frame": 1,
+          "link": 0,
+          "z_index": 0
+        }
+      ]
+    }
+  ],
+  "tags": [],
+  "slices": [],
+  "tilesets": [
+    {
+      "id": "TS1",
+      "name": "Glyphs",
+      "tile_w": 3,
+      "tile_h": 3,
+      "base_index": 1,
+      "match_flips": {
+        "x": false,
+        "y": false,
+        "d": false
+      },
+      "tiles": [
+        {
+          "pixels": [
+            "000000",
+            "000000",
+            "000000"
+          ]
+        },
+        {
+          "pixels": [
+            "020202",
+            "020202",
+            "020202"
+          ]
+        },
+        {
+          "pixels": [
+            "010000",
+            "020000",
+            "030301"
+          ]
+        }
+      ]
+    }
+  ],
+  "validation": {
+    "palette_max": 256,
+    "colors_per_frame_max": null,
+    "orphan_pixels_max": null,
+    "min_cluster": 2,
+    "require_tag_coverage": false,
+    "silhouette_jitter_max": null,
+    "severity": {}
+  },
+  "id_counters": {
+    "layer": 1,
+    "tag": 0,
+    "slice": 0,
+    "tileset": 1
+  },
+  "extensions": {}
+}

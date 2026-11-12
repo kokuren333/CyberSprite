@@ -12,7 +12,7 @@ from cybersprite.core.projects import new_project
 from cybersprite.core.quality import report
 from cybersprite.core.references import cel_at, cel_owner, walk_layers
 from cybersprite.core.render import render_indexed
-from cybersprite.formats.palette_files import raw_color, read_palette
+from cybersprite.formats.palette_files import raw_color, read_palette_with_names
 
 from .common import SYMBOLS, array, fail, frame_index, frames, image_layer
 from .palette import usage
@@ -35,8 +35,10 @@ def summary(p, root):
 
 
 def construct(a, root):
-    colors = (
-        read_palette(a.palette) if isinstance(a.palette, str) else [raw_color(c) for c in a.palette]
+    colors, names = (
+        read_palette_with_names(a.palette)
+        if isinstance(a.palette, str)
+        else ([raw_color(c) for c in a.palette], {})
     )
     p = new_project(
         width=a.width,
@@ -49,6 +51,7 @@ def construct(a, root):
     if not 0 <= a.transparent_index < len(colors):
         fail("E_INDEX_OUT_OF_RANGE", "Transparent index is outside the palette.")
     p.palette.transparent_index = a.transparent_index
+    p.palette.names = names
     p.layers[0].name = a.layer_name
     if a.background is not None:
         value = resolve_color(p.palette, a.background)

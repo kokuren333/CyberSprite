@@ -137,16 +137,26 @@ def report(p, *, root=None, selected_frames=None, rules=None, source_manifest=No
             else:
                 ts = next(ts for ts in p.tilesets if ts.id == node.tileset)
                 w, h = owner.w * ts.tile_w, owner.h * ts.tile_h
-                for row in tiles_from_rows(owner.tiles, owner.w, owner.h):
-                    for ref in row:
+                diagonal: list[list[int]] = []
+                for row_index, row in enumerate(tiles_from_rows(owner.tiles, owner.w, owner.h)):
+                    for col_index, ref in enumerate(row):
                         tile_usage[ts.id][ref.index] += 1
                         if ref.d and ts.tile_w != ts.tile_h:
-                            add(
-                                "Q-TIL-02",
-                                "A non-square tile has a diagonal flip flag.",
-                                fs=[cel.frame],
-                                layer=node.id,
-                            )
+                            if len(diagonal) < 64:
+                                diagonal.append(
+                                    [
+                                        owner.x + col_index * ts.tile_w,
+                                        owner.y + row_index * ts.tile_h,
+                                    ]
+                                )
+                if diagonal:
+                    add(
+                        "Q-TIL-02",
+                        "Non-square tiles have diagonal flags; transpose is ignored.",
+                        fs=[cel.frame],
+                        layer=node.id,
+                        points=diagonal,
+                    )
             outside = (
                 owner.x < 0
                 or owner.y < 0
@@ -181,13 +191,23 @@ def report(p, *, root=None, selected_frames=None, rules=None, source_manifest=No
                     layer=node.id,
                 )
             previous, previous_owner, previous_frame = value, owner.frame, cel.frame
+    tile_findings = []
     for ts in p.tilesets:
-        duplicate = len({tuple(tile.pixels) for tile in ts.tiles}) < len(ts.tiles)
+        seen: dict[bytes, int] = {}
+        duplicates: list[list[int]] = []
+        for index, tile in enumerate(ts.tiles):
+            value = bytes.fromhex("".join(tile.pixels))
+            if value in seen:
+                duplicates.append([seen[value], index])
+            else:
+                seen[value] = index
         unused = [i for i in range(1, len(ts.tiles)) if not tile_usage[ts.id][i]]
-        if duplicate or unused:
-            add("Q-TIL-01", f"Tileset {ts.id} has unused or duplicate tiles.")
+        if duplicates or unused:
+            tile_findings.append(f"{ts.id}: unused {unused}; duplicate pairs {duplicates}")
         for tile in ts.tiles:
             usage.update(bytes.fromhex("".join(tile.pixels)))
+    if tile_findings:
+        add("Q-TIL-01", "Tileset findings: " + "; ".join(tile_findings) + ".")
     if len(p.palette.colors) > settings.palette_max:
         add("Q-PAL-01", "Palette exceeds the configured color budget.")
     unused = [i for i in range(len(p.palette.colors)) if not usage[i]]

@@ -5,7 +5,7 @@ import numpy as np
 from cybersprite.core import raster
 from cybersprite.core.errors import invalid
 from cybersprite.core.models import ImageLayer
-from cybersprite.core.pixels import resolve_color
+from cybersprite.core.pixels import pixels_from_rows, pixels_to_rows, resolve_color
 from cybersprite.core.references import walk_layers
 from cybersprite.core.render import render_indexed
 
@@ -70,8 +70,6 @@ def drawing(ctx, a, name):
             "positions_truncated": len(positions) > 256,
         }
     if name == "replace_color":
-        if a.tilesets:
-            fail("E_UNSUPPORTED", "replace_color with tilesets is available in M7.")
         source, target = resolve_color(p.palette, a.from_), resolve_color(p.palette, a.to)
         if a.layers is None:
             layers = []
@@ -81,9 +79,24 @@ def drawing(ctx, a, name):
         else:
             layers = [image_layer(p, ref) for ref in a.layers]
         count = 0
+        selected_frames = frames(p, a.frames)
+        if a.tilesets:
+            # Tiles are shared resources: frame/layer/region selections apply to image cels;
+            # all nonzero tiles are replaced once, including currently unused tiles.
+            for ts in p.tilesets:
+                from .tiles import tile_layers
+
+                list(tile_layers(p, ts, edit=True))
+                for tile in ts.tiles[1:]:
+                    data = pixels_from_rows(tile.pixels, ts.tile_w, ts.tile_h)
+                    mask = data == source
+                    if source != target:
+                        count += int(np.count_nonzero(mask))
+                        data[mask] = target
+                        tile.pixels = pixels_to_rows(data)
         for layer in layers:
             visited = set()
-            for f in frames(p, a.frames):
+            for f in selected_frames:
                 from cybersprite.core.references import cel_at, cel_owner
 
                 owner = cel_owner(layer, cel_at(layer, f))

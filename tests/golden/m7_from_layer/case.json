@@ -1,0 +1,27 @@
+{
+  "transactions": [
+    {
+      "op": "tileset_from_layer",
+      "args": {
+        "layer": "L1",
+        "tile_w": 2,
+        "tile_h": 2,
+        "match_flips": {
+          "x": true,
+          "y": true,
+          "d": true
+        }
+      }
+    }
+  ],
+  "renders": [
+    {
+      "frame": 0,
+      "indexed": true
+    },
+    {
+      "frame": 1,
+      "indexed": true
+    }
+  ]
+}

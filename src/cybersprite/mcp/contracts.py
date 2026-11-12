@@ -20,7 +20,7 @@ link_cel unlink_cel
 set_palette set_palette_color add_palette_colors remap_palette load_palette set_palette_frozen
 add_layer update_layer delete_layer duplicate_layer merge_layers flatten
 add_tag update_tag delete_tag add_slice update_slice delete_slice
-add_tileset set_tile_pixels delete_tiles set_tile set_tiles get_tiles tileset_from_layer
+add_tileset set_tile_pixels delete_tiles move_tiles set_tile set_tiles get_tiles tileset_from_layer
 resize_canvas crop_canvas scale_sprite transform_sprite
 import_image import_aseprite export_image export_sheet export_animation export_aseprite
 export_tileset export_palette list_sources get_source list_generators generate_image

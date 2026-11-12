@@ -1,0 +1,6 @@
+{
+  "description": "Shared asymmetric 3x3 engineering glyph, all eight flags, correction and tile export",
+  "project": "tiles.csprite",
+  "exports": {"tiles.png": "tileset"},
+  "pixel_hashes": {"tiles.png": "9d7c69b2bc4729010e282c9f144408b99e2a2762d4950c446dc496166331efd0"}
+}
