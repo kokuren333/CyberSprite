@@ -31,7 +31,44 @@ def region(p, value, image):
 def drawing(ctx, a, name):
     p = ctx.project
     if name == "cleanup_pixels":
-        fail("E_UNSUPPORTED", "cleanup_pixels is available in M6.", milestone="M6")
+        from cybersprite.core.pixels import rgba
+        from cybersprite.core.references import cel_at, cel_owner
+        from cybersprite.pipeline.cleanup import cleanup_pixels
+
+        layer = image_layer(p, a.layer)
+        selected = frames(p, a.frames) if a.frame is None else [frame_index(p, a.frame)]
+        protect = [resolve_color(p.palette, c) for c in (a.protect or [])]
+        palette = [rgba(c) for c in p.palette.colors]
+        visited, count = set(), 0
+        positions: list[dict] = []
+        for frame in selected:
+            owner = cel_owner(layer, cel_at(layer, frame))
+            key = owner.frame if owner else frame
+            if key in visited:
+                continue
+            visited.add(key)
+            original = canvas_pixels(p, layer, frame)
+            cleaned, _ = cleanup_pixels(
+                original,
+                palette,
+                transparent_index=p.palette.transparent_index,
+                min_cluster=a.min_cluster,
+                connectivity=a.connectivity,
+                max_passes=a.max_passes,
+                protect=protect,
+            )
+            mask = region(p, a.region, original) & (cleaned != original)
+            points = [(int(x), int(y), int(cleaned[y, x])) for y, x in np.argwhere(mask)]
+            count += write_points(ctx, layer, frame, points)
+            positions.extend(
+                {"frame": frame, "x": x, "y": y, "from": int(original[y, x]), "to": value}
+                for x, y, value in points
+            )
+        return {
+            "pixels_written": count,
+            "positions": positions[:256],
+            "positions_truncated": len(positions) > 256,
+        }
     if name == "replace_color":
         if a.tilesets:
             fail("E_UNSUPPORTED", "replace_color with tilesets is available in M7.")

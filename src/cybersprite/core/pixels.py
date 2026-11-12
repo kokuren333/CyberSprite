@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from .color import dist2, rgb_to_oklab_fixed
 from .errors import CyberSpriteError, invalid
 from .models import Palette
 
@@ -73,8 +74,8 @@ def rgba(color: str) -> tuple[int, int, int, int]:
 
 
 def rgb_distance(a: tuple, b: tuple) -> int:
-    # TODO(M6): replace this shared placeholder with Appendix B fixed-point Oklab.
-    return sum((int(a[i]) - int(b[i])) ** 2 for i in range(3))
+    """Compatibility name: Appendix B distance, alpha excluded."""
+    return dist2(rgb_to_oklab_fixed(a[:3]), rgb_to_oklab_fixed(b[:3]))
 
 
 def resolve_color(palette: Palette, value: int | str) -> int:
@@ -94,7 +95,10 @@ def resolve_color(palette: Palette, value: int | str) -> int:
     for index, color in enumerate(colors):
         if color == target:
             return index
-    nearest = sorted(range(len(colors)), key=lambda i: (rgb_distance(colors[i], target), i))[:3]
+    nearest = sorted(
+        (i for i, c in enumerate(colors) if c[3] == 255 and i != palette.transparent_index),
+        key=lambda i: (rgb_distance(colors[i], target), i),
+    )[:3]
     raise CyberSpriteError(
         "E_COLOR_NOT_IN_PALETTE",
         f"Color {value} is not in the palette.",

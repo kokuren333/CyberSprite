@@ -7,8 +7,19 @@ from copy import deepcopy
 import numpy as np
 
 from ._common import integer, require, rgba_frames
-from .cleanup import components
-from .oklab import dist2, rgb_to_oklab_fixed_numpy
+from .oklab import rgb_to_oklab_fixed_numpy
+
+
+def orphan_count(frame, transparent_index=0):
+    connected = np.zeros(frame.shape, dtype=bool)
+    h, w = frame.shape
+    for dy in (-1, 0, 1):
+        for dx in (-1, 0, 1):
+            if dx or dy:
+                a = (slice(max(0, dy), min(h, h + dy)), slice(max(0, dx), min(w, w + dx)))
+                b = (slice(max(0, -dy), min(h, h - dy)), slice(max(0, -dx), min(w, w - dx)))
+                connected[a] |= frame[a] == frame[b]
+    return int(np.count_nonzero(~connected & (frame != transparent_index)))
 
 
 def pixel_sha256(image):
@@ -49,17 +60,14 @@ def compute_metrics(source_frames, index_frames, palette, *, transparent_index=0
         off_palette += int(np.count_nonzero(frame >= len(palette)))
         sizes.append([int(frame.shape[1]), int(frame.shape[0])])
         colors.append(len(np.unique(frame[frame != transparent_index])))
-        orphans.append(
-            sum(
-                len(cluster) == 1
-                for _, cluster in components(frame, transparent_index=transparent_index)
-            )
-        )
-        original_labs = rgb_to_oklab_fixed_numpy(original[:, :, :3])
+        orphans.append(orphan_count(frame, transparent_index))
         # Alpha has no colour distance; source-transparent pixels are excluded.
-        for y, x in np.argwhere((original[:, :, 3] >= 128) & (frame < len(palette))):
-            fidelity_sum += dist2(original_labs[y, x], palette_labs[int(frame[y, x])])
-            fidelity_count += 1
+        mask = (original[:, :, 3] >= 128) & (frame < len(palette))
+        source_colors, inverse = np.unique(original[mask, :3], axis=0, return_inverse=True)
+        original_labs = rgb_to_oklab_fixed_numpy(source_colors)
+        delta = original_labs[inverse] - palette_labs[frame[mask]]
+        fidelity_sum += int((delta * delta).sum(dtype=np.int64))
+        fidelity_count += int(np.count_nonzero(mask))
     return {
         "off_palette": off_palette,
         "orphans": sum(orphans),

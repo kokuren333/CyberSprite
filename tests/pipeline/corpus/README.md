@@ -26,3 +26,7 @@ python tests/pipeline/corpus/non_pixel/make_non_pixel.py
 - どちらも決定的で、同じ Pillow / zlib なら同じバイト列になる（乱数は固定シード）。
 - `make_originals.py` は書き出した PNG を読み直し、全ピクセルを照合する。パレットに使われない色や重複した色があれば止まる。
 - `make_non_pixel.py` はテスト入力を作るだけなので浮動小数を使う。パイプラインのコードではない。`text_aa_384x128` は Pillow 同梱の既定フォントに依存するため、Pillow の版が変わると画素が変わりうる。
+
+## M6 の測定
+
+較正の正本は [../CALIBRATION.md](../CALIBRATION.md)。`uv run python tools/calibrate_pipeline.py` が17作品の ×2〜×16、JPEG q60〜95、5/2・7/2倍の補間、誤格子5・7、および非ドット12枚の全471件を測る。正解との比較はパレット番号ではなく RGBA で行い、意図された単独点を保つため min_cluster=1、背景 keep を使う。生成(d)は M9 待ち。

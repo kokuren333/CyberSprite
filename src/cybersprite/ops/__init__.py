@@ -4,6 +4,7 @@ import os
 from contextlib import nullcontext
 from copy import deepcopy
 from functools import partial
+from types import SimpleNamespace
 from typing import Any
 
 from pydantic import Field, ValidationError, create_model
@@ -20,6 +21,17 @@ from .canvas import canvas_op
 from .common import fail
 from .drawing import drawing
 from .frames import frame_op
+from .ingest import (
+    GetSourceArgs,
+    GetSourceResult,
+    ImportArgs,
+    ImportResult,
+    ListSourcesArgs,
+    ListSourcesResult,
+    import_top,
+    place,
+    source_query,
+)
 from .palette import palette_op
 from .previews import transaction_previews
 from .queries import construct, query, summary
@@ -121,6 +133,13 @@ class PixelResult(Model):
 
 
 def _result(name):
+    if name == "cleanup_pixels":
+        return create_model(
+            "CleanupResult",
+            __base__=PixelResult,
+            positions=(list[dict], ...),
+            positions_truncated=(bool, ...),
+        )
     fields = {
         "add_frame": {"frames": (list[int], ...)},
         "delete_frames": {"deleted": (list[int], ...), "removed_tags": (list[str], ...)},
@@ -258,6 +277,32 @@ def registry():
         from .export_ops import register_exports
 
         register_exports(_registry)
+        _registry.register(
+            Op(
+                "import_image",
+                ImportArgs,
+                place,
+                ImportResult,
+                "ingest",
+                "N",
+                description="Convert with provenance and gates, then place transactionally.",
+            )
+        )
+        for name, arguments, result in (
+            ("list_sources", ListSourcesArgs, ListSourcesResult),
+            ("get_source", GetSourceArgs, GetSourceResult),
+        ):
+            _registry.register(
+                Op(
+                    name,
+                    arguments,
+                    partial(source_query, name=name),
+                    result,
+                    "query",
+                    "R",
+                    description="Inspect stored source provenance and conversion reports.",
+                )
+            )
     return _registry
 
 
@@ -284,6 +329,19 @@ def execute(name, project, args=None, *, actor=None, **options):
         from .export_ops import execute_import
 
         return execute_import(project, parsed, actor=actor)
+    if name == "import_image":
+        return import_top(registry(), project, parsed, tx, actor)
+    if name in ("list_sources", "get_source") and not project_path(project).exists():
+        value = definition.apply(SimpleNamespace(root=root), parsed)
+        definition.result.model_validate(value)
+        return {
+            "ok": True,
+            "op": name,
+            "project": root.as_posix(),
+            "revision": 0,
+            "result": value,
+            "warnings": [],
+        }
     if name == "new_project":
         target = project_path(project)
         p = construct(parsed, root)

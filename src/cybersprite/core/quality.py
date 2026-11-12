@@ -81,7 +81,7 @@ def clusters(image, ti):
     return result
 
 
-def report(p, *, root=None, selected_frames=None, rules=None):
+def report(p, *, root=None, selected_frames=None, rules=None, source_manifest=None):
     structural = check_structure(p)
     issues = [issue.as_dict() for issue in structural]
     settings = p.validation
@@ -284,7 +284,11 @@ def report(p, *, root=None, selected_frames=None, rules=None):
     if root is not None:
         path = Path(root) / "source/manifest.json"
         if path.is_file():
-            manifest = Sources.model_validate_json(path.read_bytes())
+            manifest = (
+                source_manifest
+                if source_manifest is not None
+                else Sources.model_validate_json(path.read_bytes())
+            )
             sources["total"] = len(manifest.sources)
             for source in manifest.sources:
                 pipeline = source.pipeline

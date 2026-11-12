@@ -178,6 +178,9 @@ def test_registry_coverage_and_contracts():
         "new_project",
         "cleanup_pixels",
         "import_aseprite",
+        "import_image",
+        "list_sources",
+        "get_source",
     }
     for op in registry().all():
         description = op.describe()
@@ -206,9 +209,8 @@ def test_new_project_and_cleanup_contracts(tmp_path):
         with pytest.raises(CyberSpriteError) as error:
             execute("new_project", p, args)
         assert error.value.code == code
-    with pytest.raises(CyberSpriteError) as error:
-        execute("cleanup_pixels", p, {"layer": "L1"}, preview="none")
-    assert error.value.code == "E_UNSUPPORTED" and "M6" in error.value.message
+    cleaned = execute("cleanup_pixels", p, {"layer": "L1"}, preview="none")
+    assert cleaned["no_op"] and cleaned["result"]["positions"] == []
 
 
 @pytest.mark.parametrize(

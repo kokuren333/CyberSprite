@@ -31,3 +31,13 @@ M2 のコミット処理は `normalize_cels` → `require_valid` → `dumps_proj
 `core.validation.validation_report` は M1 互換の構造検証である。品質を含む報告は `core.quality.report`、利用面からは登録済み `validate` を使う。品質デルタはキャッシュなしの全量計算で、`core.quality.validation_delta` が同一性と指標の比較を担当する。
 
 プレビューの PNG エンコードは `ops/previews.py` から自前 writer を呼ぶ。`core` には formats の import を持ち込まない。`inline` の画像は `result.images` の PNG base64 配列として運び、M4 が MCP 画像コンテンツへ変換できる。
+
+## M6 の統合 API
+
+- `core/color.py` が付録 B の正本。`pipeline/oklab.py` は互換再公開であり、コアから pipeline への依存はない。
+- `core/sources.py`: `read_manifest(root) -> Sources`、`save_manifest(root, manifest)`、`manifest_path(root)`、`manifest_bytes(manifest) -> bytes`、`find_source(manifest, id) -> Source`、`source_path(root, relative) -> Path`。M5 側の最小マニフェスト実装との統合時はこのモデル/APIへ揃える。
+- `pipeline/runner.py`: `run_pipeline(images, directory, source_id="SRC1", preset="ai", overrides=None, project=None, position=(0,0)) -> (index_frames, rgba_palette, report)`。画像は RGBA uint8 のフレーム列。プロジェクトの正本は変更せず、段階画像・result.png・報告を保存する。
+- `ops/ingest.py` の公開 Op は `import_image`（ingest）、`list_sources` / `get_source`（query）。配置は登録済み ingest の内部呼出しを `core/transactions.py` が1トランザクションで処理する。新規正本と配置の保存も1回にまとめる。原画像と拒否報告は配置失敗後も残す。
+- `pipeline/cli_api.py` の `convert(input_path, output_path, **options)` と `detect_grid(path, **options)` は M3 用。`convert` は `preset`、`pipeline`（または各設定節）、`on_gate_fail`、`stages` を受ける。結果は JSON 化可能な辞書、失敗は `CyberSpriteError`。CLI パッケージは M6 では編集しない。
+
+較正の正本は [tests/pipeline/CALIBRATION.md](../tests/pipeline/CALIBRATION.md)。MCP のシナリオ2は M4 統合前のため直接 Op の pytest で同じ流れを検査し、生成(d)の入力は M9 待ちとしている。

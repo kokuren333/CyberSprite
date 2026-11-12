@@ -38,11 +38,11 @@ def test_b_style_scores_only(variant):
     assert report["grid"]["detected"]
 
 
-def test_sparse_shapes_need_explicit_grid_under_specified_peak_rule():
+def test_sparse_shapes_explain_all_exact_boundaries():
     name, image, truth, factor = next(c for c in CASES if c[0] == "shapes-s4-crop00")
     auto = detect_grid(image)
-    assert auto["grid_score"] < 990
-    actual, report = run_case(image, grid_settings=corpus_grid(name, factor))
+    assert auto["grid_score"] == 1000 and auto["cell_w"] == factor
+    actual, report = run_case(image)
     assert np.array_equal(actual, truth) and report["accepted"]
 
 
