@@ -9,11 +9,28 @@
 
 ## 1. 依存・同梱の記録
 
-現時点（仕様策定フェーズ）では、依存も同梱もない。
-
 | 名前 | 版 | ライセンス（SPDX） | 入手元 | 確認日 | 確認方法 | 組み込み形態 | 確認者 |
 |---|---|---|---|---|---|---|---|
-| （なし） | | | | | | | |
+| numpy | 2.3.4 | BSD-3-Clause（wheel 同梱物は §3 L-04 の注記） | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | 必須依存 | Codex（M1）/ オーケストレーター |
+| pydantic | 2.12.3 | MIT | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | 必須依存 | Codex（M1）/ オーケストレーター |
+| pydantic-core | 2.41.4 | MIT | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | 必須依存（推移） | Codex（M1）/ オーケストレーター |
+| annotated-types | 0.8.0 | MIT | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | 必須依存（推移） | Codex（M1）/ オーケストレーター |
+| typing-inspection | 0.4.5 | MIT | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | 必須依存（推移） | Codex（M1）/ オーケストレーター |
+| typing-extensions | 4.16.0 | PSF-2.0 | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | 必須依存（推移） | Codex（M1）/ オーケストレーター |
+| click | 8.3.0 | BSD-3-Clause | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | 必須依存 | Codex（M1）/ オーケストレーター |
+| colorama | 0.4.6 | BSD-3-Clause | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | 必須依存（推移、Windows のみ） | Codex（M1）/ オーケストレーター |
+| pytest | 8.4.2 | MIT | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | 開発のみ | Codex（M1）/ オーケストレーター |
+| ruff | 0.14.1 | MIT | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | 開発のみ | Codex（M1）/ オーケストレーター |
+| mypy | 1.15.0 | MIT（一部 PSF-2.0） | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | 開発のみ | Codex（M1）/ オーケストレーター |
+| mypy-extensions | 1.2.0 | MIT | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | 開発のみ（推移） | Codex（M1）/ オーケストレーター |
+| packaging | 26.3 | Apache-2.0 OR BSD-2-Clause | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | 開発のみ | Codex（M1）/ オーケストレーター |
+| iniconfig | 2.3.1 | MIT | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | 開発のみ（推移） | Codex（M1）/ オーケストレーター |
+| pluggy | 1.7.0 | MIT | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | 開発・ビルドのみ（推移） | Codex（M1）/ オーケストレーター |
+| Pygments | 2.21.0 | BSD-2-Clause | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | 開発のみ（推移） | Codex（M1）/ オーケストレーター |
+| hatchling | 1.27.0 | MIT | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | ビルドのみ | Codex（M1）/ オーケストレーター |
+| trove-classifiers | 2026.9.21.13 | Apache-2.0 | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | ビルドのみ（推移） | Codex（M1）/ オーケストレーター |
+| pathspec | 0.12.1 / 1.1.1 | MPL-2.0 | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | ビルドのみ（推移）。配布物に入らない例外（I-010） | Codex（M1）/ オーケストレーター |
+| CyberSprite 組み込みパレット（`src/cybersprite/data/palettes/`） | — | Apache-2.0（自作）/ CC0-1.0（機器・汎用の灰色と白黒） | 自作 | 2026-11-12 | 自作（`docs/design/PALETTES.md`） | 同梱データ | Opus（デザイン） |
 
 ## 2. 上流工程での事前確認（2026-11-12、Fable 5.2）
 
