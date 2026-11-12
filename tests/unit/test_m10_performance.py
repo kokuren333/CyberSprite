@@ -53,11 +53,10 @@ def test_cluster_traversal_matches_original_integer_vectors():
 
 
 @pytest.mark.parametrize("factory", [lambda: fixture(16, 2, 4), animated_project, tile_project])
-def test_report_reuse_matches_full_recalculation(monkeypatch, factory):
+def test_report_reuse_matches_full_recalculation(factory):
     p = factory()
     expected = quality.report(p)
-    monkeypatch.setattr(quality, "frame_signature", lambda *_: object())
-    assert quality.report(p) == expected
+    assert quality.report(p, use_cache=False) == expected
 
 
 def test_identical_frames_and_links_have_identical_signature():

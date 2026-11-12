@@ -5,23 +5,47 @@ from contextlib import nullcontext
 from copy import deepcopy
 from hashlib import sha256
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 from pydantic import ValidationError
 
 from . import history, sources
-from .canonical import dumps_project, json_bytes, load_project, project_path
+from .canonical import (
+    _dumps_validated_project,
+    dumps_project,
+    json_bytes,
+    load_project,
+    project_path,
+)
 from .errors import CyberSpriteError, invalid
 from .journal_clock import now
-from .models import GroupLayer, TilemapLayer
+from .models import GroupLayer, ImageCel, TileCel, TilemapLayer
 from .normalize import normalize_cels
 from .pixels import tiles_from_rows
-from .quality import bbox, report, validation_delta
+from .quality import bbox, cached_frame_rgba, report, validation_delta
 from .raster import RasterError
 from .references import cel_owner, walk_layers
 from .registry import OpContext
 from .render import frame_signature, render
 from .validation import check_structure
+
+
+def _transaction_copy(project):
+    # Rows are immutable strings; detach each mutable row list once without
+    # asking deepcopy to revisit every string in every full-size cel.
+    memo = {}
+    for layer, _ in walk_layers(project.layers):
+        if isinstance(layer, GroupLayer):
+            continue
+        for cel in layer.cels:
+            if isinstance(cel, (ImageCel, TileCel)):
+                rows = cel.pixels if isinstance(cel, ImageCel) else cel.tiles
+                memo[id(rows)] = rows.copy()
+    for tileset in project.tilesets:
+        for tile in tileset.tiles:
+            memo[id(tile.pixels)] = tile.pixels.copy()
+    return deepcopy(project, memo)
 
 
 def changes(before, after, ctx):
@@ -56,7 +80,7 @@ def changes(before, after, ctx):
             result[cel.frame] = (layer.type, cel, owner, shared)
         return result
 
-    cels = []
+    cels: list[dict[str, Any]] = []
     for key in sorted(oldlayers.keys() | newlayers.keys()):
         old = cel_data(oldlayers.get(key), oldsets)
         new = cel_data(newlayers.get(key), newsets)
@@ -77,10 +101,14 @@ def changes(before, after, ctx):
         old = np.zeros((h, w, 4), dtype=np.uint8)
         new = old.copy()
         if f < len(before.frames):
-            data = render(before, f)
+            data = cached_frame_rgba(before, f)
+            if data is None:
+                data = render(before, f)
             old[: data.shape[0], : data.shape[1]] = data
         if f < len(after.frames):
-            data = render(after, f)
+            data = cached_frame_rgba(after, f)
+            if data is None:
+                data = render(after, f)
             new[: data.shape[0], : data.shape[1]] = data
         mask = np.any(old != new, axis=2)
         count = int(np.count_nonzero(mask))
@@ -121,7 +149,12 @@ def baseline(root, p, state, entries, actor, raw):
     writes = []
     if state["last_saved_sha256"] is None or external:
         state = {"undo_stack": [], "redo_stack": [], "last_saved_sha256": digest}
-        writes.append((history.snapshot_path(root, p.revision), history.snapshot_bytes(p)))
+        writes.append(
+            (
+                history.snapshot_path(root, p.revision),
+                history.snapshot_bytes(p, canonical=_dumps_validated_project(p)),
+            )
+        )
         kind = "external" if external else "create"
         entries = entries + [_entry(p, kind, actor, [], {}, report(p, root=root)["ok"])]
     return state, entries, writes
@@ -190,7 +223,7 @@ def transact(
                     return result
         state = history.read_state(root)
         state, entries, writes = baseline(root, before, state, entries, actor, raw)
-        after = deepcopy(before)
+        after = _transaction_copy(before)
         ctx = OpContext(after, root, prepared=prepared)
         results = []
         kind = op if op in ("undo", "redo") else "tx"
@@ -248,7 +281,7 @@ def transact(
                     error.op_index = index
                     raise error
         try:
-            after = normalize_cels(after)
+            after = normalize_cels(after, in_place=True)
         except (CyberSpriteError, ValueError, KeyError, AttributeError) as error:
             raise CyberSpriteError(
                 "E_INVARIANT",
@@ -267,8 +300,10 @@ def transact(
         if not no_op:
             after.revision = before.revision + 1
         sources.stage_history(ctx, before.revision, after.revision, restored)
-        previous_report = report(before, root=root, source_manifest=ctx.previous_source_manifest)
-        next_report = report(after, root=root, source_manifest=ctx.source_manifest)
+        previous_report = report(
+            before, root=root, source_manifest=ctx.previous_source_manifest, _structural=()
+        )
+        next_report = report(after, root=root, source_manifest=ctx.source_manifest, _structural=())
         changed = changes(before, after, ctx)
         result = {
             "ok": True,
@@ -305,7 +340,7 @@ def transact(
         if kind == "tx":
             state["undo_stack"].append(before.revision)
             state["redo_stack"] = []
-        data = dumps_project(after)
+        data = _dumps_validated_project(after)
         state["last_saved_sha256"] = sha256(data).hexdigest()
         entry = _entry(
             after,
@@ -321,7 +356,10 @@ def transact(
         entries.append(entry)
         writes.extend(
             [
-                (history.snapshot_path(root, after.revision), history.snapshot_bytes(after)),
+                (
+                    history.snapshot_path(root, after.revision),
+                    history.snapshot_bytes(after, canonical=data),
+                ),
                 (history.paths(root) / "journal.jsonl", history.journal_bytes(entries)),
                 (history.paths(root) / "state.json", json_bytes(state)),
                 (target, data),

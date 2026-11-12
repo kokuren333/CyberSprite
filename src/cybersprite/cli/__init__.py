@@ -478,6 +478,11 @@ def _json_object(value):
 def op_command(state, name, values, inline_args, args_file, **options):
     """Execute a registered Op. Merge args-file, args JSON, then key=value arguments."""
     from cybersprite.core.errors import invalid
+    from cybersprite.ops import registry
+
+    from .generated import SchemaValue
+
+    schema = registry().get(name).args.model_json_schema(by_alias=True)
 
     args = _json_object(args_file.read_text("utf-8")) if args_file else {}
     if inline_args:
@@ -489,7 +494,10 @@ def op_command(state, name, values, inline_args, args_file, **options):
         try:
             value = json.loads(value)
         except ValueError:
-            pass
+            if key in schema["properties"]:
+                value = SchemaValue(schema["properties"][key], schema.get("$defs", {})).convert(
+                    value, None, None
+                )
         args[key] = value
     _run(state, name, args, **{key: value for key, value in options.items() if value is not None})
 

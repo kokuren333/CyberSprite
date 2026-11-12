@@ -180,8 +180,12 @@ def snapshot_path(root, revision):
     return paths(root) / f"snapshots/r{revision:06d}.json.gz"
 
 
-def snapshot_bytes(p):
-    data = bytearray(gzip.compress(dumps_project(p), mtime=0))
+def snapshot_bytes(p, *, canonical=None):
+    data = bytearray(
+        gzip.compress(
+            dumps_project(p) if canonical is None else canonical, compresslevel=1, mtime=0
+        )
+    )
     data[9] = 255  # Normalize zlib's platform-specific OS header byte on Python 3.12.
     return bytes(data)
 

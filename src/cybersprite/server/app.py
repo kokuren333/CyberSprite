@@ -4,6 +4,7 @@ import asyncio
 import base64
 import json
 import secrets
+from collections import OrderedDict
 from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 
@@ -14,9 +15,10 @@ from starlette.websockets import WebSocketDisconnect
 
 from cybersprite import ops
 from cybersprite.core import history
-from cybersprite.core.canonical import load_project, project_path
+from cybersprite.core.canonical import load_project, loads_project, project_path
 from cybersprite.core.errors import CyberSpriteError, invalid
 from cybersprite.core.models import Rect
+from cybersprite.core.quality import cached_frame_rgba
 from cybersprite.core.render import RenderOptions, render
 from cybersprite.mcp.contracts import with_path_metadata
 from cybersprite.mcp.paths import PathPolicy
@@ -52,8 +54,31 @@ class Service:
         self.initial = self.path(project) if project else None
         self.sessions = set()
         self.watched = {}
+        self.models = OrderedDict()
         self.lock = asyncio.Lock()
         self.prefs = {"language": "auto", "zoom": 8, "grid": False, "onion": False}
+
+    def read_project(self, project):
+        # Read the actual bytes every time. A same-size external edit (even with
+        # a restored timestamp) must never reuse a stale parsed model.
+        try:
+            data = (project / "project.json").read_bytes()
+        except OSError:
+            # Preserve the core's specific missing-project and IO errors.
+            return load_project(project)
+        cached = self.models.get(project)
+        if cached is not None and data == cached[0]:
+            return cached[1]
+        model = loads_project(data)
+        if len(data) <= 4 * 1024 * 1024:
+            self.models[project] = (data, model)
+            self.models.move_to_end(project)
+            while (
+                len(self.models) > 8
+                or sum(len(item[0]) for item in self.models.values()) > 16 * 1024 * 1024
+            ):
+                self.models.popitem(last=False)
+        return model
 
     def path(self, value):
         path = self.policy.resolve(value)
@@ -113,7 +138,7 @@ class Service:
         previous = self.watched.get(project)
         if previous and stamp == previous[0]:
             return []
-        revision = load_project(project).revision
+        revision = self.read_project(project).revision
         self.watched[project] = (stamp, revision)
         if previous is None or revision == previous[1]:
             return []
@@ -225,7 +250,7 @@ class Service:
             )
             return self.run_op("get_info", project, values)
         if method == "render.frame":
-            p = load_project(project)
+            p = self.read_project(project)
             frames = values.pop("frames", [values.pop("frame", 0)])
             region = values.pop("region", None)
             if values or not isinstance(frames, list) or not 1 <= len(frames) <= 17:
@@ -234,7 +259,11 @@ class Service:
                 region = Rect.model_validate(region).model_dump()
             images = []
             for frame in frames:
-                image = render(p, frame, RenderOptions(crop=region))
+                # Validate the requested index through render on a miss, including
+                # invalid indices; cached signatures use the same core checks.
+                image = cached_frame_rgba(p, frame) if region is None else None
+                if image is None:
+                    image = render(p, frame, RenderOptions(crop=region))
                 images.append(
                     {
                         "frame": frame,

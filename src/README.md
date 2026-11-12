@@ -20,6 +20,12 @@ Python パッケージ `cybersprite` の置き場所。M1〜M9 のヘッドレ�
 
 ## 依存の向き（必ず守る）
 
+FIX-5では `core/quality` の内容ハッシュ付きフレーム解析、`validation` の画素行検査、
+`normalize` のトリム、`canonical` の正準行JSONを上限つきのプロセス内キャッシュで再利用する。
+`report(use_cache=False)` で品質報告を全量再計算でき、実Op列による同値性試験を持つ。
+`transactions` は読込・正規化後の構造検査を保ち、検証済みbytesを履歴snapshotと共有する。
+GUIサーバは正本bytesを毎回読み、完全一致時だけ解析モデルを再利用する。
+
 - `core` が import してよいのは、標準ライブラリ、NumPy、pydantic だけ。Pillow と `aseprite` は `formats` と `pipeline` だけが使う。
 - `cli`、`mcp`、`server` は、Op レジストリを通してだけプロジェクトを変える。
 - `core`、`ops`、書き出し、パイプラインの組み込みステップでは、浮動小数、乱数、現在時刻を使わない。

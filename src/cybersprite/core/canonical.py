@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 from collections.abc import Callable
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -41,6 +42,8 @@ def _ordered(value: Any, context: str = "") -> Any:
                 item = item.lower()
             if key in ("colors", "pixels"):
                 item = [entry.lower() for entry in item]
+                result[key] = item
+                continue
             if key == "tiles" and isinstance(item, list) and all(isinstance(x, str) for x in item):
                 item = [" ".join(row.split()) for row in item]
             result[key] = _ordered(item, key)
@@ -70,7 +73,57 @@ def json_bytes(value: Any) -> bytes:
 
 def dumps_project(project: Project) -> bytes:
     require_valid(project)
-    return json_bytes(_ordered(project))
+    return _dumps_validated_project(project)
+
+
+@lru_cache(maxsize=512)
+def _row_json(rows: tuple[str, ...], level: int) -> str:
+    return json.dumps(list(rows), indent=2, ensure_ascii=False).replace("\n", "\n" + "  " * level)
+
+
+def _project_json(value: Any, level: int = 0, key: str = "") -> str:
+    """Match json.dumps(indent=2), reusing immutable canonical pixel-row strings."""
+    if isinstance(value, dict) and value:
+        indent = "  " * (level + 1)
+        return (
+            "{\n"
+            + ",\n".join(
+                indent + json.dumps(k, ensure_ascii=False) + ": " + _project_json(v, level + 1, k)
+                for k, v in value.items()
+            )
+            + "\n"
+            + "  " * level
+            + "}"
+        )
+    if isinstance(value, list) and value:
+        if (
+            key in ("pixels", "tiles")
+            and all(isinstance(row, str) for row in value)
+            and sum(map(len, value)) <= 65536
+        ):
+            return _row_json(tuple(value), level)
+        indent = "  " * (level + 1)
+        return (
+            "[\n"
+            + ",\n".join(indent + _project_json(v, level + 1) for v in value)
+            + "\n"
+            + "  " * level
+            + "]"
+        )
+    return json.dumps(value, ensure_ascii=False, allow_nan=False)
+
+
+def _dumps_validated_project(project: Project) -> bytes:
+    """Internal transaction helper: caller has checked this exact model already."""
+    raw = _project_json(_ordered(project))
+    short = {"b": "0008", "t": "0009", "n": "000a", "f": "000c", "r": "000d"}
+    if "\\" in raw:
+        raw = re.sub(
+            r'\\(?:["\\/bfnrt]|u[0-9a-fA-F]{4})',
+            lambda m: "\\u" + short[m[0][1:]] if m[0][1:] in short else m[0],
+            raw,
+        )
+    return (raw + "\n").encode("utf-8")
 
 
 def metadata_bytes(value: Any) -> bytes:

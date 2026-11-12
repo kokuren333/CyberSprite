@@ -1910,6 +1910,8 @@ MCP ではツール実行エラー（`isError: true`）として返す。プロ�
 
 ### 10.12 取り込み、書き出し、生成
 
+`import_image` は未作成のプロジェクトにも直接使える。受理時の自動作成と、初回取り込みの undo 後の再取り込みは §11.11 に従う。
+
 | ツール | 引数（既定） | 動作と `result` | 冪等性 |
 |---|---|---|---|
 | `import_image` | `files`（パス、またはパスの配列 = 連続するフレーム）、`sheet`（省略。`{cell_w, cell_h, offset_x, offset_y, spacing}` を指定すると、1 枚の画像を格子で切ってフレーム列にする）、`preset`（`"ai"`。ほかに `"exact"` `"upscaled"` `"photo"`）、`pipeline`（§11 のパラメータの上書き）、`target`（`{mode: "new_layer" \| "layer", layer, name, frame（0）, x（0）, y（0）, add_frames（true）}`）、`provenance`（`{kind, provider, license（必須）, prompt, model, url, rights_note, seed, params}`）、`on_gate_fail`（`"reject"`。ほかに `"accept"`）、`source`（省略。既に `source/` にある ID を指定すると、ファイルの代わりにそれを変換する） | §11 のパイプラインを実行し、合格したらキャンバスに配置する。プロジェクトが存在しなければ、変換結果の大きさで新規作成する（`target.mode` は `"new_layer"` 扱い）。`result`: `{source, accepted, report_path, stage_paths, gates: […], placed: {layer, frames}}`。不合格で `"reject"` のときは、キャンバスを変えずに `ok: true`、`accepted: false` を返す（元画像と報告は `source/` に残る） | N |
@@ -2150,6 +2152,7 @@ Bayer の場合、ピクセル `(x, y)` について、最も近い色 `c1`（�
 
 合格した結果を、1 つのトランザクションでキャンバスに入れる。
 
+- `project.json` がなければ変換結果の寸法・フレーム数で自動作成し、`target.mode` は `new_layer` とする。初回取り込みを undo した後もプロジェクト自体は残る。不透明色がない既存パレットでは、明示 `pipeline.palette.mode` がない場合は `extract` を使い、色追加と再配置を同じトランザクションに含める。
 - `target.mode: "new_layer"`: `target.name`（既定は元ファイル名）の画像レイヤーを最上位に作る。`"layer"`: 既存の画像レイヤーに書く（透明でないピクセルだけを上書きする）。
 - フレーム `target.frame` から順に置く。フレームが足りなければ、`add_frames: true` のとき末尾に追加する（表示時間は 100 ms。アニメーション GIF から取り込んだ場合は元の表示時間）。
 - 位置は `(target.x, target.y)`。
