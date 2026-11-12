@@ -1,7 +1,9 @@
-# CyberSprite
+﻿# CyberSprite
 
 AI エージェントが、ピクセル単位で正確にドット絵とドットアニメーションを作るための制作環境。
 An agent-first pixel art and sprite animation environment. Pixel-perfect by construction.
+
+> 🎮 **ブラウザで触れるデモ / Hands-on demo**: https://kokuren333.github.io/CyberSprite/ — インストール不要で GUI を試せます（デモ版は保存・書き出し等に制限があります）。実際の制作は、リポジトリをクローンしてローカル環境で。
 
 > **現在の状態 / Status**: 1.0 より前の開発版です。CLI、MCP、ローカル GUI、画像変換、タイルマップ、アニメーション、`.aseprite` 入出力と、配布物の検証（M0〜M10）を実装し、修正ラウンド 1 と 2 回目のレビューを終えました。CI は Windows と Linux（Ubuntu）の Python 3.12 / 3.13、GUI は Windows と Ubuntu 24.04 で実行しています。PyPI などへの配布はまだです。既知の不足は [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md)。
 > Pre-1.0 development version. Milestones M0–M10 are implemented and CI runs on Windows and Linux (Python 3.12 / 3.13; GUI on Windows and Ubuntu 24.04). Not yet published to a package registry. See the known issues before use. The source of truth is [`docs/SPEC.md`](docs/SPEC.md) (Japanese).
