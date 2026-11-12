@@ -1,0 +1,4 @@
+{"label":"ground shadow, one cel linked across all frames","ops":[
+{"op":"draw_rows","args":{"layer":"shadow","frame":0,"x":9,"y":29,"rows":[".ffffffffffff.","ffffffffffffff","..ffffffffff.."],"format":"sym"}},
+{"op":"link_cel","args":{"layer":"shadow","source_frame":0,"frames":"1-9"}}
+]}

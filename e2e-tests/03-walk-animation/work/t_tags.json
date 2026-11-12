@@ -1,0 +1,4 @@
+{"label":"tags: walk (0-7 forward loop), idle (8-9 pingpong)","ops":[
+{"op":"add_tag","args":{"name":"walk","from":0,"to":7,"direction":"forward","repeat":0}},
+{"op":"add_tag","args":{"name":"idle","from":8,"to":9,"direction":"pingpong","repeat":0}}
+]}

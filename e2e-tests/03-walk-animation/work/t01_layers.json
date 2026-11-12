@@ -1,0 +1,7 @@
+{"label":"layer stack: shadow, far arm, far leg, body, near leg, near arm","ops":[
+{"op":"add_layer","args":{"name":"shadow","position":"bottom"}},
+{"op":"add_layer","args":{"name":"far_arm","position":{"above":"shadow"}}},
+{"op":"add_layer","args":{"name":"far_leg","position":{"above":"far_arm"}}},
+{"op":"add_layer","args":{"name":"near_leg","position":{"above":"body"}}},
+{"op":"add_layer","args":{"name":"near_arm","position":"top"}}
+]}

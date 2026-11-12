@@ -1,0 +1,9 @@
+{"label":"body bob: f1 down 1px, f3 up 1px; link contact/passing/down/up frames","ops":[
+{"op":"copy_cel","args":{"layer":"body","frame":0,"to_frame":1}},
+{"op":"transform_region","args":{"layer":"body","frame":1,"region":{"type":"all"},"dy":1}},
+{"op":"copy_cel","args":{"layer":"body","frame":0,"to_frame":3}},
+{"op":"transform_region","args":{"layer":"body","frame":3,"region":{"type":"all"},"dy":-1}},
+{"op":"link_cel","args":{"layer":"body","source_frame":0,"frames":[2,4,6,8]}},
+{"op":"link_cel","args":{"layer":"body","source_frame":1,"frames":[5,9]}},
+{"op":"link_cel","args":{"layer":"body","source_frame":3,"frames":[7]}}
+]}

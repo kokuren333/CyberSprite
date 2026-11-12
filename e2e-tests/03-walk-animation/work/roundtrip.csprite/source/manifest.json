@@ -1,0 +1,130 @@
+{
+  "format": "cybersprite-sources",
+  "schema_version": 1,
+  "next_id": 2,
+  "sources": [
+    {
+      "id": "SRC1",
+      "kind": "imported",
+      "files": [
+        {
+          "path": "source/SRC1/runner.aseprite",
+          "sha256": "6dc9821ce633caf416e4902e2911025940abafb6262f42366d929a183792151c",
+          "width": 32,
+          "height": 32,
+          "bytes": 4064
+        }
+      ],
+      "provider": "file",
+      "model": null,
+      "prompt": "",
+      "negative_prompt": "",
+      "seed": null,
+      "params": {},
+      "license": "unknown",
+      "rights_note": "",
+      "url": "",
+      "created_at": "2026-11-12T02:14:01.175056+00:00",
+      "imported_at": "2026-11-12T02:14:01.175056+00:00",
+      "pipeline": null,
+      "placements": [
+        {
+          "revision": 0,
+          "layer": "L1",
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "revision": 0,
+          "layer": "L2",
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "revision": 0,
+          "layer": "L3",
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "revision": 0,
+          "layer": "L4",
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "revision": 0,
+          "layer": "L5",
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "revision": 0,
+          "layer": "L6",
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      ]
+    }
+  ]
+}
