@@ -254,6 +254,7 @@ def detect_grid(
     harmonic_tolerance=850,
     min_peak=1500,
     purity_tolerance=16,
+    candidate_agreement=None,
     cell_w=None,
     cell_h=None,
     offset_x=0,
@@ -262,6 +263,11 @@ def detect_grid(
     target_h=None,
 ):
     frames = rgba_frames(images)
+    if candidate_agreement is None:
+        from .defaults import load_defaults
+
+        candidate_agreement = load_defaults()["common"]["grid"]["candidate_agreement"]
+    integer(candidate_agreement, "candidate_agreement", 0, 1000)
     h, w = frames[0].shape[:2]
     require(mode in ("auto", "fixed", "target", "none"), "Unknown grid mode.")
     integer(min_cell, "min_cell", 1)
@@ -374,7 +380,7 @@ def detect_grid(
             and not exact
             and any(
                 len(tops[k]) > 1
-                and tops[k][1]["score"] * 100 >= tops[k][0]["score"] * 95
+                and tops[k][1]["score"] * 1000 >= tops[k][0]["score"] * candidate_agreement
                 and _different_size(tops[k][0], tops[k][1])
                 for k in ("x", "y")
             )

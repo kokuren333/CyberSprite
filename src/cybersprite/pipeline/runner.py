@@ -312,7 +312,13 @@ def _run(images, directory, source_id, preset, overrides, project, position):
     if capacity_failure:
         metrics["palette_size"] = capacity_failure["palette_size"]
     thresholds = settings.get("gates", {})
-    require(not (set(thresholds) - {"grid_score", "fidelity"}), "Unknown pipeline gate override.")
+    require(
+        not (
+            set(thresholds)
+            - {"grid_score", "fidelity", "grid_cell_count", "boundary_alignment", "snap_fidelity"}
+        ),
+        "Unknown pipeline gate override.",
+    )
     for value in thresholds.values():
         require(
             value is None
@@ -326,6 +332,9 @@ def _run(images, directory, source_id, preset, overrides, project, position):
         grid,
         grid_thresholds=thresholds.get("grid_score"),
         fidelity_thresholds=thresholds.get("fidelity"),
+        grid_cell_count=thresholds.get("grid_cell_count"),
+        boundary_alignment=thresholds.get("boundary_alignment"),
+        snap_fidelity=thresholds.get("snap_fidelity"),
         palette_max=project.validation.palette_max if project else 256,
         palette_frozen=project.palette.frozen if project else False,
         palette_added=len(added),

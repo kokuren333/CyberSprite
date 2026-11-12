@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "seed": 1301,
+  "recipe_source": "tools/pixelize_bench.py",
+  "truth": "CyberSprite original calibration art only",
+  "originals": [
+    {
+      "file": "button_32x16.png",
+      "sha256": "dc55d4dea09412c35a1a3bb2d99ed70e79bf63c07b9c43276e4c375af9ef0fd1",
+      "provenance": "tests/pipeline/corpus/originals/button_32x16.json"
+    },
+    {
+      "file": "dither_ramp_32x16.png",
+      "sha256": "ffb77ad36da919d76558e0280b221fb93256a62ee176907073941c29a91c1931",
+      "provenance": "tests/pipeline/corpus/originals/dither_ramp_32x16.json"
+    },
+    {
+      "file": "emblem_lowcontrast_16x16.png",
+      "sha256": "bc65296bf5280513b78207c40bd081aee75bdb2c8599ff3a1c7df807efdb7564",
+      "provenance": "tests/pipeline/corpus/originals/emblem_lowcontrast_16x16.json"
+    },
+    {
+      "file": "flat_field_64x48.png",
+      "sha256": "97e25f96a4e8f12cf404dbd66174da9709f06060bf933512349e4688d7cbadd7",
+      "provenance": "tests/pipeline/corpus/originals/flat_field_64x48.json"
+    },
+    {
+      "file": "gem_10x10.png",
+      "sha256": "c5c65b76a1c25917d06ff05609ae4a7f0a6d6c866c13d0683a56d4df80001c00",
+      "provenance": "tests/pipeline/corpus/originals/gem_10x10.json"
+    },
+    {
+      "file": "glyphs_52x14.png",
+      "sha256": "625c0bcf8d71fb618eb3cd8816627ce5b9e96f08a8e1b3ea9f33e9a08e1acdd0",
+      "provenance": "tests/pipeline/corpus/originals/glyphs_52x14.json"
+    },
+    {
+      "file": "heart_8x8.png",
+      "sha256": "26228e2137cb646cbccb27731e5cc9629f100bc847d09ba9659c4c9896207063",
+      "provenance": "tests/pipeline/corpus/originals/heart_8x8.json"
+    },
+    {
+      "file": "hero_16x16.png",
+      "sha256": "1de1c6ef27c11cdb1a2ac643969db6adb6f104bf8aba21d181a15edc67255214",
+      "provenance": "tests/pipeline/corpus/originals/hero_16x16.json"
+    },
+    {
+      "file": "key_16x8.png",
+      "sha256": "af285512fc72db02d739261c8153e8ac5e6f4ac0b5591b3b8baa8c8adc1c4e38",
+      "provenance": "tests/pipeline/corpus/originals/key_16x8.json"
+    },
+    {
+      "file": "night_wires_24x24.png",
+      "sha256": "788da2035141785ddea7caf17deff22213da28764574e6fe52c72a13c7b28567",
+      "provenance": "tests/pipeline/corpus/originals/night_wires_24x24.json"
+    },
+    {
+      "file": "onebit_cat_24x16.png",
+      "sha256": "0f1c9a7e870922026138a353343c030cdd9fc1d2e69f1de6461921344fcb02b7",
+      "provenance": "tests/pipeline/corpus/originals/onebit_cat_24x16.json"
+    },
+    {
+      "file": "orb_24x24.png",
+      "sha256": "3d4944264e42304bcfb644cee51ec979ffec0305486a8a95bdfe00ded5773d70",
+      "provenance": "tests/pipeline/corpus/originals/orb_24x24.json"
+    },
+    {
+      "file": "potion_12x16.png",
+      "sha256": "26034aa167c51053dd26fd29108a40d3818d77c8fdb98c2288247004e36f9153",
+      "provenance": "tests/pipeline/corpus/originals/potion_12x16.json"
+    },
+    {
+      "file": "sparse_firefly_32x32.png",
+      "sha256": "d4b4cb76c1b69c769139d41112c74a678ffc026f25e2b40d1a8266b1e9a4a642",
+      "provenance": "tests/pipeline/corpus/originals/sparse_firefly_32x32.json"
+    },
+    {
+      "file": "sword_16x16.png",
+      "sha256": "1960d3e21247c165047be360f1e6eef82e4750afd3a854e0966664b38f1c1896",
+      "provenance": "tests/pipeline/corpus/originals/sword_16x16.json"
+    },
+    {
+      "file": "terrain_48x16.png",
+      "sha256": "4feb8a6fff2c5dd5e94daffc2b69222414b49e8b7aea4b9348f9cebb44f48ba2",
+      "provenance": "tests/pipeline/corpus/originals/terrain_48x16.json"
+    },
+    {
+      "file": "walker_48x24.png",
+      "sha256": "d2d1b1ecc45c9fd7314ab52c2c8b0344ce0feccf84c178ac03e4de1cfa4ce8c7",
+      "provenance": "tests/pipeline/corpus/originals/walker_48x24.json"
+    }
+  ],
+  "families": {
+    "nearest": "integer nearest x2..x12",
+    "fractional": "11/2 bilinear, floor dimensions",
+    "offset": "x6, crop left/right2 top/bottom1",
+    "blur": "x6, separable integer [1,2,1]/4; edge replication",
+    "jpeg50": "x6 q50 subsampling0, explicit matte246,244,238",
+    "jpeg75": "x6 q75 subsampling0, explicit matte246,244,238",
+    "noise": "x6 additive RGB integer +/-8, alpha unchanged, random.Random(1301)",
+    "jitter": "x6 per-color RGB integer +/-12, continuation of seed1301 state",
+    "alpha_aa": "x6, alpha-only integer blur"
+  }
+}

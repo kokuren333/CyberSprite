@@ -255,3 +255,10 @@
 - 実 CLI の plugins list と export plugin --help を確認。既存生成テスト用の実コマンドも起動し、2枚の出力 PNG を読み戻して8×6 RGBA・アルファ・内部画素を確認した。ゴールデン・正本スキーマの変更は0件。
 - 性能改善・前後比較は本工程では行わず、改善率を主張しない。途中の生成子プロセス4件の30秒期限超過の切分けでは、ops import 44.748秒、registry 構築4.451秒、metadata 列挙3回0.043/0.019/0.084秒を観測した（レビュー性能 fixture の前後測定ではない）。
 - 判断 **I-1201〜I-1213**。仕様変更は拡張契約・延期・W_PLUGIN_DETERMINISM・規則IDの一意性・依存方向・提供者の区別と関連表の整合。低層loaderと許可型・設定場所をcore内で共有し、coreから外側層へ依存しない。自動格子未検出の診断変換はI-467に従い外部stepにも保持した。新規依存・外部参照・ビジュアル判断なし。importer、platform 解決、実コンバータ、複数ファイル exporter、Linux 実行は未実施。詳細は [R1_C_IMPLEMENTATION_REPORT.md](R1_C_IMPLEMENTATION_REPORT.md)。
+## R1-D1: ピクセル化アダプターと中立較正（2026-11-12）
+
+- 3つの外部アダプター、44種類の候補のライセンス監査、生成16枚（PNG 11,603,213 bytes）、版5の外部化した閾値、オフラインの中立ベンチと最終AUTO較正を追加。依存宣言・vendor・動画API呼出し・registry/runner登録は追加していない。
+- 全体1423 passed / 5 skipped（2315.04秒）、最終対象13 passed / 3 skipped。Ruff / format / core+ops mypy36ファイル / schemas / repository / 既存dev+mcp+guiのlicense42件が成功。既存golden変更なし。
+- 自作17原画×19条件×2方式=646件を各3回測定、646/646で出力一致。生成(d)8/13合格、非ピクセル(e)10/12拒否、誤固定(f)3/34拒否、AUTO対照16/17合格。非ピクセルの拒否率は実CLIの変更前後とも83.3%。各12入力×3回の生時間と中央値をPIXELIZE_BENCHへ記録し、変動する並行負荷下の時間差を性能改善とは扱わない。
+- 判断I-1301〜I-1309。SPEC §2.3.2、§11.8〜11.10、§11.13を最小更新。正例547件の旧測定と255件の完全一致を保持し、95%条件はrequirements_met=false。
+- 不足: 実ライブラリ3系統・GPU・アニメーション/写真の実測、全OS/同梱バイナリ監査、Linux、Opusの意匠確認、R1-D2の接続。cuda-toolkitのLICENSE原文は未確認のため依存候補を許可しない。xpriteの生成原画は5/16出力、残りの期限/未検出/I/Oエラーを成功・拒否に水増ししていない。詳細はdocs/R1_D1_IMPLEMENTATION_REPORT.md。

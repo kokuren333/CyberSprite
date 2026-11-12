@@ -1,0 +1,416 @@
+{
+  "records": [
+    {
+      "version": "before",
+      "source": "aa_circles_256.png",
+      "runs_ms": [
+        29241.5443,
+        19725.3229,
+        20773.4932
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 20773.4932,
+      "source_sha256": "adb841a3fc22aac0c96fbf4fa33099ab911bbe497ac3e0c99e40c5e250caff29"
+    },
+    {
+      "version": "before",
+      "source": "aa_vector_scene_384x256.png",
+      "runs_ms": [
+        23113.6804,
+        25012.2981,
+        23469.4319
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 23469.4319,
+      "source_sha256": "010fbea9f7f53682d2808be1035f70157f1b633368c8d877f3562a43c1679787"
+    },
+    {
+      "version": "before",
+      "source": "bokeh_blur_256.png",
+      "runs_ms": [
+        79595.8872,
+        73186.3159,
+        79310.078
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 79310.078,
+      "source_sha256": "467da080b0fb97d443f9e734eebcad83458937aac8f63b574083955e1d7e0e42"
+    },
+    {
+      "version": "before",
+      "source": "brush_strokes_320.png",
+      "runs_ms": [
+        49471.6738,
+        47215.5084,
+        48188.2542
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 48188.2542,
+      "source_sha256": "904a2fd4a991c69103d2eadba6e37740e74acf8cf478402bf405208189cf8a6f"
+    },
+    {
+      "version": "before",
+      "source": "checker_rotated_aa_256.png",
+      "runs_ms": [
+        28540.6932,
+        24629.2625,
+        22455.4152
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 24629.2625,
+      "source_sha256": "72af91cc85829949ad9cf47117f7e83f697684a32c7fc63718c6b2b392c5d47d"
+    },
+    {
+      "version": "before",
+      "source": "gradient_linear_256x192.png",
+      "runs_ms": [
+        14111.2765,
+        12719.748,
+        16255.3274
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 14111.2765,
+      "source_sha256": "2f393607819fdf6a5971846a61c8856c9e99221307d5770bdfda402a79e7f783"
+    },
+    {
+      "version": "before",
+      "source": "gradient_radial_alpha_320x240.png",
+      "runs_ms": [
+        14657.3143,
+        17048.7686,
+        15451.8271
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 15451.8271,
+      "source_sha256": "8d741cea17de98d02cd449c056276d8ef58be6d16a45b0ffcf552a37dc190693"
+    },
+    {
+      "version": "before",
+      "source": "landscape_photo_512x320.png",
+      "runs_ms": [
+        13648.3611,
+        12828.6114,
+        12940.8263
+      ],
+      "accepted": [
+        true,
+        true,
+        true
+      ],
+      "errors": [],
+      "median_ms": 12940.8263,
+      "source_sha256": "83a992caceac366cd45a7d6765c7f1e7c9e6ba8cb361527a39b495145d59a94a"
+    },
+    {
+      "version": "before",
+      "source": "noise_fbm_256.png",
+      "runs_ms": [
+        17513.2999,
+        16332.5212,
+        19756.3684
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 17513.2999,
+      "source_sha256": "0979f9ab2586fd28d30499d7f3386adbaddae598aede00138debf195d665f2e8"
+    },
+    {
+      "version": "before",
+      "source": "noise_white_128.png",
+      "runs_ms": [
+        126636.3619,
+        115205.6675,
+        112560.1252
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 115205.6675,
+      "source_sha256": "13f80578e5388fc865b1a6b535241e34062dba4270939f4ad5166eca670bb16d"
+    },
+    {
+      "version": "before",
+      "source": "sphere_soft_256.png",
+      "runs_ms": [
+        7939.5091,
+        6065.2215,
+        5909.0295
+      ],
+      "accepted": [
+        true,
+        true,
+        true
+      ],
+      "errors": [],
+      "median_ms": 6065.2215,
+      "source_sha256": "4a10a058afe0a54849630ed5aa7122c30ad20db48c14fa92360e525c2fb1c321"
+    },
+    {
+      "version": "before",
+      "source": "text_aa_384x128.png",
+      "runs_ms": [
+        7578.6604,
+        10574.1077,
+        9732.845
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 9732.845,
+      "source_sha256": "8e6e8fc3ba64bcce340a52661b235923d8004810bab2ea1e2b80e76813aa1ad2"
+    },
+    {
+      "version": "after",
+      "source": "aa_circles_256.png",
+      "runs_ms": [
+        9353.8978,
+        13013.9097,
+        10250.1847
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 10250.1847,
+      "source_sha256": "adb841a3fc22aac0c96fbf4fa33099ab911bbe497ac3e0c99e40c5e250caff29"
+    },
+    {
+      "version": "after",
+      "source": "aa_vector_scene_384x256.png",
+      "runs_ms": [
+        9834.8875,
+        10169.4822,
+        13440.0412
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 10169.4822,
+      "source_sha256": "010fbea9f7f53682d2808be1035f70157f1b633368c8d877f3562a43c1679787"
+    },
+    {
+      "version": "after",
+      "source": "bokeh_blur_256.png",
+      "runs_ms": [
+        58000.2331,
+        60281.856,
+        58323.5818
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 58323.5818,
+      "source_sha256": "467da080b0fb97d443f9e734eebcad83458937aac8f63b574083955e1d7e0e42"
+    },
+    {
+      "version": "after",
+      "source": "brush_strokes_320.png",
+      "runs_ms": [
+        33701.4353,
+        42092.7811,
+        31755.5571
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 33701.4353,
+      "source_sha256": "904a2fd4a991c69103d2eadba6e37740e74acf8cf478402bf405208189cf8a6f"
+    },
+    {
+      "version": "after",
+      "source": "checker_rotated_aa_256.png",
+      "runs_ms": [
+        8597.8622,
+        9019.1903,
+        10473.0849
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 9019.1903,
+      "source_sha256": "72af91cc85829949ad9cf47117f7e83f697684a32c7fc63718c6b2b392c5d47d"
+    },
+    {
+      "version": "after",
+      "source": "gradient_linear_256x192.png",
+      "runs_ms": [
+        8758.879,
+        9372.414,
+        10030.2914
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 9372.414,
+      "source_sha256": "2f393607819fdf6a5971846a61c8856c9e99221307d5770bdfda402a79e7f783"
+    },
+    {
+      "version": "after",
+      "source": "gradient_radial_alpha_320x240.png",
+      "runs_ms": [
+        9966.215,
+        7100.4684,
+        8182.3563
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 8182.3563,
+      "source_sha256": "8d741cea17de98d02cd449c056276d8ef58be6d16a45b0ffcf552a37dc190693"
+    },
+    {
+      "version": "after",
+      "source": "landscape_photo_512x320.png",
+      "runs_ms": [
+        7902.8618,
+        6357.7737,
+        6245.8892
+      ],
+      "accepted": [
+        true,
+        true,
+        true
+      ],
+      "errors": [],
+      "median_ms": 6357.7737,
+      "source_sha256": "83a992caceac366cd45a7d6765c7f1e7c9e6ba8cb361527a39b495145d59a94a"
+    },
+    {
+      "version": "after",
+      "source": "noise_fbm_256.png",
+      "runs_ms": [
+        8384.9541,
+        8494.5581,
+        7948.3986
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 8384.9541,
+      "source_sha256": "0979f9ab2586fd28d30499d7f3386adbaddae598aede00138debf195d665f2e8"
+    },
+    {
+      "version": "after",
+      "source": "noise_white_128.png",
+      "runs_ms": [
+        101092.0359,
+        102601.3943,
+        84262.9638
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 101092.0359,
+      "source_sha256": "13f80578e5388fc865b1a6b535241e34062dba4270939f4ad5166eca670bb16d"
+    },
+    {
+      "version": "after",
+      "source": "sphere_soft_256.png",
+      "runs_ms": [
+        8131.8793,
+        5983.1915,
+        7184.8461
+      ],
+      "accepted": [
+        true,
+        true,
+        true
+      ],
+      "errors": [],
+      "median_ms": 7184.8461,
+      "source_sha256": "4a10a058afe0a54849630ed5aa7122c30ad20db48c14fa92360e525c2fb1c321"
+    },
+    {
+      "version": "after",
+      "source": "text_aa_384x128.png",
+      "runs_ms": [
+        8860.2059,
+        10017.9399,
+        8487.8181
+      ],
+      "accepted": [
+        false,
+        false,
+        false
+      ],
+      "errors": [],
+      "median_ms": 8860.2059,
+      "source_sha256": "8e6e8fc3ba64bcce340a52661b235923d8004810bab2ea1e2b80e76813aa1ad2"
+    }
+  ],
+  "baseline_commit": "0fd9e264678c5abdea6bc028452a01361f234894",
+  "pipeline_code_commit": "7675d97",
+  "command": "python -m cybersprite convert INPUT OUTPUT --preset ai --stages STAGES",
+  "conditions": "Same Windows host, CPython 3.12.10, Pillow 13.0.0, NumPy 2.3.4. Separate source-root PYTHONPATH and config directories. Concurrent worktree load not isolated."
+}

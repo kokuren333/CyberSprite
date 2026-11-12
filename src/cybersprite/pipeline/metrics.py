@@ -7,6 +7,7 @@ from copy import deepcopy
 import numpy as np
 
 from ._common import integer, require, rgba_frames
+from .defaults import load_defaults
 from .oklab import rgb_to_oklab_fixed_numpy
 
 
@@ -90,6 +91,9 @@ def evaluate_gates(
     *,
     grid_thresholds=None,
     fidelity_thresholds=None,
+    grid_cell_count=None,
+    boundary_alignment=None,
+    snap_fidelity=None,
     palette_max=256,
     palette_frozen=False,
     palette_added=0,
@@ -100,6 +104,23 @@ def evaluate_gates(
     position=(0, 0),
 ):
     """Threshold pairs are (fail, warn); None means the gate is not judged."""
+    defaults = load_defaults()["common"]["gates"]
+    grid_cell_count = defaults["grid_cell_count"] if grid_cell_count is None else grid_cell_count
+    boundary_alignment = (
+        defaults["boundary_alignment"] if boundary_alignment is None else boundary_alignment
+    )
+    snap_fidelity = defaults["snap_fidelity"] if snap_fidelity is None else snap_fidelity
+    for name, pair in (
+        ("grid_cell_count", grid_cell_count),
+        ("boundary_alignment", boundary_alignment),
+        ("snap_fidelity", snap_fidelity),
+    ):
+        require(
+            isinstance(pair, (list, tuple))
+            and len(pair) == 2
+            and all(type(value) is int and value >= 0 for value in pair),
+            f"Gate {name} requires two nonnegative integers.",
+        )
     gates = []
 
     def add(name, value, threshold, passed=True, warning=False):
@@ -128,16 +149,16 @@ def evaluate_gates(
         add(
             "grid_cell_count",
             short,
-            {"warn_below": 12, "input_min": 96},
-            warning=short < 12 and span >= 96,
+            {"warn_below": grid_cell_count[0], "input_min": grid_cell_count[1]},
+            warning=short < grid_cell_count[0] and span >= grid_cell_count[1],
         )
         alignment = grid.get("alignment", 1000)
         add(
             "boundary_alignment",
             alignment,
-            {"fail_below": 80, "warn_below": 250},
-            not auto or alignment >= 80,
-            auto and alignment < 250,
+            {"fail_below": boundary_alignment[0], "warn_below": boundary_alignment[1]},
+            not auto or alignment >= boundary_alignment[0],
+            auto and alignment < boundary_alignment[1],
         )
         add(
             "candidate_agreement",
@@ -149,9 +170,9 @@ def evaluate_gates(
         add(
             "snap_fidelity",
             variance,
-            {"fail_above": 3000, "warn_above": 500},
-            not auto or variance <= 3000,
-            variance > 500,
+            {"fail_above": snap_fidelity[0], "warn_above": snap_fidelity[1]},
+            not auto or variance <= snap_fidelity[0],
+            variance > snap_fidelity[1],
         )
     budget = min(256, integer(palette_max, "palette_max", 1, 256))
     add(
