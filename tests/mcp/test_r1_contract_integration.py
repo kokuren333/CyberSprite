@@ -37,3 +37,14 @@ def test_compact_nullable_constraints_and_full_validation(tmp_path):
     response = service.call("set_pixel", {**values, "mask": {"unknown": True}})
     assert response.is_error
     assert response.structured_content["error"]["code"] == "E_INVALID_ARGS"
+
+
+def test_shared_local_definitions_resolve_offline(tmp_path):
+    service = MCPService(root=tmp_path)
+    schema = service.contracts["export_sheet"]["inputSchema"]
+    assert schema["$defs"]
+    validator = Draft202012Validator(schema)
+    values = {"project": "p", "out": "sheet.png", "columns": None, "trim": False}
+    validator.validate(values)
+    assert not validator.is_valid({**values, "columns": 0})
+    assert not validator.is_valid({**values, "trim": "false"})

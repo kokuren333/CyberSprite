@@ -59,12 +59,12 @@ def _records(root):
 
 def committed_bytes(path: str | Path, root: str | Path) -> bytes:
     """Readers observe pre-save bytes until the durable intent is removed."""
-    path = Path(path)
+    target = Path(path)
     scope = _active.get()
     if scope is not None:
-        path = scope.resolve(path)
+        target = scope.resolve(target)
     if scope is None or scope.lock is None:
-        name = path.absolute()
+        name = target.absolute()
         while True:
             records = _records(root)
             missing = False
@@ -77,16 +77,16 @@ def committed_bytes(path: str | Path, root: str | Path) -> bytes:
                     break
             else:
                 try:
-                    data = path.read_bytes()
+                    data = target.read_bytes()
                 except FileNotFoundError:
                     missing = True
             if records == _records(root):
                 if missing:
-                    raise FileNotFoundError(path)
+                    raise FileNotFoundError(target)
                 assert data is not None
                 return data
             check_deadline()
-    return path.read_bytes()
+    return target.read_bytes()
 
 
 def _restore(records):
