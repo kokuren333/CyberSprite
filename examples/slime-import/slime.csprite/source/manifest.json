@@ -1,0 +1,114 @@
+{
+  "format": "cybersprite-sources",
+  "schema_version": 1,
+  "next_id": 2,
+  "sources": [
+    {
+      "id": "SRC1",
+      "kind": "generated",
+      "files": [
+        {
+          "path": "source/SRC1/original.jpg",
+          "sha256": "604d652785496f3a50eb3b9d18ffb9d55d79c3ff2ee3acd3b8d95fee2474bd59",
+          "width": 347,
+          "height": 347,
+          "bytes": 13105
+        }
+      ],
+      "provider": "user",
+      "model": null,
+      "prompt": "pixel art, 32x32 sprite of a cute green slime monster, dark outline, two black eyes with white highlights, pink cheeks, small smile, soft drop shadow, plain white background, game asset, centered",
+      "negative_prompt": "",
+      "seed": 20261112,
+      "params": {
+        "synthetic_degradation": "bicubic 32->347, blur 0.7, smooth colour drift, noise, JPEG q80"
+      },
+      "license": "Apache-2.0",
+      "rights_note": "Synthetic stand-in for a generator output, made by the e2e test agent with Pillow (see source_input/PROVENANCE.txt). No third-party IP.",
+      "url": "",
+      "created_at": "2026-11-12T02:39:04.137185+00:00",
+      "imported_at": "2026-11-12T02:39:04.137185+00:00",
+      "pipeline": {
+        "preset": "ai",
+        "params": {
+          "background": {
+            "color": [
+              246,
+              244,
+              238
+            ],
+            "mode": "key",
+            "tolerance": 20
+          },
+          "cleanup": {
+            "connectivity": 8,
+            "max_passes": 2,
+            "min_cluster": 1,
+            "protect": []
+          },
+          "dither": {
+            "strength": 255,
+            "type": "none"
+          },
+          "downsample": {
+            "alpha_threshold": 128,
+            "method": "center"
+          },
+          "gates": {
+            "fidelity": [
+              466954543,
+              233477271
+            ],
+            "grid_score": [
+              415,
+              707
+            ]
+          },
+          "grid": {
+            "force_square": true,
+            "harmonic_tolerance": 850,
+            "max_cell": 64,
+            "min_cell": 2,
+            "min_peak": 1500,
+            "mode": "target",
+            "purity_tolerance": 16,
+            "target_h": 32,
+            "target_w": 32
+          },
+          "outline": {
+            "mode": "keep"
+          },
+          "palette": {
+            "max_colors": 16,
+            "min_color_pixels": 0,
+            "mode": "extract",
+            "refine_iterations": 8
+          }
+        },
+        "report": {
+          "grid_score": 895,
+          "path": "source/SRC1/pipeline_report.json"
+        },
+        "result_sha256": "fa99e3366d9eff1a9240c6865b10b7383114846d6c3a88930c41420f9516d874",
+        "accepted": true,
+        "gates_overridden": []
+      },
+      "placements": [
+        {
+          "revision": 1,
+          "layer": "L2",
+          "frames": [
+            0
+          ]
+        },
+        {
+          "revision": 3,
+          "layer": "L2",
+          "frames": [
+            0
+          ]
+        }
+      ]
+    }
+  ]
+}

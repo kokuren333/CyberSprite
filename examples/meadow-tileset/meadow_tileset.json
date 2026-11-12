@@ -1,0 +1,168 @@
+{
+  "format": "cybersprite-tileset",
+  "schema_version": 1,
+  "image": "meadow_tileset.png",
+  "tileset": "TS1",
+  "tiles": [
+    {
+      "index": 1,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "user_data": null
+    },
+    {
+      "index": 2,
+      "rect": {
+        "x": 16,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "user_data": null
+    },
+    {
+      "index": 3,
+      "rect": {
+        "x": 32,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "user_data": null
+    },
+    {
+      "index": 4,
+      "rect": {
+        "x": 48,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "user_data": null
+    },
+    {
+      "index": 5,
+      "rect": {
+        "x": 64,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "user_data": null
+    },
+    {
+      "index": 6,
+      "rect": {
+        "x": 80,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "user_data": null
+    },
+    {
+      "index": 7,
+      "rect": {
+        "x": 96,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "user_data": null
+    },
+    {
+      "index": 8,
+      "rect": {
+        "x": 112,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "user_data": null
+    },
+    {
+      "index": 9,
+      "rect": {
+        "x": 0,
+        "y": 16,
+        "w": 16,
+        "h": 16
+      },
+      "user_data": null
+    },
+    {
+      "index": 10,
+      "rect": {
+        "x": 16,
+        "y": 16,
+        "w": 16,
+        "h": 16
+      },
+      "user_data": null
+    },
+    {
+      "index": 11,
+      "rect": {
+        "x": 32,
+        "y": 16,
+        "w": 16,
+        "h": 16
+      },
+      "user_data": null
+    },
+    {
+      "index": 12,
+      "rect": {
+        "x": 48,
+        "y": 16,
+        "w": 16,
+        "h": 16
+      },
+      "user_data": null
+    },
+    {
+      "index": 13,
+      "rect": {
+        "x": 64,
+        "y": 16,
+        "w": 16,
+        "h": 16
+      },
+      "user_data": null
+    },
+    {
+      "index": 14,
+      "rect": {
+        "x": 80,
+        "y": 16,
+        "w": 16,
+        "h": 16
+      },
+      "user_data": null
+    },
+    {
+      "index": 15,
+      "rect": {
+        "x": 96,
+        "y": 16,
+        "w": 16,
+        "h": 16
+      },
+      "user_data": null
+    },
+    {
+      "index": 16,
+      "rect": {
+        "x": 112,
+        "y": 16,
+        "w": 16,
+        "h": 16
+      },
+      "user_data": null
+    }
+  ]
+}
