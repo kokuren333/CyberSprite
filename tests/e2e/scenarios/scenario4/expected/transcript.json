@@ -1,0 +1,46 @@
+[
+  {
+    "surface": "gui",
+    "revision": 0
+  },
+  {
+    "surface": "gui",
+    "revision": 1
+  },
+  {
+    "surface": "cli",
+    "revision": 2
+  },
+  {
+    "surface": "gui",
+    "error": "E_REVISION_CONFLICT"
+  },
+  {
+    "surface": "gui",
+    "revision": 2
+  },
+  {
+    "surface": "gui",
+    "revision": 3
+  },
+  {
+    "surface": "cli",
+    "revision": 4
+  },
+  {
+    "surface": "gui",
+    "revision": 4
+  },
+  {
+    "surface": "gui",
+    "revision": 4
+  },
+  {
+    "surface": "gui",
+    "revision": 4
+  },
+  {
+    "surface": "cli",
+    "revision": 4
+  }
+]

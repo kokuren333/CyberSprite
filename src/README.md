@@ -1,7 +1,6 @@
 # src/
 
-Python パッケージ `cybersprite` の置き場所。M1〜M7 のヘッドレス基盤、Op・トランザクション、CLI、MCP、形式、変換、タイルマップを統合済み（77 Op）。
-Python パッケージ `cybersprite` の置き場所。M1〜M6 のヘッドレス基盤、Op・トランザクション、CLI、MCP、形式、変換に M9 の source 専用生成を追加（71 Op）。Diffusers extra の依存追加は監査保留。
+Python パッケージ `cybersprite` の置き場所。M1〜M9 のヘッドレス基盤、Op・トランザクション、CLI、MCP、形式、変換、タイルマップ、GUI、source 専用生成を統合済み（79 Op、生成を無効にした標準MCPは77ツール）。Diffusers extra の依存追加は監査保留。M10の配布手順は `tools/build_release.py`。
 
 `src/` レイアウトにしているのは、インストールしていない状態のコードをテストが誤って読み込むのを防ぐためである。
 
@@ -12,7 +11,7 @@ Python パッケージ `cybersprite` の置き場所。M1〜M6 のヘッドレ�
 | `cybersprite/formats/` | `png` 自前 PNG codec、`animation` 自前 GIF/LZW と APNG、`sheet` 配置と JSON 3 形式、`export` 共通の自己検査付き書出し、`export_args` 利用面共通の引数、`palette_files` パレット codec、`aseprite_io` 唯一のパッケージ依存境界、`input_adapter` 一時取り込み。`common.export_policy` が利用面の root/allow-dir を共有する | §5.9、§6.6、§8 | M1、M2、M5 |
 | `cybersprite/pipeline/` | `runner` が6段階変換・関門・報告を実行。`decode` は復号と共通シート分割、`cli_api` は convert/detect_grid、その他は整数の純粋ステップ | §11 | M6 |
 | `cybersprite/generate/` | `contracts` のバックエンド契約、`registry` の遅延プラグイン、`backends` の command/Diffusers API 接続、`licenses` の実体ハッシュと承諾、`service` の source 専用保存と再実行 | §12 | M9 |
-| `cybersprite/cli/` | M3 の全コマンド。`generated` が登録済み Op の引数から Click オプションを遅延生成し、`output` が JSON・要約・エラー封筒と正本への出力保護を担当する。M8〜M9 の未提供機能もコマンド名を予約して E_UNSUPPORTED を返す。使い方は `docs/CLI.md` | §9 | M1〜M3 |
+| `cybersprite/cli/` | 全コマンド。`generated` が登録済み Op の引数から Click オプションを遅延生成し、`output` が JSON・要約・エラー封筒と正本への出力保護を担当する。GUIと生成の入口も統合済み。使い方は `docs/CLI.md` | §9 | M1〜M9 |
 | `cybersprite/config.py` | ユーザーの config.toml の場所解決と厳密なスキーマ、生成コマンドの置換名検査、モデル実体の設定。`CYBERSPRITE_CONFIG_DIR` で設定ディレクトリを分離できる | §9.6、§12 | M3、M9 |
 | `cybersprite/mcp/` | `server` が Op 実行と利用範囲、`contracts` がプロファイルとスキーマ、`paths` が入力・出力の実体パス制限、`execution` が期限とロールバックを担当。export_policy は同じ root/allow-dir を共有 | §10 | M4 |
 | `cybersprite/server/` | GUI 用ローカルサーバ。GUI のビルド成果物を `static/` に同梱する | §14.6 | M8 |
@@ -29,7 +28,7 @@ M2 のコミット処理は `normalize_cels` → `require_valid` → `dumps_proj
 
 `ops.execute(name, project, args, actor="cli", **transaction_options)` は成功の封筒を返す。失敗は `CyberSpriteError` として返し、バッチ内の失敗には `op_index` が付く。MCP と GUI はこの入口を使い、プロジェクトを直接保存しない。`registry().get(name).describe()` が入力・出力スキーマと annotations を生成する。Op のスキーマは現時点では実行時生成であり、`schemas/` に別の正本を置かない。
 
-`core.validation.validation_report` は M1 互換の構造検証である。品質を含む報告は `core.quality.report`、利用面からは登録済み `validate` を使う。品質デルタはキャッシュなしの全量計算で、`core.quality.validation_delta` が同一性と指標の比較を担当する。
+`core.validation.validation_report` は M1 互換の構造検証である。品質を含む報告は `core.quality.report`、利用面からは登録済み `validate` を使う。品質デルタは全体を検査し、`core.quality.validation_delta` が同一性と指標の比較を担当する。M10では直前1フレームと厳密に同じ合成入力に限り、1回のreport内だけ描画・閉包・クラスタ結果を再利用する。永続キャッシュはない（I-804）。
 
 プレビューの PNG エンコードは `ops/previews.py` から自前 writer を呼ぶ。`core` には formats の import を持ち込まない。`inline` の画像は `result.images` の PNG base64 配列として運び、M4 が MCP 画像コンテンツへ変換できる。
 
@@ -41,7 +40,7 @@ M2 のコミット処理は `normalize_cels` → `require_valid` → `dumps_proj
 - `ops/ingest.py` の公開 Op は `import_image`（ingest）、`list_sources` / `get_source`（query）。配置は登録済み ingest の内部呼出しを `core/transactions.py` が1トランザクションで処理する。新規正本と配置の保存も1回にまとめる。原画像と拒否報告は配置失敗後も残す。
 - `pipeline/cli_api.py` の `convert(input_path, output_path, **options)` と `detect_grid(path, **options)` は M3 用。`convert` は `preset`、`pipeline`（または各設定節）、`on_gate_fail`、`stages` を受ける。結果は JSON 化可能な辞書、失敗は `CyberSpriteError`。CLI はこの API を呼び、入出力引数は input_path/output_path として渡す。
 
-較正の正本は [tests/pipeline/CALIBRATION.md](../tests/pipeline/CALIBRATION.md)。MCP のシナリオ2は M4 統合前のため直接 Op の pytest で同じ流れを検査し、生成(d)の入力は M9 待ちとしている。
+較正の正本は [tests/pipeline/CALIBRATION.md](../tests/pipeline/CALIBRATION.md)。MCPのシナリオ1〜3と5はin-process/stdioのJSONL、シナリオ4は実GUI/CLIの交互編集を検査する。生成(d)の入力は未入手で、シナリオ2の代替入力を明記している。
 
 ## M7 のタイル操作
 

@@ -1,0 +1,6 @@
+{"name":"import_aseprite","arguments":{"project":"edited.csprite","file":"input.aseprite"}}
+{"name":"apply_ops","arguments":{"project":"edited.csprite","preview":"none","ops":[{"op":"update_layer","args":{"layer":"L2","locked":false}},{"op":"set_pixel","args":{"layer":"L2","frame":0,"x":2,"y":2,"color":2}}]}}
+{"name":"validate","arguments":{"project":"edited.csprite"}}
+{"name":"render_preview","arguments":{"project":"edited.csprite","frames":"all","inline":true}}
+{"name":"export_aseprite","arguments":{"project":"edited.csprite","out":"edited.aseprite"}}
+{"name":"export_sheet","arguments":{"project":"edited.csprite","out":"edited.png","layout":"rows","columns":3,"compression":"stored"}}

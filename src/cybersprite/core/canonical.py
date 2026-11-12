@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -14,7 +15,7 @@ from .models import Project, SliceKey, UserData
 from .validation import require_valid
 
 SCHEMA_VERSION = 1
-MIGRATIONS: dict = {}  # old version -> pure dict migration; filled when a version 2 exists.
+MIGRATIONS: dict[int, Callable[[dict[str, Any]], dict[str, Any]]] = {}
 
 
 def _ordered(value: Any, context: str = "") -> Any:

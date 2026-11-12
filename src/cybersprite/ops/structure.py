@@ -1,6 +1,7 @@
 """Layer, tag, slice and project metadata operations."""
 
 from copy import deepcopy
+from typing import cast
 
 from pydantic import ValidationError
 
@@ -9,6 +10,7 @@ from cybersprite.core.models import (
     GroupLayer,
     ImageCel,
     ImageLayer,
+    LinkCel,
     Slice,
     Tag,
     TilemapLayer,
@@ -64,6 +66,7 @@ def layer_op(ctx, a, name):
             blend_mode=a.blend_mode,
             visible=a.visible,
         )
+        layer: GroupLayer | ImageLayer | TilemapLayer
         if a.type == "group":
             layer = GroupLayer(**values)
         elif a.type == "image":
@@ -90,15 +93,15 @@ def layer_op(ctx, a, name):
         ):
             return {}
         if not layers:
-            layer = ImageLayer(id=p.layers[0].id, name=p.layers[0].name)
+            flat_layer = ImageLayer(id=p.layers[0].id, name=p.layers[0].name)
         else:
             bottom = next(node for node, _ in walk_layers(p.layers) if node.id == layers[0])
-            layer = ImageLayer(id=bottom.id, name=bottom.name)
+            flat_layer = ImageLayer(id=bottom.id, name=bottom.name)
         for f in range(len(p.frames)):
             data = indexed_result(
                 p, f, {"include_hidden": not a.visible_only, "flatten": a.flatten}
             ).pixels
-            layer.cels.append(
+            flat_layer.cels.append(
                 ImageCel(
                     frame=f,
                     x=0,
@@ -108,7 +111,7 @@ def layer_op(ctx, a, name):
                     pixels=pixels_to_rows(data),
                 )
             )
-        p.layers = [layer]
+        p.layers = [flat_layer]
         return {}
     if name == "merge_layers":
         if (a.layers is None) == (a.down is None):
@@ -130,11 +133,11 @@ def layer_op(ctx, a, name):
             if not isinstance(node, ImageLayer):
                 fail("E_WRONG_LAYER_TYPE", "Merge requires image layers.")
         chosen.sort(key=items.index)
-        bottom = chosen[0]
+        bottom = cast(ImageLayer, chosen[0])
         # Render in an isolated root so group opacity is not applied twice after the merge.
         temp = deepcopy(p)
         temp.layers = deepcopy(chosen)
-        cels = []
+        cels: list[ImageCel | LinkCel] = []
         for f in range(len(p.frames)):
             data = indexed_result(temp, f, {"include_hidden": True, "flatten": a.flatten}).pixels
             cels.append(

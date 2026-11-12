@@ -1,12 +1,15 @@
 """Stable reference resolution and cel ownership helpers."""
 
 from collections.abc import Iterator
+from typing import Any
 
 from .errors import CyberSpriteError
 from .models import GroupLayer, Layer, LinkCel, Project, Tag
 
 
-def walk_layers(layers: list[Layer], ancestors: tuple[GroupLayer, ...] = ()) -> Iterator[tuple]:
+def walk_layers(
+    layers: list[Layer], ancestors: tuple[GroupLayer, ...] = ()
+) -> Iterator[tuple[Layer, tuple[GroupLayer, ...]]]:
     for layer in layers:
         yield layer, ancestors
         if isinstance(layer, GroupLayer):
@@ -21,11 +24,12 @@ def resolve_layer(project: Project, reference: str) -> Layer:
     for layer, _path in entries:
         if layer.id == reference:
             return layer
-    for predicate in (
-        lambda layer, path: layer.name == reference,
-        lambda layer, path: path == reference,
-    ):
-        matches = [(layer, path) for layer, path in entries if predicate(layer, path)]
+    for by_path in (False, True):
+        matches = [
+            (layer, path)
+            for layer, path in entries
+            if (path if by_path else layer.name) == reference
+        ]
         if len(matches) == 1:
             return matches[0][0]
         if matches:
@@ -71,11 +75,11 @@ def resolve_tag(project: Project, reference: str) -> Tag:
     )
 
 
-def cel_at(layer, frame: int):
+def cel_at(layer: Any, frame: int) -> Any:
     return next((cel for cel in layer.cels if cel.frame == frame), None)
 
 
-def cel_owner(layer, cel):
+def cel_owner(layer: Any, cel: Any) -> Any:
     if isinstance(cel, LinkCel):
         return cel_at(layer, cel.link)
     return cel

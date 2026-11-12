@@ -3,7 +3,7 @@
 from copy import deepcopy
 
 from cybersprite.core.errors import invalid
-from cybersprite.core.models import Frame, GroupLayer, ImageLayer, LinkCel
+from cybersprite.core.models import Frame, GroupLayer, ImageLayer, LinkCel, TilemapLayer
 from cybersprite.core.references import cel_at, cel_owner, resolve_layer, walk_layers
 
 from .common import (
@@ -193,7 +193,11 @@ def frame_op(ctx, a, name):
         frame_index(p, a.to_frame)
         if target.type != layer.type:
             fail("E_WRONG_LAYER_TYPE", "Source and target cel types must match.")
-        if layer.type == "tilemap" and target.tileset != layer.tileset:
+        if (
+            isinstance(layer, TilemapLayer)
+            and isinstance(target, TilemapLayer)
+            and target.tileset != layer.tileset
+        ):
             raise invalid("Copy tilemap cels only between layers using the same tileset.")
         if target is layer and frame == a.to_frame:
             return {}

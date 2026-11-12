@@ -346,6 +346,11 @@ def region_mask(
         return np.ones((h, w), dtype=bool)
     if kind in ("color", "wand"):
         image = layer_image_fn() if callable(layer_image_fn) else layer_image_fn
+        if image is None:
+            raise _invalid(
+                "Color and wand regions require a layer image.",
+                "Supply a canvas-sized uint8 image or an image callback.",
+            )
         _array(image, np.uint8, "layer image")
         if image.shape != (h, w):
             raise _invalid(

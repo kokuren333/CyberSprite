@@ -88,6 +88,16 @@ async def replay(directory, root, *, stdio=False, exports=False):
         for filename, kind in case.get(
             "exports", {"walk.png": "sheet", "walk.gif": "animation"}
         ).items():
+            if kind == "aseprite":
+                from cybersprite.formats.aseprite_io import decode_aseprite, equivalent
+
+                imported, dropped = decode_aseprite((root / filename).read_bytes())
+                assert not dropped
+                assert equivalent(project, imported)
+                actual = [pixel_sha256(render(imported, f)) for f in range(len(imported.frames))]
+                assert actual == [pixel_sha256(frame) for frame in frames]
+                hashes[filename] = actual
+                continue
             with Image.open(root / filename) as image:
                 actual = []
                 for index in range(getattr(image, "n_frames", 1)):
@@ -108,6 +118,10 @@ async def replay(directory, root, *, stdio=False, exports=False):
 
 def execute_case(directory):
     with TemporaryDirectory() as temporary:
+        if directory.name == "scenario4":
+            from tests.e2e.mixed_replay import replay_mixed
+
+            return replay_mixed(directory, Path(temporary))[0]
         result, _ = asyncio.run(replay(directory, Path(temporary), exports=True))
         return result
 

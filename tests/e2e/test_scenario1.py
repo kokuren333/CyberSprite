@@ -4,9 +4,7 @@ import asyncio
 
 import pytest
 
-pytest.importorskip("mcp.server")
-
-from tests.e2e.replay import SCENARIOS, replay  # noqa: E402
+from tests.e2e.replay import SCENARIOS, replay
 
 
 @pytest.mark.parametrize("stdio", [False, True])

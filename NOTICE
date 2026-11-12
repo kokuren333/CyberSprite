@@ -9,11 +9,24 @@ documentation text from Aseprite, LibreSprite or any other product is included.
 
 Third-party software
 --------------------
-No third-party code is bundled at this stage (specification phase).
-When dependencies are added, their attributions are recorded here and in
-third_party/THIRD_PARTY.md, with license texts under third_party/licenses/.
+The distributed GUI includes React 19.2.0, React DOM 19.2.0 and Scheduler 0.27.0
+(Copyright (c) Meta Platforms, Inc. and affiliates), and Zustand 5.0.8
+(Copyright (c) 2019 Paul Henschel), under the MIT License. The Vite 7.3.8 build
+also supplies its module-preload runtime. Original license grants, including
+the conservative superset of audited build/test dependencies, are reproduced
+in third_party/licenses/gui-bundle.txt. The package inventory is maintained in
+gui/THIRD_PARTY_JS.md. These notices and license texts are included in the wheel.
+
+The separately installed aseprite 0.1.0 Python package is licensed under
+Apache-2.0, Copyright 2026 Mattt <https://mat.tt>. Its wheel contains LICENSE
+and no separate NOTICE; its code is not bundled in the CyberSprite wheel.
+Runtime and development dependency records are in third_party/THIRD_PARTY.md.
 
 Algorithm references
 --------------------
 The fixed-point colour distance specified in docs/SPEC.md (Appendix B) uses the
 coefficients of the Oklab colour space published by Björn Ottosson.
+Source: https://bottosson.github.io/posts/oklab/
+The author releases that code to the public domain, with MIT as an alternative.
+CyberSprite uses the public-domain coefficients in its independently implemented
+integer conversion; the normative coefficients are in docs/SPEC.md, Appendix B.

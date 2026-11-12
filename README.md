@@ -3,20 +3,78 @@
 AI エージェントが、ピクセル単位で正確にドット絵とドットアニメーションを作るための制作環境。
 An agent-first pixel art and sprite animation environment. Pixel-perfect by construction.
 
-> **現在の状態 / Status**: 仕様策定が完了し、実装はこれから始まる段階です。コードはまだありません。仕様書の正本は [`docs/SPEC.md`](docs/SPEC.md) です。
-> Specification complete, implementation not started. There is no code yet. The source of truth is [`docs/SPEC.md`](docs/SPEC.md) (Japanese).
+> **現在の状態 / Status**: CLI、MCP、ローカル GUI、画像変換、タイルマップ、アニメーションと `.aseprite` 入出力を実装済み。M10 の配布・検証整備中です。Windows で検証し、Linux CI は未実行です。既知の不足は [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md)。
+> Implemented and tested on Windows; release verification is in progress. Linux CI results are pending. See the known issues before use. The source of truth is [`docs/SPEC.md`](docs/SPEC.md) (Japanese).
 
 ---
 
 ## これは何か
 
-CyberSprite は、Claude Code や Codex などの AI エージェントから操作することを第一に設計した、ドット絵の制作環境です。人間用の GUI も用意しますが、GUI もエージェントと同じデータを、同じ操作で編集します。
+CyberSprite は、Claude Code や Codex などの AI エージェントから操作することを第一に設計した、ドット絵の制作環境です。人間用の GUI も、エージェントと同じデータを、同じ操作で編集します。
 
 - **ヘッドレスのコア（Python）**: インデックスカラーのドキュメントモデル、決定的なレンダラ、検証。
 - **CLI と MCP ツール**: 座標と番号を明示する有界な操作。無制限のスクリプト実行ツールはありません。
 - **変換パイプライン**: 生成モデルの出力や既存の画像を、グリッド検出 → 縮小 → パレットロック → 後始末 → 検証の手順で、正しいドット絵に直します。
-- **GUI**: 白と水色の回路基板をモチーフにしたテーマ「Circuit White」。エージェントの変更を見守り、差分を確かめ、軽く手直しするための画面です。
-- **`.aseprite` 互換**: 読み書きに対応します。
+- **GUI**: 白と水色の回路基板をモチーフにしたテーマ「Circuit White」。エージェントの変更、検証デルタ、履歴とプレビューを表示し、同じ Op で編集できます。
+- **書き出し**: PNG、GIF、APNG、スプライトシートと JSON、パレット、タイルセット、`.aseprite`。書き出したファイルを読み直して検証します。
+
+## インストールと起動
+
+Python 3.12 以上と uv を用意します。公開レジストリへの配布はまだ行っていません。配布用 wheel がある場合、リポジトリや Node.js は実行に不要です。
+
+```powershell
+uv tool install "dist/cybersprite-0.1.0-py3-none-any.whl[mcp,gui]"
+cybersprite --version
+```
+
+ソースから使う場合は Node.js 24 / npm も必要です。
+
+```powershell
+uv sync --locked --extra mcp --extra gui
+uv run python tools/build_release.py
+uv run python tools/verify_release.py dist/cybersprite-0.1.0-py3-none-any.whl
+```
+
+`build_release.py` は `gui/` で `npm ci` → ライセンス照合 → CLI によるアイコン書き出しを含む `npm run build` → `uv build` の順に実行し、wheel のデータとライセンス本文を検査します。`uv build` 単独は GUI を作らないため、リリースにはこの手順を使ってください。検証器はリポジトリ外に新しい venv を作って wheel と extras を導入し、CLI・MCP・GUI を起動します。
+
+## エージェントの最初の操作
+
+MCP クライアントには、次のコマンドを stdio サーバとして登録します。root はプロジェクトと入出力を許可するディレクトリです。
+
+```powershell
+cybersprite mcp serve --root C:/sprites
+# 同じサーバのモジュール起動
+python -m cybersprite.mcp --root C:/sprites
+```
+
+`new_project` → `get_info` / `get_palette` → 描画 Op または `apply_ops` → `validate` → `render_preview` → 書き出し、の順で使います。各ツールのスキーマを読み、フレームは 0 始まり、色はパレット番号で指定します。`--profile minimal` はバッチを中心とする小さなツール集合です。詳しくは [`docs/MCP.md`](docs/MCP.md)。
+
+同じ制作を CLI でも実行できます。ソース環境では各コマンドに `uv run` を付けます。
+
+```powershell
+cybersprite new demo.csprite --size 16x16 --palette gray-4
+cybersprite -p demo.csprite op rect layer=L1 frame=0 x=2 y=2 w=12 h=12 color=1
+cybersprite -p demo.csprite validate
+cybersprite -p demo.csprite preview --frames all --layout strip --out preview.png
+cybersprite -p demo.csprite export image --out final.png --compression stored
+cybersprite gui demo.csprite --no-browser
+```
+
+変更の検証デルタを読み、プレビューと最終ファイルを開いて確かめます。書き出し結果の `validation_ok` と `verified` はともに true が必要です。GUI は表示された URL の `#` 以降も含めて開きます。CLI と GUI の交互編集は変更通知で反映され、構造操作の競合時は再読込が必要です。出力先は起動時の cwd 配下に置きます。
+
+## 文書の案内
+
+| 文書 | 内容 |
+|---|---|
+| [`AGENTS.md`](AGENTS.md) | 開発と制作の原則、クリーンルーム、確認のループ |
+| [`docs/CLI.md`](docs/CLI.md) / [`docs/MCP.md`](docs/MCP.md) | コマンド、引数、接続、パス制限 |
+| [`docs/GUI.md`](docs/GUI.md) | GUI の起動、認証、RPC、開発 |
+| [`docs/GENERATION.md`](docs/GENERATION.md) | 外部生成コマンド、モデル承諾、来歴。生成した画像は取り込みが別途必要 |
+| [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md) / [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md) | 実測値と未対応項目 |
+| [`docs/SPEC.md`](docs/SPEC.md) / [`docs/DECISIONS.md`](docs/DECISIONS.md) | 正本の仕様と実装上の判断 |
+| [`tools/README.md`](tools/README.md) / [`tests/README.md`](tests/README.md) | 検査、較正、唯一のゴールデン更新手順 |
+
+制作手順は `skills/`、自作の作例は `examples/` にあります。生成モデルの依存は既定では導入しません。`diffusers` extra は監査保留で空の予約名です（I-014）。
 
 ## ピクセルパーフェクトの保証
 
@@ -78,3 +136,9 @@ CyberSprite is an open-source (Apache-2.0) pixel art and sprite animation enviro
 - **No bundled model weights.** Only permissively licensed code is incorporated; no GPL/LGPL/AGPL code.
 
 The specification (in Japanese) is in [`docs/SPEC.md`](docs/SPEC.md).
+
+Install a supplied wheel with `uv tool install "path/to/cybersprite-0.1.0-py3-none-any.whl[mcp,gui]"`.
+Run `cybersprite mcp serve --root <workspace>` for agents or `cybersprite gui <project> --no-browser`
+for the local GUI. The wheel includes the GUI; Node is needed only when building from source.
+Use `uv run python tools/build_release.py` for releases and `tools/verify_release.py <wheel>`
+to test a fresh installation. Every export is decoded again and checked against the core renderer.

@@ -2,6 +2,7 @@
 
 import base64
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
@@ -113,7 +114,8 @@ def diff(p, root, from_revision, to_revision, fs=None, inline=True):
     before = history.restore(root, from_revision)
     after = p if to_revision == p.revision else history.restore(root, to_revision)
     candidates = fs if fs is not None else list(range(max(len(before.frames), len(after.frames))))
-    results, paths, images, omitted = [], [], [], []
+    results: list[dict[str, Any]] = []
+    paths, images, omitted = [], [], []
     for f in candidates:
         if not 0 <= f < max(len(before.frames), len(after.frames)):
             from .common import fail
@@ -163,15 +165,15 @@ def diff(p, root, from_revision, to_revision, fs=None, inline=True):
         if inline and max(output.shape[:2]) > 1024:
             step = (max(output.shape[:2]) + 1023) // 1024
             output = output[::step, ::step].copy()
-        data = encode_png(output)
+        png_data = encode_png(output)
         path = (
             Path(root)
             / f".cybersprite/previews/diff_r{from_revision:06d}_r{to_revision:06d}_f{f}.png"
         )
-        history.atomic_write(path, data)
+        history.atomic_write(path, png_data)
         paths.append(path.relative_to(root).as_posix())
         if inline:
-            images.append(base64.b64encode(data).decode("ascii"))
+            images.append(base64.b64encode(png_data).decode("ascii"))
         results.append(info)
     result = {"frames": results, "paths": paths, "omitted_frames": omitted}
     if images:

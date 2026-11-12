@@ -5,12 +5,12 @@ from __future__ import annotations
 import math
 import re
 from dataclasses import asdict, dataclass, field
-from typing import Any
+from typing import Any, cast
 
 from pydantic import BaseModel, ValidationError
 
 from .errors import CyberSpriteError
-from .models import GroupLayer, ImageLayer, LinkCel, Project, TilemapLayer
+from .models import GroupLayer, ImageCel, ImageLayer, LinkCel, Project, TileCel, TilemapLayer
 from .pixels import parse_tile
 from .references import cel_owner, walk_layers
 
@@ -50,7 +50,7 @@ def _json_issues(value, path: str, allow_float: bool = False, depth: int = 0) ->
     elif type(value) is float:
         pass
     elif isinstance(value, str):
-        if any(0xD800 <= ord(char) <= 0xDFFF for char in value):
+        if re.search(r"[\ud800-\udfff]", value):
             issues.append(
                 Issue(
                     "S-01",
@@ -178,9 +178,9 @@ def check_structure(project: Project | dict) -> list[Issue]:
         ("slice", p.slices, "S"),
         ("tileset", p.tilesets, "TS"),
     )
-    for kind, items, prefix in groups:
+    for kind, id_items, prefix in groups:
         seen = set()
-        for item in items:
+        for item in id_items:
             if item.id in seen:
                 add(
                     "S-06",
@@ -189,7 +189,7 @@ def check_structure(project: Project | dict) -> list[Issue]:
                     id=item.id,
                 )
             seen.add(item.id)
-        maximum = max((int(item.id[len(prefix) :]) for item in items), default=0)
+        maximum = max((int(item.id[len(prefix) :]) for item in id_items), default=0)
         if getattr(p.id_counters, kind) < maximum:
             add(
                 "S-06",
@@ -207,6 +207,11 @@ def check_structure(project: Project | dict) -> list[Issue]:
                 **where,
             )
         for y, row in enumerate(rows):
+            # Validate common rows in C, preserving the original first-invalid
+            # coordinate and handling odd-length rows exactly as before.
+            data = bytes.fromhex(row[: len(row) // 2 * 2])
+            if max(data, default=0) < ncolors:
+                continue
             for x in range(0, len(row) - 1, 2):
                 index = int(row[x : x + 2], 16)
                 if index >= ncolors:
@@ -269,16 +274,20 @@ def check_structure(project: Project | dict) -> list[Issue]:
                     )
                 continue
             if isinstance(layer, ImageLayer):
-                pixel_rows(cel.pixels, cel.w, cel.h, "S-03", **where)
+                image_cel = cast(ImageCel, cel)
+                pixel_rows(image_cel.pixels, image_cel.w, image_cel.h, "S-03", **where)
             else:
-                if len(cel.tiles) != cel.h or any(len(row.split()) != cel.w for row in cel.tiles):
+                tile_cel = cast(TileCel, cel)
+                if len(tile_cel.tiles) != tile_cel.h or any(
+                    len(row.split()) != tile_cel.w for row in tile_cel.tiles
+                ):
                     add(
                         "S-03",
                         "Tile row dimensions do not match w and h.",
                         "Write h rows with w space-separated tile references each.",
                         **where,
                     )
-                for row in cel.tiles:
+                for row in tile_cel.tiles:
                     for token in row.split():
                         try:
                             ref = parse_tile(token)
