@@ -27,10 +27,10 @@ def test_fresh_cli_workflow(tmp_path):
     path = tmp_path / "新規.csprite"
     result, output = invoke("new", path, "--size", "3x2", "--frames", "2", "--name", "日本語")
     assert result.returncode == 0 and output["revision"] == 0
-    assert output["op"] == "new_project" and output["result"]["name"] == "日本語"
+    assert output["op"] == "new_project" and output["result"]["summary"]["name"] == "日本語"
     initial = (path / "project.json").read_bytes()
-    result, output = invoke("-p", path, "info", "--include", "palette,validation")
-    assert result.returncode == 0 and output["result"]["frame_count"] == 2
+    result, output = invoke("-p", path, "info", "--include", "summary,palette,validation")
+    assert result.returncode == 0 and output["result"]["summary"]["frames"] == 2
     image = tmp_path / "out.png"
     result, output = invoke(
         "-p",

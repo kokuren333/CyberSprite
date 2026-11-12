@@ -1,5 +1,6 @@
 """Built-in Op definitions and the shared public execution entry point."""
 
+import os
 from contextlib import nullcontext
 from copy import deepcopy
 from functools import partial
@@ -257,8 +258,9 @@ def registry():
     return _registry
 
 
-def execute(name, project, args=None, *, actor="cli", **options):
+def execute(name, project, args=None, *, actor=None, **options):
     """CLI, MCP and GUI share this entry; exceptions retain structured codes and op_index."""
+    actor = os.environ.get("CYBERSPRITE_ACTOR", "cli") if actor is None else actor
     definition = registry().get(name)
     args = deepcopy(args or {})
     for key in TxOptions.model_fields:

@@ -109,11 +109,11 @@ def baseline(root, p, state, entries, actor, raw):
     return state, entries, writes
 
 
-def synchronize(root, p, *, actor="cli"):
+def synchronize(root, p, *, actor=None):
     """Queries detect external edits too, without rewriting the project."""
     root = Path(root)
-    actor = os.environ.get("CYBERSPRITE_ACTOR", actor)
-    with history.ProjectLock(root, os.environ.get("CYBERSPRITE_ACTOR", actor)):
+    actor = os.environ.get("CYBERSPRITE_ACTOR", "cli") if actor is None else actor
+    with history.ProjectLock(root, actor):
         current = load_project(root)
         if current != p:
             return current
@@ -133,11 +133,11 @@ def synchronize(root, p, *, actor="cli"):
 
 
 def transact(
-    registry, path, calls, options, *, op="apply_ops", label=None, actor="cli", previewer=None
+    registry, path, calls, options, *, op="apply_ops", label=None, actor=None, previewer=None
 ):
     target = project_path(path)
     root = target.parent
-    actor = os.environ.get("CYBERSPRITE_ACTOR", actor)
+    actor = os.environ.get("CYBERSPRITE_ACTOR", "cli") if actor is None else actor
     lock = nullcontext() if options.dry_run else history.ProjectLock(root, actor)
     with lock:
         before = load_project(target)
