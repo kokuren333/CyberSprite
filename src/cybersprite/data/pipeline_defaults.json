@@ -1,0 +1,18 @@
+{
+  "calibration": {"version": 0, "status": "provisional-synthetic-seed"},
+  "common": {
+    "grid": {"min_cell": 2, "max_cell": 64, "force_square": true, "harmonic_tolerance": 850, "min_peak": 1500, "purity_tolerance": 16},
+    "downsample": {"method": "auto", "alpha_threshold": 128},
+    "background": {"mode": "keep", "tolerance": 0},
+    "palette": {"max_colors": 32, "refine_iterations": 8, "min_color_pixels": 0},
+    "cleanup": {"min_cluster": 2, "connectivity": 8, "max_passes": 2, "protect": []},
+    "dither": {"type": "none", "strength": 255},
+    "outline": {"mode": "keep"}
+  },
+  "presets": {
+    "exact": {"grid": {"mode": "none"}, "downsample": {"method": "center"}, "palette": {"mode": "exact", "max_colors": 255}, "cleanup": {"min_cluster": 1}, "gates": {"grid_score": null, "fidelity": [0, 0]}},
+    "upscaled": {"grid": {"mode": "auto"}, "downsample": {"method": "center"}, "palette": {"mode": "exact", "max_colors": 255}, "cleanup": {"min_cluster": 1}, "gates": {"grid_score": [990, 1000], "fidelity": [0, 0]}},
+    "ai": {"grid": {"mode": "auto"}, "palette": {"mode": "extract", "existing_mode": "project"}, "gates": {"grid_score": [800, 900], "fidelity": null}},
+    "photo": {"grid": {"mode": "target"}, "palette": {"mode": "extract", "existing_mode": "project"}, "gates": {"grid_score": null, "fidelity": null}}
+  }
+}
