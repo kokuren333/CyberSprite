@@ -5,12 +5,13 @@ from __future__ import annotations
 import math
 import re
 from dataclasses import asdict, dataclass, field
+from functools import lru_cache
 from typing import Any, cast
 
 from pydantic import BaseModel, ValidationError
 
 from .errors import CyberSpriteError
-from .models import GroupLayer, ImageCel, ImageLayer, LinkCel, Project, TileCel, TilemapLayer
+from .models import GroupLayer, ImageCel, ImageLayer, LinkCel, Project, Tile, TileCel, TilemapLayer
 from .pixels import parse_tile
 from .references import cel_owner, walk_layers
 
@@ -85,6 +86,11 @@ def _json_issues(value, path: str, allow_float: bool = False, depth: int = 0) ->
             )
         )
     return issues
+
+
+@lru_cache(maxsize=4096)
+def _row_maximum(row: str) -> int:
+    return max(bytes.fromhex(row[: len(row) // 2 * 2]), default=0)
 
 
 def check_structure(project: Project | dict) -> list[Issue]:
@@ -209,8 +215,8 @@ def check_structure(project: Project | dict) -> list[Issue]:
         for y, row in enumerate(rows):
             # Validate common rows in C, preserving the original first-invalid
             # coordinate and handling odd-length rows exactly as before.
-            data = bytes.fromhex(row[: len(row) // 2 * 2])
-            if max(data, default=0) < ncolors:
+            maximum = _row_maximum(row) if len(row) <= 16384 else _row_maximum.__wrapped__(row)
+            if maximum < ncolors:
                 continue
             for x in range(0, len(row) - 1, 2):
                 index = int(row[x : x + 2], 16)
@@ -364,6 +370,9 @@ def check_structure(project: Project | dict) -> list[Issue]:
         if isinstance(value, BaseModel):
             for name in type(value).model_fields:
                 item = getattr(value, name)
+                # Pixel/tile rows have already passed strict typing and ASCII grammar checks.
+                if name == "pixels" and isinstance(value, (ImageCel, Tile)):
+                    continue
                 if type(value).__name__ == "UserData" and name == "properties":
                     issues.extend(_json_issues(item, path + "/properties", True, -1))
                 else:

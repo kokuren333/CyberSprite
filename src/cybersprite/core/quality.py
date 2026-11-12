@@ -1,8 +1,10 @@
 """Deterministic quality rules and full-recomputation validation deltas."""
 
-from collections import Counter, deque
+from collections import Counter, OrderedDict, deque
+from functools import lru_cache
 from hashlib import sha256
 from pathlib import Path
+from threading import Lock
 from typing import Any
 
 import numpy as np
@@ -38,6 +40,78 @@ DEFAULT_LEVELS = {
     "Q-SRC-02": "warning",
     "Q-SRC-03": "error",
 }
+
+# Derived data only: at most 64 frames / 262144 pixels (including component points).
+_FRAME_CACHE: OrderedDict[bytes, Any] = OrderedDict()
+_FRAME_CACHE_LOCK = Lock()
+_FRAME_CACHE_PIXELS = 262144
+
+
+@lru_cache(maxsize=256)
+def _pixel_counts(rows):
+    return tuple(sorted(Counter(bytes.fromhex("".join(rows))).items()))
+
+
+def _usage(rows, use_cache):
+    rows = tuple(rows)
+    counts = (
+        _pixel_counts if use_cache and sum(map(len, rows)) <= 65536 else _pixel_counts.__wrapped__
+    )
+    return dict(counts(rows))
+
+
+def _frame_analysis(p, f, signature, use_cache):
+    # Includes all visible leaf contributions, ancestors' effective opacities, order,
+    # z-index, bounds, palette/transparent index, and full referenced tilesets.
+    key = sha256(repr(signature).encode("utf-8")).digest()
+    if use_cache:
+        with _FRAME_CACHE_LOCK:
+            if key in _FRAME_CACHE:
+                value = _FRAME_CACHE.pop(key)
+                _FRAME_CACHE[key] = value
+                return value
+    closed = True
+    try:
+        indexed = indexed_result(p, f)
+    except CyberSpriteError as error:
+        if error.code != "E_NOT_PALETTE_CLOSED":
+            raise
+        indexed = indexed_result(p, f, {"flatten": "nearest"})
+        closed = False
+    rgba_image = render(p, f)
+    transparent = p.palette.transparent_index
+    assert indexed.palette is not None
+    if rgba(indexed.palette[transparent])[3] != 0:
+        transparent = -1
+    components = tuple(
+        tuple(tuple(pt) for pt in part) for part in clusters(indexed.pixels, transparent)
+    )
+    indexed.pixels.flags.writeable = False
+    rgba_image.flags.writeable = False
+    value = indexed, rgba_image, components, closed
+    area = p.canvas.width * p.canvas.height
+    if use_cache and area <= _FRAME_CACHE_PIXELS:
+        with _FRAME_CACHE_LOCK:
+            _FRAME_CACHE[key] = value
+            while (
+                len(_FRAME_CACHE) > 64
+                or sum(item[1].shape[0] * item[1].shape[1] for item in _FRAME_CACHE.values())
+                > _FRAME_CACHE_PIXELS
+            ):
+                _FRAME_CACHE.popitem(last=False)
+    return value
+
+
+def cached_frame_rgba(project, frame, signature=None):
+    """Reuse a validated frame's immutable RGBA; callers must not mutate the result."""
+    if type(frame) is not int or not 0 <= frame < len(project.frames):
+        return None
+    if signature is None:
+        signature = frame_signature(project, frame)
+    key = sha256(repr(signature).encode("utf-8")).digest()
+    with _FRAME_CACHE_LOCK:
+        value = _FRAME_CACHE.get(key)
+        return value[1] if value is not None else None
 
 
 def bbox(mask):
@@ -85,8 +159,17 @@ def clusters(image, ti):
     return result
 
 
-def report(p, *, root=None, selected_frames=None, rules=None, source_manifest=None):
-    structural = check_structure(p)
+def report(
+    p,
+    *,
+    root=None,
+    selected_frames=None,
+    rules=None,
+    source_manifest=None,
+    use_cache=True,
+    _structural=None,
+):
+    structural = check_structure(p) if _structural is None else _structural
     issues = [issue.as_dict() for issue in structural]
     settings = p.validation
 
@@ -103,7 +186,7 @@ def report(p, *, root=None, selected_frames=None, rules=None, source_manifest=No
                     "frames": fs or [],
                     "layer": layer,
                     "bbox": box,
-                    "points": (points or [])[:64],
+                    "points": [list(pt) for pt in (points or [])[:64]],
                 },
             }
         )
@@ -135,7 +218,7 @@ def report(p, *, root=None, selected_frames=None, rules=None, source_manifest=No
         for cel in node.cels:
             owner = cel_owner(node, cel)
             if isinstance(node, ImageLayer):
-                usage.update(bytes.fromhex("".join(owner.pixels)))
+                usage.update(_usage(owner.pixels, use_cache))
                 w, h = owner.w, owner.h
             else:
                 ts = next(ts for ts in p.tilesets if ts.id == node.tileset)
@@ -208,7 +291,7 @@ def report(p, *, root=None, selected_frames=None, rules=None, source_manifest=No
         if duplicates or unused:
             tile_findings.append(f"{ts.id}: unused {unused}; duplicate pairs {duplicates}")
         for tile in ts.tiles[1:]:
-            usage.update(bytes.fromhex("".join(tile.pixels)))
+            usage.update(_usage(tile.pixels, use_cache))
     if tile_findings:
         add("Q-TIL-01", "Tileset findings: " + "; ".join(tile_findings) + ".")
     if len(p.palette.colors) > settings.palette_max:
@@ -226,22 +309,8 @@ def report(p, *, root=None, selected_frames=None, rules=None, source_manifest=No
     cached = None
     for f in range(len(p.frames)):
         signature = frame_signature(p, f)
-        if signature != previous_signature or cached is None:
-            closed = True
-            try:
-                indexed = indexed_result(p, f)
-            except CyberSpriteError as error:
-                if error.code != "E_NOT_PALETTE_CLOSED":
-                    raise
-                indexed = indexed_result(p, f, {"flatten": "nearest"})
-                closed = False
-            rgba_image = render(p, f)
-            transparent = p.palette.transparent_index
-            assert indexed.palette is not None
-            if rgba(indexed.palette[transparent])[3] != 0:
-                transparent = -1
-            components = clusters(indexed.pixels, transparent)
-            cached = indexed, rgba_image, components, closed
+        if not use_cache or signature != previous_signature or cached is None:
+            cached = _frame_analysis(p, f, signature, use_cache)
             previous_signature = signature
         indexed, rgba_image, components, closed = cached
         if not closed:
