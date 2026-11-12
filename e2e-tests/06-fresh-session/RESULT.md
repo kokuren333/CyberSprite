@@ -1,5 +1,7 @@
 # RESULT — 06-fresh-session（16×16 騎士の歩行）
 
+> 公開前の整理（2026-11-12、`docs/PUBLICATION_FIX_REPORT.md`）: `mcp.json` と `task.txt` の中のリポジトリの絶対パスを `<repo>` に置き換えた。試験の実施時は、手元のリポジトリの絶対パスを指定していた。本文と `session.log` は変えていない。
+
 ## やったこと（MCP のみ使用。CLI は未使用）
 
 1. `new_project` で `knight.csprite`（16×16、既定パレット cs-circuit-16、17 色＝透明 0 + 16 色）を作り、`get_palette` で番号を確認した。
