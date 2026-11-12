@@ -67,7 +67,7 @@ def execute_import(project, args, *, actor="cli"):
     # Parse and validate all bytes before creating the destination.
     p, dropped = read_aseprite(file, {"quantize": args.quantize})
     source = None
-    with history.ProjectLock(root, actor):
+    with history.project_lock(root, actor):
         if target.exists():
             if args.if_exists != "open":
                 fail(

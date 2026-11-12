@@ -7,6 +7,7 @@ from pydantic import ValidationError
 
 from .canonical import metadata_bytes
 from .errors import CyberSpriteError
+from .execution import committed_bytes
 from .history import atomic_write
 from .journal_clock import now
 from .models import Source, SourceFile, Sources
@@ -19,7 +20,9 @@ def manifest_path(root):
 def read_manifest(root):
     path = manifest_path(root)
     try:
-        return Sources.model_validate_json(path.read_bytes()) if path.exists() else Sources()
+        return Sources.model_validate_json(committed_bytes(path, root))
+    except FileNotFoundError:
+        return Sources()
     except (OSError, ValidationError) as error:
         raise CyberSpriteError(
             "E_IO",
@@ -130,7 +133,7 @@ def stage_history(ctx, before_revision, after_revision, restored=None):
     if restored is not None:
         target = snapshot(restored)
         if target.exists():
-            saved = Sources.model_validate_json(target.read_bytes())
+            saved = Sources.model_validate_json(committed_bytes(target, ctx.root))
             records = {source.id: source for source in saved.sources}
             for source in active.sources:
                 old = records.get(source.id)

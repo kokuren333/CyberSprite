@@ -339,8 +339,11 @@ def _import_top(registry, path, args, tx, actor):
             },
             "warnings": warnings + report.get("warnings", []),
         }
-    with history.ProjectLock(root, actor) as lock:
+    with history.project_lock(root, actor) as lock:
         existing = load_project(root) if project_path(root).exists() else None
+        replayed = history.replay(root, tx.idempotency_key)
+        if replayed is not None:
+            return replayed
         if tx.expect_revision is not None and tx.expect_revision != (
             existing.revision if existing else 0
         ):
@@ -349,12 +352,6 @@ def _import_top(registry, path, args, tx, actor):
                 "Import revision does not match the current project.",
                 current_revision=existing.revision if existing else 0,
             )
-        if tx.idempotency_key:
-            for entry in reversed(history.read_journal(root)[-1000:]):
-                if entry.get("idempotency_key") == tx.idempotency_key and entry.get("result"):
-                    result = entry["result"]
-                    result["replayed"] = True
-                    return result
         manifest = sources.read_manifest(root)
         previous_manifest = deepcopy(manifest)
         source, images, durations, warnings = _capture(root, args, manifest)

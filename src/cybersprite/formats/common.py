@@ -183,7 +183,9 @@ def write_verified(path, data, verify, *, pixels=None, width=0, height=0):
     """Verify bytes read from disk, removing the file on a decoder or comparison failure."""
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes(data)
+        from cybersprite.core.history import atomic_write
+
+        atomic_write(path, data)
         actual = path.read_bytes()
     except OSError as error:
         fail("E_IO", f"Cannot write/read export: {error}", path=display_path(path))

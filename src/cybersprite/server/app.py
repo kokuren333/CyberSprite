@@ -143,7 +143,9 @@ class Service:
         if previous is None or revision == previous[1]:
             return []
         entries = [
-            e for e in history.read_journal(project) if previous[1] < e["revision"] <= revision
+            e
+            for e in history.read_journal(project, after_revision=previous[1])
+            if e["revision"] <= revision
         ]
         if not entries:
             entries = [{"revision": revision, "actor": "external", "changed": {}}]

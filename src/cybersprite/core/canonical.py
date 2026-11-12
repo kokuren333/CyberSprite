@@ -166,9 +166,11 @@ def project_path(path: str | Path) -> Path:
 
 
 def load_project(path: str | Path) -> Project:
+    from .execution import committed_bytes
+
     path = project_path(path)
     try:
-        return loads_project(path.read_bytes())
+        return loads_project(committed_bytes(path, path.parent))
     except FileNotFoundError as error:
         raise CyberSpriteError(
             "E_PROJECT_NOT_FOUND",

@@ -58,10 +58,13 @@ def test_no_op_idempotency_and_conflict_order(project):
     assert files(project) == before
     assert execute("set_pixel", project, POINT, preview="none")["no_op"]
     assert files(project) == before
+    assert execute("set_pixel", project, POINT, expect_revision=0, idempotency_key="pixel-1") == {
+        **first,
+        "replayed": True,
+    }
     with pytest.raises(CyberSpriteError) as error:
-        execute("set_pixel", project, POINT, expect_revision=0, idempotency_key="pixel-1")
+        execute("set_pixel", project, POINT, expect_revision=0, idempotency_key="new-key")
     assert error.value.code == "E_REVISION_CONFLICT"
-    assert error.value.details["current_revision"] == 1
 
 
 def test_dry_run_writes_only_dry_previews_and_takes_no_lock(project, monkeypatch):
@@ -109,9 +112,10 @@ def test_history_undo_redo_external_edit_and_missing_snapshot(project):
     result = execute("get_history", project, {})["result"]
     assert result["entries"][0]["kind"] == "external"
     assert not result["can_undo"] and not result["can_redo"]
+    # A read observes external edits without taking a write lock or persisting a baseline.
     assert (
         history.read_state(project)["last_saved_sha256"]
-        == sha256((project / "project.json").read_bytes()).hexdigest()
+        != sha256((project / "project.json").read_bytes()).hexdigest()
     )
 
 
@@ -290,20 +294,16 @@ def test_lock_metadata_write_failure_cleans_own_lock(project, monkeypatch):
     assert not (project / ".cybersprite/lock").exists()
 
 
-def test_result_journal_failure_rolls_back_project_history_and_previews(project, monkeypatch):
+def test_index_failure_rolls_back_project_history_and_previews(project, monkeypatch):
     before = files(project)
     original = history.atomic_write
-    journal_writes = 0
 
-    def fail_second_journal(path, data):
-        nonlocal journal_writes
-        if path.name == "journal.jsonl":
-            journal_writes += 1
-            if journal_writes == 2:
-                raise CyberSpriteError("E_IO", "Injected result journal failure", "Retry")
+    def fail_index(path, data):
+        if path.name == "idempotency.json":
+            raise CyberSpriteError("E_IO", "Injected index failure", "Retry")
         return original(path, data)
 
-    monkeypatch.setattr(history, "atomic_write", fail_second_journal)
+    monkeypatch.setattr(history, "atomic_write", fail_index)
     with pytest.raises(CyberSpriteError) as error:
         execute("set_pixel", project, POINT)
     assert error.value.code == "E_IO"

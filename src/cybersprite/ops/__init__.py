@@ -12,6 +12,7 @@ from pydantic import Field, ValidationError, create_model
 from cybersprite.core import history
 from cybersprite.core.canonical import dumps_project, load_project, project_path
 from cybersprite.core.errors import invalid
+from cybersprite.core.execution import check_deadline, save_context
 from cybersprite.core.models import Model
 from cybersprite.core.registry import EmptyResult, Op, OpContext, Registry
 from cybersprite.core.transactions import synchronize, transact
@@ -356,6 +357,7 @@ def registry():
 
 def execute(name, project, args=None, *, actor=None, label=None, **options):
     """CLI, MCP and GUI share this entry; exceptions retain structured codes and op_index."""
+    check_deadline()
     actor = os.environ.get("CYBERSPRITE_ACTOR", "cli") if actor is None else actor
     definition = registry().get(name)
     args = deepcopy(args or {})
@@ -410,7 +412,10 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
     if name == "new_project":
         target = project_path(project)
         p = construct(parsed, root)
-        with nullcontext() if tx.dry_run else history.ProjectLock(root, actor):
+        with (
+            nullcontext() if tx.dry_run else history.project_lock(root, actor) as lock,
+            save_context(root, lock=lock, durable=not tx.dry_run),
+        ):
             if target.exists():
                 if parsed.if_exists != "open":
                     fail(
@@ -425,8 +430,8 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
                     )
             elif not tx.dry_run:
                 history.atomic_write(target, dumps_project(p))
-        if not tx.dry_run:
-            synchronize(root, p, actor=actor)
+            if not tx.dry_run:
+                synchronize(root, p, actor=actor, write=True)
         return {
             "ok": True,
             "op": name,
