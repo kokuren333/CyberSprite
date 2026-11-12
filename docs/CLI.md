@@ -70,7 +70,14 @@ Op 対応コマンドのオプションは、登録済みの pydantic 引数モ�
 `op`、`apply` および生成された変更コマンドには、`--dry-run`、`--expect-revision n`、
 `--idempotency-key <キー>`、`--preview none|path|inline` を渡せる。
 Op 引数はファイル → `--args` → `キー=値` の順で上書きする。
+`op` の配列引数も生成オプションと同じカンマ区切りを受ける。
+例: `op set_frame_duration frames=2,4 duration_ms=120`（JSONの `frames=[2,4]` も可）。
 共通トランザクション設定の明示フラグは、その JSON 内の値より優先する。
+
+`import image` は、`-p` のプロジェクトが未作成でも、受理した変換結果の寸法で自動作成する。
+先に `new` を実行する必要はない。関門で拒否した場合は元画像と報告だけを残す。
+初回取り込みを `undo` すると透明だけのプロジェクトが残り、再取り込みでは既定の
+パレット方式を `extract` にして色を追加する。明示した `pipeline.palette.mode` は優先する。
 
 `preview` / `diff` の `--out` は 1 枚ならファイル、複数枚ならディレクトリを指定する。
 省略時はプロジェクト内の `.cybersprite/previews/` に保存する。

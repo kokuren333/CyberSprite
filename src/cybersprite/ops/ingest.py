@@ -333,12 +333,20 @@ def _import_top(registry, path, args, tx, actor):
         previous_manifest = deepcopy(manifest)
         source, images, durations, warnings = _capture(root, args, manifest)
         directory = root / "source" / source.id
+        overrides = deepcopy(args.pipeline or {})
+        if existing is not None and not any(
+            i != existing.palette.transparent_index and color[7:9].lower() == "ff"
+            for i, color in enumerate(existing.palette.colors)
+        ):
+            # Undo of the first import retains a transparent-only baseline.
+            # Preserve explicit palette modes; only replace the unusable default.
+            overrides.setdefault("palette", {}).setdefault("mode", "extract")
         indices, palette, report = run_pipeline(
             images,
             directory,
             source_id=source.id,
             preset=args.preset,
-            overrides=args.pipeline,
+            overrides=overrides,
             project=existing,
             position=(args.target.x, args.target.y),
         )
