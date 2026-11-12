@@ -52,3 +52,20 @@ main のテスト: 622 passed（M2 統合時点、Windows / Python 3.12）。
 - `frame_remapping`、`transactions`、`raster_ops` のゴールデンは専用更新ツールで生成し、正本・封筒・PNG を確認した。
 - 判断 I-201〜I-210。追加依存・外部参照なし。距離とパレット並べ替えの暫定実装は M6、cleanup は M6、PNG パレット読込は M5、タイルマップの全体変形とタイル置換は M7。機能用プレビューの色と定規は Opus の確認対象。
 - 詳細と CLI の実行内容は [M2_IMPLEMENTATION_REPORT.md](M2_IMPLEMENTATION_REPORT.md)。Linux は上記 I-007 のとおり未実行。
+
+## e2e 制作テスト
+
+| # | 題材 | 日付 | 実施 | 結果 | 記録 |
+|---|---|---|---|---|---|
+| 01 | キャラクター（32×32、2 フレームのまばたき、タグ） | 2026-11-12 | Opus 5.5 / 中 | validate ok（警告 0、情報 3 は個別に判断）。書き出し Op が未実装のため `render` で PNG を出力。使い心地 4/5 | `e2e-tests/01-character/REPORT.md` |
+
+### e2e で見つかった問題（未対応のもの）
+
+| 出所 | 問題 | 担当 |
+|---|---|---|
+| e2e-01 #5 | `ops describe` の説明が定型文で、引数（例: `draw_rows` の `format: sym`）の意味が分からない | M3 後の修正 |
+| e2e-01 #6 | `op` に `--label` がない（単発 Op の履歴ラベルが空） | M3 後の修正 |
+| e2e-01 #7 | 図形系 Op（`ellipse` など）の result に `pixels_written` がない | M3 後の修正 |
+| e2e-01 #8 | undo / redo の結果にプレビューがない | M3 後の修正 |
+| e2e-01 #10 | Q-PIX-02 の `where.layer` が null（どのレイヤーか分からない） | M3 後の修正 |
+| e2e-01 #1〜4、#9 | 書き出し、`preview` / `pixels` / `validate` のオプション、`docs/CLI.md` | M3 / M5（作業中） |
