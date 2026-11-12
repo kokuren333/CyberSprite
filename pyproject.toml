@@ -9,6 +9,7 @@ description = "Deterministic indexed-color sprite core"
 readme = "README.md"
 requires-python = ">=3.12"
 license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE", "third_party/licenses/*.txt"]
 dependencies = [
     "numpy==2.3.4",
     "pydantic==2.12.3",
@@ -32,6 +33,10 @@ dev = ["pytest==8.4.2", "ruff==0.14.1", "mypy==1.15.0", "packaging==26.3"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/cybersprite"]
+artifacts = ["src/cybersprite/server/static/**"]
+
+[tool.hatch.build.targets.sdist]
+artifacts = ["src/cybersprite/server/static/**"]
 
 [tool.ruff]
 target-version = "py312"
@@ -48,7 +53,7 @@ pythonpath = ["."]
 
 [tool.mypy]
 python_version = "3.12"
-files = ["src/cybersprite"]
+files = ["src/cybersprite/core", "src/cybersprite/ops"]
 check_untyped_defs = true
 
 [tool.ruff.lint.per-file-ignores]
