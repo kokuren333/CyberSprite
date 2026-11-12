@@ -158,9 +158,15 @@ def normalize_pipeline_aliases(values):
 
 
 def definition_or_none(name):
+    from cybersprite.core.errors import CyberSpriteError
     from cybersprite.ops import registry
 
-    return next((item for item in registry().all() if item.name == name), None)
+    try:
+        return registry().get(name)
+    except CyberSpriteError as error:
+        if error.code != "E_UNKNOWN_OP":
+            raise
+        return None
 
 
 def external_export(state, definition, path, args):

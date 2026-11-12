@@ -1336,7 +1336,7 @@ Ra = 0 のとき: 結果は (0, 0, 0, 0)
 | バッチ処理 CLI（変換、シート、分割、範囲指定、一覧表示） | v1 | — | 対応は §9.5 |
 | Lua スクリプト | 対象外 | 対象外 | 無制限の実行環境を持たない [D-24]。代替は Python プラグインと `apply_ops` |
 | Aseprite 用の拡張パッケージとの互換 | 対象外 | 対象外 | 形式も API も別物 |
-| 拡張（Op、フォーマット、生成バックエンド、検証ルール、パレット） | v1（プラグイン API） | v1.x（テーマ、パネル） | §15 |
+| 拡張（Op、フォーマット、生成バックエンド、検証ルール、パレット） | v1（プラグイン API。読込形式は v1.x） | v1.x（テーマ、パネル） | §15 |
 
 ### 7.13 表示、UI、設定
 
@@ -1555,7 +1555,7 @@ csp         [全体オプション] <コマンド> [引数…]      （短縮別
 | `gen backends` / `gen run …` | `list_generators` / `generate_image` | 生成（§12） |
 | `ops list` / `ops describe <Op 名>` | — | Op の一覧と引数スキーマ |
 | `schema [project\|sources\|sheet\|op <名前>\|all] [--out <ディレクトリ>]` | — | JSON Schema を出す |
-| `plugins list` | — | 読み込まれたプラグイン |
+| `plugins list` | — | 導入済み entry point の名前・配布版・拡張群・ライセンス・設定上の状態（本体は import しない） |
 | `mcp serve […]` | — | MCP サーバを起動する（§10.1） |
 | `gui [<プロジェクト>] [--port n] [--no-browser]` | — | GUI サーバを起動し、ブラウザで開く（§14.6） |
 | `doctor` | — | 実行環境の診断（版、実行環境指紋、任意依存の有無、書き込み権限） |
@@ -2020,7 +2020,7 @@ MCP ではツール実行エラー（`isError: true`）として返す。プロ�
 | `median` | 内側（§11.3.3 と同じ削り方）の不透明ピクセルの、チャンネルごとの中央値 |
 | `mode` | 内側の不透明ピクセルを、各チャンネル上位 5 ビットの値でまとめ、最も多いまとまり（同数なら値の小さい方）に属するピクセルのチャンネルごとの中央値 |
 | `kcentroid` | 内側の不透明ピクセルを 2 群に分け（初期値は R+G+B が最小のピクセルと最大のピクセル。4 回繰り返し、各回で各ピクセルを RGB の差の絶対値の和が近い方に割り当て、群の代表をチャンネルごとの中央値に更新する）、数の多い群（同数なら中心のピクセルを含む群）の代表を採る |
-| `pixeloe` | PixelOE プラグインに委ねる（輪郭を保つ縮小）。プラグインがなければ `E_PLUGIN` |
+| `pixeloe` | 有効な `downsample.pixeloe`（または `pixeloe`）entry point に委ねる。未登録方式は利用可能方式を列挙して `E_INVALID_ARGS`、登録済み実装の読込・実行失敗は `E_PLUGIN` |
 | `auto` | グリッドが検出または指定されていて `grid_score ≥ 990` なら `center`。それ以外でグリッドがあれば `mode`。`grid.mode` が `"target"` の場合は、PixelOE プラグインがあれば `pixeloe`、なければ `kcentroid` |
 
 - セルのアルファ: 内側のピクセルのうち不透明なものが半数以上なら不透明、そうでなければ透明。透明なセルの色は `(0, 0, 0, 0)`。
@@ -2173,7 +2173,7 @@ Bayer の場合、ピクセル `(x, y)` について、最も近い色 `c1`（�
 
 ### 11.13 決定性の範囲
 
-- 組み込みのステップ（`pixeloe` 以外のすべて）は、水準 A の決定性を満たす。
+- 組み込みのステップは、水準 A の決定性を満たす。外部・任意アダプタは §15.2.1 の `level_a` 宣言と出力契約に従う。
 - プラグインのステップ（PixelOE など）は、浮動小数や GPU を使うため、環境が違うと結果が変わりうる。報告にプラグインの版と実行デバイスを記録し、**変換結果を `result.png` として保存する**ことで、プロジェクトの再現性はプラグインの再実行に依存しないようにする。
 
 ---
@@ -2628,22 +2628,39 @@ tests/golden/<ケース名>/
 | エントリポイント群 | 足せるもの | インターフェース | v1 |
 |---|---|---|---|
 | `cybersprite.ops` | Op | 名前（`<提供者>_<名前>`）、引数モデル、適用関数、種別、冪等性クラス | 対応 |
-| `cybersprite.importers` | 読み込み形式 | 拡張子、`can_read(path)`、`read(path, options) -> ImportedDocument または ラスター` | 対応 |
+| `cybersprite.importers` | 読み込み形式 | 拡張子、`can_read(path)`、`read(path, options) -> ImportedDocument または ラスター` | v1.x（ラスター／構造形式の配置・来歴・入力予算の共通契約を確定してから接続。v1 はメタデータ列挙のみ） |
 | `cybersprite.exporters` | 書き出し形式 | 名前、拡張子、オプションのモデル、`write(document, renderer, out, options) -> ExportResult` | 対応 |
 | `cybersprite.pipeline_steps` | パイプラインのステップの別実装 | ステップ名（`downsample` `quantize` `cleanup` など）と方式名、`run(image, params) -> image, metrics`、決定性の申告（`level_a: bool`） | 対応 |
 | `cybersprite.generators` | 生成バックエンド | §12.3 | 対応 |
 | `cybersprite.validators` | 品質ルール | 規則 ID（`Q-<提供者>-nn`）、既定の水準、`check(document, frame_range) -> issues, metrics` | 対応 |
 | `cybersprite.palettes` | パレットのプリセット集 | 名前、色、ライセンスの表示 | 対応 |
+| `cybersprite.platforms` | 宣言的な機種プロファイル | REVIEW_1 §3.1 H-01。共通機構はメタデータ列挙のみを予約する | M11（解決はプラットフォーム工程） |
 | GUI の拡張（テーマ、パネル） | テーマは CSS 変数の差し替え、パネルは v1.x で設計 | — | v1.x |
 
 ### 15.2 規則
 
 - プラグインは `plugin_api = 1` を宣言する。コアは、対応していない版のプラグインを読み込まない。
 - プラグインの Op も、トランザクション、正規化、構造不変条件の検査、検証を必ず通る。プラグインがモデルを直接保存する経路はない。
-- プラグインの Op と形式は、CLI では既定で使える。MCP では `--allow-plugin-op` で許可したものだけが公開される（§10.1.2）。
+- 設定で有効にしたプラグインの Op と書出形式は、CLI から使える。MCP ではプラグイン Op は `--allow-plugin-op` で許可したものだけが公開される（§10.1.2）。
 - プラグインが `project.json` に独自のデータを持つ場合は、`extensions["<提供者>.<名前>"]` か、ユーザーデータの `properties["$ext"]` に置く。コアはそれを保持し、正準形式で書き戻す。
 - プラグインのライセンスは、そのプラグインの責任である。CyberSprite 本体に同梱するプラグイン（`aseprite` アダプタ、`diffusers`、`pixeloe`）は §2 に従う。
 - `cybersprite plugins list` は、プラグインの名前、版、提供する拡張点、ライセンスの表示を出す。
+
+#### 15.2.1 読み込みと実装契約（R1-C）
+
+- 公開の設定付き窓口は `cybersprite.plugins.PluginManager` とし、metadata 読込・許可データ型・設定場所の低層処理は標準ライブラリ／pydantic だけを使う `core/plugin_loader.py` / `core/plugin_settings.py` に置く。core から plugins・formats・pipeline 層を import しない。CLI/MCP と単独の Registry は同じ許可表を使う。
+- Python から明示的に `Registry.register()` した Op も通常のトランザクションと不変条件検査を通す。entry point の許可検査は実際にそこから読み込んだ提供者に適用し、`provider` 文字列だけで配布メタデータの存在を仮定しない。MCP の公開許可は引き続き別途検査する。
+- Op の entry point 名 `builtin` は組み込み専用として予約し、メタデータだけで incompatible と表示し、import 前に `E_PLUGIN` で拒否する。外部の提供者が MCP の組み込み判定を装う経路を作らない。
+- 共通 API は `cybersprite.plugins.PluginManager`。メタデータは群・登録名・配布名の昇順で列挙し、一覧では本体を import しない。配布メタデータの `CyberSprite-Plugin-API` があれば事前互換判定に使う。未記載は未検査と表示し、互換と断定しない。実行時は読み込んだ対象の `plugin_api == 1` を factory 呼出前に必ず検査し、不適合・例外は `E_PLUGIN`。登録は一括で検査し、失敗時はその登録を全て破棄する。
+- `[plugins].enabled` に登録名を列挙し、`disabled` は明示拒否（優先）とする。CLI は許可済み Op を初回利用時に解決する。Op 群は提供者を登録名とし、Op 名は `<登録名>_<操作>`（登録名そのものも可）。MCP の `--allow-plugin-op` は Op 名の許可であり、その名前の登録名または最長の提供者接頭辞だけを読む。他の Op 提供者は import しない。
+- パイプラインは組み込み方式を先に解決し、その他は登録名 `<ステップ>.<方式>`（方式名だけも可）を読む。ステップは `grid` / `downsample` / `quantize` / `cleanup` / `reconstruct`、実装は `step`、`method`、`level_a: bool`、`run(image, params) -> (image, metrics)` を持つ。方式固有の引数は各節の `params`。`quantize` は既存の `palette` 節で選択する（`quantize` 節も同義）。`reconstruct` は grid と downsample を置換し、量子化は後段で一度だけ行う。
+- 画像契約は RGBA `uint8[H,W,4]`、量子化の出力と cleanup の入出力は `IndexedImage(pixels: uint8[H,W], palette: RGBAタプルの列)`。フレーム間で寸法・パレットを一致させる。cleanup はパレットを変えない。量子化は既存パレットの接頭辞と透明番号を保持し、project モードでは追加しない。プラグイン内部の浮動小数は許すが、同一環境・同一入力で決定的でなければならない。
+- プラグインの配布名・版・登録名・方式・引数・決定性を報告の `plugins` に記録し、その報告を source の来歴にも保存する。水準 A を申告しない実装は `W_PLUGIN_DETERMINISM` と `determinism: "same-platform"` を返す。同梱の任意アダプタも自パッケージの entry point と同じ契約で登録する。
+- 検証実装は `rule`、`default_severity`、`check(document, frame_range) -> (issues, metrics)`。規則 ID は `Q-<登録名>-nn` とし、組み込み・他の登録済み規則との ID 衝突は `E_PLUGIN` とする。metrics は `metrics.plugins[規則ID]` に置く。通常の水準上書き・絞込・デルタに含める。文書は独立コピーで渡す。
+- パレットの factory は `{name, colors, license, names?}` の列を返す。名前衝突は拒否し、組み込みと同じ読取入口で使える。ライセンス未指定時は配布メタデータの表示を使う。
+- 書出実装は登録名に一致する `name`、`extension`、`options_model`、`write(document, renderer, out, options)` を持つ。`export_plugin`（`format`、`out`、`options`）が共通の検証・パス preflight を通す。v1 は単一ファイル。任意の `decode(bytes)` は全フレームの RGBA 配列の列を返し、ディスクから読んだデータをコア描画と照合する。未実装なら `verified: false` と `verification_reason` を必ず返す。
+
+実装例と詳細は `docs/PLUGIN_AUTHORING.md`。
 
 ### 15.3 形式を足すときの指針
 
@@ -3174,6 +3191,7 @@ L = (M2i[0][0] × l' + M2i[0][1] × m' + M2i[0][2] × s' + 32768) >> 16      （
 | `W_DROPPED_ON_IMPORT` | 読み込みで捨てた要素がある（参照レイヤー、ICC など） |
 | `W_CLIPPED` | 描画の一部がキャンバスの外で捨てられた |
 | `W_GATE_OVERRIDDEN` | 関門を破って配置した |
+| `W_PLUGIN_DETERMINISM` | 変換ステップが水準 A を申告していない。同一環境の再現性だけを約束する |
 | `W_EXPORT_INVALID` | 検証が通っていないプロジェクトを強行して書き出した |
 | `W_PREVIEW_UNAVAILABLE` | 正本の保存後に派生プレビューを生成できなかった。変更はコミット済み |
 | `W_PALETTE_TRANSPARENT_ENTRY` | アルファを持たないパレット形式に透明番号の実RGBを書いた（index を付記） |

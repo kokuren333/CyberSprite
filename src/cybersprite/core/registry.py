@@ -4,6 +4,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from difflib import get_close_matches
 from pathlib import Path
+from threading import RLock
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field, ValidationError, create_model
@@ -165,6 +166,13 @@ class Op:
 class Registry:
     def __init__(self):
         self._ops: dict[str, Op] = {}
+        self._plugin_manager: Any = None
+        self._loaded_plugins: set[str] = set()
+        self._plugin_lock = RLock()
+
+    def configure_plugins(self, manager) -> None:
+        """Bind a metadata-only loader without importing any plugin implementations."""
+        self._plugin_manager = manager
 
     def register(self, op: Op) -> None:
         if op.name in self._ops:
@@ -172,6 +180,8 @@ class Registry:
         self._ops[op.name] = op
 
     def get(self, name: str) -> Op:
+        if name not in self._ops and self._plugin_manager is not None:
+            self.load_plugins(enabled=True, names=[name], manager=self._plugin_manager)
         if name not in self._ops:
             raise CyberSpriteError(
                 "E_UNKNOWN_OP",
@@ -179,27 +189,64 @@ class Registry:
                 "Use ops list to find a registered operation.",
                 {"candidates": get_close_matches(name, sorted(self._ops))},
             )
-        return self._ops[name]
+        op = self._ops[name]
+        if op.provider in self._loaded_plugins and self._plugin_manager is not None:
+            descriptor = self._plugin_manager.find("cybersprite.ops", op.provider)
+            if not self._plugin_manager.enabled(descriptor):
+                raise CyberSpriteError(
+                    "E_PLUGIN",
+                    f"Plugin {op.provider!r} is disabled.",
+                    "Enable its entry-point name in user config.toml before using this Op.",
+                )
+        return op
 
     def all(self) -> list[Op]:
         return [self._ops[name] for name in sorted(self._ops)]
 
-    def load_plugins(self, *, enabled: bool = False) -> None:
-        """Opt-in entry points; MCP must independently allowlist plugin names."""
-        if enabled:
-            from importlib.metadata import entry_points
+    def load_plugins(self, *, enabled: bool = False, names=None, manager=None) -> None:
+        """Resolve only selected providers, validating the complete batch before registration."""
+        with self._plugin_lock:
+            self._load_plugins(enabled=enabled, names=names, manager=manager)
 
-            for entry in sorted(entry_points(group="cybersprite.ops"), key=lambda e: e.name):
-                try:
-                    for op in entry.load()():
-                        self.register(replace(op, provider=entry.name))
-                except Exception as error:
-                    raise CyberSpriteError(
-                        "E_PLUGIN",
-                        f"Cannot load operation plugin {entry.name}: {error}",
-                        "Repair or disable this plugin before loading it again.",
-                        {"plugin": entry.name},
-                    ) from error
+    def _load_plugins(self, *, enabled, names, manager) -> None:
+        if not enabled:
+            return
+        # The shared loader uses standard-library metadata and the common error contract only.
+        from .plugin_loader import PluginLoader, plugin_error
+
+        manager = manager or self._plugin_manager or PluginLoader(groups=("cybersprite.ops",))
+        self._plugin_manager = manager
+        descriptors = manager.descriptors("cybersprite.ops", enabled_only=False)
+        selected = {d.name for d in descriptors} if names is None else set()
+        for name in names or []:
+            candidates = [
+                d.name for d in descriptors if name == d.name or name.startswith(d.name + "_")
+            ]
+            if candidates:
+                selected.add(max(candidates, key=len))
+        for provider in sorted(selected):
+            if provider in self._loaded_plugins:
+                continue
+            if names is None and not manager.enabled(manager.find("cybersprite.ops", provider)):
+                continue
+            try:
+                values = list(manager.load("cybersprite.ops", provider))
+                staged = {}
+                for op in values:
+                    if not isinstance(op, Op):
+                        raise ValueError("factory must return Op objects")
+                    if op.name != provider and not op.name.startswith(provider + "_"):
+                        raise ValueError("Op name must match its entry point or provider_ prefix")
+                    if op.name in self._ops or op.name in staged:
+                        raise ValueError(f"duplicate operation {op.name}")
+                    staged[op.name] = replace(op, provider=provider)
+                self._ops.update(staged)
+                self._loaded_plugins.add(provider)
+            except Exception as error:
+                manager.discard("cybersprite.ops", provider)
+                if isinstance(error, CyberSpriteError):
+                    raise
+                raise plugin_error(provider, f"operation registration failed: {error}") from error
 
 
 class EmptyResult(Model):

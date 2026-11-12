@@ -534,6 +534,7 @@ def ops_group():
 def ops_list(state):
     from cybersprite.ops import registry
 
+    registry().load_plugins(enabled=True)
     _emit(
         state,
         "ops_list",
@@ -599,6 +600,7 @@ cli.add_command(
             "aseprite": ("export_aseprite", "M5", None),
             "tileset": ("export_tileset", "M5", None),
             "palette": ("export_palette", "M5", None),
+            "plugin": ("export_plugin", "R1-C", None),
         },
     )
 )
@@ -633,27 +635,12 @@ def plugins_group():
 @plugins_group.command("list")
 @click.pass_obj
 def plugins_list(state):
-    from importlib.metadata import entry_points
+    from cybersprite.plugins import PluginManager
 
-    from cybersprite.config import load_config
-    from cybersprite.ops import registry
-
-    settings = load_config()
-    providers = sorted({op.provider for op in registry().all()} - {"builtin"})
-    installed = sorted(entry_points(group="cybersprite.ops"), key=lambda entry: entry.name)
     _emit(
         state,
         "plugins_list",
-        {
-            "plugins": [
-                {
-                    "name": entry.name,
-                    "enabled": entry.name in settings.plugins.enabled,
-                    "loaded": entry.name in providers,
-                }
-                for entry in installed
-            ]
-        },
+        {"plugins": PluginManager().listing()},
     )
 
 
