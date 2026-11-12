@@ -1,0 +1,9 @@
+{"name":"new_project","arguments":{"project":"hero.csprite","width":16,"height":16,"palette":["#00000000","#202040ff","#80c0ffff"],"layer_name":"Character","name":"Scenario 1"}}
+{"name":"apply_ops","arguments":{"project":"hero.csprite","preview":"none","label":"Draw synthetic character geometry","ops":[{"op":"rect","args":{"layer":"L1","frame":0,"x":6,"y":2,"w":4,"h":4,"filled":true,"color":2}},{"op":"rect","args":{"layer":"L1","frame":0,"x":5,"y":6,"w":6,"h":5,"filled":true,"color":1}},{"op":"rect","args":{"layer":"L1","frame":0,"x":5,"y":11,"w":2,"h":3,"filled":true,"color":1}},{"op":"rect","args":{"layer":"L1","frame":0,"x":9,"y":11,"w":2,"h":3,"filled":true,"color":1}}]}}
+{"name":"add_frame","arguments":{"project":"hero.csprite","count":3,"cels":"copy","copy_from":0,"duration_ms":100,"preview":"none"}}
+{"name":"apply_ops","arguments":{"project":"hero.csprite","preview":"none","label":"Set four walk phases","ops":[{"op":"transform_region","args":{"layer":"L1","frame":1,"region":{"type":"rect","x":5,"y":11,"w":2,"h":3},"dx":-1}},{"op":"transform_region","args":{"layer":"L1","frame":1,"region":{"type":"rect","x":9,"y":11,"w":2,"h":3},"dx":1}},{"op":"transform_region","args":{"layer":"L1","frame":2,"region":{"type":"rect","x":5,"y":11,"w":2,"h":3},"dy":-1}},{"op":"transform_region","args":{"layer":"L1","frame":3,"region":{"type":"rect","x":9,"y":11,"w":2,"h":3},"dy":-1}}]}}
+{"name":"add_tag","arguments":{"project":"hero.csprite","name":"walk","from":0,"to":3,"direction":"forward","preview":"none"}}
+{"name":"validate","arguments":{"project":"hero.csprite"}}
+{"name":"render_preview","arguments":{"project":"hero.csprite","frames":[0,1,2,3],"inline":true}}
+{"name":"export_sheet","arguments":{"project":"hero.csprite","out":"walk.png","data_out":"walk.json","tag":"walk","layout":"rows","columns":4,"compression":"stored"}}
+{"name":"export_animation","arguments":{"project":"hero.csprite","out":"walk.gif","format":"gif","tag":"walk","loop":0}}
