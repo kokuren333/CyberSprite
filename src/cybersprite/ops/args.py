@@ -488,6 +488,7 @@ define(
 define("get_palette", {})
 
 TileSize = Annotated[int, Field(ge=1, le=256)]
+define("delete_tileset", {"tileset": (str, ...), "missing_ok": (bool, False)})
 define(
     "add_tileset",
     {
@@ -542,6 +543,14 @@ define(
         "layer": (str, ...),
         "tile_w": (TileSize, ...),
         "tile_h": (TileSize, ...),
+        "origin_x": (
+            int | None,
+            Field(None, description="Grid origin X; defaults to canvas.grid.x."),
+        ),
+        "origin_y": (
+            int | None,
+            Field(None, description="Grid origin Y; defaults to canvas.grid.y."),
+        ),
         "name": (Name | None, None),
         "match_flips": (MatchFlips, Field(default_factory=MatchFlips)),
     },
@@ -550,7 +559,11 @@ define("validate", {"frames": (Frames, "all"), "rules": (list[str] | None, None)
 define(
     "render_preview",
     {
-        "frames": (Frames, ...),
+        "frames": (Frames, Field(default_factory=lambda: [0])),
+        "tileset": (
+            str | None,
+            Field(None, description="Tileset ID or unique name; render its labeled tile grid."),
+        ),
         "layout": (
             Literal["frames", "strip", "grid"],
             Field(

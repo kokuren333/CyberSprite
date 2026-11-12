@@ -148,3 +148,11 @@ main のテスト（2026-11-12 11:00、Windows / Python 3.12）: Python 1160 pas
 - 実CLIで原本runner.cspriteを一時ディレクトリへコピーし、tag:walkのstrip、全10フレームのgrid、フレーム0の前7/次1のonion、パレット外の白背景を生成した。実PNGを再復号して開き、原本とコピーの正本のバイト不変を確認した。validateはerror 0、warning 0、info 10。再現スクリプトは `tools/fix2_acceptance.py`、実画像と記録は `build/fix2-review/`。
 - ゴールデンは唯一の更新器で生成し、応答JSONの新しい契約・透明パレット警告と新規パレット出力を確認した。既存画像・正本・画素ハッシュの変更なし。判断I-751〜I-761。仕様は§5.8.1、§6.7.1、§8.8、§10.2.2、§10.3.1、§10.4、付録Cを補足した。追加依存・外部参照なし。
 - 実装コミットは `1547911` と `70fe2a9`。LinuxはI-007によりCI待ち、mainへの統合と表示の最終的な見やすさの評価はオーケストレーターの作業。極端に多数の合成では番号の判読に小さい範囲が必要。詳細は [FIX2_IMPLEMENTATION_REPORT.md](FIX2_IMPLEMENTATION_REPORT.md)。
+
+## FIX-3: タイル制作ワークフロー — Windows検証完了（2026-11-12）
+
+- `fix3-tiles` でe2e-04 §5のタイル関連指摘を修正した。変換格子のcanvas.grid原点と明示origin、delete_tileset（C・破壊的・missing_ok・E_IN_USE）、番号付きタイル一覧プレビューと編集結果表示、共有参照を含むchanged.cels/layers/tilesets、tiles/tiles_total、タイル書出しメタデータ、変形順の説明、get_tilesのCLI文書、25%画素格子、空0のcolors_used除外を実装した。
+- 全体 `uv run pytest -q --tb=short`: **1335 passed / 2 skipped、481.01秒**。スキップは既存Windowsシンボリックリンク権限2件。Ruff check/format、schema drift、repository、ライセンス監査（dev/mcp/gui）、diff checkは成功。CLI/MCPは共通レジストリから生成し、実SDKでも一覧表示・参照中削除拒否・削除・missing_okを検証した。
+- 唯一のゴールデン更新器で24期待ファイルを更新し、全差分を確認した。応答と書出しJSON、変換原点に伴う正本だけが変わり、既存PNG・画素配列・画素ハッシュの変更はない。
+- `tools/fix3_acceptance.py` が原本meadowを一時コピーし、CLI18呼出しで一覧・×4格子・透明上端レイヤーの反転統合・タイル追加・delete_tileset・PNG/タイルPNG/JSON書出しを確認した。変換前後のRGBAとプレビューは完全一致し、原本の正本バイトは不変。最終error 0 / warning 0 / info 1（原本のQ-PIX-02を保持）、全exportでvalidation_ok/verified=true。プレビューと実書出しPNGを開いて確認した。最終コミット後の再実行先は `build/fix3-review-final/`。
+- 判断I-781〜I-787。SPECは§6.7.1、§8.7、§10.1.2、§10.3.1、§10.4、§10.10、§13.4、付録Cを補足した。追加依存・外部参照なし。LinuxはI-007によりCI待ち、mainへの統合と表示の最終的な見やすさの評価はオーケストレーターへ引き継ぐ。詳細は [FIX3_IMPLEMENTATION_REPORT.md](FIX3_IMPLEMENTATION_REPORT.md)。

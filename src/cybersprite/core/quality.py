@@ -204,7 +204,7 @@ def report(p, *, root=None, selected_frames=None, rules=None, source_manifest=No
         unused = [i for i in range(1, len(ts.tiles)) if not tile_usage[ts.id][i]]
         if duplicates or unused:
             tile_findings.append(f"{ts.id}: unused {unused}; duplicate pairs {duplicates}")
-        for tile in ts.tiles:
+        for tile in ts.tiles[1:]:
             usage.update(bytes.fromhex("".join(tile.pixels)))
     if tile_findings:
         add("Q-TIL-01", "Tileset findings: " + "; ".join(tile_findings) + ".")

@@ -148,13 +148,14 @@ def query(ctx, a, name):
     if name == "get_history":
         return history.history_result(root, a.limit)
     if name == "render_preview":
-        if isinstance(a.frames, list) and not a.frames:
+        if a.tileset is None and isinstance(a.frames, list) and not a.frames:
             raise invalid("Preview requires at least one frame.")
         return previews(
             p,
-            frames(p, a.frames),
+            frames(p, a.frames) if a.tileset is None else [],
             root,
             inline=a.inline,
+            tileset=a.tileset,
             layout=a.layout,
             scale=a.scale,
             grid=a.grid,

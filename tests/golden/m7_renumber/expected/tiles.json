@@ -3,9 +3,18 @@
   "schema_version": 1,
   "image": "tiles.png",
   "tileset": "TS1",
+  "name": "Glyphs",
+  "tile_w": 3,
+  "tile_h": 3,
+  "base_index": 1,
+  "size": {
+    "w": 3,
+    "h": 3
+  },
   "tiles": [
     {
       "index": 1,
+      "display_index": 2,
       "rect": {
         "x": 0,
         "y": 0,

@@ -57,6 +57,25 @@
     "layers": [
       "L1"
     ],
+    "cels": [
+      {
+        "layer": "L1",
+        "frame": 0
+      },
+      {
+        "layer": "L1",
+        "frame": 1
+      },
+      {
+        "layer": "L1",
+        "frame": 2
+      },
+      {
+        "layer": "L1",
+        "frame": 3
+      }
+    ],
+    "tilesets": [],
     "linked_frames": [],
     "link_groups": [],
     "clipped_pixels": 0

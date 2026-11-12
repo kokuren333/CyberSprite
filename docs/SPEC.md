@@ -1142,6 +1142,9 @@ Ra = 0 のとき: 結果は (0, 0, 0, 0)
   元のキャンバス自体が 1024 を超える場合、または定規を加えると超える場合は、プレビューだけを整数間隔の画素抽出で縮小する。正本と書き出しは変えない。
 - 正本の保存に成功した後、派生プレビューを生成できない場合は、成功の封筒に `W_PREVIEW_UNAVAILABLE` を返す。コミット済みの変更を失敗として再適用させない。
 
+- `render_preview.tileset` はIDまたは一意名でセットを選び、全タイルをデータ番号（0始まり）付きの行優先グリッドで返す。空タイル0は市松模様。既存の数字フォント・2px間隔・1024px上限・整数抽出を使う。`frames` / `layout` / `layers` / `grid` / `rulers` / `onion` はこの表示では使わず、`scale` / `background` / `inline` を使う。タイル操作でセットが変わったときの結果プレビューもこの一覧を含む（最大4セット、超過IDは omitted_tilesets）。
+- `grid` の1px画素格子は倍率4以上で既存RGBと灰色を3:1で整数合成し、canvas.grid の線は従来の強い表示を維持する。
+
 #### 6.7.2 差分
 
 - `mutate` の結果には、必ず構造化された差分（§10.3 の `changed`）が入る: 変更されたフレームごとの「合成結果で変わったピクセル数」と外接矩形、変更されたレイヤー、データは変わったが見た目は変わらなかったかどうか（非表示レイヤーの編集など）。
@@ -1473,6 +1476,8 @@ Ra = 0 のとき: 結果は (0, 0, 0, 0)
 
 タイルセットのタイルを番号順に並べた画像を書く。配置と余白は §8.4 と同じ。`include_empty: false`（既定）なら番号 0 の空タイルを含めない。データには、タイル番号と矩形の対応、タイルのユーザーデータを載せる。
 
+データの `tileset` はID、`name` はセット名、`tile_w` / `tile_h` は元のタイル寸法、`base_index` は表示開始番号、`size: {w,h}` は書き出した画像寸法。各タイルの `index` は常に0始まりのデータ番号で、`display_index = index + base_index` を併記する。
+
 ### 8.8 書き出しの共通事項
 
 - **検証が通っていないプロジェクトは書き出さない [D-32]。** `validate` の結果が `ok: false`（エラー水準の指摘がある）なら、書き出しは `E_VALIDATION_FAILED` で失敗する。`allow_invalid: true` で強行でき、その事実は結果に記録される。
@@ -1659,7 +1664,7 @@ cybersprite mcp serve [--root <ディレクトリ>] [--allow-dir <ディレク�
 | N | false | false | 表の「破壊的」欄による | false |
 | G | false | false | false | true |
 
-「破壊的」とするのは、取り消しはできるが情報を捨てるツールである: `delete_layer` `delete_frames` `delete_tag` `delete_slice` `delete_tiles` `clear_cel` `erase` `flatten` `merge_layers` `crop_canvas` `set_palette`（縮小時）`tileset_from_layer`。
+「破壊的」とするのは、取り消しはできるが情報を捨てるツールである: `delete_layer` `delete_frames` `delete_tag` `delete_slice` `delete_tiles` `delete_tileset` `clear_cel` `erase` `flatten` `merge_layers` `crop_canvas` `set_palette`（縮小時）`tileset_from_layer`。
 
 #### 10.1.3 パスの制限 [D-31]
 
@@ -1731,6 +1736,8 @@ cybersprite mcp serve [--root <ディレクトリ>] [--allow-dir <ディレク�
     "data": true,
     "frames": [{"frame": 0, "pixels_changed": 11, "bbox": {"x": 2, "y": 3, "w": 11, "h": 1}}],
     "layers": ["L1"],
+    "cels": [{"layer": "L1", "frame": 0}],
+    "tilesets": [],
     "linked_frames": [],
     "link_groups": [],
     "clipped_pixels": 0
@@ -1754,6 +1761,7 @@ cybersprite mcp serve [--root <ディレクトリ>] [--allow-dir <ディレク�
 - `changed.linked_frames` は互換用の昇順和集合。`changed.link_groups` は操作時に影響したリンク組の昇順フレーム列を重複排除し辞書式順に並べる（別レイヤーの同一番号組は1件）。`get_info(include=["layers"])` の各葉レイヤーにも `link_groups` を返し、リンクセルの要約には所有フレーム `link` を付ける。
 - `changed.frames[].pixels_changed` は、合成結果（RGBA）で変わったピクセル数。`changed.data` は、見た目が変わらなくてもモデルが変わったら true。
 - `changed.frames` は合成ピクセルが変わったフレームだけを含む。名前・表示時間・インデックスの付け替え等で合成結果が変わらなければ空配列とし、モデルの変更は `changed.data` で示す。
+- `changed.cels` はセルのデータ・リンク先のデータ・参照するタイルのデータが変わった `(layer, frame)` を、レイヤーID・フレームの順に返す（作成・削除を含む）。非表示・遮蔽されたセルも含む。`changed.layers` はモデルが変わったレイヤーに加え、このセルを持つレイヤーを含む。`changed.tilesets` は作成・変更・削除されたセットIDの昇順列。共有タイルの編集では実際にその番号を参照するセルだけを通知する。
 - `validation` は**検証デルタ**である（§13.4）。全体の報告は `validate` で取る。`ok`、`errors`、`warnings` はコミット後の全体の状態を表す。
 - `apply_ops` の `result` は `{"results": [各 Op の result]}`。
 
@@ -1794,7 +1802,7 @@ MCP ではツール実行エラー（`isError: true`）として返す。プロ�
 | `get_pixels` | `layer`（レイヤー、または `"@composite"` で平坦なインデックス画像）、`frame`、`rect`（省略時は、レイヤーならセルの矩形、合成ならキャンバス全体）、`format`（`"hex"`） | `{x, y, w, h, rows, legend（sym のとき）, used: [{index, color, count}]}`。65536 ピクセルを超える範囲は `E_LIMIT_EXCEEDED` | R |
 | `get_palette` | — | `{transparent_index, frozen, colors: [{index, color, name, used_pixels}]}` | R |
 | `validate` | `frames`（`"all"`）、`rules`（省略で全規則） | 検証報告の全体（§13.4） | R |
-| `render_preview` | `frames`（§10.2.2 の共通指定）、`layout`（`"frames"` / `"strip"` / `"grid"`、既定 `"frames"`）、`layers`（省略）、`scale`（`"auto"`）、`grid`（false）、`rulers`（false）、`onion`（省略、`loop_tag` 対応）、`background`（`"checker"`、パレット番号・色、または生の `#rrggbb`）、`inline`（true） | `{paths, scale, width, height}` と画像 | R |
+| `render_preview` | `frames`（§10.2.2 の共通指定、既定 `[0]`）、`tileset`（省略、指定時はセット一覧）、`layout`（`"frames"` / `"strip"` / `"grid"`、既定 `"frames"`）、`layers`（省略）、`scale`（`"auto"`）、`grid`（false）、`rulers`（false）、`onion`（省略、`loop_tag` 対応）、`background`（`"checker"`、パレット番号・色、または生の `#rrggbb`）、`inline`（true） | `{paths, scale, width, height}` と画像 | R |
 | `diff_preview` | `from_revision`（現在 − 1）、`to_revision`（現在）、`frames`（変化のあった全フレーム、最大 4）、`inline`（true） | `{frames: [{frame, pixels_changed, bbox, changes（256 個以下のとき）}], paths}` と画像 | R |
 | `get_history` | `limit`（20） | `{entries: [{revision, kind, actor, label, time, ops（名前だけ）, changed}], can_undo, can_redo}` | R |
 | `undo` / `redo` | `steps`（1） | `{restored_revision}` | N |
@@ -1880,13 +1888,14 @@ MCP ではツール実行エラー（`isError: true`）として返す。プロ�
 | ツール | 引数（既定） | 動作と `result` | 冪等性 |
 |---|---|---|---|
 | `add_tileset` | `name`、`tile_w`、`tile_h`、`base_index`（1）、`if_exists`（`"error"`。ほかに `"reuse"` `"allow"`） | 空タイル（番号 0）だけを持つタイルセットを作る。同名があれば error は既存ID付き E_EXISTS、reuse は配列順で最初の既存セットを返し、allow は同名を作る。`result`: `{id}` | C |
+| `delete_tileset` | `tileset`、`missing_ok`（false） | 未参照のセットを削除する。参照するタイルマップレイヤーがあれば `E_IN_USE` と `{tileset, layers: [{id,name}]}` を返す。先にレイヤーを削除または別セットへ変更する。暗黙の連鎖削除はしない。missing_ok は対象なしだけを無操作として許す。破壊的操作 | C |
 | `set_tile_pixels` | `tileset`、`tile`（番号、または `"new"`）、`rows`、`format`（`"hex"`） | タイルの中身を書く。`"new"` は末尾に追加する。番号 0 は変更できない（`E_INVALID_ARGS`）。`result`: `{tile}` | C（番号指定で I、`"new"` は N） |
 | `delete_tiles` | `tileset`、`tiles`（番号の配列）、`on_used`（`"error"`。ほかに `"clear"`） | 消したタイルより後ろの番号を詰め、全タイルマップセルの参照を付け替える。使われているタイルは、`"clear"` なら参照を空タイルにしてから消す | N |
 | `move_tiles` | `tileset`、`from`、`to`（両端を含む番号）、`before`（移動前の番号、末尾はタイル数） | 連続したタイルを `before` の前へ移動し、全タイルマップセルの参照を付け替える。空タイル 0 は移動できず、その前にも置けない。`result`: `{mapping}`（旧番号の文字列 → 新番号） | N |
 | `set_tile` | `layer`、`frame`、`col`、`row`、`tile`、`flip`（`""`。`x` `y` `d` の組み合わせ。例 `"xy"`） | | I |
 | `set_tiles` | `layer`、`frame`、`col`、`row`、`rows`（§5.2.3 のタイル参照の行） | 左上 `(col, row)` から書く | I |
 | `get_tiles` | `layer`、`frame`、`rect`（タイル単位。省略時はセル全体） | `{col, row, w, h, rows, tileset}` | R |
-| `tileset_from_layer` | `layer`（画像レイヤー）、`tile_w`、`tile_h`、`name`（レイヤー名）、`match_flips`（すべて false） | 画像レイヤーをタイルマップレイヤーに変える（`id` は同じ）。全フレームのセルを格子で切り、同じ絵のタイルを 1 つにまとめた新しいタイルセットを作る。タイルの番号は、フレームの昇順、行、列の順に初めて現れた順。格子に満たない端は透明で埋める。`match_flips` を立てた反転は、同じタイルの反転として配置する。`result`: `{tileset, tiles（数）}` | N |
+| `tileset_from_layer` | `layer`（画像レイヤー）、`tile_w`、`tile_h`、`origin_x` / `origin_y`（canvas.grid.x/y）、`name`（レイヤー名）、`match_flips`（すべて false） | 画像レイヤーをタイルマップレイヤーに変える（`id` は同じ）。全フレームのセルを指定原点と要求タイル寸法のキャンバス格子で切り、同じ絵のタイルを 1 つにまとめた新しいタイルセットを作る。タイルの番号は、フレームの昇順、行、列の順に初めて現れた順。セルの左・上は原点からタイル寸法の整数倍だけ離れた格子線へ切り下げ、足りない四辺は透明で埋める（負座標とキャンバス外のデータも保持）。`match_flips` を立てた反転は、同じタイルの反転として配置する。`result`: `{tileset, tiles（空タイル0以外の登録数）, tiles_total（0を含む総数）}` | N |
 
 ### 10.11 キャンバス
 
@@ -2326,6 +2335,7 @@ license = "model card license name"
 ```
 
 - `ok` は、エラー水準の指摘が 0 件のとき true。
+- `colors_used` の使用数には、予約された空タイル0の画素を加算しない。他の画像セル・登録タイルの実データは従来どおり数える。
 - `issues[].where.points` は、該当ピクセルの座標（64 個まで）。
 - `issues` の並びは、水準（error → warning → info）、規則 ID、フレーム、レイヤーの順。
 
@@ -3111,6 +3121,7 @@ L = (M2i[0][0] × l' + M2i[0][1] × m' + M2i[0][2] × s' + 32768) >> 16      （
 | `E_PROJECT_NOT_FOUND` | プロジェクトがない | |
 | `E_INVALID_PROJECT` | `project.json` が壊れている（スキーマ、構造不変条件） | 違反した規則 ID と場所 |
 | `E_SCHEMA_TOO_NEW` | より新しい版のツールで作られた | ファイルの版と対応している版 |
+| `E_IN_USE` | タイルセットがレイヤーから参照されている | tileset、参照する layers の id/name |
 | `E_EXISTS` | 同じ名前のものが既にある | 既存の ID |
 | `E_LAYER_NOT_FOUND` / `E_CEL_NOT_FOUND` / `E_TAG_NOT_FOUND` / `E_SLICE_NOT_FOUND` / `E_TILESET_NOT_FOUND` / `E_SOURCE_NOT_FOUND` | 対象がない | 探した値、存在する候補 |
 | `E_FRAME_OUT_OF_RANGE` | フレーム番号が範囲外 | フレーム数 |

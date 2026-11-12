@@ -238,13 +238,19 @@ def test_from_layer_dedupes_flips_pads_edges_and_preserves_links(match):
         tile_h=2,
         match_flips=dict(x=match, y=match, d=match),
     )
-    # Empty + original + optional mirrored + upper edge + repeated lower + lower edge.
-    assert result == {"tileset": "TS1", "tiles": 6 if not match else 5}
+    # Canvas x=0 grid adds transparent left padding; the frame-2 block matches tile 2x.
+    assert result == {
+        "tileset": "TS1",
+        "tiles": 7 if not match else 6,
+        "tiles_total": 8 if not match else 7,
+    }
     assert p.layers[0].id == "L1" and p.layers[0].name == "Layer 1"
     assert p.layers[0].cels[0].user_data.text == "cel"
     assert p.layers[0].cels[1] == LinkCel(frame=1, link=0)
     assert not check_structure(p)
-    assert p.layers[0].cels[0].tiles[0].startswith("1 1 " + ("1x" if match else "2"))
+    assert p.layers[0].cels[0].tiles == ["1 2 3 4", "5 6 6 6"]
+    if match:
+        assert p.layers[0].cels[2].tiles == ["2x"]
     for f in range(3):
         np.testing.assert_array_equal(render(p, f), before[f])
 
@@ -317,6 +323,10 @@ def test_tileset_export_layout_metadata_and_scale(tmp_path, layout):
     data = json.loads((tmp_path / "tiles.json").read_bytes())
     actual = np.asarray(Image.open(tmp_path / "tiles.png").convert("RGBA"))
     assert [t["index"] for t in data["tiles"]] == [0, 1, 2]
+    assert data["tileset"] == "TS1" and data["name"] == "Glyphs"
+    assert (data["tile_w"], data["tile_h"], data["base_index"]) == (3, 3, 1)
+    assert data["size"] == {"w": actual.shape[1], "h": actual.shape[0]}
+    assert [t["display_index"] for t in data["tiles"]] == [1, 2, 3]
     assert data["tiles"][1]["user_data"]["text"] == "glyph"
     table = np.array(
         [[0, 0, 0, 0], [136, 0, 0, 255], [0, 136, 0, 255], [0, 0, 136, 255]], dtype=np.uint8
