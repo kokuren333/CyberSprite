@@ -17,6 +17,7 @@ from cybersprite import ops
 from cybersprite.core import history
 from cybersprite.core.canonical import load_project, loads_project, project_path
 from cybersprite.core.errors import CyberSpriteError, invalid
+from cybersprite.core.execution import committed_bytes, intent_path
 from cybersprite.core.models import Rect
 from cybersprite.core.quality import cached_frame_rgba
 from cybersprite.core.render import RenderOptions, render
@@ -62,7 +63,7 @@ class Service:
         # Read the actual bytes every time. A same-size external edit (even with
         # a restored timestamp) must never reuse a stale parsed model.
         try:
-            data = (project / "project.json").read_bytes()
+            data = committed_bytes(project / "project.json", project)
         except OSError:
             # Preserve the core's specific missing-project and IO errors.
             return load_project(project)
@@ -134,7 +135,12 @@ class Service:
     def scan(self, project):
         self.policy.check_project(project)
         stat = (project / "project.json").stat()
-        stamp = (stat.st_mtime_ns, stat.st_size)
+        try:
+            pending = intent_path(project).stat()
+            pending_stamp = (pending.st_mtime_ns, pending.st_size)
+        except FileNotFoundError:
+            pending_stamp = None
+        stamp = (stat.st_mtime_ns, stat.st_size, pending_stamp)
         previous = self.watched.get(project)
         if previous and stamp == previous[0]:
             return []

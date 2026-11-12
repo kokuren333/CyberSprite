@@ -228,7 +228,7 @@ def _journal_tail(root, limit, after_revision, records, transactions):
             if scope is not None:
                 path = scope.resolve(path)
             old = next(
-                (item for item in records if item["path"] == path.absolute().as_posix()), None
+                (item for item in records if Path(item["path"]) == path.absolute()), None
             )
             if old is not None and "data" in old:
                 if old["data"] is None:

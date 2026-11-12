@@ -64,13 +64,13 @@ def committed_bytes(path, root):
     if scope is not None:
         path = scope.resolve(path)
     if scope is None or scope.lock is None:
-        name = path.absolute().as_posix()
+        name = path.absolute()
         while True:
             records = _records(root)
             missing = False
             data = None
             for item in records:
-                if item["path"] == name and "data" in item:
+                if Path(item["path"]) == name and "data" in item:
                     missing = item["data"] is None
                     if not missing:
                         data = base64.b64decode(item["data"])

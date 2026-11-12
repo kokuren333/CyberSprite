@@ -1,6 +1,7 @@
 """Tail IO, rebuildable replay indexes, and failure/crash boundary vectors."""
 
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -218,6 +219,8 @@ def test_reader_sees_old_bytes_during_save(project):
     with save_context(project):
         history.atomic_write(target, b"pending")
         assert contextvars.Context().run(committed_bytes, target, project) == before
+        alias = Path(str(project).swapcase()) if os.name == "nt" else project
+        assert contextvars.Context().run(load_project, alias).revision == 0
     assert target.read_bytes() == b"pending"
 
 
