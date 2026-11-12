@@ -1,0 +1,1 @@
+{"description":"Authored animated aseprite fixture imported, edited, exported, decoded and compared under SPEC 5.9.2.","project":"edited.csprite","inputs":{"input.aseprite":"tests/roundtrip/p11/layers.aseprite"},"exports":{"edited.aseprite":"aseprite","edited.png":"sheet"}}

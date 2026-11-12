@@ -1,0 +1,12 @@
+{"surface":"cli","arguments":["new","shared.csprite","--size","8x8","--palette","gray-4"]}
+{"surface":"gui","method":"project.open","arguments":{"project":"shared.csprite"},"revision":0}
+{"surface":"gui","method":"op.apply","arguments":{"op":"add_layer","args":{"name":"Temporary","expect_revision":0,"preview":"none"}},"revision":1}
+{"surface":"cli","arguments":["-p","shared.csprite","op","rect","--args","{\"layer\":\"L1\",\"frame\":0,\"x\":2,\"y\":2,\"w\":4,\"h\":4,\"color\":1,\"filled\":true}","--preview","none"],"revision":2,"notify":true}
+{"surface":"gui","method":"op.apply","arguments":{"op":"delete_layer","args":{"layer":"L2","expect_revision":1,"preview":"none"}},"error":"E_REVISION_CONFLICT"}
+{"surface":"gui","method":"project.get","revision":2}
+{"surface":"gui","method":"op.apply","arguments":{"op":"delete_layer","args":{"layer":"L2","expect_revision":2,"preview":"none"}},"revision":3}
+{"surface":"cli","arguments":["-p","shared.csprite","op","line","--args","{\"layer\":\"L1\",\"frame\":0,\"x0\":2,\"y0\":3,\"x1\":5,\"y1\":3,\"color\":2}","--preview","none"],"revision":4,"notify":true}
+{"surface":"gui","method":"project.get","revision":4}
+{"surface":"gui","method":"validate.run","revision":4}
+{"surface":"gui","method":"render.frame","revision":4}
+{"surface":"cli","arguments":["-p","shared.csprite","export","image","--out","shared.png","--compression","stored"],"revision":4}
