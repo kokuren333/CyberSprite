@@ -89,7 +89,7 @@ def committed_bytes(path, root):
 
 
 def _restore(records):
-    from .history import _atomic_write
+    from .history import _atomic_write, remove_file
 
     for item in reversed(records):
         path = Path(item["path"])
@@ -99,7 +99,7 @@ def _restore(records):
                 stream.flush()
                 os.fsync(stream.fileno())
         elif item["data"] is None:
-            path.unlink(missing_ok=True)
+            remove_file(path)
         else:
             data = base64.b64decode(item["data"])
             if not path.exists() or path.read_bytes() != data:
@@ -122,7 +122,9 @@ def recover_pending(root):
                 "Retry in MCP with the original allow-dir, or restore that output manually.",
             )
     _restore(records)
-    intent_path(root).unlink(missing_ok=True)
+    from .history import remove_file
+
+    remove_file(intent_path(root))
 
 
 class SaveContext:
@@ -173,14 +175,18 @@ class SaveContext:
         return path
 
     def rollback(self):
+        from .history import remove_file
+
         _restore(list(self.backups.values()))
         if self.durable:
-            intent_path(self.root).unlink(missing_ok=True)
+            remove_file(intent_path(self.root))
 
     def finish(self):
+        from .history import remove_file
+
         self.check()
         if self.durable:
-            intent_path(self.root).unlink(missing_ok=True)
+            remove_file(intent_path(self.root), checker=self.check)
 
     def maintain(self):
         for function, root in self.retention:

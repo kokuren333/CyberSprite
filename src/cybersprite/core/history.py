@@ -31,6 +31,25 @@ def io_error(error, path):
     )
 
 
+def remove_file(path, *, checker=None):
+    """Retry transient Windows reader/antivirus sharing violations for at most 3 s."""
+    path = Path(path)
+    for attempt in range(121):
+        if checker is not None:
+            checker()
+        try:
+            path.unlink(missing_ok=True)
+            return
+        except PermissionError as error:
+            if attempt == 120:
+                raise io_error(error, path) from error
+            if checker is not None:
+                checker()
+            wait_poll()
+        except OSError as error:
+            raise io_error(error, path) from error
+
+
 def atomic_write(path, data):
     scope = _active.get()
     if scope is not None:
@@ -556,7 +575,7 @@ def save_files(files):
 def restore_files(backups):
     for path, data in reversed(backups):
         if data is None:
-            path.unlink(missing_ok=True)
+            remove_file(path)
         elif not path.exists() or path.read_bytes() != data:
             atomic_write(path, data)
 

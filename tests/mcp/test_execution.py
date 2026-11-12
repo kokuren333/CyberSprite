@@ -1,5 +1,7 @@
 """Deadline and serialization failures cannot leave committed project changes."""
 
+from pathlib import Path
+
 import pytest
 
 pytest.importorskip("mcp.server")
@@ -106,3 +108,49 @@ def test_queries_do_not_lock_or_install_runtime_hooks(tmp_path, monkeypatch):
         assert not service.call("validate", {"project": "p"}).is_error
     assert history.atomic_write is writer
     assert sys.gettrace() is trace
+
+
+@pytest.mark.parametrize("expire", [False, True])
+def test_pending_removal_retries_sharing_violation_and_preserves_timeout(
+    tmp_path, monkeypatch, expire
+):
+    service = MCPService(root=tmp_path)
+    assert not service.call("new_project", {"project": "p", "width": 4, "height": 4}).is_error
+    root = tmp_path / "p"
+    before = snapshot(root)
+    pending = history.paths(root) / "pending.json"
+    clock = [0]
+    monkeypatch.setattr(execution, "monotonic_ns", lambda: clock[0])
+    monkeypatch.setitem(server.TIMEOUTS, "set_pixel", 1)
+    original = Path.unlink
+    injected = []
+
+    def busy(path, *args, **kwargs):
+        if path == pending and path.exists() and not injected:
+            injected.append(True)
+            if expire:
+                clock[0] = 2_000_000_000
+            raise PermissionError("Injected Windows sharing violation")
+        return original(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "unlink", busy)
+    result = service.call(
+        "set_pixel",
+        {
+            "project": "p",
+            "layer": "L1",
+            "frame": 0,
+            "x": 0,
+            "y": 0,
+            "color": 1,
+            "preview": "none",
+        },
+    )
+    assert injected and not pending.exists()
+    if expire:
+        assert result.structured_content["error"]["code"] == "E_TIMEOUT"
+        assert snapshot(root) == before
+    else:
+        assert result.structured_content["ok"]
+        assert result.structured_content["revision"]["after"] == 1
+    assert execution._active.get() is None
