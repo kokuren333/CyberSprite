@@ -1,0 +1,301 @@
+{
+  "kind": "outline",
+  "cases": [
+    {
+      "name": "centre_inside_4",
+      "input": {
+        "opaque": [
+          "...",
+          ".#.",
+          "..."
+        ],
+        "placement": "inside",
+        "connectivity": 4
+      },
+      "expected": {
+        "rows": [
+          "...",
+          ".#.",
+          "..."
+        ]
+      }
+    },
+    {
+      "name": "centre_inside_8",
+      "input": {
+        "opaque": [
+          "...",
+          ".#.",
+          "..."
+        ],
+        "placement": "inside",
+        "connectivity": 8
+      },
+      "expected": {
+        "rows": [
+          "...",
+          ".#.",
+          "..."
+        ]
+      }
+    },
+    {
+      "name": "centre_outside_4",
+      "input": {
+        "opaque": [
+          "...",
+          ".#.",
+          "..."
+        ],
+        "placement": "outside",
+        "connectivity": 4
+      },
+      "expected": {
+        "rows": [
+          ".#.",
+          "#.#",
+          ".#."
+        ]
+      }
+    },
+    {
+      "name": "centre_outside_8",
+      "input": {
+        "opaque": [
+          "...",
+          ".#.",
+          "..."
+        ],
+        "placement": "outside",
+        "connectivity": 8
+      },
+      "expected": {
+        "rows": [
+          "###",
+          "#.#",
+          "###"
+        ]
+      }
+    },
+    {
+      "name": "full_inside_4",
+      "input": {
+        "opaque": [
+          "####",
+          "####",
+          "####"
+        ],
+        "placement": "inside",
+        "connectivity": 4
+      },
+      "expected": {
+        "rows": [
+          "####",
+          "#..#",
+          "####"
+        ]
+      }
+    },
+    {
+      "name": "full_inside_8",
+      "input": {
+        "opaque": [
+          "####",
+          "####",
+          "####"
+        ],
+        "placement": "inside",
+        "connectivity": 8
+      },
+      "expected": {
+        "rows": [
+          "####",
+          "#..#",
+          "####"
+        ]
+      }
+    },
+    {
+      "name": "full_outside_4",
+      "input": {
+        "opaque": [
+          "####",
+          "####",
+          "####"
+        ],
+        "placement": "outside",
+        "connectivity": 4
+      },
+      "expected": {
+        "rows": [
+          "....",
+          "....",
+          "...."
+        ]
+      }
+    },
+    {
+      "name": "full_outside_8",
+      "input": {
+        "opaque": [
+          "####",
+          "####",
+          "####"
+        ],
+        "placement": "outside",
+        "connectivity": 8
+      },
+      "expected": {
+        "rows": [
+          "....",
+          "....",
+          "...."
+        ]
+      }
+    },
+    {
+      "name": "hole_inside_4",
+      "input": {
+        "opaque": [
+          "###",
+          "#.#",
+          "###"
+        ],
+        "placement": "inside",
+        "connectivity": 4
+      },
+      "expected": {
+        "rows": [
+          "###",
+          "#.#",
+          "###"
+        ]
+      }
+    },
+    {
+      "name": "hole_inside_8",
+      "input": {
+        "opaque": [
+          "###",
+          "#.#",
+          "###"
+        ],
+        "placement": "inside",
+        "connectivity": 8
+      },
+      "expected": {
+        "rows": [
+          "###",
+          "#.#",
+          "###"
+        ]
+      }
+    },
+    {
+      "name": "hole_outside_4",
+      "input": {
+        "opaque": [
+          "###",
+          "#.#",
+          "###"
+        ],
+        "placement": "outside",
+        "connectivity": 4
+      },
+      "expected": {
+        "rows": [
+          "...",
+          ".#.",
+          "..."
+        ]
+      }
+    },
+    {
+      "name": "hole_outside_8",
+      "input": {
+        "opaque": [
+          "###",
+          "#.#",
+          "###"
+        ],
+        "placement": "outside",
+        "connectivity": 8
+      },
+      "expected": {
+        "rows": [
+          "...",
+          ".#.",
+          "..."
+        ]
+      }
+    },
+    {
+      "name": "empty_inside_4",
+      "input": {
+        "opaque": [
+          "...",
+          "..."
+        ],
+        "placement": "inside",
+        "connectivity": 4
+      },
+      "expected": {
+        "rows": [
+          "...",
+          "..."
+        ]
+      }
+    },
+    {
+      "name": "empty_inside_8",
+      "input": {
+        "opaque": [
+          "...",
+          "..."
+        ],
+        "placement": "inside",
+        "connectivity": 8
+      },
+      "expected": {
+        "rows": [
+          "...",
+          "..."
+        ]
+      }
+    },
+    {
+      "name": "empty_outside_4",
+      "input": {
+        "opaque": [
+          "...",
+          "..."
+        ],
+        "placement": "outside",
+        "connectivity": 4
+      },
+      "expected": {
+        "rows": [
+          "...",
+          "..."
+        ]
+      }
+    },
+    {
+      "name": "empty_outside_8",
+      "input": {
+        "opaque": [
+          "...",
+          "..."
+        ],
+        "placement": "outside",
+        "connectivity": 8
+      },
+      "expected": {
+        "rows": [
+          "...",
+          "..."
+        ]
+      }
+    }
+  ]
+}
