@@ -80,6 +80,15 @@ def test_old_single_file_replays_original_result(project):
     assert history.replay(project, "legacy") == {**expected, "replayed": True}
 
 
+def test_undo_redo_keep_compact_restore_targets_without_envelopes(project):
+    ops.execute("set_pixel", project, POINT, preview="none")
+    for name, expected in (("undo", 0), ("redo", 1)):
+        ops.execute(name, project, {}, preview="none")
+        entry = history.read_journal(project, 1)[0]
+        assert entry["restored_revision"] == expected
+        assert "result" not in entry and "replay" not in entry
+
+
 def test_read_only_ops_do_not_lock(project, monkeypatch):
     def forbidden(*args):
         pytest.fail("A read-only Op attempted to acquire the write lock")

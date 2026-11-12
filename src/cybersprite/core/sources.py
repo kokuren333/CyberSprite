@@ -155,7 +155,11 @@ def stage_history(ctx, before_revision, after_revision, restored=None):
                         if p.revision <= revision
                     }
                 elif entry["kind"] in ("undo", "redo"):
-                    prior = (entry.get("result") or {}).get("result", {}).get("restored_revision")
+                    prior = entry.get("restored_revision")
+                    if prior is None:
+                        prior = (
+                            (entry.get("result") or {}).get("result", {}).get("restored_revision")
+                        )
                     revisions = set(states.get(prior, ()))
                 elif any(call["op"] == "import_image" for call in entry.get("ops", [])):
                     revisions = revisions | {revision}

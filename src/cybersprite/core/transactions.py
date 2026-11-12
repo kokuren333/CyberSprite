@@ -351,6 +351,8 @@ def transact(
             label,
             options.idempotency_key,
         )
+        if restored is not None:
+            entry["restored_revision"] = restored
         entries.append(entry)
         writes.extend(
             [

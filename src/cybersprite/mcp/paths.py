@@ -49,6 +49,7 @@ class PathPolicy:
         for name in (
             "project.json",
             ".cybersprite",
+            ".cybersprite/lock",
             ".cybersprite/history",
             ".cybersprite/history/pending.json",
             ".cybersprite/history/state.json",

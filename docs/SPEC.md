@@ -931,7 +931,7 @@ hero.csprite/
 └─ snapshots/r000012.json.gz  そのリビジョンの project.json（gzip）
 ```
 
-- **ジャーナルの 1 行**: `{revision, kind, actor, label, time, idempotency_key, ops, changed, validation_ok, replay}`。`kind` は `tx` / `undo` / `redo` / `external` / `create`。`ops` は適用した Op の名前と引数（1 行が 1 MB を超える場合は、ピクセル列などの大きな引数を SHA-256 に置き換える）。新規の行に成功封筒や画像を含めない。キー付き取引だけ圧縮応答ファイルへの参照を持ち、元の封筒と画像を再送する。旧形式の `result` は互換読取する。索引は末尾の直近1000取引から再構築できる。
+- **ジャーナルの 1 行**: `{revision, kind, actor, label, time, idempotency_key, ops, changed, validation_ok, replay}`。`kind` は `tx` / `undo` / `redo` / `external` / `create`。`ops` は適用した Op の名前と引数（1 行が 1 MB を超える場合は、ピクセル列などの大きな引数を SHA-256 に置き換える）。新規の行に成功封筒や画像を含めない。キー付き取引だけ圧縮応答ファイルへの参照を持ち、元の封筒と画像を再送する。`undo` / `redo` は復元先の `restored_revision` も保存し、sourceの旧履歴復元にも使う。旧形式の `result` は互換読取する。索引は末尾の直近1000取引から再構築できる。
 - **追記と復元**: 編集はジャーナル全体を読み書きしない。履歴ページとGUI通知は必要な末尾だけを読む。8 MiBを超えた区画をロールし、直近1000取引を含む区画を保持する。保存前に対象の旧bytesと追記位置を耐久化し、例外では正本・履歴・付随保存を復元する。異常終了時は次の書込ロック取得後に未完了保存を復元する。読取側は書込ロックを取らず、未完了保存の旧bytesと原子的に置換されたコミット済み正本を読む。未終端の末尾行は書込ロック下で除去し、中間の破損は `E_HISTORY_UNAVAILABLE`。
 - **スナップショット**: コミットごとに、コミット後の `project.json` を保存する。保持するのは直近 200 件、かつ合計 256 MB までで、古いものから消す。
 - **取り消し**: `state.json` に `undo_stack` と `redo_stack`（リビジョン番号の列）を持ち、各スタックはスナップショット保持件数までに制限する。

@@ -33,8 +33,8 @@ def main():
         }
     }
 
-    def record(name, samples):
-        rows[name] = {"ms": samples, "median_ms": statistics.median(samples)}
+    def record(name, samples, **details):
+        rows[name] = {"ms": samples, "median_ms": statistics.median(samples), **details}
         print(json.dumps({name: rows[name]}), flush=True)
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(json.dumps(rows, indent=2) + "\n", encoding="utf-8", newline="\n")
@@ -70,6 +70,7 @@ def main():
                     )
                     for i in range(3)
                 ],
+                journal_bytes=len(data),
             )
         service = MCPService(root=root)
         for mode in ("direct", "mcp"):
