@@ -3,9 +3,30 @@
 import ast
 import subprocess
 import sys
+from importlib.util import resolve_name
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def imported_names(node, path):
+    if isinstance(node, ast.Import):
+        return [item.name for item in node.names]
+    if not isinstance(node, ast.ImportFrom):
+        return []
+    module = node.module or ""
+    if node.level:
+        package = ".".join(path.parent.relative_to(ROOT / "src").parts)
+        try:
+            module = resolve_name("." * node.level + module, package)
+        except ImportError:
+            return ["<invalid relative import>"]
+    if module == "cybersprite":
+        return [
+            module if item.name == "__version__" else module + "." + item.name
+            for item in node.names
+        ]
+    return [module]
 
 
 def violations() -> list[str]:
@@ -17,15 +38,11 @@ def violations() -> list[str]:
     for path in sorted((ROOT / "src/cybersprite/core").glob("**/*.py")):
         tree = ast.parse(path.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
-            names = []
-            if isinstance(node, ast.Import):
-                names = [item.name for item in node.names]
-            elif isinstance(node, ast.ImportFrom) and not node.level:
-                names = [node.module or ""]
-            for name in names:
+            for name in imported_names(node, path):
                 root = name.split(".")[0]
                 if root not in sys.stdlib_module_names | {"numpy", "pydantic"} and not (
-                    name == "cybersprite" or name.startswith("cybersprite.core")
+                    name in {"cybersprite", "cybersprite.core"}
+                    or name.startswith("cybersprite.core.")
                 ):
                     errors.append(
                         f"Forbidden core import {name}: {path.relative_to(ROOT)}:{node.lineno}"

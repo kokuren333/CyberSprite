@@ -347,7 +347,7 @@ def test_lazy_plugins_and_explicit_enable(configured, monkeypatch):
             return Availability(available=True)
 
     entry = SimpleNamespace(name="fake-plugin", load=lambda: loaded.append(True) or Plugin)
-    monkeypatch.setattr("cybersprite.generate.registry.entry_points", lambda **kw: [entry])
+    monkeypatch.setattr("importlib.metadata.entry_points", lambda **kw: [entry])
     registry = BackendRegistry()
     assert registry.describe()["backends"] and loaded == []
     with pytest.raises(CyberSpriteError, match="not enabled"):

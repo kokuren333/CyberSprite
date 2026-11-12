@@ -50,6 +50,8 @@ class MCPService:
         _sdk()  # Initialize protocol models before starting any request deadline.
         self.policy = PathPolicy(root or Path.cwd(), allow_dir)
         self.registry = registry or ops.registry()
+        if registry is None and allow_plugin_op:
+            self.registry.load_plugins(enabled=True, names=allow_plugin_op)
         self.profile, self.read_only = profile, read_only
         self.allow_plugin_op = frozenset(allow_plugin_op)
         self.enable_generation = enable_generation
@@ -318,8 +320,6 @@ def serve(
     """Entry point shared by the M3 CLI and python -m cybersprite.mcp."""
     if transport not in {"stdio", "http"}:
         raise ValueError("transport must be stdio or http")
-    if allow_plugin_op:
-        ops.registry().load_plugins(enabled=True)
     server = create_server(
         root=root,
         allow_dir=allow_dir,

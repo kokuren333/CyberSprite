@@ -347,6 +347,11 @@ def registry():
                     description="Inspect stored source provenance and conversion reports.",
                 )
             )
+        from cybersprite.plugins import PluginManager
+        from cybersprite.plugins.validators import configure_validation
+
+        _registry.configure_plugins(PluginManager(groups=("cybersprite.ops",)))
+        configure_validation()
     return _registry
 
 

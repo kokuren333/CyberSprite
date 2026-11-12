@@ -74,7 +74,7 @@ class ImportArgs(Model):
         "ai", description="Pipeline preset: ai, exact (lossless), upscaled, or photo."
     )
     pipeline: PipelineSettings = Field(
-        default_factory=PipelineSettings,
+        default_factory=lambda: PipelineSettings.model_validate({}),
         description="Documented section overrides; unspecified fields inherit preset values.",
     )
     target: Target = Field(

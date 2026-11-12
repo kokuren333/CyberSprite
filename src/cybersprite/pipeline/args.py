@@ -2,7 +2,7 @@
 
 from typing import Annotated, Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from cybersprite.core.models import Model
 
@@ -17,6 +17,8 @@ Color = (
 
 
 class GridSettings(Model):
+    method: str | None = Field(None, description="Optional plugin grid preprocessing method.")
+    params: dict = Field(default_factory=dict, description="Plugin-specific parameters.")
     mode: Literal["auto", "fixed", "target", "none"] = Field(
         "auto",
         description=(
@@ -56,9 +58,10 @@ class GridSettings(Model):
 
 
 class DownsampleSettings(Model):
-    method: Literal["auto", "center", "median", "mode", "kcentroid", "pixeloe"] = Field(
+    method: str = Field(
         "auto", description="Cell representative method; pixeloe requires a configured plugin."
     )
+    params: dict = Field(default_factory=dict, description="Plugin-specific parameters.")
     alpha_threshold: Byte = Field(
         128, description="Minimum source alpha counted as opaque; a cell needs a majority."
     )
@@ -80,6 +83,8 @@ class BackgroundSettings(Model):
 
 
 class PaletteSettings(Model):
+    method: str | None = Field(None, description="Optional plugin quantization method.")
+    params: dict = Field(default_factory=dict, description="Plugin-specific parameters.")
     mode: Literal["project", "fixed", "extract", "exact"] = Field(
         "extract",
         description=(
@@ -125,6 +130,8 @@ class PaletteSettings(Model):
 
 
 class CleanupSettings(Model):
+    method: str | None = Field(None, description="Optional plugin indexed cleanup method.")
+    params: dict = Field(default_factory=dict, description="Plugin-specific parameters.")
     min_cluster: Positive = Field(
         2, description="Remove smaller same-index components; one disables cleanup."
     )
@@ -164,7 +171,26 @@ class GateSettings(Model):
     )
 
 
+class PluginStepSettings(Model):
+    method: str = Field(description="Registered reconstruct method; replaces grid and downsample.")
+    params: dict = Field(default_factory=dict, description="Plugin-specific parameters.")
+
+
 class PipelineSettings(Model):
+    reconstruct: PluginStepSettings | None = Field(
+        None, description="Optional composite preprocessing before the single quantization step."
+    )
+
+    @model_validator(mode="before")
+    @classmethod
+    def quantize_alias(cls, value):
+        if isinstance(value, dict) and "quantize" in value:
+            value = dict(value)
+            if "palette" in value:
+                raise ValueError("Use either quantize or palette, not both.")
+            value["palette"] = value.pop("quantize")
+        return value
+
     grid: GridSettings = Field(
         default_factory=lambda: GridSettings.model_validate({}),
         description="Grid detection, phase, rational cell counts, and purity.",

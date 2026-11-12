@@ -103,6 +103,10 @@ def test_generation_hook_cannot_receive_command_definition(settings_path, monkey
     import sys
     import types
 
+    from cybersprite.ops import registry
+
+    # Load the shared contracts before replacing the optional runtime package.
+    registry()
     called = []
     module = types.ModuleType("cybersprite.generate")
     module.generate_image = lambda **kwargs: called.append(kwargs)

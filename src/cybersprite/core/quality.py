@@ -1,6 +1,7 @@
 """Deterministic quality rules and full-recomputation validation deltas."""
 
 from collections import Counter, OrderedDict
+from collections.abc import Callable, Iterable
 from functools import lru_cache
 from hashlib import sha256
 from pathlib import Path
@@ -125,6 +126,13 @@ def bbox(mask):
         "w": int(xs[-1] - xs[0] + 1),
         "h": int(ys[-1] - ys[0] + 1),
     }
+
+
+def _no_plugin_rules():
+    return ()
+
+
+plugin_rule_provider: Callable[[], Iterable[Any]] = _no_plugin_rules
 
 
 def report(
@@ -432,6 +440,49 @@ def report(
                             fs=fs,
                         )
                         break
+    plugin_metrics = {}
+    for rule in plugin_rule_provider():
+        severity = settings.severity.get(rule.rule, rule.default_severity)
+        if severity == "off":
+            continue
+        try:
+            findings, measurements = rule.check(
+                p.model_copy(deep=True),
+                list(range(len(p.frames))) if selected_frames is None else list(selected_frames),
+            )
+            if not isinstance(measurements, dict):
+                raise ValueError("validator metrics must be a dictionary")
+            from .canonical import metadata_bytes
+
+            metadata_bytes(measurements)
+            for finding in findings:
+                if not isinstance(finding, dict) or not isinstance(finding.get("message"), str):
+                    raise ValueError("validator findings require a string message")
+                if finding.get("rule", rule.rule) != rule.rule:
+                    raise ValueError("validator findings must use the declared rule ID")
+                where = finding.get("where", {})
+                frames = where.get("frames", [])
+                if not isinstance(frames, list) or any(
+                    type(f) is not int or not 0 <= f < len(p.frames) for f in frames
+                ):
+                    raise ValueError("validator frames must be valid zero-based indices")
+                add(
+                    rule.rule,
+                    finding["message"],
+                    fs=sorted(set(frames)),
+                    layer=where.get("layer"),
+                    box=where.get("bbox"),
+                    points=where.get("points"),
+                    level=severity,
+                )
+            plugin_metrics[rule.rule] = measurements
+        except Exception as error:
+            raise CyberSpriteError(
+                "E_PLUGIN",
+                f"Validator {rule.rule!r} failed: {error}",
+                "Repair or disable this validator plugin before validating again.",
+                {"rule": rule.rule},
+            ) from error
     if rules is not None:
         issues = [i for i in issues if i["rule"] in rules or i["rule"].startswith("S-")]
     if selected_frames is not None:
@@ -483,6 +534,8 @@ def report(
         "non_closed_frames": nonclosed,
         "sources": sources,
     }
+    if plugin_metrics:
+        metrics["plugins"] = plugin_metrics
     return {
         "ok": counts["error"] == 0,
         "revision": p.revision,

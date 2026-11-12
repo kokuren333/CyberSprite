@@ -20,6 +20,8 @@ Python パッケージ `cybersprite` の置き場所。M1〜M9 のヘッドレ�
 
 ## 依存の向き（必ず守る）
 
+R1-C の `core/plugin_loader.py` と `core/plugin_settings.py` は、標準ライブラリと pydantic だけのメタデータ・許可表の低層処理である。公開の設定付き窓口は `plugins.PluginManager`。core は外側の plugins / formats / pipeline を import しない。`tools/check_repository.py` は相対 import も解決してこの境界を監査する。
+
 FIX-5では `core/quality` の内容ハッシュ付きフレーム解析、`validation` の画素行検査、
 `normalize` のトリム、`canonical` の正準行JSONを上限つきのプロセス内キャッシュで再利用する。
 `report(use_cache=False)` で品質報告を全量再計算でき、実Op列による同値性試験を持つ。
