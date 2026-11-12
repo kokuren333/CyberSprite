@@ -284,7 +284,7 @@ Fableは **fixed24 / partially6 / deferred2 / not addressed0**、Codexは **fixe
 | 3 DM知見と品質 | E3/G/GUI、craftはinfo、人間の関門、analyzeは延期 |
 | 4 ダブルレビュー | 全40指摘の表と§5、R2前に仕様を締め直す |
 | 5 原案生成と制作分担 | G、Codex imagegen／Opusの境界と5workflow |
-| 6 参照library／connector | G/DOC、後続発注指示で標準。403は回避せず既存library利用 |
+| 6 参照library／connector | G/DOC、後続発注指示で標準（のちI-2002で標準から外した）。403は回避せず既存library利用 |
 | 7 GPU生成 | F1/F2、BYOW条件・実RTX結果・(b)利用者導入 |
 | 8 ComfyUI | F1、登録workflowのHTTP段階1/2、実機試験残 |
 | 9 ピクセル化OSSの選択肢 | D1/D2：Pixel Art Fixer・proper-pixel-art・PixelOEを `pipeline_steps` の明示選択の段として接続（依存は利用者導入）、@xprite/pixelateは評価のみ。較正コーパス(d)16件と自作原画による中立ベンチ（323入力×5方式×3回）を記録し、既定は内蔵AUTOを維持。非ピクセル拒否率83.3%は未達 |
@@ -570,4 +570,4 @@ e94bd7aではcoreのUbuntu3.12/3.13・Windows3.12が成功、Windows3.13は期�
 
 実装の残件はKNOWN_ISSUESを正本の一覧とし、R1-17/30、importers、offset links、analyze、追加native／sidecars、under/GUI、replace-last、95%関門、性能一部未達、実ComfyUI、M0画面／I-005、全src型検査を完了扱いにしない。理由とI番号は同文書・§2/4/5に記載した。
 
-Fable §6の7項目の状態と、画像入力・48px境界・M13範囲は [REVIEW_REQUEST_2 §6](REVIEW_REQUEST_2.md) にまとめた。I-010/I-012は事後承認待ち、connectorは後続発注指示で標準化済み、画像入力は文章／計測値だけの暫定方針。第9項の原文対応、最終CI、e2e-07、Discord投稿はオーケストレーター／監督者の差込みが残る。これらをR2実施の許可と解釈しない。
+Fable §6の7項目の状態と、画像入力・48px境界・M13範囲は [REVIEW_REQUEST_2 §6](REVIEW_REQUEST_2.md) にまとめた。I-010/I-012は事後承認待ち、connectorは後続発注指示で標準化済み（のちI-2002で標準から外した）、画像入力は文章／計測値だけの暫定方針。第9項の原文対応、最終CI、e2e-07、Discord投稿はオーケストレーター／監督者の差込みが残る。これらをR2実施の許可と解釈しない。
