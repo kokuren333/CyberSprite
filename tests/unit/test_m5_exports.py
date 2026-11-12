@@ -3,12 +3,14 @@
 import json
 import random
 import struct
+from itertools import product
 
 import numpy as np
 import pytest
 
 from cybersprite.core.errors import CyberSpriteError
-from cybersprite.core.models import ImageCel, ImageLayer, Tag
+from cybersprite.core.models import GroupLayer, ImageCel, ImageLayer, Slice, SliceKey, Tag
+from cybersprite.core.projects import new_project
 from cybersprite.core.render import indexed_result, render
 from cybersprite.formats.animation import (
     decode_apng,
@@ -194,6 +196,57 @@ def test_sheet_trim_merge_and_json_contracts(policy, data_format):
         keys = meta["slices"][0]["keys"]
         assert keys[0]["bounds"] == dict(x=0, y=0, w=6, h=5)
         assert "center" not in keys[1] and "pivot" not in keys[1]
+
+
+@pytest.mark.parametrize("mode", ["indexed", "rgba"])
+@pytest.mark.parametrize(
+    "split_layers,split_tags,split_slices,tag",
+    [(*flags, None) for flags in product([False, True], repeat=3)] + [(False, False, False, "T2")],
+)
+def test_native_sheet_names_ids_and_null_references(
+    policy, mode, split_layers, split_tags, split_slices, tag
+):
+    p = new_project(width=2, height=1)
+    cel = ImageCel(frame=0, x=0, y=0, w=2, h=1, pixels=["0102"])
+    p.layers = [
+        GroupLayer(id="L3", name="Group", children=[ImageLayer(id="L1", name="Body", cels=[cel])]),
+        ImageLayer(id="L2", name="Body", cels=[cel.model_copy(deep=True)]),
+    ]
+    p.tags = [Tag(id=f"T{n}", name="歩行", from_=0, to=0) for n in (1, 2)]
+    p.slices = [
+        Slice(id=f"S{n}", name="当たり", keys=[SliceKey(frame=0, x=0, y=0, w=2, h=1)])
+        for n in (1, 2)
+    ]
+    p.id_counters.layer, p.id_counters.tag, p.id_counters.slice = 3, 2, 2
+    result = export_sheet(
+        p,
+        SheetArgs(
+            out="sheet.png",
+            data_out="sheet.json",
+            color_mode=mode,
+            compression="stored",
+            split_layers=split_layers,
+            split_tags=split_tags,
+            split_slices=split_slices,
+            tag=tag,
+        ),
+    )
+    assert result["validation_ok"] and result["verified"]
+    data = json.loads((policy / "sheet.json").read_bytes())
+    expected_refs = list(
+        product(
+            ["L1", "L2"] if split_layers else [None],
+            ["T1", "T2"] if split_tags else [tag],
+            ["S1", "S2"] if split_slices else [None],
+        )
+    )
+    assert [(i["layer_id"], i["tag_id"], i["slice_id"]) for i in data["items"]] == expected_refs
+    for field, collection in (("layer", "layers"), ("tag", "tags"), ("slice", "slices")):
+        names = {entry["id"]: entry["name"] for entry in data[collection]}
+        for item in data["items"]:
+            identifier = item[field + "_id"]
+            assert item[field] == (None if identifier is None else names[identifier])
+    assert [entry["path"] for entry in data["layers"]] == ["Group", "Group/Body", "Body"]
 
 
 def test_sheet_split_order_empty_and_duplicate_names(policy):

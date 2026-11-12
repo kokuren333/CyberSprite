@@ -28,8 +28,11 @@
       "name": "M5 fixture 0",
       "frame": 0,
       "layer": null,
+      "layer_id": null,
       "tag": null,
+      "tag_id": null,
       "slice": null,
+      "slice_id": null,
       "rect": {
         "x": 0,
         "y": 0,
@@ -54,8 +57,11 @@
       "name": "M5 fixture 1",
       "frame": 1,
       "layer": null,
+      "layer_id": null,
       "tag": null,
+      "tag_id": null,
       "slice": null,
+      "slice_id": null,
       "rect": {
         "x": 0,
         "y": 6,
@@ -80,8 +86,11 @@
       "name": "M5 fixture 2",
       "frame": 2,
       "layer": null,
+      "layer_id": null,
       "tag": null,
+      "tag_id": null,
       "slice": null,
+      "slice_id": null,
       "rect": {
         "x": 8,
         "y": 0,
@@ -105,6 +114,7 @@
   ],
   "tags": [
     {
+      "id": "T1",
       "name": "Motion",
       "from": 0,
       "to": 2,
@@ -138,6 +148,7 @@
   ],
   "slices": [
     {
+      "id": "S1",
       "name": "Region",
       "color": "#66778899",
       "keys": [

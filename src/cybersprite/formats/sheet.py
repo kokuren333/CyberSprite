@@ -20,9 +20,9 @@ from .common import bounds, fail, format_name, frame_sequence, name_values, slic
 class Item:
     name: str
     frame: int
-    layer: str | None
-    tag: str | None
-    slice: str | None
+    layer_id: str | None
+    tag_id: str | None
+    slice_id: str | None
     pixels: np.ndarray
     palette: list[str] | None
     source_rect: dict
@@ -250,6 +250,9 @@ def build_sheet(p, a, items):
 def sheet_data(p, a, items, width, height, image):
     size = dict(w=width, h=height)
     if a.data_format == "cybersprite":
+        layer_names = {layer.id: layer.name for layer, _ in walk_layers(p.layers)}
+        tag_names = {tag.id: tag.name for tag in p.tags}
+        slice_names = {slice.id: slice.name for slice in p.slices}
         return dict(
             format="cybersprite-sheet",
             schema_version=1,
@@ -266,9 +269,12 @@ def sheet_data(p, a, items, width, height, image):
                 dict(
                     name=i.name,
                     frame=i.frame,
-                    layer=i.layer,
-                    tag=i.tag,
-                    slice=i.slice,
+                    layer=layer_names[i.layer_id] if i.layer_id is not None else None,
+                    layer_id=i.layer_id,
+                    tag=tag_names[i.tag_id] if i.tag_id is not None else None,
+                    tag_id=i.tag_id,
+                    slice=slice_names[i.slice_id] if i.slice_id is not None else None,
+                    slice_id=i.slice_id,
                     rect=i.rect,
                     trimmed=i.trimmed,
                     source_rect=i.source_rect,
@@ -279,11 +285,7 @@ def sheet_data(p, a, items, width, height, image):
                 for i in items
             ],
             tags=[
-                {
-                    k: v
-                    for k, v in t.model_dump(by_alias=True).items()
-                    if k not in ("id", "user_data")
-                }
+                {k: v for k, v in t.model_dump(by_alias=True).items() if k != "user_data"}
                 for t in p.tags
             ],
             layers=[
@@ -297,7 +299,7 @@ def sheet_data(p, a, items, width, height, image):
                 for layer, anc in walk_layers(p.layers)
             ],
             slices=[
-                dict(name=s.name, color=s.color, keys=[_ordered(k) for k in s.keys])
+                dict(id=s.id, name=s.name, color=s.color, keys=[_ordered(k) for k in s.keys])
                 for s in p.slices
             ],
         )

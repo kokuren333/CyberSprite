@@ -296,7 +296,9 @@ def report(
         add("Q-TIL-01", "Tileset findings: " + "; ".join(tile_findings) + ".")
     if len(p.palette.colors) > settings.palette_max:
         add("Q-PAL-01", "Palette exceeds the configured color budget.")
-    unused = [i for i in range(len(p.palette.colors)) if not usage[i]]
+    unused = [
+        i for i in range(len(p.palette.colors)) if i != p.palette.transparent_index and not usage[i]
+    ]
     if unused:
         add("Q-PAL-02", f"Unused palette indices: {unused}.")
     if len(set(c.lower() for c in p.palette.colors)) < len(p.palette.colors):

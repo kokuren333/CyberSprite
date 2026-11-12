@@ -331,21 +331,34 @@ def test_fast_start_does_not_import_heavy_modules(option):
 
 
 def test_real_uv_stdout_utf8_and_errors(tmp_path):
-    env = {**os.environ, "PYTHONIOENCODING": "ascii"}
-    args = ["uv", "run", "cybersprite"]
+    env = {
+        **os.environ,
+        "PYTHONIOENCODING": "ascii",
+        "CYBERSPRITE_CONFIG_DIR": str(tmp_path / "settings"),
+    }
+    # The test environment is already installed. Sync can rebuild the editable package
+    # and write uv diagnostics to stderr when its freshness changes during the suite.
+    args = ["uv", "run", "--no-sync", "cybersprite"]
     project = tmp_path / "日本語.csprite"
     good = subprocess.run(
         [*args, "new", str(project), "--size", "2x2", "--name", "日本語"],
         cwd=ROOT,
         env=env,
         capture_output=True,
+        timeout=60,
     )
-    assert good.returncode == 0 and good.stderr == b""
+    assert good.returncode == 0, (good.stdout, good.stderr)
+    assert good.stderr == b"", good.stderr
     assert json.loads(good.stdout.decode("utf-8"))["result"]["summary"]["name"] == "日本語"
     bad = subprocess.run(
-        [*args, "-p", str(project), "op", "unknown"], cwd=ROOT, env=env, capture_output=True
+        [*args, "-p", str(project), "op", "unknown"],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        timeout=60,
     )
-    assert bad.returncode == 2 and bad.stderr == b""
+    assert bad.returncode == 2, (bad.stdout, bad.stderr)
+    assert bad.stderr == b"", bad.stderr
     assert json.loads(bad.stdout.decode("utf-8"))["error"]["code"] == "E_UNKNOWN_OP"
 
 

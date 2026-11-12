@@ -180,3 +180,13 @@ main のテスト（2026-11-12 11:00、Windows / Python 3.12）: Python 1160 pas
 - 初回の重い構造検証・クラスタ処理を高速化し、全既存ゴールデンの出力を保持した。最終中央値はCLI189.549ms、transaction1654.159ms、render19.751ms、validate508.282ms、GUI212.382ms、pipeline464.683ms。transaction/GUIは未達で原因と対策をPERFORMANCEに記録。
 - wheelにはGUI index/JS/CSS・41アイコン・全規範データとNOTICE/ライセンス本文を収録。新規venvでmodule/CLIのMCP両入口×2025-06-18/2026-07-28の77ツール、認証付きGUIの実bytes配信を確認した。
 - 判断I-801〜I-807、SPEC変更・新規依存なし。LinuxはI-007により未実行。新規エージェント/作例/最大3回のレビューとmain統合はオーケストレーターの工程。詳細は [M10_IMPLEMENTATION_REPORT.md](M10_IMPLEMENTATION_REPORT.md)。
+
+## FIX-6: マニュアル作成時の整合性修正（2026-11-12）
+
+- `fix6-small` で独自シートの `items[].layer/tag/slice` を名前に統一し、対応する `_id` と `tags[]/slices[]` のIDを追加した。同名・入れ子・日本語名、分割8通りと明示tag指定、nullをindexed/RGBA両方で検査した。互換JSON2形式は不変。
+- Q-PAL-02とunused_paletteから透明番号を除外し、番号0/2、キャッシュ有無、検証デルタ、透明だけの空プロジェクトを固定ベクタで検査した。SPEC §6.4.1の切捨て画素数の格納先はchanged.clipped_pixelsへ訂正した。
+- 実uv試験の空stderr仮定は環境同期のeditable再ビルド通知で破れる。pyprojectのmtime変更だけで再現し、`uv run --no-sync`、設定先隔離、期限・失敗時診断に修正した。再試行なし。
+- `uv run pytest -q --tb=short`: **1411 passed / 2 skipped（283.87秒）**。skipは既存Windowsシンボリックリンク権限2件。Ruff check/format、schema drift、repository、dev/mcp/gui依存監査42件、core/opsのmypy36ファイルとstrict7ファイルが成功。
+- 唯一の更新器で既存15・新規3のgolden期待値を生成して全差分を確認した。既存PNG・画素配列・画素ハッシュ・正本は不変。新しい独自分割PNGは既存互換配列PNGとバイト同一。M5全出力はハッシュシード17/319でも一致した。
+- 実CLIで2×1・2フレーム・透明番号2・日本語タグ/スライスを作成し、検証デルタ・全フレームプレビュー・書出しPNG/JSONを確認した。validation_ok/verified=true、error/warning=0、未使用色0。情報3件は独立同一セルと1画素クラスタの工学ベクタによる意図どおりの指摘として保持。git管理外の `build/fix6-review/` に実ファイルと記録を残した。
+- 判断I-901〜I-904。SPEC変更は付録D.1と§6.4.1、§13.2/13.4。新規依存・外部参照・ビジュアル判断なし。LinuxはI-007のとおり未実行、main統合はオーケストレーターが行う。詳細は [FIX6_IMPLEMENTATION_REPORT.md](FIX6_IMPLEMENTATION_REPORT.md)。

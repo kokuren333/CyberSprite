@@ -222,6 +222,49 @@ def test_background_transparent_index_is_opaque_for_cluster_metrics():
     assert result["metrics"]["opaque_pixels"] == [1]
 
 
+@pytest.mark.parametrize("transparent_index", [0, 2])
+@pytest.mark.parametrize("use_cache", [False, True])
+def test_unused_palette_excludes_only_reserved_transparent_index(transparent_index, use_cache):
+    p = new_project(width=2, height=1)
+    p.palette.transparent_index = transparent_index
+    p.palette.colors[0], p.palette.colors[transparent_index] = (
+        p.palette.colors[transparent_index],
+        p.palette.colors[0],
+    )
+    opaque = [i for i in range(3) if i != transparent_index]
+    p.layers[0].cels = [
+        ImageCel(frame=0, x=0, y=0, w=2, h=1, pixels=["".join(f"{i:02x}" for i in opaque)])
+    ]
+    before = report(p, use_cache=use_cache)
+    assert "Q-PAL-02" not in {i["rule"] for i in before["issues"]}
+    assert before["metrics"]["unused_palette"] == 0
+    assert before["metrics"]["colors_used"] == 2
+
+    p.layers[0].cels[0].pixels = [f"{opaque[0]:02x}" * 2]
+    after = report(p, use_cache=use_cache)
+    issue = next(i for i in after["issues"] if i["rule"] == "Q-PAL-02")
+    assert issue["message"] == f"Unused palette indices: [{opaque[1]}]."
+    assert after["metrics"]["unused_palette"] == 1
+    delta = validation_delta(before, after)
+    assert delta["metrics_delta"]["unused_palette"] == {"before": 0, "after": 1}
+    assert issue in delta["new_issues"]
+
+    p.layers[0].cels[0].pixels = [f"{opaque[0]:02x}{transparent_index:02x}"]
+    used_transparency = report(p, use_cache=use_cache)
+    assert used_transparency["metrics"]["unused_palette"] == 1
+    assert used_transparency["metrics"]["colors_used"] == 2
+
+
+def test_empty_transparent_only_palette_is_not_unused():
+    p = new_project(width=1, height=1)
+    p.palette.colors = ["#00000000"]
+    p.palette.names = {}
+    result = report(p)
+    assert "Q-PAL-02" not in {i["rule"] for i in result["issues"]}
+    assert result["metrics"]["unused_palette"] == 0
+    assert result["metrics"]["colors_used"] == 0
+
+
 @pytest.mark.parametrize("rule", ["Q-PIX-01", "Q-PIX-02"])
 def test_pixel_issues_attribute_a_single_visible_layer(rule):
     from cybersprite.core.models import ImageLayer

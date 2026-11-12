@@ -1,0 +1,184 @@
+{
+  "format": "cybersprite-sheet",
+  "schema_version": 1,
+  "image": "sheet-split-native.png",
+  "size": {
+    "w": 4,
+    "h": 4
+  },
+  "scale": 1,
+  "color_mode": "indexed",
+  "source": {
+    "name": "M5 fixture",
+    "revision": 0,
+    "canvas": {
+      "w": 8,
+      "h": 6
+    }
+  },
+  "palette": [
+    "#00000000",
+    "#102030ff",
+    "#abcdefff",
+    "#f04020ff"
+  ],
+  "transparent_index": 0,
+  "items": [
+    {
+      "name": "Cells-Motion-Region-0",
+      "frame": 0,
+      "layer": "Cells",
+      "layer_id": "L2",
+      "tag": "Motion",
+      "tag_id": "T1",
+      "slice": "Region",
+      "slice_id": "S1",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 2,
+        "h": 2
+      },
+      "trimmed": true,
+      "source_rect": {
+        "x": 1,
+        "y": 1,
+        "w": 2,
+        "h": 2
+      },
+      "source_size": {
+        "w": 8,
+        "h": 6
+      },
+      "duration_ms": 35,
+      "pixel_sha256": "bb6fc7e6074754fdc09873710bd995a0413357a13aaa4b8ff4eb1f5ff8f5dc21"
+    },
+    {
+      "name": "Cells-Motion-Region-1",
+      "frame": 1,
+      "layer": "Cells",
+      "layer_id": "L2",
+      "tag": "Motion",
+      "tag_id": "T1",
+      "slice": "Region",
+      "slice_id": "S1",
+      "rect": {
+        "x": 2,
+        "y": 0,
+        "w": 2,
+        "h": 2
+      },
+      "trimmed": true,
+      "source_rect": {
+        "x": 3,
+        "y": 2,
+        "w": 2,
+        "h": 2
+      },
+      "source_size": {
+        "w": 8,
+        "h": 6
+      },
+      "duration_ms": 60,
+      "pixel_sha256": "5cb4c7850f4227232db1595feaa7c87094536829d149d1af132c500d416c937c"
+    },
+    {
+      "name": "Cells-Motion-Region-2",
+      "frame": 2,
+      "layer": "Cells",
+      "layer_id": "L2",
+      "tag": "Motion",
+      "tag_id": "T1",
+      "slice": "Region",
+      "slice_id": "S1",
+      "rect": {
+        "x": 0,
+        "y": 2,
+        "w": 2,
+        "h": 2
+      },
+      "trimmed": true,
+      "source_rect": {
+        "x": 1,
+        "y": 1,
+        "w": 2,
+        "h": 2
+      },
+      "source_size": {
+        "w": 8,
+        "h": 6
+      },
+      "duration_ms": 100,
+      "pixel_sha256": "bb6fc7e6074754fdc09873710bd995a0413357a13aaa4b8ff4eb1f5ff8f5dc21"
+    }
+  ],
+  "tags": [
+    {
+      "id": "T1",
+      "name": "Motion",
+      "from": 0,
+      "to": 2,
+      "direction": "pingpong",
+      "repeat": 3,
+      "color": "#112233"
+    }
+  ],
+  "layers": [
+    {
+      "id": "L1",
+      "name": "Group",
+      "path": "Group",
+      "opacity": 255,
+      "blend_mode": "normal"
+    },
+    {
+      "id": "L2",
+      "name": "Cells",
+      "path": "Group/Cells",
+      "opacity": 255,
+      "blend_mode": "normal"
+    },
+    {
+      "id": "L3",
+      "name": "Empty",
+      "path": "Empty",
+      "opacity": 255,
+      "blend_mode": "normal"
+    }
+  ],
+  "slices": [
+    {
+      "id": "S1",
+      "name": "Region",
+      "color": "#66778899",
+      "keys": [
+        {
+          "frame": 0,
+          "x": 0,
+          "y": 0,
+          "w": 6,
+          "h": 5,
+          "center": {
+            "x": 1,
+            "y": 1,
+            "w": 2,
+            "h": 2
+          },
+          "pivot": {
+            "x": -1,
+            "y": 2
+          }
+        },
+        {
+          "frame": 2,
+          "x": 1,
+          "y": 0,
+          "w": 6,
+          "h": 5,
+          "center": null,
+          "pivot": null
+        }
+      ]
+    }
+  ]
+}
