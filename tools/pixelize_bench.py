@@ -237,6 +237,22 @@ def detected_step_error(grid, expected_step):
 
 
 def method(name, image, target, directory, xprite_root=None):
+    if name in ("pixel_art_fixer", "proper_pixel_art", "pixeloe"):
+        params = (
+            {"target_w": target[0], "target_h": target[1], "oracle_size": True}
+            if name == "pixeloe"
+            else {}
+        )
+        frames, palette, report = run_pipeline(
+            image,
+            directory,
+            preset="ai",
+            overrides={"reconstruct": {"method": name, "params": params}},
+        )
+        detail = dict(report["steps"][1]["metrics"]["frames"][0])
+        detail.update(accepted=report["accepted"], gates=report["gates"], plugins=report["plugins"])
+        detail["gate_scope"] = "reconstructed output; input grid gates unavailable"
+        return np.asarray(palette, dtype=np.uint8)[frames[0]], detail
     raw, detail = raw_method(name, image, target, directory, xprite_root)
     if name == "builtin":
         return raw, detail
@@ -245,6 +261,9 @@ def method(name, image, target, directory, xprite_root=None):
     )
     detail["downstream"] = "CyberSprite ai palette/cleanup; raw source grid gates not available"
     detail["lock_accepted"] = lock_report["accepted"]
+    detail["accepted"] = lock_report["accepted"]
+    detail["gates"] = lock_report["gates"]
+    detail["gate_scope"] = "reconstructed output; input grid gates unavailable"
     return np.asarray(palette, dtype=np.uint8)[frames[0]], detail
 
 
@@ -270,7 +289,11 @@ def raw_method(name, image, target, directory, xprite_root=None):
             data["height"], data["width"], 4
         ), data["metrics"]
     adapter = importlib.import_module("cybersprite.pipeline.external." + name)
-    params = {"target_w": target[0], "target_h": target[1]} if name == "pixeloe" else {}
+    params = (
+        {"target_w": target[0], "target_h": target[1], "oracle_size": True}
+        if name == "pixeloe"
+        else {}
+    )
     return adapter.run(image, params)
 
 
@@ -325,7 +348,19 @@ def summarize(rows):
     return result
 
 
-def benchmark(output, *, limit=None, smoke=False, repeats=3, xprite_root=None, generated=True):
+def benchmark(
+    output,
+    *,
+    limit=None,
+    smoke=False,
+    repeats=3,
+    xprite_root=None,
+    generated=True,
+    selected_methods=None,
+    resume=False,
+    only_generated=False,
+    generated_repeats=1,
+):
     global _XPRITE_CLIENT
     output.mkdir(parents=True, exist_ok=True)
     methods = ["builtin"]
@@ -343,12 +378,32 @@ def benchmark(output, *, limit=None, smoke=False, repeats=3, xprite_root=None, g
         skipped["xprite"] = (
             "Evaluation-only package not supplied via --xprite-root (no runtime network)."
         )
-    rows = []
-    paths = sorted((CORPUS / "originals").glob("*.png"))
+    if selected_methods:
+        missing = set(selected_methods) - set(methods)
+        if missing:
+            raise RuntimeError(
+                f"Selected benchmark methods unavailable: {sorted(missing)}; {skipped}"
+            )
+        methods = [name for name in methods if name in selected_methods]
+    checkpoint = output / "records.jsonl"
+    prior = (
+        [json.loads(line) for line in checkpoint.read_text(encoding="utf-8").splitlines()]
+        if resume and checkpoint.exists()
+        else []
+    )
+    completed = {(r["source"], r["recipe"], r["method"]): r for r in prior}
+    if not resume:
+        checkpoint.write_bytes(b"")
+    rows = list(completed.values()) if only_generated and resume else []
+    paths = [] if only_generated else sorted((CORPUS / "originals").glob("*.png"))
     for path in paths[:limit] if limit else paths:
         truth = read_rgba(path)
         for recipe, family, image, step in cases(truth, smoke=smoke):
             for name in methods:
+                key = (path.name, recipe, name)
+                if key in completed and len(completed[key].get("runs_ms", [])) == repeats:
+                    rows.append(completed[key])
+                    continue
                 directory = output / path.stem / recipe / name
                 row = {
                     "source": path.name,
@@ -379,6 +434,8 @@ def benchmark(output, *, limit=None, smoke=False, repeats=3, xprite_root=None, g
                             "metrics": compare(result, truth, step, image.shape),
                             "accepted": detail.get("accepted"),
                             "grid": detail.get("grid"),
+                            "gate_scope": detail.get("gate_scope", "input and output"),
+                            "gates": detail.get("gates"),
                         }
                     )
                     row["expected_step"] = step
@@ -389,17 +446,34 @@ def benchmark(output, *, limit=None, smoke=False, repeats=3, xprite_root=None, g
                         from cybersprite.formats.png import encode_png
 
                         directory.mkdir(parents=True, exist_ok=True)
-                        (directory / "result.png").write_bytes(encode_png(result))
+                        (directory / "comparison.png").write_bytes(encode_png(result))
                 except Exception as error:
                     row["error"] = f"{type(error).__name__}: {error}"
                 rows.append(row)
+                with checkpoint.open("a", encoding="utf-8", newline="\n") as stream:
+                    stream.write(json.dumps(row, ensure_ascii=False) + "\n")
             print(path.stem, recipe, flush=True)
     generated_rows = []
+    generated_checkpoint = output / "generated.json"
+    generated_prior = (
+        json.loads(generated_checkpoint.read_text(encoding="utf-8"))
+        if resume and generated_checkpoint.exists()
+        else []
+    )
+    generated_done = {(r["source"], r["method"]): r for r in generated_prior}
     if generated and (CORPUS / "generated/manifest.json").exists():
         manifest = json.loads((CORPUS / "generated/manifest.json").read_text(encoding="utf-8"))
         for entry in manifest["images"]:
             image = read_rgba(CORPUS / "generated" / entry["file"])
             for name in methods:
+                previous = generated_done.get((entry["file"], name))
+                if previous is not None and (
+                    "error" in previous
+                    or "skipped" in previous
+                    or len(previous.get("runs_ms", [])) >= generated_repeats
+                ):
+                    generated_rows.append(previous)
+                    continue
                 if name == "pixeloe":
                     generated_rows.append(
                         {
@@ -410,9 +484,18 @@ def benchmark(output, *, limit=None, smoke=False, repeats=3, xprite_root=None, g
                     )
                     continue
                 try:
-                    result, detail = method(
-                        name, image, None, output / "generated" / entry["id"] / name, xprite_root
-                    )
+                    elapsed, hashes = [], []
+                    for _ in range(generated_repeats):
+                        start = time.perf_counter_ns()
+                        result, detail = method(
+                            name,
+                            image,
+                            None,
+                            output / "generated" / entry["id"] / name,
+                            xprite_root,
+                        )
+                        elapsed.append((time.perf_counter_ns() - start) / 1_000_000)
+                        hashes.append(digest(result))
                     generated_rows.append(
                         {
                             "source": entry["file"],
@@ -423,20 +506,31 @@ def benchmark(output, *, limit=None, smoke=False, repeats=3, xprite_root=None, g
                             "accepted": detail.get("accepted"),
                             "gates": detail.get("gates"),
                             "output_sha256": digest(result),
+                            "runs_ms": elapsed,
+                            "median_ms": statistics.median(elapsed),
+                            "repeat_identical": len(set(hashes)) == 1,
+                            "gate_scope": detail.get("gate_scope", "input and output"),
                         }
                     )
                 except Exception as error:
                     generated_rows.append(
                         {"source": entry["file"], "method": name, "error": str(error)}
                     )
+                generated_checkpoint.write_text(
+                    json.dumps(generated_rows, ensure_ascii=False, indent=2) + "\n",
+                    encoding="utf-8",
+                    newline="\n",
+                )
+                print("generated", entry["id"], name, flush=True)
     report = {
-        "version": 1,
+        "version": 2,
         "seed": 1301,
         "python": platform.python_version(),
         "platform": platform.platform(),
         "numpy": np.__version__,
         "pillow": Image.__version__,
         "repeats": repeats,
+        "generated_repeats": generated_repeats,
         "methods": methods,
         "skipped": skipped,
         "records": rows,
@@ -464,8 +558,12 @@ def main():
         help="User-installed @xprite/pixelate package root (evaluation only).",
     )
     parser.add_argument("--no-generated", action="store_true")
+    parser.add_argument("--methods", nargs="+", help="Require and measure only these methods.")
+    parser.add_argument("--resume", action="store_true", help="Reuse completed three-run records.")
+    parser.add_argument("--only-generated", action="store_true")
+    parser.add_argument("--generated-repeats", type=int, default=1)
     args = parser.parse_args()
-    if args.repeats < 1 or args.limit is not None and args.limit < 1:
+    if args.repeats < 1 or args.generated_repeats < 1 or args.limit is not None and args.limit < 1:
         parser.error("repeats and limit must be positive")
     report = benchmark(
         args.output,
@@ -474,6 +572,10 @@ def main():
         repeats=args.repeats,
         xprite_root=args.xprite_root,
         generated=not args.no_generated,
+        selected_methods=args.methods,
+        resume=args.resume,
+        only_generated=args.only_generated,
+        generated_repeats=args.generated_repeats,
     )
     print(
         json.dumps(

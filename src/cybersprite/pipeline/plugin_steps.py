@@ -163,4 +163,6 @@ class StepRunner:
             records["implementation"] = {
                 key: metrics[0][key] for key in ("name", "version", "license", "level_a")
             }
+            if "params" in metrics[0]:
+                records["implementation"]["params"] = deepcopy(metrics[0]["params"])
         return outputs, {"method": method, "frames": metrics}

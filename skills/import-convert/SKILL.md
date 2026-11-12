@@ -27,7 +27,7 @@
 
 ### 2.2 まず `convert` で試す（プロジェクトは変わらない）
 
-`import_image` は予行（`--dry-run`）を受け付けない。設定を探るときは `convert` を使う。
+`import_image --dry-run` は変換・配置・構造を予行できる（来歴も必要）。設定だけを探るときは、プロジェクトやsourceを保存しない `convert` を使う。
 
 ```powershell
 csp pipeline detect-grid in/slime.png                       # 検出した格子（cell_w、offset、columns×rows、候補）

@@ -157,7 +157,38 @@
         "before": 2,
         "after": 1
       }
-    }
+    },
+    "updated_issues": [
+      {
+        "rule": "Q-PAL-02",
+        "where": {
+          "frames": [],
+          "layer": null,
+          "bbox": null,
+          "points": []
+        },
+        "before": {
+          "count": 2,
+          "level": "info",
+          "message": "Unused palette indices: [1, 2]."
+        },
+        "after": {
+          "count": 1,
+          "level": "info",
+          "message": "Unused palette indices: [2]."
+        }
+      }
+    ],
+    "new_points": [
+      {
+        "rule": "Q-PIX-02",
+        "frame": 0,
+        "layer": "L1",
+        "x": 0,
+        "y": 0
+      }
+    ],
+    "new_points_count": 1
   },
   "preview": {
     "paths": [],

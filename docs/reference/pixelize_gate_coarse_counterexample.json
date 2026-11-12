@@ -1,0 +1,28 @@
+{
+  "records": [
+    {
+      "recipe": "original 8x8 opaque checker; nearest integer scale then kernel121 blur",
+      "scale": 12,
+      "input_span": 96,
+      "columns": 8,
+      "rows": 8,
+      "snap_variance": 1216,
+      "alignment": 916,
+      "current_accepted": true,
+      "exact_recovery": true,
+      "coarse_span_gate_would_reject": true
+    },
+    {
+      "recipe": "original 8x8 opaque checker; nearest integer scale then kernel121 blur",
+      "scale": 16,
+      "input_span": 128,
+      "columns": 8,
+      "rows": 8,
+      "snap_variance": 908,
+      "alignment": 937,
+      "current_accepted": true,
+      "exact_recovery": true,
+      "coarse_span_gate_would_reject": true
+    }
+  ]
+}

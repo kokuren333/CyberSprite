@@ -2220,9 +2220,10 @@ set_cel.linked は error/all/unlink（既定error）。リンク組のx/y/opacit
 | `mode` | プリセットによる | `"auto"`（検出する）、`"fixed"`（`cell_w` `cell_h` `offset_x` `offset_y` を与える）、`"target"`（出力の大きさ `target_w` `target_h` を与え、元画像を等分する）、`"none"`（1 ピクセル = 1 セル） |
 | `min_cell` / `max_cell` | 2 / 64 | 検出するセルの大きさの範囲 |
 | `force_square` | true | セルを正方形に揃える |
-| `harmonic_tolerance` | 850 | 下記の手順 4 で使う（千分率） |
+| `harmonic_tolerance` | 850 | 旧設定互換用（0〜1000）。現行の候補選択では参照しない |
 | `min_peak` | 1500 | 正規化選択の各軸 `score` の下限（`peak` の下限ではない）。完全整数境界の補正経路では使わない |
 | `purity_tolerance` | 16 | セル純度の許容差 |
+| `candidate_agreement` | 950 | 各軸の上位2候補のscore比（千分率）。下記のambiguous警告に使い、選択結果は変えない |
 
 #### 11.3.2 検出の手順（`mode: "auto"`）
 
@@ -2248,7 +2249,9 @@ set_cel.linked は error/all/unlink（既定error）。リンク組のx/y/opacit
 
 候補列はAをN昇順、次にBをs・o昇順で作り、指定した比較キーが同じなら先の候補を採る。非正方形では各軸の最大scoreを独立に採る。正方形のB比較で使う最良A組はセル数補正前のscore合計で決める。最終の順位は手順5のscore合計に `min(4,round(WQx/Px),round(HQy/Py))` を掛ける（roundは正数の四捨五入）。上位5件は `−score,−peak,cell,offset` の順。言語非依存ベクタは `tests/vectors/grid/`。
 
-完全境界の補正候補は「非ゼロ差分位置を全て境界に含む、かつ保持セルの長さの合計が軸長nと一致する」ものとする。`force_square=false` ではA/B両方を周期P/Q昇順、同周期ではB優先・位相昇順で安定整列し、各軸の末尾を選ぶ。両軸で補正候補が揃った場合だけ通常選択を省略する。
+完全境界の補正候補は「非ゼロ差分位置を全て境界に含む、かつ保持セルの長さの合計が軸長nと一致する」ものとする。`force_square=false` ではA/B両方を周期P/Q昇順（分子・分母の交差積で比較）、同周期ではBを先・Aを後、同系統では位相昇順で安定整列し、各軸の末尾を選ぶ。両軸で補正候補が揃った場合だけ通常選択を省略する。
+
+`ambiguous` はautoで検出済み・完全境界の補正でない場合だけ判定する。いずれかの軸の上位2候補で `score_2×1000 >= score_1×candidate_agreement`、かつ周期の有理数が異なる場合にtrueとする。周期の相違は分子・分母の交差積で比較する。この印は関門の警告であり、選択を失敗へ変えない。
 
 #### 11.3.3 グリッド整合スコア（セル純度）
 
@@ -2282,7 +2285,7 @@ set_cel.linked は error/all/unlink（既定error）。リンク組のx/y/opacit
 | `mode` | 内側の不透明ピクセルを、各チャンネル上位 5 ビットの値でまとめ、最も多いまとまり（同数なら値の小さい方）に属するピクセルのチャンネルごとの中央値 |
 | `kcentroid` | 内側の不透明ピクセルを 2 群に分け（初期値は R+G+B が最小のピクセルと最大のピクセル。4 回繰り返し、各回で各ピクセルを RGB の差の絶対値の和が近い方に割り当て、群の代表をチャンネルごとの中央値に更新する）、数の多い群（同数なら中心のピクセルを含む群）の代表を採る |
 | `pixeloe` | 有効な `downsample.pixeloe`（または `pixeloe`）entry point に委ねる。未登録方式は利用可能方式を列挙して `E_INVALID_ARGS`、登録済み実装の読込・実行失敗は `E_PLUGIN` |
-| `auto` | グリッドが検出または指定されていて `grid_score ≥ 990` なら `center`。それ以外でグリッドがあれば `mode`。`grid.mode` が `"target"` の場合は、PixelOE プラグインがあれば `pixeloe`、なければ `kcentroid` |
+| `auto` | グリッドが検出または指定されていて `grid_score ≥ 990` なら `center`。それ以外でグリッドがあれば `mode`。`grid.mode` が `"target"` の場合は、有効な `downsample.pixeloe`（または `pixeloe`）entry pointがあれば `pixeloe`、なければ `kcentroid`。同梱の `reconstruct.pixeloe` は明示選択だけで使う |
 
 - セルのアルファ: 内側のピクセルのうち不透明なものが半数以上なら不透明、そうでなければ透明。透明なセルの色は `(0, 0, 0, 0)`。
 - 背景の除去は縮小後の画像に対して行う。背景色に（許容差の範囲で）一致し、かつ画像の外周から上下左右につながっているピクセルを透明にする。
@@ -2353,7 +2356,7 @@ Bayer の場合、ピクセル `(x, y)` について、最も近い色 `c1`（�
 このステップは、アセットごとの判断を**設定として明示し、記録する**ためのものである。
 
 - **ディザ**: 使うかどうかと種類（適用自体はステップ 3 の色の割り当ての中で行われる）。既定は使わない。
-- **輪郭**: `outline = {mode, color}`。`"keep"`（既定。何もしない）、`"add"`（§6.4.11 の外側アウトラインを、指定した色で付ける。色はパレットになければ追加する）。輪郭を保ったまま縮小したい場合は、ステップ 2 で `pixeloe` を選ぶ。
+- **輪郭**: `outline = {mode, color}`。`"keep"`（既定。何もしない）、`"add"`（§6.4.11 の外側アウトラインを、指定した色で付ける。色はパレットになければ追加する）。輪郭を重視する縮小の候補として、`reconstruct.pixeloe`（§11.13）を明示選択できる。
 - 報告には、選んだ設定と、選んだ主体（プリセットの既定か、呼び出し元の指定か）を書く。
 
 ### 11.8 ステップ 6: 検証と関門
@@ -2403,6 +2406,8 @@ Bayer の場合、ピクセル `(x, y)` について、最も近い色 `c1`（�
 
 R1-D1の実行時既定は較正版5とする。版4の547件の正例・指標ベクタは変更せず参照を保持し、版5のAUTO最終関門の結果・時間切れ・未達条件は `tests/pipeline/CALIBRATION.md` に記録する。コーパス(d)の追加と95%条件の達成は別の完了条件であり、版番号の更新だけで較正合格とは扱わない。
 
+R1-D2でも95%条件は未達であり、版5の閾値を維持する。(e)の通過2件は風景写真と球体。境界整合度下限308は(e)を12/12拒否にするが(d)の合格を8/13から2/13へ下げる。短辺12セル未満かつsnap残差100超という追加条件は(d)を維持する一方、heart/gem/keyの57劣化入力中、従来合格の8件を新たに拒否する。さらに入力span96以上・短辺12セル未満・残差300超へ限定しても、8×8の自作checkerを12/16倍に拡大してblurした完全復元可能な2入力を追加拒否する。正例を犠牲にするため採用しない。測定と既知問題の文言は `docs/R1_D2_IMPLEMENTATION_REPORT.md`。
+
 ### 11.10 プリセット
 
 | 設定 | `exact` | `upscaled` | `ai` | `photo` |
@@ -2446,7 +2451,8 @@ R1-D1の実行時既定は較正版5とする。版4の547件の正例・指標�
 - プラグインのステップ（PixelOE など）は、浮動小数や GPU を使うため、環境が違うと結果が変わりうる。報告にプラグインの版と実行デバイスを記録し、**変換結果を `result.png` として保存する**ことで、プロジェクトの再現性はプラグインの再実行に依存しないようにする。
 - 外部アダプターは `reconstruct.pixel_art_fixer` / `reconstruct.proper_pixel_art` / `reconstruct.pixeloe` として自パッケージのentry pointに登録する。通常の許可設定を適用し、依存は選択時までimportしない。未導入は `available()` の導入方法・ライセンス注意をhintに含む `E_PLUGIN`。設定は `reconstruct: {method, params}`。PixelOEは明示的な `params.target_w,target_h` が必須（`oracle_size` は既定false、既知の正解寸法を渡す評価だけtrueとする）。既定の内蔵方式を自動的に置換しない。
 - 純関数境界 `run(rgba, params) -> (RGBA, metrics)`、`available() -> (bool, reason)`、`describe() -> {name, version, license, level_a}` を提供する。proper-pixel-artは全フレームをまとめて呼び、最頻mesh（同数は先頭）と共有色の厳密和集合を使う。外部側の減色を無効化し、正本への量子化・パレットロックは組み込み処理で一度だけ行う。浮動小数を使う外部実装は `level_a: false`。依存宣言・同梱をせず、利用者導入を検出する。動画APIは呼び出さない。
-- 報告の `plugins[].implementation` に実アダプター名・上流版・ライセンス・level_aを記録し、wrapperの配布版と区別する。方式・params・決定性とともにsourceにも保持する。Fixerのdetect JSONの `step_x,step_y,cols,rows,consensus` はstage2の各frame metricsのgridに残す。reconstruct経路の共通gridは出力のnone格子であり、入力格子の純度・整合度の合否を評価したものではない。
+- PixelOEはCPUのTorch経路だけを初期化する。呼出スレッド限定の一時finderで `pixeloe.slang` の任意importを上流のImportError fallbackへ導き、終了時にfinderを除く。GPU初期化のネイティブstdoutや、stdoutへ結び付いたPython loggerをCLI/MCPのJSONへ混ぜない。process-wideなstdoutハンドルは変更しない。
+- 報告の `plugins[].implementation` に実アダプター名・上流版・ライセンス・level_a・実効paramsを記録し、wrapperの配布版と区別する。方式・利用者指定params・決定性とともにsourceにも保持する。Fixerのdetect JSONの `step_x,step_y,cols,rows,consensus` はstage2の各frame metricsのgridに残す。reconstruct経路の共通gridは出力のnone格子であり、報告に `gate_scope: "reconstructed-output"` と `input_grid_evaluated: false` を付ける。入力格子の純度・整合度の合否を評価したものではない。
 
 ---
 
@@ -2935,6 +2941,7 @@ tests/golden/<ケース名>/
 - パイプラインは組み込み方式を先に解決し、その他は登録名 `<ステップ>.<方式>`（方式名だけも可）を読む。ステップは `grid` / `downsample` / `quantize` / `cleanup` / `reconstruct`、実装は `step`、`method`、`level_a: bool`、`run(image, params) -> (image, metrics)` を持つ。方式固有の引数は各節の `params`。`quantize` は既存の `palette` 節で選択する（`quantize` 節も同義）。`reconstruct` は grid と downsample を置換し、量子化は後段で一度だけ行う。
 - 画像契約は RGBA `uint8[H,W,4]`、量子化の出力と cleanup の入出力は `IndexedImage(pixels: uint8[H,W], palette: RGBAタプルの列)`。フレーム間で寸法・パレットを一致させる。cleanup はパレットを変えない。量子化は既存パレットの接頭辞と透明番号を保持し、project モードでは追加しない。プラグイン内部の浮動小数は許すが、同一環境・同一入力で決定的でなければならない。
 - 任意の `run_frames(images, params) -> (images, metricsの列)` があれば全フレームを1回で渡す。返却フレーム数・指標数は入力と一致させ、通常と同じ型・寸法・パレット検査を通す。未定義時は従来のフレームごとのrunを使う。共有格子が必要なproper-pixel-artはこの契約を使う。
+- stepのfactory/runが明示的に返す `CyberSpriteError` はコード・hintを保持する。未分類の例外と画像契約違反は `E_PLUGIN` にする。利用者の引数不正と、実装未導入の具体的な次の操作を隠さない。
 - プラグインの配布名・版・登録名・方式・引数・決定性を報告の `plugins` に記録し、その報告を source の来歴にも保存する。水準 A を申告しない実装は `W_PLUGIN_DETERMINISM` と `determinism: "same-platform"` を返す。同梱の任意アダプタも自パッケージの entry point と同じ契約で登録する。
 - 検証実装は `rule`、`default_severity`、`check(document, frame_range) -> (issues, metrics)`。規則 ID は `Q-<登録名>-nn` とし、組み込み・他の登録済み規則との ID 衝突は `E_PLUGIN` とする。metrics は `metrics.plugins[規則ID]` に置く。通常の水準上書き・絞込・デルタに含める。文書は独立コピーで渡す。
 - パレットの factory は `{name, colors, license, names?}` の列を返す。名前衝突は拒否し、組み込みと同じ読取入口で使える。ライセンス未指定時は配布メタデータの表示を使う。

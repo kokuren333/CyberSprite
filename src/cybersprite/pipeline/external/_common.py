@@ -1,15 +1,59 @@
 """Validation and lazy loading for user-installed, non-Level-A tools."""
 
 import importlib
+import logging
+import sys
 from contextlib import contextmanager
+from importlib.abc import MetaPathFinder
 from importlib.metadata import PackageNotFoundError, version
-from threading import RLock
+from threading import RLock, get_ident
 
 import numpy as np
 
 from cybersprite.core.errors import CyberSpriteError, invalid
 
 LOCK = RLock()
+
+
+@contextmanager
+def without_optional_namespace(namespace):
+    """Let a CPU-only upstream import use its optional-backend ImportError fallback.
+
+    The finder applies only to this thread and is removed even after import failure.
+    Never redirect process-wide native stdout: it may carry another MCP response.
+    """
+    owner = get_ident()
+
+    class ExcludeOptional(MetaPathFinder):
+        def find_spec(self, fullname, path=None, target=None):
+            if get_ident() == owner and (
+                fullname == namespace or fullname.startswith(namespace + ".")
+            ):
+                raise ModuleNotFoundError(
+                    f"CPU-only adapter does not initialize optional backend {fullname}.",
+                    name=fullname,
+                )
+            return None
+
+    with LOCK:
+        finder = ExcludeOptional()
+        sys.meta_path.insert(0, finder)
+        try:
+            yield
+        finally:
+            sys.meta_path.remove(finder)
+
+
+@contextmanager
+def muted_logger(name):
+    """Keep upstream handlers bound to stdout from corrupting CLI/MCP JSON."""
+    logger = logging.getLogger(name)
+    previous = logger.disabled
+    logger.disabled = True
+    try:
+        yield
+    finally:
+        logger.disabled = previous
 
 
 def describe(name, distribution, license):

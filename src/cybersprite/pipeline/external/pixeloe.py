@@ -9,7 +9,8 @@ INSTALL = (
 
 
 def available():
-    return common.available("pixeloe.torch.pixelize", INSTALL)
+    with common.without_optional_namespace("pixeloe.slang"):
+        return common.available("pixeloe.torch.pixelize", INSTALL)
 
 
 def describe():
@@ -31,10 +32,11 @@ def run(rgba, params):
     thickness = params.get("thickness", 2)
     if type(thickness) is not int or not 0 <= thickness <= 8:
         raise common.invalid("PixelOE thickness must be an integer from 0 to 8.")
-    module = common.load("pixeloe.torch.pixelize", INSTALL)
+    with common.without_optional_namespace("pixeloe.slang"):
+        module = common.load("pixeloe.torch.pixelize", INSTALL)
     torch = common.load("torch", INSTALL)
     functional = common.load("torch.nn.functional", INSTALL)
-    with common.LOCK:
+    with common.LOCK, common.muted_logger("PixelOE"):
         threads = torch.get_num_threads()
         deterministic = torch.are_deterministic_algorithms_enabled()
         warn_only = torch.is_deterministic_algorithms_warn_only_enabled()
@@ -71,6 +73,17 @@ def run(rgba, params):
         "torch_version": str(torch.__version__),
         "torch_threads": 1,
         "seed": 0,
+        "params": {
+            "target_w": width,
+            "target_h": height,
+            "pixel_size": size,
+            "thickness": thickness,
+            "oracle_size": oracle,
+            "backend": "torch",
+            "do_quant": False,
+            "do_color_match": False,
+            "no_post_upscale": True,
+        },
         "oracle_size": oracle,
         "target_size": [width, height],
         "quantized": False,

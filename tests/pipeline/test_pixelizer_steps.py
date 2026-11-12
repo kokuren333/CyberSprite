@@ -102,6 +102,7 @@ def test_bundled_proper_batch_and_report(enabled, monkeypatch, tmp_path):
     assert report["plugins"][0]["implementation"]["version"] == "test-2.0.0"
     assert report["plugins"][0]["level_a"] is False
     assert report["determinism"] == "same-platform"
+    assert report["gate_scope"] == "reconstructed-output" and not report["input_grid_evaluated"]
     assert len(report["steps"][1]["metrics"]["frames"]) == 2
 
 
@@ -119,6 +120,42 @@ def test_batch_cannot_drop_frames():
         runner.run("reconstruct", "bad", [np.zeros((2, 2, 4), dtype=np.uint8)] * 2, {})
 
 
+def test_benchmark_preserves_indexed_pipeline_file(enabled, monkeypatch, tmp_path):
+    from cybersprite.formats.png import decode_png
+    from tools.pixelize_bench import benchmark
+
+    monkeypatch.setattr(proper_pixel_art, "available", lambda: (True, "test runtime"))
+    monkeypatch.setattr(
+        proper_pixel_art,
+        "run",
+        lambda images, params: (
+            [im[::2, ::2] for im in images],
+            {
+                "name": "proper-pixel-art",
+                "version": "test-2.0.0",
+                "license": "MIT",
+                "level_a": False,
+            },
+        ),
+    )
+    result = benchmark(
+        tmp_path / "bench",
+        limit=1,
+        smoke=True,
+        repeats=1,
+        generated=False,
+        selected_methods=["proper_pixel_art"],
+    )
+    assert len(result["records"]) == 3
+    for row in result["records"]:
+        assert "error" not in row
+        directory = (
+            tmp_path / "bench" / row["source"].removesuffix(".png") / row["recipe"] / row["method"]
+        )
+        assert decode_png((directory / "result.png").read_bytes()).pixels.ndim == 2
+        assert decode_png((directory / "comparison.png").read_bytes()).pixels.ndim == 3
+
+
 @pytest.mark.parametrize("name", ["pixel_art_fixer", "proper_pixel_art", "pixeloe"])
 def test_real_registered_pipeline(enabled, tmp_path, name):
     from importlib import import_module
@@ -129,9 +166,14 @@ def test_real_registered_pipeline(enabled, tmp_path, name):
         pytest.skip(reason)
     image = np.zeros((64, 64, 4), dtype=np.uint8)
     image[16:48, 16:48] = (200, 100, 40, 255)
+    images = image
+    if name == "proper_pixel_art":
+        second = image.copy()
+        second[16:48, 16:48] = (40, 200, 100, 255)
+        images = [image, second]
     params = {"target_w": 8, "target_h": 8} if name == "pixeloe" else {}
     frames, palette, report = run_pipeline(
-        image,
+        images,
         tmp_path / name,
         preset="ai",
         overrides={"reconstruct": {"method": name, "params": params}},
@@ -139,5 +181,13 @@ def test_real_registered_pipeline(enabled, tmp_path, name):
     assert frames[0].size and palette
     record = report["plugins"][0]
     assert record["implementation"]["version"] != "uninstalled"
+    assert (
+        record["implementation"]["params"] == report["steps"][1]["metrics"]["frames"][0]["params"]
+    )
     assert record["method"] == name and record["level_a"] is False
     assert report["verified"]
+    if name == "proper_pixel_art":
+        assert len(frames) == 2 and frames[0].shape == frames[1].shape
+        metrics = report["steps"][1]["metrics"]["frames"]
+        assert metrics[0]["grid"] == metrics[1]["grid"]
+        assert metrics[0]["shared_palette"] == metrics[1]["shared_palette"]

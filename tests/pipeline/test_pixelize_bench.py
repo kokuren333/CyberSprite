@@ -78,6 +78,21 @@ def test_bench_three_cases(tmp_path):
     assert (tmp_path / "results.json").is_file()
 
 
+def test_benchmark_resume_reuses_completed_measurements(tmp_path, monkeypatch):
+    import json
+
+    import tools.pixelize_bench as bench
+
+    first = benchmark(tmp_path, limit=1, smoke=True, repeats=1, generated=False)
+
+    def unexpected(*args, **kwargs):
+        raise AssertionError("Completed benchmark cases must not execute twice on resume.")
+
+    monkeypatch.setattr(bench, "method", unexpected)
+    resumed = benchmark(tmp_path, limit=1, smoke=True, repeats=1, generated=False, resume=True)
+    assert resumed["records"] == json.loads(json.dumps(first["records"]))
+
+
 def test_calibration_timeouts_are_not_gate_rejections(tmp_path, monkeypatch):
     import json
     import subprocess

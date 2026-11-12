@@ -464,6 +464,9 @@ def _run(images, directory, source_id, preset, overrides, project, position):
                 }
             )
     report["configuration"] = origin
+    if "reconstruct" in settings:
+        report["gate_scope"] = "reconstructed-output"
+        report["input_grid_evaluated"] = False
     report["stage_paths"] = stage_paths
     report["verified"] = True
     if capacity_failure:

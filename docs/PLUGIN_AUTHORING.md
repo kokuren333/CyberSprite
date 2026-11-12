@@ -13,7 +13,7 @@
 
 利用者の `config.toml` に `[plugins] enabled = ["downsample.example"]` を書く。`disabled` に同じ名前があれば拒否が優先する。同梱する optional extra のアダプタも本体の entry point に登録し、依存の import は factory 内まで遅らせる。
 
-entry point の対象はオブジェクト、または引数なし factory とする。**factory 自身**（クラスならクラス属性）に整数 `plugin_api = 1` を付ける。戻り値だけへの宣言では呼出前の互換検査ができない。読込・登録・実行の失敗は `E_PLUGIN`。factory は副作用を残さないように実装する。ローダーが戻すのは内部登録だけであり、第三者コードの任意の外部副作用は取り消せない。
+entry point の対象はオブジェクト、または引数なし factory とする。**factory 自身**（クラスならクラス属性）に整数 `plugin_api = 1` を付ける。戻り値だけへの宣言では呼出前の互換検査ができない。読込・登録・実行の未分類例外は `E_PLUGIN`。明示した `CyberSpriteError` はコードとhintを保持する（例: 引数不正の `E_INVALID_ARGS`、未導入の導入案内つき `E_PLUGIN`）。factory は副作用を残さないように実装する。ローダーが戻すのは内部登録だけであり、第三者コードの任意の外部副作用は取り消せない。
 
 一覧は distribution の名前・版・`License-Expression` → `License` → license classifier の順の表示を使い、コードを実行しない。任意の配布メタデータ `CyberSprite-Plugin-API: 1` は事前の互換判定に使える。未記載は未検査であり、実行時の検査は省略しない。distribution は導入後に固定し、変更したらプロセスを再起動する。
 
