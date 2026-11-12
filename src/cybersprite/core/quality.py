@@ -1,6 +1,6 @@
 """Deterministic quality rules and full-recomputation validation deltas."""
 
-from collections import Counter, OrderedDict, deque
+from collections import Counter, OrderedDict
 from functools import lru_cache
 from hashlib import sha256
 from pathlib import Path
@@ -9,6 +9,7 @@ from typing import Any
 
 import numpy as np
 
+from .components import clusters
 from .errors import CyberSpriteError
 from .models import GroupLayer, ImageLayer, LinkCel, Sources
 from .pixels import rgba, tiles_from_rows
@@ -41,10 +42,15 @@ DEFAULT_LEVELS = {
     "Q-SRC-03": "error",
 }
 
-# Derived data only: at most 64 frames / 262144 pixels (including component points).
+# Derived frame LRU: array payloads plus a conservative per-entry metadata budget.
 _FRAME_CACHE: OrderedDict[bytes, Any] = OrderedDict()
 _FRAME_CACHE_LOCK = Lock()
-_FRAME_CACHE_PIXELS = 262144
+_FRAME_CACHE_BYTES = 256 * 1024 * 1024
+
+
+def _frame_bytes(value):
+    indexed, rgba_image, components, _closed, _attributions = value
+    return indexed.nbytes + rgba_image.nbytes + components.nbytes + 4096
 
 
 @lru_cache(maxsize=256)
@@ -83,21 +89,15 @@ def _frame_analysis(p, f, signature, use_cache):
     assert indexed.palette is not None
     if rgba(indexed.palette[transparent])[3] != 0:
         transparent = -1
-    components = tuple(
-        tuple(tuple(pt) for pt in part) for part in clusters(indexed.pixels, transparent)
-    )
+    components = clusters(indexed.pixels, transparent)
     indexed.pixels.flags.writeable = False
     rgba_image.flags.writeable = False
-    value = indexed, rgba_image, components, closed
-    area = p.canvas.width * p.canvas.height
-    if use_cache and area <= _FRAME_CACHE_PIXELS:
+    # At most two attribution entries: orphan selection and the last small-cluster threshold.
+    value = indexed.pixels, rgba_image, components, closed, {}
+    if use_cache and _frame_bytes(value) <= _FRAME_CACHE_BYTES:
         with _FRAME_CACHE_LOCK:
             _FRAME_CACHE[key] = value
-            while (
-                len(_FRAME_CACHE) > 64
-                or sum(item[1].shape[0] * item[1].shape[1] for item in _FRAME_CACHE.values())
-                > _FRAME_CACHE_PIXELS
-            ):
+            while sum(_frame_bytes(item) for item in _FRAME_CACHE.values()) > _FRAME_CACHE_BYTES:
                 _FRAME_CACHE.popitem(last=False)
     return value
 
@@ -115,48 +115,16 @@ def cached_frame_rgba(project, frame, signature=None):
 
 
 def bbox(mask):
-    ys, xs = np.nonzero(mask)
+    ys = np.flatnonzero(np.any(mask, axis=1))
+    xs = np.flatnonzero(np.any(mask, axis=0))
     if not len(xs):
         return None
     return {
-        "x": int(xs.min()),
-        "y": int(ys.min()),
-        "w": int(xs.max() - xs.min() + 1),
-        "h": int(ys.max() - ys.min() + 1),
+        "x": int(xs[0]),
+        "y": int(ys[0]),
+        "w": int(xs[-1] - xs[0] + 1),
+        "h": int(ys[-1] - ys[0] + 1),
     }
-
-
-def clusters(image, ti):
-    # Python integers/bytearrays avoid a NumPy scalar operation per neighbour.
-    # Keep the original row seed order and breadth-first neighbour order.
-    values = image.tolist()
-    h, w = image.shape
-    seen = [bytearray(w) for _ in range(h)]
-    result = []
-    for y in range(h):
-        for x in range(w):
-            if seen[y][x] or values[y][x] == ti:
-                continue
-            value = values[y][x]
-            seen[y][x] = 1
-            queue = deque([(x, y)])
-            points = []
-            while queue:
-                px, py = queue.popleft()
-                points.append([px, py])
-                for dy in (-1, 0, 1):
-                    for dx in (-1, 0, 1):
-                        nx, ny = px + dx, py + dy
-                        if (
-                            0 <= nx < w
-                            and 0 <= ny < h
-                            and not seen[ny][nx]
-                            and values[ny][nx] == value
-                        ):
-                            seen[ny][nx] = 1
-                            queue.append((nx, ny))
-            result.append(points)
-    return result
 
 
 def report(
@@ -314,11 +282,11 @@ def report(
         if not use_cache or signature != previous_signature or cached is None:
             cached = _frame_analysis(p, f, signature, use_cache)
             previous_signature = signature
-        indexed, rgba_image, components, closed = cached
+        indexed, rgba_image, components, closed, attributions = cached
         if not closed:
             nonclosed += 1
             add("Q-LYR-01", "Frame is not palette closed.", fs=[f])
-        image = indexed.pixels
+        image = indexed
         color_count = len(np.unique(image))
         colors_per_frame.append(color_count)
         if (
@@ -327,42 +295,50 @@ def report(
         ):
             add("Q-PAL-05", "Frame exceeds the configured color count.", fs=[f])
         # Cluster metrics require an indexed frame; nearest is the explicit diagnostic fallback.
-        orphan_points = [part[0] for part in components if len(part) == 1]
-        small = [part for part in components if len(part) < settings.min_cluster]
-        orphans.append(len(orphan_points))
-        small_total += len(small)
+        orphan = components.sizes == 1
+        small = components.sizes < settings.min_cluster
+        orphan_count = int(np.count_nonzero(orphan))
+        small_count = int(np.count_nonzero(small))
+        orphans.append(orphan_count)
+        small_total += small_count
 
-        def pixel_layer(points, frame=f):
+        def pixel_layer(
+            selected, kind, threshold, frame=f, components=components, attributions=attributions
+        ):
             # Composite clusters can span several layers or blended contributions.
             # Attribute only when all reported pixels have one unambiguous contributor.
+            with _FRAME_CACHE_LOCK:
+                previous = attributions.get(kind)
+                if previous is not None and previous[0] == threshold:
+                    return previous[1]
             contributors = []
+            mask = components.mask(selected)
             for node, _ in nodes:
                 if isinstance(node, GroupLayer):
                     continue
                 pixels = render(p, frame, {"layers": [node.id]})
-                if any(pixels[y, x, 3] for x, y in points):
+                if np.any(pixels[:, :, 3][mask]):
                     contributors.append(node.id)
-            return contributors[0] if len(contributors) == 1 else None
+            owner = contributors[0] if len(contributors) == 1 else None
+            with _FRAME_CACHE_LOCK:
+                attributions[kind] = (threshold, owner)
+            return owner
 
-        if (
-            settings.orphan_pixels_max is not None
-            and len(orphan_points) > settings.orphan_pixels_max
-        ):
+        if settings.orphan_pixels_max is not None and orphan_count > settings.orphan_pixels_max:
             add(
                 "Q-PIX-01",
                 "Frame exceeds the orphan pixel budget.",
                 fs=[f],
-                layer=pixel_layer(orphan_points),
-                points=orphan_points,
+                layer=pixel_layer(orphan, "orphan", 1),
+                points=components.points(orphan),
             )
-        if small:
-            small_points = [pt for part in small for pt in part]
+        if small_count:
             add(
                 "Q-PIX-02",
                 "Frame has clusters below min_cluster.",
                 fs=[f],
-                layer=pixel_layer(small_points),
-                points=small_points,
+                layer=pixel_layer(small, "small", settings.min_cluster),
+                points=components.points(small),
             )
         opaque = rgba_image[:, :, 3] != 0
         opaque_counts.append(int(np.count_nonzero(opaque)))

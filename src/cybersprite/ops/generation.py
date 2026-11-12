@@ -6,7 +6,6 @@ from cybersprite.core.errors import invalid
 from cybersprite.core.models import Model
 from cybersprite.core.registry import EmptyResult, Op
 from cybersprite.generate.contracts import GenerationRequest
-from cybersprite.generate.registry import BackendRegistry
 
 
 class BackendResult(Model):
@@ -24,12 +23,18 @@ def _top_only(_ctx, _args):
     raise invalid("generate_image must be invoked as a top-level call.")
 
 
+def _list_generators(_ctx, _args):
+    from cybersprite.generate.registry import BackendRegistry
+
+    return BackendRegistry().describe()
+
+
 def register_generators(registry):
     registry.register(
         Op(
             "list_generators",
             EmptyResult,
-            lambda _ctx, _args: BackendRegistry().describe(),
+            _list_generators,
             BackendResult,
             "query",
             "R",

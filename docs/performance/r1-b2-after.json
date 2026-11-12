@@ -1,0 +1,631 @@
+{
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.10",
+  "numpy": "2.3.4",
+  "workspace_revision": "9feb3cd4bb42ec3c9e31fceb2cea84be8034ace5",
+  "source_revision": "9feb3cd4bb42ec3c9e31fceb2cea84be8034ace5",
+  "measurements": {
+    "small_32_3_4": {
+      "validate_cold": {
+        "us": [
+          16221,
+          16369,
+          37610
+        ],
+        "median_us": 16369,
+        "available_physical_bytes_before": [
+          826814464,
+          824561664,
+          822484992
+        ]
+      },
+      "edit": {
+        "us": [
+          130523,
+          152157,
+          216331
+        ],
+        "median_us": 152157,
+        "available_physical_bytes_before": [
+          818114560,
+          816361472,
+          813019136
+        ]
+      },
+      "info_summary": {
+        "us": [
+          28765,
+          2035,
+          1118
+        ],
+        "median_us": 2035,
+        "available_physical_bytes_before": [
+          805896192,
+          798932992,
+          798916608
+        ]
+      },
+      "cli_info": {
+        "us": [
+          2482117,
+          1297165,
+          1391715
+        ],
+        "median_us": 1391715,
+        "available_physical_bytes_before": [
+          798871552,
+          783781888,
+          841240576
+        ]
+      },
+      "validate_cached": {
+        "us": [
+          2963,
+          1558,
+          1422
+        ],
+        "median_us": 1558,
+        "available_physical_bytes_before": [
+          1120735232,
+          1119154176,
+          1119154176
+        ]
+      }
+    },
+    "review_80_1_4": {
+      "validate_cold": {
+        "us": [
+          23019,
+          19217,
+          26955
+        ],
+        "median_us": 23019,
+        "available_physical_bytes_before": [
+          616435712,
+          609640448,
+          609669120
+        ]
+      },
+      "edit": {
+        "us": [
+          180402,
+          110788,
+          156052
+        ],
+        "median_us": 156052,
+        "available_physical_bytes_before": [
+          611926016,
+          600805376,
+          603664384
+        ]
+      },
+      "info_summary": {
+        "us": [
+          22464,
+          4318,
+          2299
+        ],
+        "median_us": 4318,
+        "available_physical_bytes_before": [
+          613056512,
+          613179392,
+          614236160
+        ]
+      },
+      "cli_info": {
+        "us": [
+          2356266,
+          2070472,
+          2008414
+        ],
+        "median_us": 2070472,
+        "available_physical_bytes_before": [
+          615350272,
+          613244928,
+          642928640
+        ]
+      },
+      "cli_empty_layers": {
+        "us": [
+          2359492,
+          3760550,
+          4076359
+        ],
+        "median_us": 3760550,
+        "available_physical_bytes_before": [
+          616747008,
+          594038784,
+          575750144
+        ]
+      },
+      "validate_cached": {
+        "us": [
+          2682,
+          2466,
+          2707
+        ],
+        "median_us": 2682,
+        "available_physical_bytes_before": [
+          870453248,
+          870424576,
+          870412288
+        ]
+      }
+    },
+    "legacy_64_10_32": {
+      "validate_cold": {
+        "us": [
+          1605638,
+          1794958,
+          1673165
+        ],
+        "median_us": 1673165,
+        "available_physical_bytes_before": [
+          803540992,
+          760131584,
+          700084224
+        ]
+      },
+      "edit": {
+        "us": [
+          895028,
+          954535,
+          1511828
+        ],
+        "median_us": 954535,
+        "available_physical_bytes_before": [
+          668733440,
+          696340480,
+          682717184
+        ]
+      },
+      "info_summary": {
+        "us": [
+          96661,
+          76751,
+          64641
+        ],
+        "median_us": 76751,
+        "available_physical_bytes_before": [
+          659951616,
+          665796608,
+          665698304
+        ]
+      },
+      "cli_info": {
+        "us": [
+          4135522,
+          4017032,
+          3392502
+        ],
+        "median_us": 4017032,
+        "available_physical_bytes_before": [
+          665591808,
+          655929344,
+          730537984
+        ]
+      },
+      "validate_cached": {
+        "us": [
+          136829,
+          245734,
+          260858
+        ],
+        "median_us": 245734,
+        "available_physical_bytes_before": [
+          1045000192,
+          1045553152,
+          1078267904
+        ]
+      }
+    },
+    "ds_96_8_45": {
+      "validate_cold": {
+        "us": [
+          5525471,
+          4397986,
+          2605783
+        ],
+        "median_us": 4397986,
+        "available_physical_bytes_before": [
+          615432192,
+          553537536,
+          435957760
+        ]
+      },
+      "edit": {
+        "us": [
+          1809137,
+          2660724,
+          2452570
+        ],
+        "median_us": 2452570,
+        "available_physical_bytes_before": [
+          439287808,
+          577585152,
+          1132982272
+        ]
+      },
+      "info_summary": {
+        "us": [
+          288740,
+          236935,
+          203291
+        ],
+        "median_us": 236935,
+        "available_physical_bytes_before": [
+          1211842560,
+          1203695616,
+          1208922112
+        ]
+      },
+      "cli_info": {
+        "us": [
+          5735797,
+          6078530,
+          4456020
+        ],
+        "median_us": 5735797,
+        "available_physical_bytes_before": [
+          1192120320,
+          1080864768,
+          1016406016
+        ]
+      },
+      "validate_cached": {
+        "us": [
+          503445,
+          589029,
+          660250
+        ],
+        "median_us": 589029,
+        "available_physical_bytes_before": [
+          1341833216,
+          1349484544,
+          1342939136
+        ]
+      }
+    },
+    "review_96_1_16": {
+      "validate_cold": {
+        "us": [
+          208000,
+          205634,
+          250046
+        ],
+        "median_us": 208000,
+        "available_physical_bytes_before": [
+          916676608,
+          941166592,
+          942153728
+        ]
+      },
+      "edit": {
+        "us": [
+          193212,
+          168503,
+          150884
+        ],
+        "median_us": 168503,
+        "available_physical_bytes_before": [
+          927416320,
+          925052928,
+          917360640
+        ]
+      },
+      "info_summary": {
+        "us": [
+          26863,
+          7454,
+          6206
+        ],
+        "median_us": 7454,
+        "available_physical_bytes_before": [
+          918081536,
+          916000768,
+          913240064
+        ]
+      },
+      "cli_info": {
+        "us": [
+          5061657,
+          3931416,
+          2320672
+        ],
+        "median_us": 3931416,
+        "available_physical_bytes_before": [
+          911171584,
+          910618624,
+          1028239360
+        ]
+      },
+      "validate_cached": {
+        "us": [
+          7897,
+          10312,
+          7712
+        ],
+        "median_us": 7897,
+        "available_physical_bytes_before": [
+          1410191360,
+          1442267136,
+          1442947072
+        ]
+      }
+    },
+    "medium_256_1_8": {
+      "validate_cold": {
+        "us": [
+          1134485,
+          1394892,
+          947389
+        ],
+        "median_us": 1134485,
+        "available_physical_bytes_before": [
+          1088548864,
+          1058291712,
+          966602752
+        ]
+      },
+      "edit": {
+        "us": [
+          554731,
+          367150,
+          432397
+        ],
+        "median_us": 432397,
+        "available_physical_bytes_before": [
+          1008758784,
+          969818112,
+          965132288
+        ]
+      },
+      "info_summary": {
+        "us": [
+          41553,
+          17608,
+          18005
+        ],
+        "median_us": 18005,
+        "available_physical_bytes_before": [
+          1004183552,
+          1003732992,
+          1003692032
+        ]
+      },
+      "cli_info": {
+        "us": [
+          4212143,
+          2313779,
+          1969420
+        ],
+        "median_us": 2313779,
+        "available_physical_bytes_before": [
+          1005559808,
+          960905216,
+          1119907840
+        ]
+      },
+      "validate_cached": {
+        "us": [
+          52463,
+          46581,
+          52983
+        ],
+        "median_us": 52463,
+        "available_physical_bytes_before": [
+          1504321536,
+          1500573696,
+          1498681344
+        ]
+      }
+    },
+    "validate_256_1_32": {
+      "validate_cold": {
+        "us": [
+          3326377,
+          2257868,
+          2251219
+        ],
+        "median_us": 2257868,
+        "available_physical_bytes_before": [
+          339337216,
+          1186820096,
+          682758144
+        ]
+      },
+      "edit": {
+        "us": [
+          1076730,
+          1425075,
+          1132810
+        ],
+        "median_us": 1132810,
+        "available_physical_bytes_before": [
+          441978880,
+          508997632,
+          481918976
+        ]
+      },
+      "info_summary": {
+        "us": [
+          72556,
+          79397,
+          66086
+        ],
+        "median_us": 72556,
+        "available_physical_bytes_before": [
+          481718272,
+          483635200,
+          465821696
+        ]
+      },
+      "cli_info": {
+        "us": [
+          2567955,
+          2115147,
+          1702621
+        ],
+        "median_us": 2115147,
+        "available_physical_bytes_before": [
+          475123712,
+          503848960,
+          503836672
+        ]
+      },
+      "validate_cached": {
+        "us": [
+          251608,
+          267214,
+          375217
+        ],
+        "median_us": 267214,
+        "available_physical_bytes_before": [
+          531693568,
+          536018944,
+          540090368
+        ]
+      }
+    },
+    "wide_480_270_1_16": {
+      "validate_cold": {
+        "us": [
+          1593191,
+          2214534,
+          1435608
+        ],
+        "median_us": 1593191,
+        "available_physical_bytes_before": [
+          1727012864,
+          1764708352,
+          1743388672
+        ]
+      },
+      "edit": {
+        "us": [
+          742411,
+          862574,
+          707958
+        ],
+        "median_us": 742411,
+        "available_physical_bytes_before": [
+          1749303296,
+          1728671744,
+          1704968192
+        ]
+      },
+      "info_summary": {
+        "us": [
+          57988,
+          34920,
+          34257
+        ],
+        "median_us": 34920,
+        "available_physical_bytes_before": [
+          1747337216,
+          1750368256,
+          1749598208
+        ]
+      },
+      "cli_info": {
+        "us": [
+          1547153,
+          1336551,
+          1058370
+        ],
+        "median_us": 1336551,
+        "available_physical_bytes_before": [
+          1750261760,
+          1696980992,
+          1841729536
+        ]
+      },
+      "validate_cached": {
+        "us": [
+          159098,
+          201076,
+          136615
+        ],
+        "median_us": 159098,
+        "available_physical_bytes_before": [
+          1838100480,
+          1864728576,
+          1871069184
+        ]
+      }
+    },
+    "dense_1024_1_1": {
+      "validate_cold": {
+        "us": [
+          420051,
+          411263,
+          400170
+        ],
+        "median_us": 411263,
+        "available_physical_bytes_before": [
+          2066509824,
+          2050863104,
+          2075353088
+        ]
+      },
+      "edit": {
+        "us": [
+          853686,
+          734258,
+          783720
+        ],
+        "median_us": 783720,
+        "available_physical_bytes_before": [
+          2070278144,
+          2085986304,
+          2039730176
+        ]
+      },
+      "info_summary": {
+        "us": [
+          49904,
+          53904,
+          27938
+        ],
+        "median_us": 49904,
+        "available_physical_bytes_before": [
+          2030915584,
+          2026041344,
+          2025771008
+        ]
+      },
+      "cli_info": {
+        "us": [
+          1196647,
+          1374867,
+          2767441
+        ],
+        "median_us": 1374867,
+        "available_physical_bytes_before": [
+          2026545152,
+          2024046592,
+          2009341952
+        ]
+      },
+      "validate_cached": {
+        "us": [
+          73830,
+          76324,
+          101420
+        ],
+        "median_us": 76324,
+        "available_physical_bytes_before": [
+          2017157120,
+          2015981568,
+          2016358400
+        ]
+      }
+    }
+  },
+  "source_root": "src/cybersprite",
+  "source_sha256": {
+    "core\\quality.py": "c957a996bc37e6ada59c92da6ca74b0701679ce9663179d25ade92b348a2b04b",
+    "ops\\__init__.py": "5f7da54fb66e9c9384abea40a60e5f4219b190b7484b0e7bd21f7ab381f84a9e",
+    "generate\\__init__.py": "7bb335af1b0c561c5f8e58a9fed1fb1c956f8e7f1be5e61fe0d04abf473867bd"
+  }
+}

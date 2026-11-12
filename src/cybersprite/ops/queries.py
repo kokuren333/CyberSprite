@@ -4,8 +4,9 @@ from pathlib import Path
 
 import numpy as np
 
-from cybersprite.core import history
-from cybersprite.core.errors import invalid
+from cybersprite.core import history, sources
+from cybersprite.core.errors import CyberSpriteError, invalid
+from cybersprite.core.execution import committed_bytes
 from cybersprite.core.models import GroupLayer, ImageCel, ImageLayer, LinkCel, Sources
 from cybersprite.core.pixels import pixels_to_rows, resolve_color
 from cybersprite.core.projects import new_project
@@ -16,7 +17,6 @@ from cybersprite.core.sources import read_manifest
 from cybersprite.formats.palette_files import raw_color, read_palette_with_names
 
 from .common import SYMBOLS, array, fail, frame_index, frames, groups, image_layer
-from .palette import usage
 from .previews import diff, previews
 
 
@@ -31,10 +31,40 @@ def summary(p, root):
         "transparent_index": p.palette.transparent_index,
         "revision": p.revision,
         "tags": [tag.name for tag in p.tags],
-        "validation_ok": report(
-            p, root=root, source_manifest=read_manifest(root) if root is not None else None
-        )["ok"],
     }
+
+
+def source_query(ctx, args, name):
+    manifest = sources.read_manifest(ctx.root)
+    if name == "list_sources":
+        return {
+            "sources": [
+                {
+                    "id": s.id,
+                    "kind": s.kind,
+                    "provider": s.provider,
+                    "license": s.license,
+                    "accepted": s.pipeline.accepted if s.pipeline else False,
+                    "placements": [p.model_dump() for p in s.placements],
+                }
+                for s in manifest.sources
+            ]
+        }
+    source = sources.find_source(manifest, args.id)
+    value = source.model_dump()
+    if args.include_report and source.pipeline:
+        path = sources.source_path(ctx.root, f"{source.id}/pipeline_report.json")
+        import json
+
+        try:
+            value["report"] = json.loads(committed_bytes(path, ctx.root))
+        except (OSError, ValueError) as error:
+            raise CyberSpriteError(
+                "E_IO",
+                "Cannot read pipeline report.",
+                "Reconvert the source to recreate its report.",
+            ) from error
+    return value
 
 
 def construct(a, root):
@@ -132,6 +162,8 @@ def query(ctx, a, name):
                 ]
         return result
     if name == "get_palette":
+        from .palette import usage
+
         counts = usage(p)
         return {
             "transparent_index": p.palette.transparent_index,

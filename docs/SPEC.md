@@ -966,6 +966,7 @@ hero.csprite/
   - `redo`: `redo_stack` から取り出し、現在のリビジョンを `undo_stack` に積み、同様にコミットする。
   - 必要なスナップショットが消えていれば `E_HISTORY_UNAVAILABLE`。
 - **外部編集の検知**: 読み込んだ `project.json` の SHA-256 が `state.json` の記録と違う場合（人やエージェントが JSON を直接編集した場合）、読取では新しい基準として扱い、両スタックを無効と報告する。次の変更時にスナップショットと `kind: "external"` の行を保存し、両スタックを空にする。直接編集は禁止しないが、次のツール呼び出しで必ず検証が走る。
+- `get_info` は正本の構造を読み取り検証し、`include` に `history` がない場合は履歴同期を遅延する。品質検証は `validation` を明示したときだけ行う。外部変更の履歴基準は次の履歴同期を伴う呼出しで更新する。要約のために全品質検証・スナップショット作成を行わない。
 
 ### 6.4 描画アルゴリズム
 
@@ -1832,7 +1833,7 @@ MCP ではツール実行エラー（`isError: true`）として返す。プロ�
 | ツール | 引数（既定） | `result` | 冪等性 |
 |---|---|---|---|
 | `new_project` | `width`、`height`、`palette`（プリセット名・色の配列・パレットファイルのパス。既定 `"cs-circuit-16"`）、`transparent_index`（0）、`frames`（1）、`duration_ms`（100）、`name`（ディレクトリ名から）、`layer_name`（`"Layer 1"`）、`background`（省略。色を指定すると、その色で塗った背景レイヤーを作る）、`if_exists`（`"error"`） | `{summary}`（`get_info` の要約と同じ） | C（`if_exists: "open"` で、同じ大きさの既存プロジェクトをそのまま返す） |
-| `get_info` | `include`（`["summary"]`。ほかに `layers` `frames` `tags` `slices` `tilesets` `palette` `sources` `validation` `history`） | `summary` = `{name, width, height, frames, layers（数）, palette_size, transparent_index, revision, tags（名前の一覧）, validation_ok}`。`layers` は木構造（`id`、`name`、`type`、表示、ロック、不透明度、ブレンド、セルのあるフレーム番号の一覧と各セルの矩形。ピクセルは含めない） | R |
+| `get_info` | `include`（`["summary"]`。ほかに `layers` `frames` `tags` `slices` `tilesets` `palette` `sources` `validation` `history`） | `summary` = `{name, width, height, frames, layers（数）, palette_size, transparent_index, revision, tags（名前の一覧）}`。要約は品質検証を呼ばず、`validation_ok` を含めない。現在の検証状態は `include: ["validation"]` の `validation.ok` で明示的に取得する。`layers` は木構造（`id`、`name`、`type`、表示、ロック、不透明度、ブレンド、セルのあるフレーム番号の一覧と各セルの矩形。ピクセルは含めない） | R |
 | `get_pixels` | `layer`（レイヤー、または `"@composite"` で平坦なインデックス画像）、`frame`、`rect`（省略時は、レイヤーならセルの矩形、合成ならキャンバス全体）、`format`（`"hex"`） | `{x, y, w, h, rows, legend（sym のとき）, used: [{index, color, count}]}`。65536 ピクセルを超える範囲は `E_LIMIT_EXCEEDED` | R |
 | `get_palette` | — | `{transparent_index, frozen, colors: [{index, color, name, used_pixels}]}` | R |
 | `validate` | `frames`（`"all"`）、`rules`（省略で全規則） | 検証報告の全体（§13.4） | R |
@@ -2389,6 +2390,8 @@ license = "model card license name"
 - 指摘の同一性は `(rule, where.frames, where.layer)` で判定する。コミット前になくて後にある指摘が `new_issues`、前にあって後にない指摘が `resolved_issues`。
 - `metrics_delta` には、値が変わった数値の指標だけを `{before, after}` で入れる（配列の指標は、合計と最大値で比べる）。
 - **差分計算の結果は、全体を計算し直した結果と必ず一致しなければならない。** 実装は、フレーム単位のキャッシュ（内容のハッシュをキーにする）を使ってよい。
+- フレーム解析は同色8近傍の成分の面積・行優先の先頭座標を集計する。報告点は従来の幅優先探索（近傍は上から下、左から右）の順で先頭64点までとし、全座標をPythonオブジェクトで保持しない。レイヤー帰属は報告点の切捨て前の全対象画素で判定する。
+- プロセス内の内容ハッシュ付きフレームLRUは、配列の実バイト数と1件4096バイトの管理予算を合計して256 MiBまでとする。変更のないフレームは前後の検証と後続トランザクションで再利用する。キャッシュを消した場合・使わない場合も報告とデルタは同一である。設定・構造・来歴の検査は省略しない。
 
 ### 13.5 ゴールデンファイル
 
@@ -2458,13 +2461,15 @@ tests/golden/<ケース名>/
 | 項目 | 目標 |
 |---|---|
 | CLI の起動（`cybersprite --version`） | 400 ms 以内。Pillow、`aseprite`、PyTorch などは、必要になるまで import しない |
+| CLI の1回の端から端まで（32×32・3レイヤー・4フレームの `info` 要約、起動・読込・結果出力・終了を含む） | 1秒以内。uv自体の起動・同期は含めない |
 | 64×64・10 レイヤー・32 フレームのプロジェクトでの 1 トランザクション（プレビュー込み、プロセス起動を除く） | 150 ms 以内 |
+| 96×96・8レイヤー・45フレーム（各セルが独立、フレームごとに内容が異なる密画像）の1ピクセル変更（プレビューなし、プロセス起動を除く） | 1秒以内 |
 | 256×256 の 1 フレームのレンダリング | 50 ms 以内 |
-| 256×256・32 フレームの全体検証 | 2 秒以内 |
+| 256×256・32 フレームの全体検証 | 2 秒以内。フレーム解析キャッシュが空の場合と再利用できる場合を分けて記録する |
 | GUI の描画操作の反映（128×128、ポインタを離してから画面に反映されるまで） | 50 ms 以内 |
 | 1024×1024 の元画像の変換パイプライン（組み込みステップ） | 5 秒以内 |
 
-測定は開発機（発注者の PC 相当）で行い、結果を `docs/PERFORMANCE.md` に記録する。目標に届かない場合は、原因と対処の方針を書く（目標未達だけを理由にリリースを止めない）。
+測定は開発機（発注者の PC 相当）で行い、結果を `docs/PERFORMANCE.md` に記録する。多数フレームの代表値はフレームごとに内容が異なる独立セルで測り、全フレーム同一内容の測定は補助値と区別する。代表計測の連続編集は毎回新しい画素を変更し、解析済みの同じ2版を往復する計測と区別する。各3回の生の値と中央値、キャッシュの初期状態、測定範囲を記録する。目標に届かない場合は、原因と対処の方針を書く（目標未達だけを理由にリリースを止めない）。
 
 ---
 

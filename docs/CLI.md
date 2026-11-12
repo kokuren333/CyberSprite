@@ -74,6 +74,10 @@ Op 引数はファイル → `--args` → `キー=値` の順で上書きする�
 例: `op set_frame_duration frames=2,4 duration_ms=120`（JSONの `frames=[2,4]` も可）。
 共通トランザクション設定の明示フラグは、その JSON 内の値より優先する。
 
+`info` の既定の要約は品質検証を呼ばず、`validation_ok` を返さない。
+現在の検証結果は `info --include summary,validation` の `result.validation.ok`、
+または `validate` で取得する。`new` と `.aseprite` 取り込みの要約も同じ契約である。
+
 `import image` は、`-p` のプロジェクトが未作成でも、受理した変換結果の寸法で自動作成する。
 先に `new` を実行する必要はない。関門で拒否した場合は元画像と報告だけを残す。
 初回取り込みを `undo` すると透明だけのプロジェクトが残り、再取り込みでは既定の
