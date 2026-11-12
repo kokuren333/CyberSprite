@@ -11,7 +11,8 @@ Python パッケージ `cybersprite` の置き場所。M1 のヘッドレス基�
 | `cybersprite/formats/` | `png` 自前 PNG writer・限定 reader・実行環境指紋、`palette_files` 組み込みプリセット・GPL/PAL/HEX テキスト読込。ほかの形式は M5 | §6.6、§8 | M1、M2、M5 |
 | `cybersprite/pipeline/` | 変換パイプライン | §11 | M6 |
 | `cybersprite/generate/` | 生成バックエンド | §12 | M9 |
-| `cybersprite/cli/` | 遅延 import の Click CLI。既存コマンドに `op`、`apply`、`undo`、`redo`、`history`、`ops list/describe`、`preview`、`diff`、`pixels`、`palette show/presets` を追加。`validate` は品質規則まで検査。CLI の仕上げは M3 | §9 | M1〜M3 |
+| `cybersprite/cli/` | M3 の全コマンド。`generated` が登録済み Op の引数から Click オプションを遅延生成し、`output` が JSON・要約・エラー封筒と正本への出力保護を担当する。M4〜M9 の未提供機能もコマンド名を予約して E_UNSUPPORTED を返す。使い方は `docs/CLI.md` | §9 | M1〜M3 |
+| `cybersprite/config.py` | ユーザーの config.toml の場所解決と厳密なスキーマ、生成コマンドの置換名検査。設定からの実行・モデル承諾は M9 | §9.6、§12 | M3、M9 |
 | `cybersprite/mcp/` | MCP サーバ | §10 | M4 |
 | `cybersprite/server/` | GUI 用ローカルサーバ。GUI のビルド成果物を `static/` に同梱する | §14.6 | M8 |
 | `cybersprite/plugins/` | プラグインの読み込みと公開 API | §15 | M2〜 |
