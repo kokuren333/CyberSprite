@@ -4,7 +4,7 @@
 
 | 項目 | 現状と次の対応 |
 |---|---|
-| 最終CI（R1-01） | Linuxで一度も実行していない状態は解消。オーケストレーターの観測ではe94bd7aでcoreのUbuntu 3.12/3.13・Windows 3.12成功。Windows 3.13のMCP期限試験はB1の偽時計へ置換、GUIのUbuntu 26.04ブラウザ取得失敗はHが24.04へ固定。4475308のcore失敗原因だったstrict mypyのcommitted_bytes注釈はINTで修正。**最終pushの全matrix結果・URL・commitは未記入**。過去CIを最終版の複数OS決定性の証明にしない |
+| 最終CI（R1-01） | 解消。`dc0fe4f` のGitHub Actions（run 43196622534）でWindows/Ubuntu × Python 3.12/3.13 のcore 4ジョブ（2093〜2094 passed）とGUI両OS（ubuntu-24.04含む、Playwright 5 passed）が全成功し、同じゴールデンに4環境が一致した。Ubuntu 26.04（ubuntu-latest）はPlaywrightのChromium未提供のためGUIジョブを24.04に固定している（R1-H）。Pythonの新版・新OSイメージでの再確認はpushごとのCIに委ねる |
 | 全srcの型検査 | R1-DOCの `uv run mypy src/cybersprite` は **61件 / 20ファイル（115ファイル検査）**。CLI、formats、generate、pipeline、MCP、platformsの動的モデル・型の絞込み・未導入jsonschema stub等。core/opsの必須検査とstrict7ファイルは別の成功基準。新しいstub依存や診断を隠す設定は追加していない |
 | 性能（R1-09） | B2の独立内容フレームで96×96・8層・45f編集2452.570ms（目標1000）、256×256・32f解析空validate2257.868ms（2000）、小規模CLI info1391.715ms（1000）。INTの後続同機比較ではDS編集1202.689msで未達、256²×32f解析空1261.025ms。別負荷の測定を連結した改善率にしない。旧64²同一フレーム編集205.148ms／GUI往復92.965msは150／50ms未達の補助値。[PERFORMANCE](PERFORMANCE.md)と[INT報告](R1_INT_REPORT.md)に各3生値・中央値・範囲を記録。ブラウザ描画とLinux性能は未測定 |
 | メモリ・予算 | 256MiBのLRU／入力・出力予算はRSS上限ではない。4096²疎画像のpeak working set中央値はB2で264→328MiB。全面成分配列の疎領域最適化、完全Q-PIX点集合や追加craft／未参照タイル検査を含む実制作の最悪負荷は未計測。一般polygon/stroke/ellipse・太いブラシは予算内列挙で、完全な事前clipはない |

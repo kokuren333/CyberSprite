@@ -185,7 +185,7 @@ RTX3080 20480MiB、driver610.88／CUDA12.8、Windows/Python3.12.10、Torch2.8.0+
 
 | Fable番号 | 状態 | 対応・証拠／残件 |
 |---|---|---|
-| R1-01 | partially | H/INTでCI失敗原因修正、過去Linux core成功。最終matrix結果待ち（§7） |
+| R1-01 | fixed | H/INTでCI失敗原因を修正。`dc0fe4f` のActionsでWindows/Ubuntu × Python3.12/3.13とGUI両OSが全成功、同じゴールデンに4環境一致（§7） |
 | R1-02 | partially | G/E2/E3/GUIで原画・工程・3関門・review・報告。e2e-07人間判定待ち |
 | R1-03 | fixed | A1、全形式の最終path保護、3面の正本／履歴bytes不変 |
 | R1-04 | partially | C/E3/D2で7群中importers以外とplatform接続。importersはv1.xとSPEC明記 |
@@ -229,7 +229,7 @@ RTX3080 20480MiB、driver610.88／CUDA12.8、Windows/Python3.12.10、Torch2.8.0+
 | C-R1-07 | fixed | A3、R1-16。GUIとcoreの共有ベクタ／有限停止 |
 | C-R1-08 | fixed | A1、R1-26。配置dry-runとpipeline previewを区別 |
 
-Fableは **fixed23 / partially7 / deferred2 / not addressed0**、Codexは **fixed7 / partially1 / deferred0 / not addressed0**。対応を明記した延期を未実装の隠蔽に使わない。
+Fableは **fixed24 / partially6 / deferred2 / not addressed0**、Codexは **fixed7 / partially1 / deferred0 / not addressed0**。対応を明記した延期を未実装の隠蔽に使わない。
 
 ### 4.1 新規要求H-01〜H-22
 
@@ -272,7 +272,7 @@ Fableは **fixed23 / partially7 / deferred2 / not addressed0**、Codexは **fixe
 | 6 参照library／connector | G/DOC、後続発注指示で標準。403は回避せず既存library利用 |
 | 7 GPU生成 | F1/F2、BYOW条件・実RTX結果・(b)利用者導入 |
 | 8 ComfyUI | F1、登録workflowのHTTP段階1/2、実機試験残 |
-| 9 | **番号対応未確定**。提供された公開入力は申し送り1〜8までで、第9項の原文がない。D1/D2の比較やBYOWを第9項だと推測しない。オーケストレーターが原文との対応を追記する |
+| 9 ピクセル化OSSの選択肢 | D1/D2：Pixel Art Fixer・proper-pixel-art・PixelOEを `pipeline_steps` の明示選択の段として接続（依存は利用者導入）、@xprite/pixelateは評価のみ。較正コーパス(d)16件と自作原画による中立ベンチ（323入力×5方式×3回）を記録し、既定は内蔵AUTOを維持。非ピクセル拒否率83.3%は未達 |
 
 ## 5. Design forks decided — 分岐・選択・根拠
 
@@ -521,7 +521,18 @@ INT（D2前）のWindows全体は2071 passed / 9 skipped、464.43秒。GUIは698
 e94bd7aではcoreのUbuntu3.12/3.13・Windows3.12が成功、Windows3.13は期限試験のE_IO/E_TIMEOUT競合、GUIはUbuntu26.04でChromium未提供だった。B1/Hがそれぞれ修正。4475308のcore全jobはstrict mypyのcommitted_bytes注釈だけで失敗しINTが修正。これらはオーケストレーターの提供事実で、本worktreeでAPI取得した結果ではない。
 
 <!-- CI_RESULT -->
-**未記入**: 最終pushのcommit SHA、Actions run URL、全OS/Python matrix・GUI・wheel・独立復号の結果をオーケストレーターが追記する。ここを埋めるまで最終版の複数環境決定性は確認待ち。
+**最終CI（オーケストレーターがGitHub APIで取得、2026-11-12）**: コードを含む最終push `dc0fe4f`（R1-D2統合後のmain）のActions run `43196622534` は **全6ジョブ成功**。
+
+| ジョブ | 結果 | テスト |
+|---|---|---|
+| core (ubuntu-latest, 3.12) | success | 2093 passed / 8 skipped |
+| core (ubuntu-latest, 3.13) | success | 2093 passed / 8 skipped |
+| core (windows-latest, 3.12) | success | 2094 passed / 7 skipped |
+| core (windows-latest, 3.13) | success | 2094 passed / 7 skipped |
+| gui (windows-latest) | success | vitest・contrast・build・Playwright・wheel/独立導入 |
+| gui (ubuntu-24.04) | success | contrast 100組、Playwright 5 passed、wheel/独立導入 |
+
+各coreジョブはゴールデン（`tests/test_goldens.py`）、Ruff、core/ops mypy、strict mypy、schema drift、ライセンス監査、Pillow独立復号の印付き試験（7 passed）を含む。**同じゴールデン期待値にWindows/Ubuntu × Python 3.12/3.13 の4環境が一致した**ので、決定性（水準A）の複数環境一致はこの時点のコードで確認済み（R1-01）。Ubuntuのskip差1件はWindows固有の試験条件による。以後のR1-DOC等の文書だけのコミットはpush時に同じCIで再確認する。
 
 ### DS級の再制作・人間判定
 

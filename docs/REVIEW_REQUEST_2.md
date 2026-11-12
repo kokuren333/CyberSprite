@@ -28,7 +28,18 @@ INT（D2前）はPython **2071 passed / 9 skipped（464.43秒）**、GUI698 test
 R1-DOCの全統合版の最終検査は [総括 §7](FIX_ROUND_1_REPORT.md) の実行結果を使う。全src mypy再測定は **61件 / 20ファイル（115検査）**、core/ops必須基準とは別の既知残件。
 
 <!-- CI_RESULT -->
-**オーケストレーター追記待ち**: 最終pushのSHA・Actions URL・Windows/Ubuntu × Python3.12/3.13、GUI・wheel・独立復号の結果。e94bd7aのcore Ubuntu3.12/3.13・Windows3.12成功は確認済みとの申し送り。Windows3.13のMCP期限とGUI Ubuntu26.04のChromium失敗はB1/Hが修正、4475308のstrict committed_bytes注釈失敗はINTが修正。過去の成功を最終版の証明に読み替えない。
+**最終CI（オーケストレーターがGitHub APIで取得、2026-11-12）**: コードを含む最終push `dc0fe4f`（R1-D2統合後のmain）のActions run `43196622534` は **全6ジョブ成功**。
+
+| ジョブ | 結果 | テスト |
+|---|---|---|
+| core (ubuntu-latest, 3.12) | success | 2093 passed / 8 skipped |
+| core (ubuntu-latest, 3.13) | success | 2093 passed / 8 skipped |
+| core (windows-latest, 3.12) | success | 2094 passed / 7 skipped |
+| core (windows-latest, 3.13) | success | 2094 passed / 7 skipped |
+| gui (windows-latest) | success | vitest・contrast・build・Playwright・wheel/独立導入 |
+| gui (ubuntu-24.04) | success | contrast 100組、Playwright 5 passed、wheel/独立導入 |
+
+各coreジョブはゴールデン（`tests/test_goldens.py`）、Ruff、core/ops mypy、strict mypy、schema drift、ライセンス監査、Pillow独立復号の印付き試験（7 passed）を含む。**同じゴールデン期待値にWindows/Ubuntu × Python 3.12/3.13 の4環境が一致した**ので、決定性（水準A）の複数環境一致はこの時点のコードで確認済み（R1-01）。Ubuntuのskip差1件はWindows固有の試験条件による。以後のR1-DOC等の文書だけのコミットはpush時に同じCIで再確認する。
 
 ローカルはWindows/Python3.12.10、BLAS/OpenMP/MKL1 thread。権限不足symlink5件、未導入外部方式6件、明示GPU1件は通常環境でskip。GPU・外部ツールの実試験は別環境の元報告で、DOCが再試験したものではない。
 
