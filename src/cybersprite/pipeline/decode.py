@@ -5,13 +5,27 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, UnidentifiedImageError
 
+from cybersprite.core.errors import CyberSpriteError
+from cybersprite.core.limits import (
+    DECODED_BYTES,
+    FRAME_COUNT,
+    DecodeBudget,
+    check_limit,
+    source_dimensions,
+)
+
 from ._common import PipelineError, require
 
 
-def decode_raster(path):
+def decode_raster(path, *, budget=None):
     """Decode coalesced RGBA frames; report depth/mode/profile reductions."""
     try:
         with Image.open(Path(path)) as image:
+            # Size comes from the lazy header; do not seek/convert before reserving.
+            source_dimensions(*image.size)
+            size = image.size
+            count = getattr(image, "n_frames", 1)
+            (DecodeBudget() if budget is None else budget).reserve(*image.size, count)
             require(
                 image.format in ("PNG", "GIF", "BMP", "JPEG", "WEBP"),
                 "Unsupported raster format.",
@@ -37,8 +51,12 @@ def decode_raster(path):
                         "detail": "Embedded ICC profile was discarded during 8-bit RGBA decoding.",
                     }
                 )
-            for frame in range(getattr(image, "n_frames", 1)):
+            for frame in range(count):
                 image.seek(frame)
+                source_dimensions(*image.size)
+                require(
+                    image.size == size, "Decoded frame dimensions must match the source header."
+                )
                 frames.append(np.array(image.convert("RGBA"), dtype=np.uint8, copy=True))
                 durations.append(int(image.info.get("duration", 100)))
             require(
@@ -46,6 +64,13 @@ def decode_raster(path):
                 "Decoded frame dimensions must match.",
             )
             return frames, {"format": image.format, "durations_ms": durations, "warnings": warnings}
+    except CyberSpriteError as exc:
+        raise PipelineError(exc.code, exc.message, exc.hint, **exc.details) from exc
+    except (Image.DecompressionBombError, Image.DecompressionBombWarning) as exc:
+        from cybersprite.formats.decode_limits import pillow_bomb_error
+
+        error = pillow_bomb_error(exc)
+        raise PipelineError(error.code, error.message, error.hint, **error.details) from exc
     except (OSError, UnidentifiedImageError) as exc:
         raise PipelineError(
             "E_IO",
@@ -76,7 +101,22 @@ def split_sheet(images, sheet):
     xs = range(ox, image.shape[1] - w + 1, w + gap)
     ys = range(oy, image.shape[0] - h + 1, h + gap)
     require(
-        0 < len(xs) * len(ys) <= 4096,
+        0 < len(xs) * len(ys),
         "Use sheet sizes and offsets yielding 1..4096 complete cells.",
     )
+    try:
+        check_limit(
+            "source_frames",
+            len(xs) * len(ys),
+            FRAME_COUNT,
+            "Use larger sheet cells or import fewer cells at once.",
+        )
+        check_limit(
+            "decoded_bytes",
+            image.nbytes + len(xs) * len(ys) * w * h * 4,
+            DECODED_BYTES,
+            "Reduce the source sheet dimensions or split the sheet before importing.",
+        )
+    except CyberSpriteError as exc:
+        raise PipelineError(exc.code, exc.message, exc.hint, **exc.details) from exc
     return [image[y : y + h, x : x + w].copy() for y in ys for x in xs]

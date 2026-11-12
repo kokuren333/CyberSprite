@@ -273,7 +273,7 @@ def transact(
                     )
                 except (CyberSpriteError, RasterError, ValidationError) as error:
                     if isinstance(error, RasterError):
-                        error = CyberSpriteError(error.code, str(error), error.hint)
+                        error = CyberSpriteError(error.code, str(error), error.hint, error.details)
                     elif isinstance(error, ValidationError):
                         error = invalid(
                             "Operation arguments produce invalid data.", reason=str(error)

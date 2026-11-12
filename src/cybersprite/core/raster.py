@@ -25,17 +25,34 @@ from numbers import Integral
 
 import numpy as np
 
+from cybersprite.core.errors import CyberSpriteError
+from cybersprite.core.limits import DRAW_POINTS, WORK_PER_OP
+from cybersprite.core.limits import check_limit as _check_limit
+
 Point = tuple[int, int]
 
 
-class RasterError(ValueError):
-    """Temporary model-independent error; unify with core errors on integration."""
+class RasterError(CyberSpriteError, ValueError):
+    """Actionable core error, retaining ValueError compatibility for pure callers."""
 
-    def __init__(self, code: str, message: str, hint: str):
-        super().__init__(message)
-        self.code = code
-        self.message = message
-        self.hint = hint
+    def __init__(self, code: str, message: str, hint: str, details: dict | None = None):
+        super().__init__(code, message, hint, details)
+
+
+def check_limit(name: str, requested: int, limit: int, hint: str) -> None:
+    try:
+        _check_limit(name, requested, limit, hint)
+    except CyberSpriteError as error:
+        raise RasterError(error.code, error.message, error.hint, error.details) from error
+
+
+def drawing_work(requested: int) -> None:
+    check_limit(
+        "drawing_work_per_op",
+        requested,
+        WORK_PER_OP,
+        "Reduce geometry dimensions, path length, or brush size.",
+    )
 
 
 def _invalid(message: str, hint: str) -> RasterError:
@@ -55,7 +72,14 @@ def _dimensions(w: int, h: int) -> tuple[int, int]:
     return w, h
 
 
-def _points(points: Sequence[Point], minimum: int) -> list[Point]:
+def _points(points: Sequence[Point], minimum: int, *, input_path: bool = True) -> list[Point]:
+    if input_path:
+        check_limit(
+            "drawing_vertices",
+            len(points),
+            DRAW_POINTS,
+            "Reduce the polygon/stroke input to at most 65536 points.",
+        )
     if len(points) < minimum:
         raise _invalid(
             f"At least {minimum} point(s) are required.",
@@ -91,10 +115,51 @@ def _mask_points(mask: np.ndarray, x: int = 0, y: int = 0) -> list[Point]:
     return [(int(i) + x, int(j) + y) for j, i in zip(rows, cols, strict=True)]
 
 
+def path_work(points: Sequence[Point], *, closed: bool = False, filled: bool = False) -> int:
+    """Conservative point/edge-test count, without enumerating any segment."""
+    check_limit(
+        "drawing_vertices",
+        len(points),
+        DRAW_POINTS,
+        "Reduce the polygon/stroke input to at most 65536 points.",
+    )
+    if not points:
+        return 0
+    edges = list(zip(points[:-1], points[1:], strict=True))
+    if closed:
+        edges.append((points[-1], points[0]))
+    work = sum(max(abs(b[0] - a[0]), abs(b[1] - a[1])) + 1 for a, b in edges)
+    if filled:
+        w = max(x for x, y in points) - min(x for x, y in points) + 1
+        h = max(y for x, y in points) - min(y for x, y in points) + 1
+        work += w * h * len(edges)
+    return max(1, work)
+
+
+def geometry_work(a) -> int:
+    """Shared argument/Op preflight; distinguish geometry by its declared fields."""
+    if hasattr(a, "x0"):
+        count = max(abs(a.x1 - a.x0), abs(a.y1 - a.y0)) + 1
+    elif hasattr(a, "w"):
+        count = a.w * a.h
+    else:
+        _check_limit(
+            "drawing_vertices",
+            len(a.points),
+            DRAW_POINTS,
+            "Reduce the polygon/stroke input to at most 65536 points.",
+        )
+        count = path_work(
+            a.points, closed=getattr(a, "closed", False), filled=getattr(a, "filled", False)
+        )
+    return count * (1 + a.brush.size * a.brush.size)
+
+
 def line_points(x0: int, y0: int, x1: int, y1: int) -> list[Point]:
     """Return both endpoints using the exact strict comparisons in section 6.4.3."""
     x0, y0 = _integer(x0, "x0"), _integer(y0, "y0")
     x1, y1 = _integer(x1, "x1"), _integer(y1, "y1")
+    drawing_work(max(abs(x1 - x0), abs(y1 - y0)) + 1)
     if (y0, x0) > (y1, x1):
         x0, y0, x1, y1 = x1, y1, x0, y0
     dx, dy = abs(x1 - x0), y1 - y0
@@ -119,6 +184,7 @@ def rect_points(x: int, y: int, w: int, h: int, filled: bool = False) -> list[Po
     """Return the full rectangle or its one-pixel perimeter in row order."""
     x, y = _integer(x, "x"), _integer(y, "y")
     w, h = _dimensions(w, h)
+    drawing_work(w * h)
     return [
         (x + i, y + j)
         for j in range(h)
@@ -130,6 +196,7 @@ def rect_points(x: int, y: int, w: int, h: int, filled: bool = False) -> list[Po
 def ellipse_mask(w: int, h: int) -> np.ndarray:
     """Evaluate the pixel-centre inequality with signed 64-bit integer arrays."""
     w, h = _dimensions(w, h)
+    drawing_work(w * h)
     # Check the largest intermediate in Python integers before allocating int64.
     maximum = max(w * w * h * h, (w - 1) ** 2 * h * h + (h - 1) ** 2 * w * w)
     if maximum > (1 << 63) - 1:
@@ -170,6 +237,7 @@ def polygon_points(
     edges = list(zip(vertices[:-1], vertices[1:], strict=True))
     if closed:
         edges.append((vertices[-1], vertices[0]))
+    drawing_work(path_work(vertices, closed=closed, filled=filled))
     result = set()
     for a, b in edges:
         result.update(line_points(*a, *b))
@@ -212,6 +280,7 @@ def stroke_path(
     """
     vertices = _points(points, 1)
     check_pixel_perfect(pixel_perfect, brush_size)
+    drawing_work(path_work(vertices))
     path = [vertices[0]]
     for a, b in zip(vertices[:-1], vertices[1:], strict=True):
         segment = line_points(*a, *b)
@@ -264,8 +333,11 @@ def brush_offsets(size: int = 1, shape: str = "square") -> list[Point]:
 
 def stamp(points: Sequence[Point], brush: Mapping | None = None) -> list[Point]:
     """Stamp a brush; return unique pixels in first occurrence order."""
-    points = _points(points, 0)
     brush = {} if brush is None else brush
+    size = _brush_size(brush.get("size", 1))
+    drawing_work(len(points) * size * size)
+    # Generated geometry may contain more points than an input path.
+    points = _points(points, 0, input_path=False)
     offsets = brush_offsets(brush.get("size", 1), brush.get("shape", "square"))
     result, seen = [], set()
     for x, y in points:
@@ -285,6 +357,7 @@ def flood_fill_mask(
 ) -> np.ndarray:
     """Find the seed's uniform connected component using an iterative FIFO queue."""
     _array(image, np.uint8, "image")
+    drawing_work(image.size)
     x, y = _integer(x, "x"), _integer(y, "y")
     neighbours = _neighbours(connectivity)
     h, w = image.shape
@@ -315,6 +388,7 @@ def outline_mask(
 ) -> np.ndarray:
     """Return the inner or outer border; all off-array pixels are nonopaque."""
     _array(opaque, np.bool_, "opaque")
+    drawing_work(opaque.size)
     neighbours = _neighbours(connectivity)
     if placement not in ("inside", "outside"):
         raise _invalid("Unknown outline placement.", "Choose placement='inside' or 'outside'.")
@@ -335,6 +409,7 @@ def region_mask(
 ) -> np.ndarray:
     """Resolve all five region forms to a clipped canvas-sized boolean mask."""
     w, h = _dimensions(canvas_w, canvas_h)
+    drawing_work(w * h)
     if w > 8192 or h > 8192 or w * h > 16_777_216:
         raise RasterError(
             "E_LIMIT_EXCEEDED",

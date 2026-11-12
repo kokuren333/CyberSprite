@@ -1,9 +1,10 @@
 """Strict Op arguments. Common transport options are validated separately."""
 
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Literal, Self
 
-from pydantic import BaseModel, Field, create_model
+from pydantic import BaseModel, Field, create_model, model_validator
 
+from cybersprite.core.limits import drawing_work
 from cybersprite.core.models import (
     BlendMode,
     Coordinate,
@@ -16,6 +17,7 @@ from cybersprite.core.models import (
     SliceKey,
     UserData,
 )
+from cybersprite.core.raster import geometry_work
 
 from .descriptions import argument_model
 
@@ -117,9 +119,21 @@ XY = {"x": (int, ...), "y": (int, ...)}
 WH = {"w": (Positive, ...), "h": (Positive, ...)}
 
 
+class GeometryArgs(Model):
+    @model_validator(mode="after")
+    def check_work(self) -> Self:
+        drawing_work(geometry_work(self))
+        return self
+
+
 def contract(name: str, fields: dict[str, Any], *, draw: bool = False) -> type[Model]:
     values: dict[str, Any] = {**(COMMON_DRAW if draw else {}), **fields}
-    return create_model(name, __base__=Model, **values)
+    base = (
+        GeometryArgs
+        if name in ("LineArgs", "RectArgs", "EllipseArgs", "PolygonArgs", "StrokeArgs")
+        else Model
+    )
+    return create_model(name, __base__=base, **values)
 
 
 ARGS: dict[str, type[BaseModel]] = {}

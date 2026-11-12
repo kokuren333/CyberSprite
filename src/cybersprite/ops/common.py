@@ -6,6 +6,7 @@ from typing import NoReturn
 import numpy as np
 
 from cybersprite.core.errors import CyberSpriteError, invalid
+from cybersprite.core.limits import output_bytes
 from cybersprite.core.models import ImageCel, ImageLayer, LinkCel
 from cybersprite.core.pixels import pixels_from_rows, pixels_to_rows, resolve_color
 from cybersprite.core.references import cel_at, cel_owner, resolve_layer, resolve_tag, walk_layers
@@ -46,6 +47,7 @@ def frames(p, value):
         match = re.fullmatch(r"(\d+)-(\d+)", value)
         if match is None or int(match[1]) > int(match[2]):
             raise invalid("Frame specifier must be an index, list, a-b, all, or tag:name.")
+        frame_index(p, int(match[2]))
         result = list(range(int(match[1]), int(match[2]) + 1))
     for f in result:
         frame_index(p, f)
@@ -115,6 +117,7 @@ def write_points(ctx, layer, frame, points):
     if owner is not None:
         left, top = min(left, owner.x), min(top, owner.y)
         right, bottom = max(right, owner.x + owner.w), max(bottom, owner.y + owner.h)
+    output_bytes(right - left, bottom - top)
     data = np.full((bottom - top, right - left), p.palette.transparent_index, dtype=np.uint8)
     if owner is not None:
         data[owner.y - top : owner.y - top + owner.h, owner.x - left : owner.x - left + owner.w] = (

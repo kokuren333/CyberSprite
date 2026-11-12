@@ -8,6 +8,7 @@ from pathlib import Path
 import numpy as np
 
 from cybersprite.core.errors import CyberSpriteError, invalid
+from cybersprite.core.limits import DecodeBudget
 from cybersprite.core.pixels import rgba
 
 
@@ -36,13 +37,19 @@ def decode_palette(data, format):
     if format == "png":
         from PIL import Image
 
-        with Image.open(io.BytesIO(data)) as image:
-            colors = list(
-                dict.fromkeys(
-                    "#" + bytes(c).hex()
-                    for c in np.asarray(image.convert("RGBA"), dtype=np.uint8).reshape(-1, 4)
+        try:
+            with Image.open(io.BytesIO(data)) as image:
+                DecodeBudget().reserve(*image.size)
+                colors = list(
+                    dict.fromkeys(
+                        "#" + bytes(c).hex()
+                        for c in np.asarray(image.convert("RGBA"), dtype=np.uint8).reshape(-1, 4)
+                    )
                 )
-            )
+        except (Image.DecompressionBombError, Image.DecompressionBombWarning) as error:
+            from .decode_limits import pillow_bomb_error
+
+            raise pillow_bomb_error(error) from error
         _limit(colors)
         return colors, names
     if format not in ("gpl", "pal", "hex"):

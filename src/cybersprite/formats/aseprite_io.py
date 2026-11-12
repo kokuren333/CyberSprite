@@ -423,6 +423,9 @@ def _color(c):
 
 
 def from_native(sprite, *, name="Imported", quantize=None):
+    from .decode_limits import native_limits
+
+    native_limits(sprite)
     dropped = []
 
     def drop(kind, **details):
@@ -876,8 +879,19 @@ def encode_aseprite(project):
 
 def decode_aseprite(data, *, name="Imported", quantize=None):
     try:
+        from .decode_limits import aseprite_limits
+
+        aseprite_limits(data)
         return from_native(ap.Sprite.from_bytes(data), name=name, quantize=quantize)
-    except (ap.AsepriteError, ValueError, TypeError, IndexError, KeyError, OverflowError) as error:
+    except (
+        ap.AsepriteError,
+        ValueError,
+        TypeError,
+        IndexError,
+        KeyError,
+        OverflowError,
+        struct.error,
+    ) as error:
         raise CyberSpriteError(
             "E_IO",
             f"Cannot decode .aseprite: {error}",

@@ -196,10 +196,13 @@ def source_query(ctx, args, name):
 
 
 def decode_files(paths, sheet=None):
+    from cybersprite.core.limits import DecodeBudget
+
+    budget = DecodeBudget()
     frames, durations, warnings, dimensions = [], [], [], []
     try:
         for path in paths:
-            images, decoded = decode_raster(path)
+            images, decoded = decode_raster(path, budget=budget)
             dimensions.append((int(images[0].shape[1]), int(images[0].shape[0])))
             frames.extend(images)
             durations.extend(decoded["durations_ms"])

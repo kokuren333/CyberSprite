@@ -9,6 +9,7 @@ from cybersprite import __version__
 from cybersprite.core.canonical import _ordered
 from cybersprite.core.errors import invalid
 from cybersprite.core.hashing import pixel_sha256
+from cybersprite.core.limits import OUTPUT_BYTES, OUTPUT_ITEMS, check_limit, output_bytes
 from cybersprite.core.models import GroupLayer
 from cybersprite.core.references import resolve_layer, resolve_tag, walk_layers
 from cybersprite.core.render import indexed_result, render_result
@@ -111,6 +112,7 @@ def layout_rectangles(sizes, a):
             height=final_h,
             limit=16384,
         )
+    output_bytes(final_w, final_h)
     return placements, final_w, final_h
 
 
@@ -135,7 +137,14 @@ def enumerate_items(p, a):
     layers = selected_layers(p, a)
     tags = list(p.tags) if a.split_tags else [resolve_tag(p, a.tag) if a.tag else None]
     slices = list(p.slices) if a.split_slices else [None]
+    check_limit(
+        "output_items",
+        (len(layers) if a.split_layers else 1) * len(tags) * len(slices) * len(sequence),
+        OUTPUT_ITEMS,
+        "Select fewer frames, layers, tags, or slices for this sheet.",
+    )
     items, warnings = [], []
+    held_bytes = 0
     for layer in layers if a.split_layers else [None]:
         for tag in tags:
             for slice in slices:
@@ -145,6 +154,16 @@ def enumerate_items(p, a):
                     if slice is not None and not any(k.frame <= frame for k in slice.keys):
                         continue
                     crop = slice_bounds(p, slice.id, frame)[1] if slice else None
+                    w = (crop["w"] if crop else p.canvas.width) * a.scale
+                    h = (crop["h"] if crop else p.canvas.height) * a.scale
+                    size = output_bytes(w, h)
+                    check_limit(
+                        "output_bytes",
+                        held_bytes + size,
+                        OUTPUT_BYTES,
+                        "Export fewer sheet items or reduce scale/crop dimensions.",
+                    )
+                    held_bytes += size
                     options = dict(
                         layers=[layer.id] if layer else [node.id for node in layers],
                         include_hidden=a.include_hidden,

@@ -74,6 +74,13 @@ def frame_sequence(p, value=None):
             start, end = int(match[1]), int(match[2])
             if start > end:
                 raise invalid("Frame range start must not exceed its end.")
+            if end >= len(p.frames):
+                fail(
+                    "E_FRAME_OUT_OF_RANGE",
+                    "Export range end is outside the project.",
+                    frame=end,
+                    frame_count=len(p.frames),
+                )
             result = list(range(start, end + 1))
         else:
             tag = resolve_tag(p, value.removeprefix("tag:"))
@@ -93,13 +100,31 @@ def frame_sequence(p, value=None):
     return result
 
 
-def animation_sequence(p, frames=None, tag=None, loop=0):
+def animation_sequence(p, frames=None, tag=None, loop=0, *, scale=1):
+    from cybersprite.core.limits import FRAME_COUNT, check_limit, output_bytes
+
     if tag is not None and frames is not None:
         raise invalid("Specify either tag or frames for animation export.")
     if tag is None:
         result = frame_sequence(p, frames)
     else:
         t = resolve_tag(p, tag)
+        count = t.to - t.from_ + 1
+        if count > 1:
+            count = (
+                count * max(t.repeat, 1)
+                if t.direction in ("forward", "reverse")
+                else count + (count - 1) * ((t.repeat or 2) - 1)
+            )
+        # Check before repetition allocates the playback list, conservatively
+        # including a possible duplicate closing frame.
+        output_bytes(p.canvas.width * scale, p.canvas.height * scale, count)
+        check_limit(
+            "output_frames",
+            count,
+            FRAME_COUNT,
+            "Reduce tag repeat or export a shorter frame range.",
+        )
         forward = list(range(t.from_, t.to + 1))
         if len(forward) == 1:
             result = forward
@@ -112,6 +137,10 @@ def animation_sequence(p, frames=None, tag=None, loop=0):
                 result.extend((first if leg % 2 == 0 else first[::-1])[1:])
     if loop == 0 and len(result) > 2 and result[-1] == result[0]:
         result.pop()
+    output_bytes(p.canvas.width * scale, p.canvas.height * scale, len(result))
+    check_limit(
+        "output_frames", len(result), FRAME_COUNT, "Export at most 4096 playback frames per call."
+    )
     return result
 
 

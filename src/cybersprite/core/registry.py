@@ -9,6 +9,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field, ValidationError, create_model
 
 from .errors import CyberSpriteError, invalid
+from .limits import DrawingBudget
 from .models import Model, Project
 
 
@@ -24,6 +25,7 @@ class OpContext:
     source_manifest: object = None
     previous_source_manifest: object = None
     warnings: list = field(default_factory=list)
+    drawing_budget: DrawingBudget = field(default_factory=DrawingBudget)
 
 
 @dataclass(frozen=True)
