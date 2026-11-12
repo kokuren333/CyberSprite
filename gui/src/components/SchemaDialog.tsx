@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useText } from '../i18n';
 import { fileUrl } from '../api/files';
 import { act, apply, openProject, rpc, useEditor, view, type OpSchema } from '../store';
+import { Icon, Notch } from './chrome';
 export type DialogKind = 'new' | 'open' | 'import' | 'export' | 'operation';
 function defaults(schema: OpSchema | undefined) {
   const props = schema?.inputSchema.properties ?? {};
@@ -36,17 +37,27 @@ export function SchemaDialog({ kind, initialOp, close }: { kind: DialogKind; ini
       else { const value = await apply(name, values, project); setPreview(value); if (kind === 'new') close(); }
     } finally { setBusy(false); }
   }
-  return <dialog ref={dialog} className="schema-dialog" onCancel={close}><h2>{kind === 'operation' ? t('operation') : t(kind)}</h2>
-    <label>{t('project')}<input aria-label={t('project')} value={project} onChange={e => setProject(e.target.value)} /></label>
-    {kind !== 'open' && <><label>{t('operation')}<select aria-label={t('operation')} value={name} onChange={e => { setName(e.target.value); change(JSON.stringify(defaults(candidates.find(c => c.name === e.target.value)), null, 2)); }}>{candidates.map(op => <option key={op.name}>{op.name}</option>)}</select></label>
-      {!schema && <p role="status">{t('notAvailable')}</p>}
-      <details className="op-schema"><summary>{t('schema')}</summary><pre>{JSON.stringify(schema?.inputSchema, null, 2)}</pre></details>
-      <label>{t('arguments')}<textarea aria-label={t('arguments')} rows={12} cols={60} value={args} onChange={e => change(e.target.value)} /></label>
-    </>}
-    {kind === 'import' && <><button disabled={busy || !schema} onClick={() => void act(() => execute(true))}>{t('preview')}</button><label><input type="checkbox" disabled={!preview} checked={accepted} onChange={e => setAccepted(e.target.checked)} />{t('preview')} OK</label></>}
-    {kind === 'export' && <><pre className="export-plan">{s.project?.summary.width}×{s.project?.summary.height}{'\n'}{args}</pre><label><input type="checkbox" checked={force} onChange={e => setForce(e.target.checked)} />{t('force')}</label></>}
-    <button disabled={busy || (kind !== 'open' && !schema) || (kind === 'import' && !accepted)} onClick={() => void act(() => execute())}>{t('apply')}</button><button onClick={close}>{t('cancel')}</button>
-    <p className="dialog-error" role="alert">{s.error}</p><pre className="operation-result">{JSON.stringify(preview, null, 2)}</pre>
-    {media(preview).map(({ path, label }, i) => <figure key={i}><img className="stage-image" src={fileUrl(path)} alt={label} /><figcaption>{label}: {path}</figcaption></figure>)}
+  const icon = ({ new: 'add', open: 'folder', import: 'sources', export: 'last', operation: 'layer' } as const)[kind];
+  return <dialog ref={dialog} className="schema-dialog panel" onCancel={close} aria-labelledby="dlg-title"><Notch />
+    <header className="ph"><Icon name={icon} /><h2 className="ph-title" id="dlg-title"><span className="ph-name">{kind === 'operation' ? t('operation') : t(kind)}</span></h2></header>
+    <div className="dlg-body">
+      <label className="frow"><span className="lbl">{t('project')}</span><input className="field mono" aria-label={t('project')} value={project} onChange={e => setProject(e.target.value)} /></label>
+      {kind !== 'open' && <><label className="frow"><span className="lbl">{t('operation')}</span><select className="field mono" aria-label={t('operation')} value={name} onChange={e => { setName(e.target.value); change(JSON.stringify(defaults(candidates.find(c => c.name === e.target.value)), null, 2)); }}>{candidates.map(op => <option key={op.name}>{op.name}</option>)}</select></label>
+        {!schema && <p className="note warn" role="status"><Icon name="warning" />{t('notAvailable')}</p>}
+        {schema?.description && <p className="soft op-desc">{schema.description}</p>}
+        <details className="op-schema"><summary>{t('schema')}</summary><pre className="mono">{JSON.stringify(schema?.inputSchema, null, 2)}</pre></details>
+        <label className="frow col"><span className="lbl">{t('arguments')}</span><textarea className="field mono" aria-label={t('arguments')} rows={10} cols={60} spellCheck={false} value={args} onChange={e => change(e.target.value)} /></label>
+      </>}
+      {kind === 'export' && <><pre className="export-plan mono">{s.project?.summary.width}×{s.project?.summary.height}{'\n'}{args}</pre><label className="chk"><input type="checkbox" checked={force} onChange={e => setForce(e.target.checked)} />{t('force')}</label></>}
+      <p className="dialog-error" role="alert">{s.error && <><Icon name="error" />{s.error}</>}</p>
+      {preview && <pre className="operation-result mono">{JSON.stringify(preview, null, 2)}</pre>}
+      {media(preview).map(({ path, label }, i) => <figure key={i}><img className="stage-image checker" src={fileUrl(path)} alt={label} /><figcaption className="mono soft">{label}: {path}</figcaption></figure>)}
+    </div>
+    <footer className="dlg-actions">
+      {kind === 'import' && <><button className="pad" disabled={busy || !schema} onClick={() => void act(() => execute(true))}>{t('preview')}</button><label className="chk"><input type="checkbox" disabled={!preview} checked={accepted} onChange={e => setAccepted(e.target.checked)} />{t('previewOk')}</label></>}
+      <span className="grow" />
+      <button className="pad" onClick={close}>{t('cancel')}</button>
+      <button className="pad primary" disabled={busy || (kind !== 'open' && !schema) || (kind === 'import' && !accepted)} onClick={() => void act(() => execute())}>{t('apply')}</button>
+    </footer>
   </dialog>;
 }

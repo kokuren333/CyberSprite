@@ -1,8 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { useText } from '../i18n';
 import { fileUrl } from '../api/files';
-import { act, apply, rpc, store, useEditor, view } from '../store';
+import { act, apply, flattenLayers, rpc, store, useEditor, view } from '../store';
 import { ellipse, line, rect, stamp, stroke, type Point } from '../raster';
+import { Icon, Notch } from './chrome';
+/** Crisp 1px outline (fillRect on integer device pixels; strokeRect would anti-alias). */
+function box(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, width = 1) {
+  ctx.fillRect(x, y, w, width); ctx.fillRect(x, y + h - width, w, width);
+  ctx.fillRect(x, y, width, h); ctx.fillRect(x + w - width, y, width, h);
+}
+const token = (el: Element, name: string) => getComputedStyle(el).getPropertyValue(name).trim();
 
 type Drag = { points: Point[]; state: ReturnType<typeof store.getState>; pan?: Point; scroll?: Point; tool: string };
 function pixels(drag: Drag): Point[] {
@@ -71,24 +78,31 @@ export function Canvas() {
         else ctx.fillRect(x * s.zoom, y * s.zoom, s.zoom, s.zoom);
       }
     }
-    // Overlay geometry uses existing theme tokens; appearance is for the Opus pass.
-    ctx.strokeStyle = getComputedStyle(output).getPropertyValue('--cs-ink').trim();
-    if (s.grid) {
-      ctx.beginPath();
-      for (let x = 0; x <= image.width; x++) { ctx.moveTo(x * s.zoom, 0); ctx.lineTo(x * s.zoom, output.height); }
-      for (let y = 0; y <= image.height; y++) { ctx.moveTo(0, y * s.zoom); ctx.lineTo(output.width, y * s.zoom); }
-      ctx.stroke();
+    // Overlays: pixel grid, marquee, and the 1-second changed-pixels highlight (W1).
+    if (s.grid && s.zoom >= 3) {
+      ctx.fillStyle = token(output, '--ui-grid-line');
+      for (let x = 1; x < image.width; x++) ctx.fillRect(x * s.zoom, 0, 1, output.height);
+      for (let y = 1; y < image.height; y++) ctx.fillRect(0, y * s.zoom, output.width, 1);
     }
-    if (s.selection.type === 'rect') ctx.strokeRect(s.selection.x! * s.zoom, s.selection.y! * s.zoom, s.selection.w! * s.zoom, s.selection.h! * s.zoom);
+    if (s.selection.type === 'rect') {
+      const [x, y, w, h] = [s.selection.x! * s.zoom, s.selection.y! * s.zoom, s.selection.w! * s.zoom, s.selection.h! * s.zoom];
+      ctx.fillStyle = '#FFFFFF'; box(ctx, x - 1, y - 1, w + 2, h + 2, 1); box(ctx, x + 1, y + 1, w - 2, h - 2, 1);
+      ctx.fillStyle = token(output, '--ui-selection-line'); box(ctx, x, y, w, h, 1);
+    }
     if (s.change) for (const f of s.change.changed?.frames ?? []) {
-      if (f.frame === s.frame && f.bbox) ctx.strokeRect(f.bbox.x * s.zoom, f.bbox.y * s.zoom, f.bbox.w * s.zoom, f.bbox.h * s.zoom);
+      if (f.frame !== s.frame || !f.bbox) continue;
+      const [x, y, w, h] = [f.bbox.x * s.zoom, f.bbox.y * s.zoom, f.bbox.w * s.zoom, f.bbox.h * s.zoom];
+      ctx.fillStyle = '#FFFFFF'; box(ctx, x - 3, y - 3, w + 6, h + 6, 1);
+      ctx.fillStyle = token(output, '--ui-change-line'); box(ctx, x - 2, y - 2, w + 4, h + 4, 2);
     }
   });
   useEffect(() => { if (s.change) { const timer = setTimeout(() => view({ change: null }), 1000); return () => clearTimeout(timer); } }, [s.change]);
-  if (!s.project) return <section className="canvas-region">{t('noProject')}</section>;
+  if (!s.project) return <section className="canvas-region panel" data-panel="canvas" aria-label={t('canvas')}><Notch /><div className="document-tabs" /><div className="canvas-empty"><Icon name="folder" scale={2} /><p>{t('noProject')}</p></div></section>;
   function point(e: React.PointerEvent<HTMLCanvasElement>): Point {
     const bounds = e.currentTarget.getBoundingClientRect();
-    return [Math.floor((e.clientX - bounds.left) / s.zoom), Math.floor((e.clientY - bounds.top) / s.zoom)];
+    // Bounds include the integer UI scale (CSS zoom); convert to canvas pixels, then to sprite pixels.
+    const k = e.currentTarget.width / bounds.width;
+    return [Math.floor((e.clientX - bounds.left) * k / s.zoom), Math.floor((e.clientY - bounds.top) * k / s.zoom)];
   }
   async function commit(drawing: Drag) {
     const { state: at, points, tool } = drawing, a = points[0], b = points.at(-1)!;
@@ -105,10 +119,19 @@ export function Canvas() {
     else if (tool === 'rect' || tool === 'ellipse') await apply(tool, { ...target, x: Math.min(a[0], b[0]), y: Math.min(a[1], b[1]), w: Math.abs(b[0] - a[0]) + 1, h: Math.abs(b[1] - a[1]) + 1, filled: at.filled, color, brush: at.brush }, at.projectPath);
     else await apply('stroke', { ...target, points, color, brush: at.brush, pixel_perfect: at.pixelPerfect }, at.projectPath);
   }
-  return <section className="canvas-region"><h2 className="document-tabs">{s.project.summary.name}</h2>
-    <div className="canvas-controls"><button onClick={() => view({ zoom: Math.max(1, s.zoom - 1) })}>{t('zoomOut')}</button><output>{s.zoom}×</output><button onClick={() => view({ zoom: Math.min(64, s.zoom + 1) })}>{t('zoomIn')}</button></div>
-    <div ref={viewport} className="canvas-viewport">
-      <canvas ref={canvas} className="sprite-canvas" data-testid="sprite-canvas" aria-label={t('canvas')} tabIndex={0} width={s.project.summary.width * s.zoom} height={s.project.summary.height * s.zoom}
+  const checker = s.zoom * Math.max(1, Math.round(8 / s.zoom));
+  const tool = s.tool === 'hand' ? 'grab' : s.tool === 'zoom' ? 'zoom-in' : 'crosshair';
+  return <section className="canvas-region panel" data-panel="canvas" aria-label={t('canvas')}><Notch />
+    <div className="document-tabs" role="tablist" aria-label={t('documents')}>
+      <h2 className="dtab on" role="tab" aria-selected="true"><span className="dtab-name">{s.project.summary.name}.csprite</span><span className="dtab-rev mono">r{s.project.summary.revision}</span></h2>
+      <div className="canvas-controls">
+        <button className="pad icon-only" aria-label={t('zoomOut')} data-tip={t('zoomOut')} onClick={() => view({ zoom: Math.max(1, s.zoom - 1) })}><Icon name="remove" /></button>
+        <output className="pad val mono" aria-label={t('zoomLevel')}>{s.zoom * 100}%</output>
+        <button className="pad icon-only" aria-label={t('zoomIn')} data-tip={t('zoomIn')} onClick={() => view({ zoom: Math.min(64, s.zoom + 1) })}><Icon name="add" /></button>
+      </div>
+    </div>
+    <div ref={viewport} className="canvas-viewport" style={{ cursor: tool }}>
+      <canvas ref={canvas} className="sprite-canvas checker" style={{ backgroundSize: `${checker * 2}px ${checker * 2}px`, ['--checker' as string]: `${checker}px` }} data-testid="sprite-canvas" aria-label={t('canvas')} tabIndex={0} width={s.project.summary.width * s.zoom} height={s.project.summary.height * s.zoom}
         onWheel={e => view({ zoom: Math.max(1, Math.min(64, s.zoom + (e.deltaY < 0 ? 1 : -1))) })}
         onPointerDown={e => {
           if (e.button !== 0 && e.button !== 1) return;
@@ -136,6 +159,8 @@ export function Canvas() {
           if (e.key.startsWith('Arrow')) { e.preventDefault(); e.stopPropagation(); view({ pointer: [Math.max(0, Math.min(s.project!.summary.width - 1, s.pointer[0] + (e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0))), Math.max(0, Math.min(s.project!.summary.height - 1, s.pointer[1] + (e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0)))] }); }
           if (e.key === 'i') void act(async () => { const v = await rpc('op.apply', { op: 'get_pixels', args: { layer: '@composite', frame: s.frame, rect: { x: s.pointer[0], y: s.pointer[1], w: 1, h: 1 } } }); setSample(String(v.result.used[0].index)); });
         }} />
-    </div><output className="canvas-sample">{sample}</output>
+    </div>
+    <div className="cv-foot"><span className="cv-chip mono">{t('frame')} <b>{s.frame}</b> · {t('layer')} <b>{flattenLayers(s.project.layers).find(l => l.id === s.layer)?.name}</b>{s.tag && <> · {t('tag')} <b>{s.project.tags.find(g => g.id === s.tag)?.name}</b></>}</span>
+      <output className="canvas-sample cv-chip mono" hidden={!sample}>{t('sampled')} #{sample}</output></div>
   </section>;
 }

@@ -878,6 +878,17 @@ def link() -> list[str]:
     return put(g, [(6, 9)], "#")
 
 
+def settings() -> list[str]:
+    """Three slider rails with knobs (preferences). Rails ink, knobs cyan."""
+    rails = put(to_rows(blank()), [(x, y) for y in (3, 8, 12) for x in range(1, 15)], "#")
+    return merge(
+        rails,
+        outlined(rect_mask(9, 1, 12, 5), "c"),
+        outlined(rect_mask(3, 6, 6, 10), "c"),
+        outlined(rect_mask(8, 10, 11, 14), "c"),
+    )
+
+
 def all_icons() -> dict[str, list[str]]:
     icons = {
         # tool bar (SPEC 14.2)
@@ -925,6 +936,8 @@ def all_icons() -> dict[str, list[str]]:
         "layer": layer(),
         "folder": FOLDER,
         "tile": tile(),
+        # GUI chrome (M8)
+        "settings": settings(),
     }
     for name, rows in icons.items():
         grid(rows)
