@@ -200,5 +200,5 @@
 
 - SPECを先に改訂してM11〜M13を追加し、省略可能platform snapshot、解決・継承、29定義、Op/CLI/MCP、6規則、既定値の駆動、リンク編集の明示scopeを実装した。
 - 個別試験は最終39 passed。実CLIとMCP SDKの通し確認、実PNGの自前/Pillow再復号とファイル確認、Ruff/mypy39ファイル/schema/repositoryは成功。全体pytestは実行中。既存goldenは8応答の透明除外による色数デルタだけ、新規NDS/DMGは16期待ファイル。既存正本・画像・画素ハッシュは不変。
-- 性能最適化なし、before/afterの速度主張なし。判断I-1401〜I-1415、新規依存なし。ハードウェアの事実はPan Docs/GBATEKで照合した。
+- 性能最適化なし、before/afterの速度主張なし。判断I-1401〜I-1417、新規依存なし。ハードウェアの事実はPan Docs/GBATEKで照合した。
 - GUIの意匠、R1-C共通基盤への接合、M12/M13、Linux、過去DS資料の遡及来歴記録は後続工程。詳細は [R1_E1_REPORT.md](R1_E1_REPORT.md)。

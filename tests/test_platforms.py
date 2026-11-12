@@ -415,17 +415,32 @@ def test_import_uses_platform_defaults_once(tmp_path):
     create(root, platform=platform, palette=["#00000000"])
     image = tmp_path / "source.png"
     image.write_bytes(encode_png(np.full((2, 2, 4), 128, dtype=np.uint8)))
+    arguments = {
+        "files": str(image),
+        "provenance": {"license": "unknown"},
+        "on_gate_fail": "accept",
+    }
     result = ops.execute(
-        "import_image",
-        root,
-        {"files": str(image), "provenance": {"license": "unknown"}, "on_gate_fail": "accept"},
-        preview="none",
+        "import_image", root, arguments, preview="none", idempotency_key="platform-import"
     )
     assert result["defaults_from_platform"] == [
-        "defaults.pipeline.preset",
         "defaults.pipeline.overrides",
+        "defaults.pipeline.preset",
     ]
     assert canonical.load_project(root).palette.colors[1] == "#7b8484ff"
+    ops.execute(
+        "set_platform",
+        root,
+        {"platform": {"defaults": {"pipeline": {"overrides": {"bad_section": 1}}}}},
+        preview="none",
+    )
+    before = (root / "project.json").read_bytes()
+    replay = ops.execute(
+        "import_image", root, arguments, preview="none", idempotency_key="platform-import"
+    )
+    assert replay["replayed"]
+    assert replay["defaults_from_platform"] == result["defaults_from_platform"]
+    assert (root / "project.json").read_bytes() == before
 
 
 def test_platform_aseprite_roundtrip(tmp_path):
