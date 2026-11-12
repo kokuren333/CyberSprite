@@ -78,9 +78,11 @@ def main():
             dense = fixture(32, frames=10)
             for frame, cel in enumerate(dense.layers[0].cels):
                 row = cel.pixels[0]
-                cel.pixels[0] = row[: frame * 2] + "03" + row[frame * 2 + 2 :]
+                marker = "02" if row[frame * 2 : frame * 2 + 2] == "01" else "01"
+                cel.pixels[0] = row[: frame * 2] + marker + row[frame * 2 + 2 :]
             create_project(project, dense)
             ops.execute("get_info", project, {"include": ["summary"]})
+            assert ops.execute("set_pixel", project, pixel, preview="none")["no_op"]
             for name in ("set_pixel", "validate"):
                 samples = []
                 for i in range(3):
