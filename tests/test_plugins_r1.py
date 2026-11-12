@@ -236,6 +236,8 @@ def test_other_pipeline_steps(plugins, tmp_path, step):
     install, _, _ = plugins
 
     def run(im, params):
+        if step == "cleanup":
+            assert params["protect"] == [1]
         if step == "quantize":
             return IndexedImage(
                 np.ones(im.shape[:2], dtype=np.uint8), [(0, 0, 0, 0), (40, 80, 120, 255)]
@@ -246,6 +248,8 @@ def test_other_pipeline_steps(plugins, tmp_path, step):
     overrides = {"grid": {"mode": "none"}, "cleanup": {"min_cluster": 1}}
     section = "palette" if step == "quantize" else step
     overrides.setdefault(section, {}).update({"method": "tiny"})
+    if step == "cleanup":
+        overrides["palette"] = {"protect": ["#285078ff"]}
     frames, _, report = run_pipeline(
         [image()], tmp_path / step, preset="exact", overrides=overrides
     )

@@ -41,7 +41,7 @@ make_step.plugin_api = 1
 | `downsample` | RGBA → RGBA。検出した rows/columns に一致させる | `grid`（確定したセル境界）。背景除去と二値アルファ化は共通処理 |
 | `reconstruct` | RGBA → RGBA。grid＋downsample を置換 | `grid`。任意寸法を返せる。単一の量子化は後段で行う |
 | `quantize` | RGBA → `IndexedImage` | `project_palette`、`transparent_index`、`dither_type`、`strength` |
-| `cleanup` | `IndexedImage` → `IndexedImage`。寸法とパレットは変更不可 | `transparent_index` |
+| `cleanup` | `IndexedImage` → `IndexedImage`。寸法とパレットは変更不可 | `transparent_index`。`protect` はパレットの保護色も番号へ解決して合成した実効値 |
 
 RGBA は `numpy.uint8[H,W,4]`。`IndexedImage` は `pixels: numpy.uint8[H,W]` と、整数 RGBA タプルの `palette`。配列の暗黙のキャスト・色の近似はしない。量子化方式は既存 `palette` 節の `method` で選ぶ（`quantize` 節も同義）。量子化は既存パレットの接頭辞・透明番号を維持し、`mode="project"` では完全一致させる。
 

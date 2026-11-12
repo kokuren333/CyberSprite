@@ -266,7 +266,7 @@ def _run(images, directory, source_id, preset, overrides, project, position):
             "cleanup",
             cleanup_method,
             [IndexedImage(im, palette) for im in indices],
-            settings["cleanup"],
+            dict(settings["cleanup"], protect=cleanup_settings["protect"]),
             transparent_index=ti,
         )
         cleaned = [im.pixels for im in outputs]
