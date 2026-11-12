@@ -4,7 +4,7 @@ from math import isqrt
 
 import numpy as np
 
-from .errors import invalid
+from .errors import CyberSpriteError, invalid
 from .pixels import pixels_from_rows, resolve_color, rgba
 from .references import resolve_tag
 from .render import render
@@ -24,17 +24,35 @@ DIGITS = (
 )
 
 
-def scale_for(p, scale="auto", inline=False):
-    maximum = max(p.canvas.width, p.canvas.height)
+def preview_rect(p, rect=None):
+    rect = rect or {"x": 0, "y": 0, "w": p.canvas.width, "h": p.canvas.height}
+    x, y, w, h = (rect[k] for k in ("x", "y", "w", "h"))
+    if any(type(v) is not int for v in (x, y, w, h)) or min(w, h) < 1:
+        raise invalid("Preview rect requires integer x/y and positive integer w/h.")
+    if min(x, y) < 0 or x + w > p.canvas.width or y + h > p.canvas.height:
+        raise CyberSpriteError(
+            "E_OUT_OF_CANVAS",
+            "Preview rect must lie within the canvas.",
+            "Use a nonempty rect inside canvas dimensions from get_info.",
+            {"width": p.canvas.width, "height": p.canvas.height},
+        )
+    return x, y, w, h
+
+
+def scale_for(p, scale="auto", inline=False, rect=None):
+    _, _, w, h = preview_rect(p, rect)
+    maximum = max(w, h)
     scale = max(1, min(16, 512 // maximum)) if scale == "auto" else scale
     if inline:
         scale = min(scale, max(1, 1024 // maximum))
     return scale
 
 
-def checker(image, background="checker", p=None):
+def checker(image, background="checker", p=None, origin=(0, 0)):
     h, w = image.shape[:2]
     yy, xx = np.indices((h, w), dtype=np.int32)
+    xx += origin[0]
+    yy += origin[1]
     if background == "checker":
         shade = np.where(((xx // 4 + yy // 4) % 2) != 0, 224, 192).astype(np.int32)
         base = np.stack([shade, shade, shade], axis=2)
@@ -71,10 +89,12 @@ def preview_array(
     background="checker",
     layers=None,
     inline=False,
+    rect=None,
 ):
-    scale = scale_for(p, scale, inline)
-    data = render(p, frame, {"layers": layers})
-    image = checker(np.zeros_like(data), background, p)
+    x0, y0, width, height = preview_rect(p, rect)
+    scale = scale_for(p, scale, inline, rect)
+    data = render(p, frame, {"layers": layers})[y0 : y0 + height, x0 : x0 + width]
+    image = checker(np.zeros_like(data), background, p, (x0, y0))
     if onion:
         start, end = 0, len(p.frames) - 1
         loop_tag = onion.get("loop_tag")
@@ -94,7 +114,7 @@ def preview_array(
                 if start <= f <= end and f != frame:
                     ghosts.append((f, tint))
         for f, tint in ghosts:
-            ghost = render(p, f, {"layers": layers})
+            ghost = render(p, f, {"layers": layers})[y0 : y0 + height, x0 : x0 + width].copy()
             ghost[:, :, :3] = tint
             ghost[:, :, 3] = ((ghost[:, :, 3].astype(np.int32) + 1) // 2).astype(np.uint8)
             image = _over(ghost, image)
@@ -109,21 +129,25 @@ def preview_array(
                 np.uint8
             )
         g = p.canvas.grid
-        for y in range(g.y % g.h, p.canvas.height, g.h):
-            image[y * scale : y * scale + 2, :] = (96, 96, 96, 255)
-        for x in range(g.x % g.w, p.canvas.width, g.w):
-            image[:, x * scale : x * scale + 2] = (96, 96, 96, 255)
+        for y in range(g.y % g.h, y0 + height, g.h):
+            start = (y - y0) * scale
+            if start + 2 > 0:
+                image[max(0, start) : max(0, start + 2), :] = (96, 96, 96, 255)
+        for x in range(g.x % g.w, x0 + width, g.w):
+            start = (x - x0) * scale
+            if start + 2 > 0:
+                image[:, max(0, start) : max(0, start + 2)] = (96, 96, 96, 255)
     if rulers:
         pad = 18
         h, w = image.shape[:2]
         bordered = np.full((h + pad, w + pad, 4), (240, 240, 240, 255), dtype=np.uint8)
         bordered[pad:, pad:] = image
-        for value in range(0, p.canvas.width, 8):
-            x = pad + value * scale
+        for value in range(((x0 + 7) // 8) * 8, x0 + width, 8):
+            x = pad + (value - x0) * scale
             bordered[pad - 3 : pad, x] = (32, 32, 32, 255)
             _label(bordered, x, 3, value)
-        for value in range(0, p.canvas.height, 8):
-            y = pad + value * scale
+        for value in range(((y0 + 7) // 8) * 8, y0 + height, 8):
+            y = pad + (value - y0) * scale
             bordered[y, pad - 3 : pad] = (32, 32, 32, 255)
             _label(bordered, 1, y, value)
         image = bordered
@@ -148,21 +172,23 @@ def _over(foreground, background):
     return result
 
 
-def composite_preview(p, fs, *, layout, scale="auto", **options):
+def composite_preview(p, fs, *, layout, scale="auto", return_sampling=False, **options):
     """Compose bounded thumbnails sequentially, avoiding a full-size frame stack."""
 
     def thumbnail(frame, factor, step):
         image, _ = preview_array(p, frame, scale=factor, inline=False, **options)
         return image[::step, ::step]
 
+    _, _, width, height = preview_rect(p, options.get("rect"))
     return _contact_sheet(
-        p.canvas.width,
-        p.canvas.height,
+        width,
+        height,
         fs,
         thumbnail,
         layout=layout,
         scale=scale,
         pad=18 if options.get("rulers") else 0,
+        return_sampling=return_sampling,
     )
 
 
@@ -187,7 +213,7 @@ def tileset_preview(p, ts, *, scale="auto", background="checker"):
     )
 
 
-def _contact_sheet(tile_w, tile_h, fs, thumbnail, *, layout, scale, pad=0):
+def _contact_sheet(tile_w, tile_h, fs, thumbnail, *, layout, scale, pad=0, return_sampling=False):
     columns = len(fs) if layout == "strip" else isqrt(len(fs) - 1) + 1
     rows = (len(fs) + columns - 1) // columns
     label_width = 4 * len(str(max(fs))) - 1
@@ -217,6 +243,9 @@ def _contact_sheet(tile_w, tile_h, fs, thumbnail, *, layout, scale, pad=0):
         _label(output, x, y, frame)
         output[y + 7 : y + 7 + image.shape[0], x : x + image.shape[1]] = image
     if max(output.shape[:2]) > 1024:
-        step = (max(output.shape[:2]) + 1023) // 1024
-        output = output[::step, ::step].copy()
+        final_step = (max(output.shape[:2]) + 1023) // 1024
+        output = output[::final_step, ::final_step].copy()
+        step *= final_step
+    if return_sampling:
+        return output, scale, step
     return output, scale

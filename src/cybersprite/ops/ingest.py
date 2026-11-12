@@ -151,6 +151,119 @@ class ImportResult(Model):
     placed: dict | None
 
 
+class AddSourceArgs(Model):
+    files: str | Annotated[list[str], Field(min_length=1, max_length=4096)] = Field(
+        description="Design image paths to retain without placing pixels on the canvas.",
+        json_schema_extra={"x-cybersprite-path": "input"},
+    )
+    provenance: Provenance = Field(description="Origin and license; use unknown if unknown.")
+
+
+class AddSourceResult(Model):
+    source: str | None
+    files: list[str]
+
+
+def add_source_top(path, args, tx, actor):
+    """Source-only ingest under the project lock; never write project.json."""
+    import json
+    from contextlib import nullcontext
+
+    from cybersprite.formats.design_sources import decode_design
+
+    root = project_path(path).parent
+    try:
+        with nullcontext() if tx.dry_run else history.ProjectLock(root, actor):
+            revision = load_project(root).revision if project_path(root).exists() else 0
+            replay_path = None
+            fingerprint = sha256(metadata_bytes(args.model_dump())).hexdigest()
+            if tx.idempotency_key:
+                key = sha256(tx.idempotency_key.encode("utf-8")).hexdigest()
+                replay_path = root / ".cybersprite/source_keys" / (key + ".json")
+                if replay_path.exists():
+                    saved = json.loads(replay_path.read_bytes())
+                    if saved["fingerprint"] != fingerprint:
+                        raise invalid(
+                            "Source idempotency key has different arguments; use a new key."
+                        )
+                    result = saved["result"]
+                    result["replayed"] = True
+                    return result
+            if tx.expect_revision is not None and tx.expect_revision != revision:
+                fail(
+                    "E_REVISION_CONFLICT",
+                    "Source registration revision does not match.",
+                    current_revision=revision,
+                )
+            inputs = [args.files] if isinstance(args.files, str) else args.files
+            captured = []
+            for file in inputs:
+                original = Path(file)
+                raw = original.read_bytes()
+                image = decode_design(raw)
+                captured.append((original.suffix.lower(), raw, image.shape[1], image.shape[0]))
+            manifest = sources.read_manifest(root)
+            source_id = f"SRC{manifest.next_id}"
+            directory = root / "source" / source_id
+            while directory.exists():
+                manifest.next_id += 1
+                source_id = f"SRC{manifest.next_id}"
+                directory = root / "source" / source_id
+            files = []
+            for i, (suffix, raw, width, height) in enumerate(captured):
+                target = directory / (f"original_{i:04d}" + suffix)
+                files.append(
+                    SourceFile(
+                        path=target.relative_to(root).as_posix(),
+                        sha256=sha256(raw).hexdigest(),
+                        width=width,
+                        height=height,
+                        bytes=len(raw),
+                    )
+                )
+            result = {
+                "ok": True,
+                "op": "add_source",
+                "project": root.as_posix(),
+                "revision": revision,
+                "dry_run": tx.dry_run,
+                "replayed": False,
+                "result": {
+                    "source": None if tx.dry_run else source_id,
+                    "files": [] if tx.dry_run else [f.path for f in files],
+                },
+                "warnings": [],
+            }
+            if not tx.dry_run:
+                stamp = now()
+                source = Source(
+                    id=source_id,
+                    use="design",
+                    files=files,
+                    created_at=stamp,
+                    imported_at=stamp,
+                    pipeline=None,
+                    placements=[],
+                    **args.provenance.model_dump(),
+                )
+                for file, (_, raw, _, _) in zip(files, captured, strict=True):
+                    history.atomic_write(sources.source_path(root, file.path), raw)
+                manifest.sources.append(source)
+                manifest.next_id += 1
+                sources.save_manifest(root, manifest)
+                if replay_path is not None:
+                    history.atomic_write(
+                        replay_path, metadata_bytes({"fingerprint": fingerprint, "result": result})
+                    )
+            return result
+    except OSError as error:
+        raise CyberSpriteError(
+            "E_IO",
+            f"Cannot register design source: {error}",
+            "Check input files and source directory permissions.",
+        ) from error
+
+
 class ListSourcesArgs(Model):
     pass
 
@@ -178,6 +291,7 @@ def source_query(ctx, args, name):
                 {
                     "id": s.id,
                     "kind": s.kind,
+                    "use": s.use,
                     "provider": s.provider,
                     "license": s.license,
                     "accepted": s.pipeline.accepted if s.pipeline else False,
@@ -370,6 +484,7 @@ def _import_top(registry, path, args, tx, actor):
         manifest = sources.read_manifest(root)
         previous_manifest = deepcopy(manifest)
         source, images, durations, warnings = _capture(root, args, manifest, dry_run=tx.dry_run)
+        source.use = "canvas"
         directory = root / (".cybersprite/previews/dry" if tx.dry_run else f"source/{source.id}")
         relative = directory.relative_to(root).as_posix()
         overrides = args.pipeline.model_dump(exclude_unset=True) if args.pipeline else {}

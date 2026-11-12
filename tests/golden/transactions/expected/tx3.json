@@ -46,7 +46,28 @@
     "warnings": 0,
     "new_issues": [],
     "resolved_issues": [],
-    "metrics_delta": {}
+    "metrics_delta": {},
+    "updated_issues": [
+      {
+        "rule": "Q-PAL-02",
+        "where": {
+          "frames": [],
+          "layer": null,
+          "bbox": null,
+          "points": []
+        },
+        "before": {
+          "count": 1,
+          "level": "info",
+          "message": "Unused palette indices: [2]."
+        },
+        "after": {
+          "count": 1,
+          "level": "info",
+          "message": "Unused palette indices: [1]."
+        }
+      }
+    ]
   },
   "preview": {
     "paths": [],

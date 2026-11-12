@@ -2,6 +2,7 @@
 
 import re
 from dataclasses import dataclass
+from difflib import get_close_matches
 
 import numpy as np
 
@@ -90,6 +91,25 @@ def resolve_color(palette: Palette, value: int | str) -> int:
         )
     if not isinstance(value, str):
         raise invalid("Color must be a palette index or a #rrggbb/#rrggbbaa string.")
+    if value.startswith("@"):
+        name = value[1:]
+        matches = sorted(int(i) for i, n in palette.names.items() if n == name)
+        if len(matches) > 1:
+            raise CyberSpriteError(
+                "E_AMBIGUOUS_REF",
+                f"Color name {value!r} matches multiple palette entries.",
+                "Use an explicit palette index or give the entries unique names.",
+                {"name": name, "candidates": matches},
+            )
+        if matches:
+            return resolve_color(palette, matches[0])
+        names = sorted(set(palette.names.values()))
+        raise CyberSpriteError(
+            "E_INVALID_ARGS",
+            f"Unknown color name {value!r}.",
+            "Use get_palette to find an existing name or assign one with set_palette_color.",
+            {"name": name, "candidates": get_close_matches(name, names, n=8, cutoff=0)},
+        )
     target = rgba(value)
     colors = [rgba(color) for color in palette.colors]
     for index, color in enumerate(colors):

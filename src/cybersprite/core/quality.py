@@ -181,22 +181,28 @@ def report(
     issues = [issue.as_dict() for issue in structural]
     settings = p.validation
 
-    def add(rule, message, *, fs=None, layer=None, box=None, points=None, level=None):
+    from .validation_diff import Issue
+
+    def add(rule, message, *, fs=None, layer=None, box=None, points=None, level=None, count=None):
         severity = settings.severity.get(rule, level or DEFAULT_LEVELS[rule])
         if severity == "off":
             return
         issues.append(
-            {
-                "rule": rule,
-                "level": severity,
-                "message": message,
-                "where": {
-                    "frames": fs or [],
-                    "layer": layer,
-                    "bbox": box,
-                    "points": [list(pt) for pt in (points or [])[:64]],
+            Issue(
+                {
+                    "rule": rule,
+                    "level": severity,
+                    "message": message,
+                    "where": {
+                        "frames": fs or [],
+                        "layer": layer,
+                        "bbox": box,
+                        "points": [list(pt) for pt in (points or [])[:64]],
+                    },
                 },
-            }
+                points,
+                count,
+            )
         )
 
     if structural:
@@ -303,12 +309,12 @@ def report(
     if tile_findings:
         add("Q-TIL-01", "Tileset findings: " + "; ".join(tile_findings) + ".")
     if len(p.palette.colors) > settings.palette_max:
-        add("Q-PAL-01", "Palette exceeds the configured color budget.")
+        add("Q-PAL-01", "Palette exceeds the configured color budget.", count=len(p.palette.colors))
     unused = [
         i for i in range(len(p.palette.colors)) if i != p.palette.transparent_index and not usage[i]
     ]
     if unused:
-        add("Q-PAL-02", f"Unused palette indices: {unused}.")
+        add("Q-PAL-02", f"Unused palette indices: {unused}.", count=len(unused))
     if len(set(c.lower() for c in p.palette.colors)) < len(p.palette.colors):
         add("Q-PAL-03", "Palette contains duplicate colors.")
     if any(usage[i] and 0 < rgba(c)[3] < 255 for i, c in enumerate(p.palette.colors)):
@@ -333,7 +339,7 @@ def report(
             settings.colors_per_frame_max is not None
             and color_count > settings.colors_per_frame_max
         ):
-            add("Q-PAL-05", "Frame exceeds the configured color count.", fs=[f])
+            add("Q-PAL-05", "Frame exceeds the configured color count.", fs=[f], count=color_count)
         # Cluster metrics require an indexed frame; nearest is the explicit diagnostic fallback.
         orphan_points = [part[0] for part in components if len(part) == 1]
         small = [part for part in components if len(part) < settings.min_cluster]
@@ -341,15 +347,21 @@ def report(
         small_total += len(small)
 
         def pixel_layer(points, frame=f):
-            # Composite clusters can span several layers or blended contributions.
-            # Attribute only when all reported pixels have one unambiguous contributor.
+            from .render import RenderOptions, _draws
+
+            # Walk the actual draw order from the front; opaque pixels hide lower layers.
             contributors = []
-            for node, _ in nodes:
-                if isinstance(node, GroupLayer):
-                    continue
-                pixels = render(p, frame, {"layers": [node.id]})
-                if any(pixels[y, x, 3] for x, y in points):
-                    contributors.append(node.id)
+            remaining = points
+            draws, _ = _draws(p, frame, RenderOptions())
+            for draw in reversed(draws):
+                pixels = render(p, frame, {"layers": [draw.layer.id]})
+                if any(pixels[y, x, 3] for x, y in remaining):
+                    contributors.append(draw.layer.id)
+                    if len(contributors) > 1:
+                        return None
+                remaining = [pt for pt in remaining if pixels[pt[1], pt[0], 3] != 255]
+                if not remaining:
+                    break
             return contributors[0] if len(contributors) == 1 else None
 
         if (
@@ -405,6 +417,7 @@ def report(
                         "Adjacent silhouettes exceed the configured bounding-box jitter.",
                         fs=[f - 1, f],
                         level="warning",
+                        count=delta,
                     )
     for slc in p.slices:
         bad = [
@@ -530,6 +543,9 @@ def report(
             unique[key] = issue
         elif issue["message"] != unique[key]["message"]:
             unique[key]["message"] += " " + issue["message"]
+            existing = unique[key]
+            if isinstance(existing, Issue):
+                existing.count += getattr(issue, "count", 1)
     issues = sorted(
         unique.values(),
         key=lambda i: (
@@ -579,42 +595,5 @@ def report(
     }
 
 
-def identity(issue):
-    where = issue["where"]
-    return issue["rule"], tuple(where.get("frames", [])), where.get("layer")
-
-
-def validation_delta(before, after):
-    old = {identity(i) for i in before["issues"]}
-    new = {identity(i) for i in after["issues"]}
-    changes: dict[str, Any] = {}
-
-    def compare(a, b, prefix=""):
-        for key in sorted(set(a) & set(b)):
-            av, bv = a[key], b[key]
-            name = prefix + key
-            if isinstance(av, dict) and isinstance(bv, dict):
-                compare(av, bv, name + ".")
-            elif type(av) is int and type(bv) is int and av != bv:
-                changes[name] = {"before": av, "after": bv}
-            elif (
-                isinstance(av, list)
-                and isinstance(bv, list)
-                and all(type(v) is int for v in av + bv)
-            ):
-                aa, bb = (
-                    {"sum": sum(av), "max": max(av, default=0)},
-                    {"sum": sum(bv), "max": max(bv, default=0)},
-                )
-                if aa != bb:
-                    changes[name] = {"before": aa, "after": bb}
-
-    compare(before["metrics"], after["metrics"])
-    return {
-        "ok": after["ok"],
-        "errors": after["counts"]["error"],
-        "warnings": after["counts"]["warning"],
-        "new_issues": [i for i in after["issues"] if identity(i) not in old],
-        "resolved_issues": [i for i in before["issues"] if identity(i) not in new],
-        "metrics_delta": changes,
-    }
+# Compatibility imports: delta logic is independent from rule evaluation.
+from .validation_diff import identity, validation_delta  # noqa: E402, F401

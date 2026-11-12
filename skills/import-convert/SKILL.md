@@ -14,6 +14,8 @@
 
 `csp` は `uv run --project <リポジトリ> csp`。MCP では `import_image`、`list_sources`、`get_source`。CLI の入出力は cwd 配下、MCP は `--root`（と `--allow-dir`）配下。
 
+設計原画だけの登録は `add_source`（CLI: `source add <画像> --provenance '{"license":"unknown"}'`）。`use: "design"` として保存し、正本・パレットは変えない。`render_preview.guide: {source: "SRC1", mode: "side"}` は登録原画を横に並べる（file は登録パス、x/y は原画の切出し原点、scale 省略時はプレビューと同倍率）。under と GUI 表示は v1.x。
+
 ### 2.1 プリセットを選ぶ
 
 | 入力 | プリセット |

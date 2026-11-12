@@ -23,9 +23,27 @@ from .common import (
 
 def region(p, value, image):
     spec = value.model_dump()
-    if spec["type"] == "color":
-        spec["color"] = resolve_color(p.palette, spec["color"])
-    return raster.region_mask(spec, p.canvas.width, p.canvas.height, image)
+
+    def resolve(node):
+        if node["type"] == "color":
+            node["color"] = resolve_color(p.palette, node["color"])
+        for child in node.get("of", []):
+            resolve(child)
+
+    resolve(spec)
+    return raster.region_mask(spec, image.shape[1], image.shape[0], image)
+
+
+def drawing_mask(p, value, image):
+    if value is None:
+        return None
+    selected = region(p, value.region, image)
+    for colors, include in ((value.only_on, True), (value.not_on, False)):
+        if colors is not None:
+            indices = [resolve_color(p.palette, c) for c in colors]
+            condition = np.isin(image, indices)
+            selected &= condition if include else ~condition
+    return selected
 
 
 def drawing(ctx, a, name):
@@ -58,6 +76,9 @@ def drawing(ctx, a, name):
                 protect=protect,
             )
             mask = region(p, a.region, original) & (cleaned != original)
+            protected = drawing_mask(p, a.mask, original)
+            if protected is not None:
+                mask &= protected
             points = [(int(x), int(y), int(cleaned[y, x])) for y, x in np.argwhere(mask)]
             count += write_points(ctx, layer, frame, points)
             positions.extend(
@@ -90,6 +111,9 @@ def drawing(ctx, a, name):
                 for tile in ts.tiles[1:]:
                     data = pixels_from_rows(tile.pixels, ts.tile_w, ts.tile_h)
                     mask = data == source
+                    protected = drawing_mask(p, a.mask, data)
+                    if protected is not None:
+                        mask &= protected
                     if source != target:
                         count += int(np.count_nonzero(mask))
                         data[mask] = target
@@ -106,6 +130,9 @@ def drawing(ctx, a, name):
                 visited.add(key)
                 frame_image = canvas_pixels(p, layer, f)
                 mask = region(p, a.region, frame_image) & (frame_image == source)
+                protected = drawing_mask(p, a.mask, frame_image)
+                if protected is not None:
+                    mask &= protected
                 count += write_points(
                     ctx,
                     layer,
@@ -115,6 +142,8 @@ def drawing(ctx, a, name):
         return {"pixels_written": count}
     layer = image_layer(p, a.layer)
     frame_index(p, a.frame)
+    original = canvas_pixels(p, layer, a.frame) if a.mask is not None else None
+    protected = drawing_mask(p, a.mask, original)
 
     def image():
         return canvas_pixels(p, layer, a.frame)
@@ -137,7 +166,7 @@ def drawing(ctx, a, name):
                 raise invalid("Each pixel must be [integer x, integer y, color].")
             points.append((item[0], item[1], resolve_color(p.palette, item[2])))
     elif name == "draw_rows":
-        data = rows(p, a.rows, a.format)
+        data = rows(p, a.rows, a.format, a.legend)
         points = [
             (a.x + x, a.y + y, int(value))
             for y, row in enumerate(data)
@@ -163,9 +192,13 @@ def drawing(ctx, a, name):
         elif name == "erase":
             mask = region(p, a.region, data)
         else:
-            mask = raster.outline_mask(
-                data != p.palette.transparent_index, a.placement, a.connectivity
-            ) & region(p, a.region, data)
+            seeds = data != p.palette.transparent_index
+            if a.exclude_colors is not None:
+                excluded = [resolve_color(p.palette, c) for c in a.exclude_colors]
+                seeds &= ~np.isin(data, excluded)
+            mask = raster.outline_mask(seeds, a.placement, a.connectivity) & region(
+                p, a.region, data
+            )
         color = (
             p.palette.transparent_index if name == "erase" else resolve_color(p.palette, a.color)
         )
@@ -173,6 +206,8 @@ def drawing(ctx, a, name):
     elif name == "transform_region":
         data = image()
         mask = region(p, a.region, data)
+        if protected is not None:
+            mask &= protected
         ys, xs = np.nonzero(mask)
         if not len(xs):
             return {"pixels_written": 0}
@@ -218,4 +253,10 @@ def drawing(ctx, a, name):
         return {"pixels_written": count}
     else:
         raise invalid("Unknown drawing operation.", name=name)
+    if protected is not None:
+        points = [
+            (x, y, value)
+            for x, y, value in points
+            if not (0 <= x < p.canvas.width and 0 <= y < p.canvas.height) or protected[y, x]
+        ]
     return {"pixels_written": write_points(ctx, layer, a.frame, points)}

@@ -45,7 +45,28 @@
     "warnings": 0,
     "new_issues": [],
     "resolved_issues": [],
-    "metrics_delta": {}
+    "metrics_delta": {},
+    "updated_issues": [
+      {
+        "rule": "Q-TIL-01",
+        "where": {
+          "frames": [],
+          "layer": null,
+          "bbox": null,
+          "points": []
+        },
+        "before": {
+          "count": 1,
+          "level": "info",
+          "message": "Tileset findings: TS1: unused [2]; duplicate pairs []."
+        },
+        "after": {
+          "count": 1,
+          "level": "info",
+          "message": "Tileset findings: TS1: unused [1]; duplicate pairs []."
+        }
+      }
+    ]
   },
   "preview": {
     "paths": [],

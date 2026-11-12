@@ -327,13 +327,53 @@ def outline_mask(
     return adjacent & (opaque if placement == "inside" else ~opaque)
 
 
+def check_region_tree(region: dict) -> None:
+    """Bound recursion before model parsing or allocating any region arrays."""
+    pending = [(region, 1)]
+    count = 0
+    while pending:
+        node, depth = pending.pop()
+        count += 1
+        if depth > 16 or count > 256:
+            raise RasterError(
+                "E_LIMIT_EXCEEDED",
+                "Region exceeds depth 16 or 256 nodes.",
+                "Simplify the region tree to depth <= 16 and total nodes <= 256.",
+            )
+        if not isinstance(node, dict):
+            raise _invalid("Each region must be an object.", "Supply a typed region object.")
+        if node.get("type") in ("and", "or", "not"):
+            children = node.get("of")
+            if (
+                not isinstance(children, list)
+                or not children
+                or (node["type"] == "not" and len(children) != 1)
+            ):
+                raise _invalid(
+                    "and/or require at least one child; not requires exactly one child.",
+                    "Use a nonempty of array, with exactly one region for not.",
+                )
+            if count + len(pending) + len(children) > 256:
+                raise RasterError(
+                    "E_LIMIT_EXCEEDED",
+                    "Region exceeds 256 nodes.",
+                    "Reduce the total number of region nodes to 256.",
+                )
+            pending.extend((child, depth + 1) for child in children)
+
+
 def region_mask(
     region: dict,
     canvas_w: int,
     canvas_h: int,
     layer_image_fn: Callable[[], np.ndarray] | np.ndarray | None = None,
 ) -> np.ndarray:
-    """Resolve all five region forms to a clipped canvas-sized boolean mask."""
+    """Resolve a bounded region tree to a clipped canvas-sized boolean mask."""
+    check_region_tree(region)
+    return _region_mask(region, canvas_w, canvas_h, layer_image_fn)
+
+
+def _region_mask(region, canvas_w, canvas_h, layer_image_fn):
     w, h = _dimensions(canvas_w, canvas_h)
     if w > 8192 or h > 8192 or w * h > 16_777_216:
         raise RasterError(
@@ -342,6 +382,40 @@ def region_mask(
             "Use dimensions <= 8192 and area <= 16777216.",
         )
     kind = region.get("type")
+    if kind in ("and", "or", "not"):
+        selected = _region_mask(region["of"][0], w, h, layer_image_fn)
+        if kind == "not":
+            return ~selected
+        for child in region["of"][1:]:
+            other = _region_mask(child, w, h, layer_image_fn)
+            if kind == "and":
+                selected &= other
+            else:
+                selected |= other
+        return selected
+    if kind in ("ellipse", "polygon"):
+        if kind == "ellipse":
+            rw, rh = _dimensions(region["w"], region["h"])
+        else:
+            vertices = _points(region["points"], 2)
+            rw = max(x for x, _ in vertices) - min(x for x, _ in vertices) + 1
+            rh = max(y for _, y in vertices) - min(y for _, y in vertices) + 1
+        if max(rw, rh) > 8192 or rw * rh > 16_777_216:
+            raise RasterError(
+                "E_LIMIT_EXCEEDED",
+                "Region shape exceeds dimension or area limits.",
+                "Use a bounding box <= 8192 per side and area <= 16777216.",
+            )
+        coords = (
+            ellipse_points(region["x"], region["y"], rw, rh, True)
+            if kind == "ellipse"
+            else polygon_points(vertices, True, True)
+        )
+        selected = np.zeros((h, w), dtype=bool)
+        for x, y in coords:
+            if 0 <= x < w and 0 <= y < h:
+                selected[y, x] = True
+        return selected
     if kind == "all":
         return np.ones((h, w), dtype=bool)
     if kind in ("color", "wand"):
@@ -365,7 +439,10 @@ def region_mask(
             return image == color
         return flood_fill_mask(image, region["x"], region["y"], region.get("connectivity", 4))
     if kind not in ("rect", "mask"):
-        raise _invalid("Unknown region type.", "Choose all, rect, mask, color or wand.")
+        raise _invalid(
+            "Unknown region type.",
+            "Choose all, rect, ellipse, polygon, mask, color, wand, and, or, or not.",
+        )
     x, y = _integer(region["x"], "x"), _integer(region["y"], "y")
     selected = np.zeros((h, w), dtype=bool)
     if kind == "rect":

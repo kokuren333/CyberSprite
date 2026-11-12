@@ -58,6 +58,20 @@ class PathPolicy:
         definitions = definitions or schema.get("$defs", {})
         if "$ref" in schema:
             return self.arguments(value, definitions[schema["$ref"].split("/")[-1]], definitions)
+        region = None
+        if isinstance(value, dict):
+            if "all" in schema.get("discriminator", {}).get("mapping", {}):
+                region = value
+            elif schema.get("x-cybersprite-region-mask"):
+                region = value.get("region")
+        if region is not None:
+            # Bound trees before jsonschema recursively checks optional mask/region variants.
+            from cybersprite.core.raster import RasterError, check_region_tree
+
+            try:
+                check_region_tree(region)
+            except RasterError as error:
+                raise CyberSpriteError(error.code, error.message, error.hint) from error
         kind = schema.get("x-cybersprite-path")
         if kind and isinstance(value, str):
             if kind == "palette" and value in {p["name"] for p in presets()}:
