@@ -2,7 +2,6 @@
 
 import asyncio
 import json
-from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -97,7 +96,7 @@ class MCPService:
             raise invalid("Tool arguments must be an object containing only declared fields.")
         if not isinstance(values.get("project"), str):
             raise invalid("project is required and must be a path string.")
-        values = self.policy.arguments(deepcopy(values), schema)
+        values = dict(values)
         if op.name == "apply_ops":
             parsed = op.parse({k: v for k, v in values.items() if k in {"ops", "label"}})
             for index, call in enumerate(parsed.ops):
@@ -108,9 +107,14 @@ class MCPService:
                     )
                     error.op_index = index
                     raise error
-                call.args = self.policy.arguments(call.args, child.args.model_json_schema())
+                try:
+                    call.args = self.policy.arguments(call.args, child.args.model_json_schema())
+                except CyberSpriteError as error:
+                    error.op_index = index
+                    raise
             values["ops"] = [call.model_dump() for call in parsed.ops]
-        return values
+        # Bound each typed child before traversing apply_ops' otherwise opaque args.
+        return self.policy.arguments(values, schema)
 
     def _pack(self, value, root):
         types, _ = _sdk()

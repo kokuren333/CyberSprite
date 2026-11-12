@@ -102,7 +102,11 @@ class DrawingMask(Model):
 
 class Guide(Model):
     source: str
-    file: str | None = None
+    file: str | None = Field(
+        None,
+        description="Registered source image path; workspace-relative in MCP.",
+        json_schema_extra={"x-cybersprite-path": "input"},
+    )
     x: Annotated[int, Field(ge=0)] = 0
     y: Annotated[int, Field(ge=0)] = 0
     scale: Annotated[int, Field(ge=1, le=64)] | None = None
@@ -192,7 +196,13 @@ def define(name: str, fields: dict[str, Any], draw: bool = False) -> None:
         "outline",
         "cleanup_pixels",
     }:
-        fields = {**fields, "mask": (DrawingMask | None, None)}
+        fields = {
+            **fields,
+            "mask": (
+                DrawingMask | None,
+                Field(None, json_schema_extra={"x-cybersprite-region-mask": True}),
+            ),
+        }
     ARGS[name] = argument_model(
         name, contract("".join(s.title() for s in name.split("_")) + "Args", fields, draw=draw)
     )

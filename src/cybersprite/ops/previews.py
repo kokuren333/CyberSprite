@@ -30,7 +30,19 @@ def guide_image(root, guide):
 
     source = find_source(read_manifest(root), guide["source"])
     file = guide.get("file")
-    candidates = [f for f in source.files if file is None or f.path == file]
+    absolute = None
+    if file is not None:
+        try:
+            supplied = Path(file)
+            if supplied.is_absolute():
+                absolute = supplied.resolve()
+        except (OSError, ValueError, RuntimeError) as error:
+            raise invalid("Guide file must be a registered source image path.") from error
+    candidates = [
+        f
+        for f in source.files
+        if file is None or f.path == file or absolute == source_path(root, f.path)
+    ]
     if not candidates:
         raise invalid(
             "Guide file must be registered in the selected source.",

@@ -132,9 +132,14 @@ def test_mask_before_drawing_duplicates_names_and_link_safety(root):
 
 def test_mask_intersection_empty_and_transform(root):
     op(root, "draw_rows", **DRAW, x=1, y=1, rows=["123"], format="sym")
+    op(root, "link_cel", layer="L1", source_frame=0, frames=[1])
     op(root, "replace_color", **{"from": 1, "to": 4, "mask": {"not_on": [1]}})
     assert image(root)[1, 1] == 1
-    op(root, "transform_region", **DRAW, region={"type": "all"}, dx=2, mask={"only_on": [2]})
+    shifted = op(
+        root, "transform_region", **DRAW, region={"type": "all"}, dx=2, mask={"only_on": [2]}
+    )
+    assert shifted["changed"]["linked_frames"] == [0, 1]
+    assert np.array_equal(image(root), render_indexed(load_project(root), 1))
     assert image(root)[1, 1:5].tolist() == [1, 0, 3, 2]
     result = op(root, "fill", **DRAW, x=0, y=0, color=3, mask={"only_on": []})
     assert result["no_op"]
@@ -331,7 +336,11 @@ def test_add_source_provenance_guide_and_byte_invariance(root, tmp_path):
     assert stored.use == "design" and stored.pipeline is None and stored.placements == []
     assert stored.license == "unknown" and stored.provider == "user"
     assert (root / stored.files[0].path).read_bytes() == source.read_bytes()
-    for layout in ("frames", "strip", "grid"):
+    for layout, guide_file in (
+        ("frames", None),
+        ("strip", stored.files[0].path),
+        ("grid", str((root / stored.files[0].path).resolve())),
+    ):
         result = execute(
             "render_preview",
             root,
@@ -340,7 +349,7 @@ def test_add_source_provenance_guide_and_byte_invariance(root, tmp_path):
                 "layout": layout,
                 "scale": 3,
                 "rect": {"x": 2, "y": 1, "w": 4, "h": 4},
-                "guide": {"source": stored.id},
+                "guide": {"source": stored.id, "file": guide_file},
             },
         )
         raw = base64.b64decode(result["result"]["images"][0])

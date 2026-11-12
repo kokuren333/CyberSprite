@@ -213,3 +213,5 @@
 | 2026-11-12 | I-1471 | §5.10、H-11 | Source.useはcanvasを既定とする省略可フィールドとし、add_sourceはdesign、import_imageでの明示変換はcanvasへ設定する | Fable §3.4の用途区分を既存マニフェストと互換に足し、通常importの経路を維持する | Codex / R1-E2 |
 | 2026-11-12 | I-1472 | §6.7.1、H-11 | 設計原画はformatsでPillow復号前に各辺8192・面積67108864を検査し、アニメ入力の先頭フレームを装飾に使う。プレビューは登録hashも照合する | 共通pre-decode helperがこの分岐にまだないため局所検査を設け、原画の全色をパレットに入れず、改変原画も黙って表示しない | Codex / R1-E2 |
 | 2026-11-12 | I-1473 | §10.12、R1-21 | add_sourceの永続再送キーをexpect_revisionより先に照合し、既存キーの引数相違は先に拒否する | Fable R1-21の順序を新しいsource専用経路にも適用し、登録後に描画が進んでも同じ再送を成功させる | Codex / R1-E2 |
+| 2026-11-12 | I-1474 | §6.7.1、H-11 | guide.fileは登録相対パスまたは登録実体に一致する絶対パスだけを受け、MCPでは入力パスとして解決する | Fable §3.4の登録原画制限を守り、MCPが返すworkspace相対filesをguideへそのまま往復できるようにする | Codex / R1-E2 |
+| 2026-11-12 | I-1475 | §6.4.1、§6.4.9、H-13 | maskの標識でanyOfより先に木を制限し、境界前のdeepcopyを廃す。apply_opsも子Opの型付き引数を先に検査する | Codex §5 row 3の再帰注意をoptional mask・コピー・バッチにも適用し、深い入力を再帰例外ではなくE_LIMIT_EXCEEDEDにする | Codex / R1-E2 |

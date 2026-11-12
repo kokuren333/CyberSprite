@@ -57,7 +57,9 @@ def test_mcp_m12_contracts_and_demo(tmp_path, monkeypatch):
                 "add_source", files=["design.png"], provenance={"license": "CC0-1.0"}
             )
             await call(
-                "render_preview", guide={"source": added["result"]["source"]}, layout="strip"
+                "render_preview",
+                guide={"source": added["result"]["source"], "file": added["result"]["files"][0]},
+                layout="strip",
             )
             assert (tmp_path / "p/project.json").read_bytes() == project_bytes
 
@@ -74,11 +76,22 @@ def test_add_source_mcp_input_confinement(tmp_path):
     assert result.structured_content["error"]["code"] == "E_PATH_NOT_ALLOWED"
 
 
-def test_region_limit_before_mcp_schema_recursion(tmp_path):
+@pytest.mark.parametrize("protected", [False, True])
+@pytest.mark.parametrize("batch", [False, True])
+def test_region_limit_before_mcp_schema_recursion(tmp_path, protected, batch):
     service = MCPService(root=tmp_path)
     value = {"type": "all"}
-    for _ in range(32):
+    for _ in range(300):
         value = {"type": "not", "of": [value]}
-    result = service.call("erase", {"project": "p", "layer": "L1", "frame": 0, "region": value})
+    selection = {"mask": {"region": value}} if protected else {"region": value}
+    args = {"layer": "L1", "frame": 0, **selection}
+    request = (
+        {"project": "p", "ops": [{"op": "erase", "args": args}]}
+        if batch
+        else {"project": "p", **args}
+    )
+    result = service.call("apply_ops" if batch else "erase", request)
     assert result.is_error
     assert result.structured_content["error"]["code"] == "E_LIMIT_EXCEEDED"
+    if batch:
+        assert result.structured_content["error"]["op_index"] == 0
