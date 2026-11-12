@@ -1,4 +1,20 @@
 {
+  "files": [
+    {
+      "path": "sheet-vertical.png",
+      "bytes": 267,
+      "sha256": "e4f34f1cca30e10ec5719de4252e1e6b2d05d3774264d05567c491900352174d",
+      "pixel_sha256": "e366dc425475ae1f734617be9b671bd39b1ba9c9a408193fb2b6f4e78253c98c",
+      "width": 8,
+      "height": 18
+    },
+    {
+      "path": "sheet-vertical.json",
+      "bytes": 3078,
+      "sha256": "f80239b2e129812e2cbe6becfbbf6dd58e693c53ee529c493ceb202ddc37a32e",
+      "kind": "data"
+    }
+  ],
   "warnings": [],
   "validation_ok": true,
   "verified": true,

@@ -75,7 +75,7 @@ class SchemaValue(click.ParamType):
                     sizes = value.lower().split("x")
                     if len(sizes) == 2 and all(part.isdecimal() for part in sizes):
                         return {"cell_w": int(sizes[0]), "cell_h": int(sizes[1])}
-                if keys == {"prev", "next"}:
+                if {"prev", "next"} <= keys:
                     try:
                         parts = [int(item) for item in value.split(",")]
                         if len(parts) == 2:

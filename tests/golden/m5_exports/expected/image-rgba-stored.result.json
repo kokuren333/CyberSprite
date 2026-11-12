@@ -1,4 +1,14 @@
 {
+  "files": [
+    {
+      "path": "image-rgba-stored.png",
+      "bytes": 266,
+      "sha256": "d0f08cfc8032b10374e699cab39ae64c5fae633b10d8534ac20938d0cf56e9f1",
+      "pixel_sha256": "e3ed8ccb636e55cdf716b81e6af44a46b05c2a46b16727e0d1b83c3ce9de610d",
+      "width": 8,
+      "height": 6
+    }
+  ],
   "warnings": [],
   "validation_ok": true,
   "verified": true

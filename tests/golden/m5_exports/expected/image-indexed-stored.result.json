@@ -1,4 +1,14 @@
 {
+  "files": [
+    {
+      "path": "image-indexed-stored.png",
+      "bytes": 159,
+      "sha256": "60418564bf28016bd9ec8b361e5365c33ee0f047b5ed6b3a11b22abb8b0e3dae",
+      "pixel_sha256": "1d6560099dcfa36de4239d3cb45d153ec50c84977579b3f886e8cda0656ff2ff",
+      "width": 8,
+      "height": 6
+    }
+  ],
   "warnings": [],
   "validation_ok": true,
   "verified": true

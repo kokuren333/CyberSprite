@@ -6,7 +6,7 @@ import numpy as np
 
 from cybersprite.core import history
 from cybersprite.core.errors import invalid
-from cybersprite.core.models import GroupLayer, ImageCel, ImageLayer, Sources
+from cybersprite.core.models import GroupLayer, ImageCel, ImageLayer, LinkCel, Sources
 from cybersprite.core.pixels import pixels_to_rows, resolve_color
 from cybersprite.core.projects import new_project
 from cybersprite.core.quality import report
@@ -14,7 +14,7 @@ from cybersprite.core.references import cel_at, cel_owner, walk_layers
 from cybersprite.core.render import render_indexed
 from cybersprite.formats.palette_files import raw_color, read_palette_with_names
 
-from .common import SYMBOLS, array, fail, frame_index, frames, image_layer
+from .common import SYMBOLS, array, fail, frame_index, frames, groups, image_layer
 from .palette import usage
 from .previews import diff, previews
 
@@ -100,8 +100,12 @@ def query(ctx, a, name):
                                     "w": owner.w,
                                     "h": owner.h,
                                     "z_index": cel.z_index,
+                                    **({"link": owner.frame} if isinstance(cel, LinkCel) else {}),
                                 }
                             )
+                        value["link_groups"] = sorted(
+                            sorted(members) for _, members in groups(layer) if len(members) > 1
+                        )
                     return value
 
                 result[section] = [node(layer) for layer in p.layers]
@@ -144,11 +148,14 @@ def query(ctx, a, name):
     if name == "get_history":
         return history.history_result(root, a.limit)
     if name == "render_preview":
+        if isinstance(a.frames, list) and not a.frames:
+            raise invalid("Preview requires at least one frame.")
         return previews(
             p,
             frames(p, a.frames),
             root,
             inline=a.inline,
+            layout=a.layout,
             scale=a.scale,
             grid=a.grid,
             rulers=a.rulers,

@@ -1,4 +1,20 @@
 {
+  "files": [
+    {
+      "path": "tiles.png",
+      "bytes": 117,
+      "sha256": "5dd6ddd7306721139d81b766f8ea603b0376d1099a8b6a5a12fee7e5034cc89b",
+      "pixel_sha256": "15707c99ab85401f3a5245c34b54d7b5f5b052dfb8a9a57531123cb66513d6fd",
+      "width": 3,
+      "height": 3
+    },
+    {
+      "path": "tiles.json",
+      "bytes": 265,
+      "sha256": "3f90dcf05ef6c411407bcbf1272768541f68c2ecff58dc23022bbb02640a1069",
+      "kind": "data"
+    }
+  ],
   "warnings": [],
   "validation_ok": true,
   "verified": true

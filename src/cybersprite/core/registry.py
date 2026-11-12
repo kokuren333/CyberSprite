@@ -17,6 +17,7 @@ class OpContext:
     project: Project
     root: Path
     linked_frames: set[int] = field(default_factory=set)
+    link_groups: set[tuple[int, ...]] = field(default_factory=set)
     clipped_pixels: int = 0
     prepared: object = None
     side_writes: list = field(default_factory=list)

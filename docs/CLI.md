@@ -33,6 +33,11 @@ Op 対応コマンドのオプションは、登録済みの pydantic 引数モ�
 `--dither none|bayer2|bayer4|bayer8` も使える。後者は `pipeline.dither.type` の上書き。
 厳密な型・選択肢は `ops describe <名前>`、利用できるオプションは各コマンドの `--help` で確認する。
 
+`preview --frames tag:walk --layout strip --out walk-preview.png` は番号付きの横並び画像を返す。
+`--layout grid` は行優先の一覧、既定の `frames` は個別画像（最大8枚）。合成画像は長辺1024px以下に収める。
+`--onion '{"prev":1,"next":1,"loop_tag":"walk"}'` はタグの端で前後の番号を循環させる。
+背景の `--background '#ffffff'` はパレット外でも指定でき、書き出しには影響しない。
+
 | コマンド | 主な引数・オプション |
 |---|---|
 | `new <パス>` | `--size 16x16`（必須）、`--palette <プリセット・ファイル・JSON 配列>`、`--frames n`、`--duration ms`、`--name`、`--background <色>` |
@@ -41,7 +46,7 @@ Op 対応コマンドのオプションは、登録済みの pydantic 引数モ�
 | `palette show` / `palette presets` | プロジェクトのパレット / 同梱プリセット一覧 |
 | `validate` | `--frames all|0-3|tag:walk`、`--rules Q-PAL-01,...`、`--strict` |
 | `render` | `--out <PNG>`（必須）、`--frame n`、`--scale n`、`--layers L1,L2`、`--bg <色>`、`--indexed`、`--flatten strict|nearest`、`--include-hidden`、`--compression zlib|stored`、`--apply-pixel-ratio` |
-| `preview` | `--frame` / `--frames n` またはカンマ区切りのフレーム列、`--scale auto|n`、`--grid`、`--rulers`、`--onion p,n`、`--layers`、`--background`、`--out <PNG またはディレクトリ>` |
+| `preview` | `--frame` / `--frames all\|0-3\|tag:walk` または整数・カンマ区切り・JSON配列、`--layout frames\|strip\|grid`、`--scale auto\|n`、`--grid`、`--rulers`、`--onion p,n` またはJSON、`--layers`、`--background checker\|<番号>\|#rrggbb`、`--out <PNG またはディレクトリ>` |
 | `diff` | `--from <rev>`、`--to <rev>`、`--frame n`、`--out <PNG またはディレクトリ>` |
 | `op <名前>` | `--args-file <JSON ファイル>`、`--args <JSON>`、`キー=値...`、`--label <履歴ラベル>` |
 | `apply [<JSON ファイル>\|-]` | ファイル省略または `-` で標準入力の JSON。端末からの対話入力は拒否 |

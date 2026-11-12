@@ -1,4 +1,20 @@
 {
+  "files": [
+    {
+      "path": "sheet-columns.png",
+      "bytes": 309,
+      "sha256": "9efa7b2d7d62d3195ad131046c6ba8cc0efc4eb1e3e1d3ae75c9c0afdca6bf15",
+      "pixel_sha256": "cb65a51e07cbbb2150095e7040f79c3a1dfd77bbc133896b2191bd8fbef73a86",
+      "width": 16,
+      "height": 12
+    },
+    {
+      "path": "sheet-columns.json",
+      "bytes": 3077,
+      "sha256": "03357733064d2fbf53730ad8883ccd5c26b16a3a22e294ffaae019b99d8d6f44",
+      "kind": "data"
+    }
+  ],
   "warnings": [],
   "validation_ok": true,
   "verified": true,

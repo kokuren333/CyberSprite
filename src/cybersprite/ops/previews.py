@@ -6,8 +6,8 @@ from pathlib import Path
 import numpy as np
 
 from cybersprite.core import history
-from cybersprite.core.errors import CyberSpriteError
-from cybersprite.core.previews import checker, preview_array
+from cybersprite.core.errors import CyberSpriteError, invalid
+from cybersprite.core.previews import checker, composite_preview, preview_array
 from cybersprite.core.quality import bbox
 from cybersprite.core.render import render, render_indexed
 from cybersprite.formats.png import encode_png
@@ -15,18 +15,38 @@ from cybersprite.formats.png import encode_png
 from .common import frame_index
 
 
-def previews(p, fs, root, *, dry=False, inline=False, retain=True, **options):
+def previews(p, fs, root, *, dry=False, inline=False, retain=True, layout="frames", **options):
+    if not fs and layout != "frames":
+        raise invalid("Preview requires at least one frame.")
+    limit = 8 if layout == "frames" else 4096
+    if len(fs) > limit:
+        message = (
+            "Preview accepts at most 8 frames per call; use layout=strip or a smaller range."
+            if layout == "frames"
+            else "Preview accepts at most 4096 frames per call."
+        )
+        raise CyberSpriteError(
+            "E_LIMIT_EXCEEDED",
+            message,
+            "Reduce frames or change layout.",
+            {"limit": limit, "requested": len(fs)},
+        )
+    for frame in fs:
+        frame_index(p, frame)
     folder = Path(root) / ".cybersprite/previews"
     if dry:
         folder /= "dry"
     paths, images = [], []
     scale = 1
     width = height = 0
-    for frame in fs:
-        frame_index(p, frame)
-        data, scale = preview_array(p, frame, inline=inline, **options)
+    for frame in fs if layout == "frames" else [None]:
+        if frame is None:
+            data, scale = composite_preview(p, fs, layout=layout, **options)
+        else:
+            data, scale = preview_array(p, frame, inline=inline, **options)
         data_bytes = encode_png(data)
-        path = folder / f"r{p.revision:06d}_f{frame}.png"
+        suffix = f"f{frame}" if frame is not None else layout
+        path = folder / f"r{p.revision:06d}_{suffix}.png"
         history.atomic_write(path, data_bytes)
         paths.append(path.relative_to(root).as_posix())
         if inline:

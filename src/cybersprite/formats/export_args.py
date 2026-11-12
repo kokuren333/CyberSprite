@@ -17,8 +17,10 @@ Compression = Literal["stored", "zlib"]
 class ExportBase(Model):
     out: str = Field(
         description=(
-            "Output file path, relative to the surface root; image patterns may "
-            "contain frame placeholders."
+            "Output file path, relative to the surface root. export image supports "
+            "{name}, {frame} (zero-based), {frame1} (one-based), {layer}, {tag}, "
+            "{tagframe} (zero-based within tag), and {slice}; integer frame fields "
+            "accept widths such as {frame:02}. Other export subcommands use literal paths."
         )
     )
     overwrite: bool = Field(True, description="Replace existing output files when true.")
@@ -275,17 +277,24 @@ class ImportAsepriteArgs(Model):
     )
 
 
+class ExportDataFile(Model):
+    kind: Literal["data"]
+    path: str
+    bytes: int
+    sha256: str
+
+
 class ExportFile(Model):
     path: str
     bytes: int
     sha256: str
-    pixel_sha256: str | None
+    pixel_sha256: str
     width: int
     height: int
 
 
 class ExportResult(Model):
-    files: list[ExportFile]
+    files: list[ExportFile | ExportDataFile]
     fingerprint: str
     warnings: list[dict]
     validation_ok: bool

@@ -1,4 +1,14 @@
 {
+  "files": [
+    {
+      "path": "animation.gif",
+      "bytes": 252,
+      "sha256": "3a9253238a774640f8c5fae5fd56b433e4b9e7dc65f9d2aece524f2a79a1f6cd",
+      "pixel_sha256": "9689cf38a1f6cce63184f0b4c0ad3bf761fcefdb96220ef428cfb37f6b94438f",
+      "width": 8,
+      "height": 6
+    }
+  ],
   "warnings": [
     {
       "code": "W_GIF_DURATION_ROUNDED",

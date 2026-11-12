@@ -737,6 +737,8 @@ hero.csprite/
 
 キーの中身（この順）: `frame`、`x`、`y`、`w`、`h`（`w = 0` はそのフレーム以降で非表示）、`center`（`{x, y, w, h}` または `null`。9 パッチの中央領域。スライスの左上からの相対座標）、`pivot`（`{x, y}` または `null`。スライスの左上からの相対座標）。
 
+スライス作成・更新 Op の表示色引数は、パレット外の生の `#rrggbb` も受け、保存時に `ff` を補ってRGBA形式にする。既存の `#rrggbbaa` 入力も受ける。
+
 #### 5.8.2 タイルセット
 
 | キー | 型 | 既定 | 説明 |
@@ -1128,12 +1130,14 @@ Ra = 0 のとき: 結果は (0, 0, 0, 0)
 - `mutate` の Op は、引数 `preview` に従ってプレビューを作る [D-22]。`"path"`（既定）は画像を `.cybersprite/previews/` に書いてパスを返す。`"inline"` はそれに加えて画像そのものを返す（MCP では画像コンテンツ）。`"none"` は作らない。
 - 対象は変更のあったフレーム（最大 4 枚。超える分は番号だけ返す）。
 - 拡大率は `scale: "auto"` のとき `clamp(512 div max(幅, 高さ), 1, 16)`。整数で指定もできる。
+- `render_preview.frames` は §10.2.2 の共通フレーム指定を受ける。`layout: "frames"`（既定）は個別画像を最大8枚返し、超過時の message は `at most 8 frames per call; use layout=strip or a smaller range` を含む。`"strip"` は横一列、`"grid"` は切上げ平方根の列数による行優先配置で、選択した全フレーム（最大4096）を1枚にする。各セルは既存の数字フォントによるフレーム番号と2pxの間隔を持つ。合成画像の auto は全体の長辺が1024px以下となる整数倍率（最大16）を選び、1倍でも超える場合は画像部分を整数間隔で抽出する。ラベルと間隔だけで上限を超える極端な件数は合成後も整数間隔で抽出するため、番号の判読には範囲を小さくする。
 - 装飾（書き出しには決して入らない）:
   - 透明部分は市松模様（明るい灰色 2 色、升目は元の 4 ピクセル相当）で表す。
   - `grid: true` で、1 ピクセルごとの細線（拡大率 4 以上のとき）と `canvas.grid` の太線を引く。
   - `rulers: true` で、上端と左端に 8 ピクセルごとの目盛りと座標の数字を付ける。
-  - `onion: {prev: n, next: n}` で、前後のフレームを薄く重ねる（前は赤系、後は青系の色付け）。
-- ファイル名は `r<リビジョン 6 桁>_f<フレーム>.png`。保持は直近 100 コミット分。
+  - `background` は `"checker"`、パレット番号・厳密一致色に加え、生の `#rrggbb` を受ける。
+  - `onion: {prev: n, next: n, loop_tag: <タグ参照>}` で、前後のフレームを薄く重ねる（前は赤系、後は青系、元のアルファの約50%）。市松模様に幽像を合成してから現在フレームを重ねる。`loop_tag` 省略時は文書端で止め、指定時はタグ範囲内で番号を循環させる（再生方向とは独立）。範囲外の対象フレームは E_INVALID_ARGS。
+- ファイル名は `r<リビジョン 6 桁>_f<フレーム>.png`。合成画像は `r<リビジョン 6 桁>_<layout>.png`。保持は直近 100 コミット分。
 - インラインで返す画像は、長辺 1024 ピクセル以下に収まる拡大率に下げる。
   元のキャンバス自体が 1024 を超える場合、または定規を加えると超える場合は、プレビューだけを整数間隔の画素抽出で縮小する。正本と書き出しは変えない。
 - 正本の保存に成功した後、派生プレビューを生成できない場合は、成功の封筒に `W_PREVIEW_UNAVAILABLE` を返す。コミット済みの変更を失敗として再適用させない。
@@ -1474,7 +1478,8 @@ Ra = 0 のとき: 結果は (0, 0, 0, 0)
 - **検証が通っていないプロジェクトは書き出さない [D-32]。** `validate` の結果が `ok: false`（エラー水準の指摘がある）なら、書き出しは `E_VALIDATION_FAILED` で失敗する。`allow_invalid: true` で強行でき、その事実は結果に記録される。
 - 出力先は、許可されたディレクトリの中でなければならない（§10.1.3）。既存のファイルは、`overwrite: true`（既定 true）なら上書きする。
 - **自己検査（MUST）。** 書き出しは、書いたファイルを復号し直し、レンダラの出力とピクセル単位で一致することを確かめる（§13.7）。一致しなければファイルを消して `E_INTERNAL` を返す。
-- 書き出しの結果（共通）: `files`（パス、バイト数、`sha256`、`pixel_sha256`、幅、高さ）、`fingerprint`（実行環境指紋）、`warnings`、`validation_ok`、`verified`（自己検査の結果）。
+- 書き出しの結果（共通）: `files`、`fingerprint`（実行環境指紋）、`warnings`、`validation_ok`、`verified`（自己検査の結果）。`files[]` は画像（PNG、GIF、APNG、.aseprite、パレットPNG）ならパス、バイト数、`sha256`、`pixel_sha256`、幅、高さを持つ。データ（シートJSON、テキストパレット）は `kind: "data"` とパス、バイト数、`sha256` だけを持つ。
+- GPL/PAL/HEXパレット出力は保存された実RGBをそのまま書き、アルファを持たないため透明番号を `W_PALETTE_TRANSPARENT_ENTRY`（`index` と message に番号を明記）で通知する。HEX出力は `#rrggbb`、入力は既存のRGBA形式も受理する。
 - `.aseprite` などの外部ファイルを直接入力にして書き出す一括変換（プロジェクトを作らない）は、CLI の `--input` で行う（§9.4）。
 
 ---
@@ -1688,7 +1693,7 @@ cybersprite mcp serve [--root <ディレクトリ>] [--allow-dir <ディレク�
 
 共通の型:
 
-- **色**: パレット番号、または `"#rrggbb"` / `"#rrggbbaa"`（パレット内の厳密一致。§5.3.2）。パレットを編集するツールの色引数だけは、生の色 `"#rrggbbaa"` を取る。
+- **色**: パレット番号、または `"#rrggbb"` / `"#rrggbbaa"`（パレット内の厳密一致。§5.3.2）。パレットを編集するツールは生の色 `"#rrggbbaa"`、タグ・スライスの表示色は生の `"#rrggbb"`、プレビュー背景は §6.7.1 の装飾色を取る。
 - **レイヤー**: 文字列（§5.5.3）。
 - **フレーム指定**（複数フレームを取る引数）: 整数、整数の配列、`"a-b"`（両端を含む）、`"all"`、`"tag:<タグ名>"`。
 - **領域**: §6.4.9。
@@ -1727,6 +1732,7 @@ cybersprite mcp serve [--root <ディレクトリ>] [--allow-dir <ディレク�
     "frames": [{"frame": 0, "pixels_changed": 11, "bbox": {"x": 2, "y": 3, "w": 11, "h": 1}}],
     "layers": ["L1"],
     "linked_frames": [],
+    "link_groups": [],
     "clipped_pixels": 0
   },
   "validation": {
@@ -1745,6 +1751,7 @@ cybersprite mcp serve [--root <ディレクトリ>] [--allow-dir <ディレク�
 ```
 
 - `result` は Op 固有の値（この章の各表の「`result`」欄）。
+- `changed.linked_frames` は互換用の昇順和集合。`changed.link_groups` は操作時に影響したリンク組の昇順フレーム列を重複排除し辞書式順に並べる（別レイヤーの同一番号組は1件）。`get_info(include=["layers"])` の各葉レイヤーにも `link_groups` を返し、リンクセルの要約には所有フレーム `link` を付ける。
 - `changed.frames[].pixels_changed` は、合成結果（RGBA）で変わったピクセル数。`changed.data` は、見た目が変わらなくてもモデルが変わったら true。
 - `changed.frames` は合成ピクセルが変わったフレームだけを含む。名前・表示時間・インデックスの付け替え等で合成結果が変わらなければ空配列とし、モデルの変更は `changed.data` で示す。
 - `validation` は**検証デルタ**である（§13.4）。全体の報告は `validate` で取る。`ok`、`errors`、`warnings` はコミット後の全体の状態を表す。
@@ -1787,7 +1794,7 @@ MCP ではツール実行エラー（`isError: true`）として返す。プロ�
 | `get_pixels` | `layer`（レイヤー、または `"@composite"` で平坦なインデックス画像）、`frame`、`rect`（省略時は、レイヤーならセルの矩形、合成ならキャンバス全体）、`format`（`"hex"`） | `{x, y, w, h, rows, legend（sym のとき）, used: [{index, color, count}]}`。65536 ピクセルを超える範囲は `E_LIMIT_EXCEEDED` | R |
 | `get_palette` | — | `{transparent_index, frozen, colors: [{index, color, name, used_pixels}]}` | R |
 | `validate` | `frames`（`"all"`）、`rules`（省略で全規則） | 検証報告の全体（§13.4） | R |
-| `render_preview` | `frames`（整数または 8 個までの配列）、`layers`（省略）、`scale`（`"auto"`）、`grid`（false）、`rulers`（false）、`onion`（省略）、`background`（`"checker"`、または色）、`inline`（true） | `{paths, scale, width, height}` と画像 | R |
+| `render_preview` | `frames`（§10.2.2 の共通指定）、`layout`（`"frames"` / `"strip"` / `"grid"`、既定 `"frames"`）、`layers`（省略）、`scale`（`"auto"`）、`grid`（false）、`rulers`（false）、`onion`（省略、`loop_tag` 対応）、`background`（`"checker"`、パレット番号・色、または生の `#rrggbb`）、`inline`（true） | `{paths, scale, width, height}` と画像 | R |
 | `diff_preview` | `from_revision`（現在 − 1）、`to_revision`（現在）、`frames`（変化のあった全フレーム、最大 4）、`inline`（true） | `{frames: [{frame, pixels_changed, bbox, changes（256 個以下のとき）}], paths}` と画像 | R |
 | `get_history` | `limit`（20） | `{entries: [{revision, kind, actor, label, time, ops（名前だけ）, changed}], can_undo, can_redo}` | R |
 | `undo` / `redo` | `steps`（1） | `{restored_revision}` | N |
@@ -3142,6 +3149,7 @@ L = (M2i[0][0] × l' + M2i[0][1] × m' + M2i[0][2] × s' + 32768) >> 16      （
 | `W_GATE_OVERRIDDEN` | 関門を破って配置した |
 | `W_EXPORT_INVALID` | 検証が通っていないプロジェクトを強行して書き出した |
 | `W_PREVIEW_UNAVAILABLE` | 正本の保存後に派生プレビューを生成できなかった。変更はコミット済み |
+| `W_PALETTE_TRANSPARENT_ENTRY` | アルファを持たないパレット形式に透明番号の実RGBを書いた（index を付記） |
 
 ---
 

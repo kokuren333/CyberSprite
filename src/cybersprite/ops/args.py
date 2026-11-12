@@ -95,6 +95,9 @@ class ValidationPatch(Model):
 class Onion(Model):
     prev: Annotated[int, Field(ge=0, le=8)] = 0
     next: Annotated[int, Field(ge=0, le=8)] = 0
+    loop_tag: str | None = Field(
+        None, description="Tag ID or unique name to wrap onion frames within."
+    )
 
 
 class Above(Model):
@@ -547,7 +550,13 @@ define("validate", {"frames": (Frames, "all"), "rules": (list[str] | None, None)
 define(
     "render_preview",
     {
-        "frames": (int | Annotated[list[int], Field(max_length=8)], ...),
+        "frames": (Frames, ...),
+        "layout": (
+            Literal["frames", "strip", "grid"],
+            Field(
+                "frames", description="Separate images (at most 8), one strip, or one frame grid."
+            ),
+        ),
         "layers": (list[str] | None, None),
         "scale": (Annotated[int, Field(ge=1, le=64)] | Literal["auto"], "auto"),
         "grid": (bool, False),

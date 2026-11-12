@@ -183,6 +183,7 @@ def set_tiles(ctx, a, name):
         ]
         if len(linked) > 1:
             ctx.linked_frames.update(linked)
+            ctx.link_groups.add(tuple(sorted(linked)))
     owner.x, owner.y = ox + left * ts.tile_w, oy + top * ts.tile_h
     owner.w, owner.h = right - left, bottom - top
     owner.tiles = tiles_to_rows(refs)

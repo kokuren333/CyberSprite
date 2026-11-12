@@ -1,4 +1,14 @@
 {
+  "files": [
+    {
+      "path": "animation-rgba.apng",
+      "bytes": 850,
+      "sha256": "80a09654aa15da5609a6d7dd454c56a0cb0b1ce1b1744f0b3e16abc1ca9ae6be",
+      "pixel_sha256": "f96dad0a8c81e3c961a2efd4f3a11d901886610c12901f6170b870f87761fa47",
+      "width": 8,
+      "height": 6
+    }
+  ],
   "warnings": [],
   "validation_ok": true,
   "verified": true

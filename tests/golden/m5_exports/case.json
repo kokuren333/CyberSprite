@@ -13,6 +13,10 @@
     {"name": "sheet-array", "op": "export_sheet", "args": {"out": "sheet-array.png", "data_out": "sheet-array.json", "data_format": "json-array", "split_layers": true, "split_tags": true, "split_slices": true, "item_name": "{layer}-{tag}-{slice}-{frame}", "trim": true, "compression": "stored"}},
     {"name": "animation-gif", "op": "export_animation", "args": {"out": "animation.gif", "tag": "Motion"}},
     {"name": "animation-apng", "op": "export_animation", "args": {"out": "animation.apng", "tag": "Motion", "compression": "stored"}},
-    {"name": "animation-rgba-apng", "op": "export_animation", "args": {"out": "animation-rgba.apng", "color_mode": "rgba", "compression": "stored"}}
+    {"name": "animation-rgba-apng", "op": "export_animation", "args": {"out": "animation-rgba.apng", "color_mode": "rgba", "compression": "stored"}},
+    {"name": "palette-gpl", "op": "export_palette", "args": {"out": "palette.gpl"}},
+    {"name": "palette-pal", "op": "export_palette", "args": {"out": "palette.pal"}},
+    {"name": "palette-hex", "op": "export_palette", "args": {"out": "palette.hex"}},
+    {"name": "palette-png", "op": "export_palette", "args": {"out": "palette.png"}}
   ]
 }

@@ -94,7 +94,7 @@ def encode_palette(colors, names, format, name="Palette"):
         pixels = np.array([[rgba(c) for c in colors]], dtype=np.uint8)
         return encode_png(pixels, compression="stored")
     if format == "hex":
-        return ("\n".join(c.lower() for c in colors) + "\n").encode("utf-8")
+        return ("\n".join(c[:7].lower() for c in colors) + "\n").encode("utf-8")
     if format not in ("gpl", "pal"):
         raise invalid("Palette format must be gpl, pal, hex, or png.")
     header = (

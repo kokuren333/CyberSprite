@@ -140,3 +140,11 @@ main のテスト（2026-11-12 11:00、Windows / Python 3.12）: Python 1160 pas
 - 書き出し結果は validation_ok=true / verified=true。プレビューと最終PNGそのものを開いて確認し、復号した8×6の黒枠・白い内側の画素も検査した。最終PNG SHA-256 は `aca375c26bb02658ae0b4150357250b88a98cc242154c87f7f67e975dfbb503a`。試験出力は git 管理外の `.venv/m9-smoke/` に保持する。
 - 仕様変更は §12.5 の command.model 設定と例の追記のみ。判断 I-701〜I-709。エージェント側生成・利用方法・正確な L-10/L-12 の確認先候補・残る依存監査は `docs/GENERATION.md` に記載。
 - 未完: Diffusers extra の実依存追加と推移依存監査（regex の CNRI Python 1.6 表記が今回の許可リスト外）、GPU実機、Linux実行、L-10/L-12 のモデルカード・利用規約の確認。Torch/Diffusers の巨大wheel・重みは導入していない。ビジュアル判断を要する変更なし。M7 と gui/ は変更していない。
+
+## FIX-2: アニメーション制作の使い勝手 — Windows検証完了（2026-11-12）
+
+- `fix2-preview` でe2e-03 §5の全7指摘を修正した。共通フレーム指定、strip/grid、1024px上限、任意RGB背景、約50%の前後幽像と `onion.loop_tag`、infoのリンク元・リンク組、`changed.link_groups`、画像/データのexport結果分離、プレースホルダhelp、表示色、透明パレット警告を実装した。`generate/` と `gui/` は変更していない。
+- 全体 `uv run pytest -q --tb=short`: **1300 passed / 2 skipped、253.54秒**。スキップは既存のWindowsシンボリックリンク権限の2件。Ruff check/format、schema drift、repository、ライセンス監査（dev/mcp/gui）、diff checkは成功。任意のmypyは既存記録と同じ78件が残る。
+- 実CLIで原本runner.cspriteを一時ディレクトリへコピーし、tag:walkのstrip、全10フレームのgrid、フレーム0の前7/次1のonion、パレット外の白背景を生成した。実PNGを再復号して開き、原本とコピーの正本のバイト不変を確認した。validateはerror 0、warning 0、info 10。再現スクリプトは `tools/fix2_acceptance.py`、実画像と記録は `build/fix2-review/`。
+- ゴールデンは唯一の更新器で生成し、応答JSONの新しい契約・透明パレット警告と新規パレット出力を確認した。既存画像・正本・画素ハッシュの変更なし。判断I-751〜I-761。仕様は§5.8.1、§6.7.1、§8.8、§10.2.2、§10.3.1、§10.4、付録Cを補足した。追加依存・外部参照なし。
+- 実装コミットは `1547911` と `70fe2a9`。LinuxはI-007によりCI待ち、mainへの統合と表示の最終的な見やすさの評価はオーケストレーターの作業。極端に多数の合成では番号の判読に小さい範囲が必要。詳細は [FIX2_IMPLEMENTATION_REPORT.md](FIX2_IMPLEMENTATION_REPORT.md)。

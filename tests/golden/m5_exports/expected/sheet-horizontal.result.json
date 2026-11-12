@@ -1,4 +1,20 @@
 {
+  "files": [
+    {
+      "path": "sheet-horizontal.png",
+      "bytes": 255,
+      "sha256": "dc6f8a34d9b1553e01e31350ac6be568121d8c16795db623551a7e88f3063d00",
+      "pixel_sha256": "03d8ee524fbe8fe43a601d47e36d6701702a942221056b3755a9b8ccb1bf935e",
+      "width": 24,
+      "height": 6
+    },
+    {
+      "path": "sheet-horizontal.json",
+      "bytes": 3080,
+      "sha256": "da469e1f21c9cf168fc404b0cb263cb798e75fc2b51383d66d89543f87de739b",
+      "kind": "data"
+    }
+  ],
   "warnings": [],
   "validation_ok": true,
   "verified": true,

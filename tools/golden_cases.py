@@ -104,7 +104,7 @@ def execute_case(directory: Path) -> dict[str, bytes]:
                     {
                         key: value
                         for key, value in result.items()
-                        if key not in ("files", "fingerprint")
+                        if key != "fingerprint" and (key != "files" or not action.get("pixel_only"))
                     }
                 )
     for i, action in enumerate(case.get("renders", [])):
