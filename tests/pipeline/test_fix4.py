@@ -160,7 +160,11 @@ def test_dry_run_writes_only_stage_previews_and_no_source(tmp_path):
     before = {
         p.relative_to(project).as_posix(): p.read_bytes() for p in project.rglob("*") if p.is_file()
     }
-    args = {"files": str(SLIME / "slime_generated_like.jpg"), "preset": "ai"}
+    args = {
+        "files": str(SLIME / "slime_generated_like.jpg"),
+        "preset": "ai",
+        "provenance": {"license": "unknown"},
+    }
     result = execute("import_image", project, args, dry_run=True, preview="none")
     assert result["dry_run"] and result["result"]["placed"] is None
     assert result["result"]["source"] is None and len(result["result"]["stage_paths"]) == 5

@@ -415,7 +415,7 @@ CyberSprite は Aseprite の機能と操作体系を参照するが、**コー�
 2. **Op の定義は 1 か所。** 1 つの Op は「名前、引数の pydantic モデル（ここから JSON Schema を生成）、適用関数、冪等性クラス、説明文」の組で定義する。CLI のヘルプ、MCP の `inputSchema`、GUI のコマンド表は、ここから機械的に生成する。
 3. **`core` は入出力ライブラリに依存しない。** `core` が import してよいのは標準ライブラリ、NumPy、pydantic だけである。Pillow や `aseprite` は `formats` と `pipeline` だけが使う。
 4. **GUI だけが持つ状態でデータが変わらない。** 選択範囲、現在のツール、現在のレイヤーなどは GUI の表示状態である。Op を呼ぶときは、対象のレイヤー・フレーム・領域・色を必ず引数で明示する [D-30]。
-5. **書き出しはコアのレンダラだけが行う。** GUI の画面表示用の描画結果を書き出しに使ってはならない。
+5. **書き出しはコアのレンダラだけが行う。** GUI の画面表示用の描画結果を書き出しに使ってはならない。出力先の正本・来歴・履歴の保護は、利用面によらず形式層の最終パス検査で行う（§8.8）。
 6. **ネットワークに出ない。** コア、CLI、MCP サーバ、GUI サーバは、生成バックエンドを明示的に呼んだ場合を除き、外部ネットワークに接続しない。テレメトリは持たない。
 
 ### 4.3 技術スタック [D-23]
@@ -912,6 +912,8 @@ hero.csprite/
 #### 6.2.2 予行（dry run）
 
 引数 `dry_run: true` のとき、手順 2〜9 を複製に対して行い、保存せずに結果（検証デルタ、プレビュー、`would_commit: true/false`）を返す。プレビューは `.cybersprite/previews/dry/` に書く。予行はロックを取らない。
+
+`import_image` の予行も、実行時と同じ変換結果で配置（対象レイヤー・祖先のロック、フレーム拡張、正規化、構造不変条件）まで検査してから `would_commit: true` を返す。`checked` に検査した範囲を列挙する。関門で拒否された場合は `would_commit: false`。入力の来歴、パレット凍結、関門の明示受理の扱いも実行時と同じである。予行後の外部変更や保存時の I/O 成功を保証するものではない。
 
 #### 6.2.3 実行者の記録
 
@@ -1483,6 +1485,7 @@ Ra = 0 のとき: 結果は (0, 0, 0, 0)
 
 - **検証が通っていないプロジェクトは書き出さない [D-32]。** `validate` の結果が `ok: false`（エラー水準の指摘がある）なら、書き出しは `E_VALIDATION_FAILED` で失敗する。`allow_invalid: true` で強行でき、その事実は結果に記録される。
 - 出力先は、許可されたディレクトリの中でなければならない（§10.1.3）。既存のファイルは、`overwrite: true`（既定 true）なら上書きする。
+- **正本と予約領域の保護（MUST）。** 形式層の共通境界で、ファイル名の展開後・実体パス解決後の全出力先を検査する。プロジェクト直下の予約名 `project.json`、`source/`、`.cybersprite/`（その配下を含む）への書き出しは `overwrite` によらず拒否する。大小文字の別名、シンボリックリンク／ジャンクション、および既存正本への同一 inode（ハードリンク）も拒否する。`E_PATH_NOT_ALLOWED` の `details.reason` は `protected_project_file` とし、プロジェクト外または予約領域以外の許可された出力先を選ぶヒントを返す。画像、シートJSON、パレット、.aseprite、タイルセット、アニメーション、連番のすべてが対象。複数ファイルは、1つも書く前に全最終パスを検査する。拒否された書き出しは正本・履歴を変更しない。
 - **自己検査（MUST）。** 書き出しは、書いたファイルを復号し直し、レンダラの出力とピクセル単位で一致することを確かめる（§13.7）。一致しなければファイルを消して `E_INTERNAL` を返す。
 - 書き出しの結果（共通）: `files`、`fingerprint`（実行環境指紋）、`warnings`、`validation_ok`、`verified`（自己検査の結果）。`files[]` は画像（PNG、GIF、APNG、.aseprite、パレットPNG）ならパス、バイト数、`sha256`、`pixel_sha256`、幅、高さを持つ。データ（シートJSON、テキストパレット）は `kind: "data"` とパス、バイト数、`sha256` だけを持つ。
 - GPL/PAL/HEXパレット出力は保存された実RGBをそのまま書き、アルファを持たないため透明番号を `W_PALETTE_TRANSPARENT_ENTRY`（`index` と message に番号を明記）で通知する。HEX出力は `#rrggbb`、入力は既存のRGBA形式も受理する。
@@ -1671,6 +1674,7 @@ cybersprite mcp serve [--root <ディレクトリ>] [--allow-dir <ディレク�
 
 - `--root`（既定はカレントディレクトリ）と `--allow-dir` で挙げたディレクトリの配下だけを読み書きできる。`project`、取り込むファイル、書き出し先のすべてに適用する。
 - パスは実体（シンボリックリンクを解決した絶対パス）で判定する。範囲外なら `E_PATH_NOT_ALLOWED`。
+- 許可範囲内でも、書き出し先には §8.8 の予約領域保護を適用する。CLI・MCP・GUI は同じ形式層の検査を通り、GUI も root/allow-dir を形式層へ束縛する。
 - 相対パスは `--root` からの相対として解釈する。書き出し先の相対パスも同じ。
 - 結果に入れるパスは、`--root` からの相対パス（区切りは `/`）とする。
 
@@ -1912,6 +1916,8 @@ MCP ではツール実行エラー（`isError: true`）として返す。プロ�
 ### 10.12 取り込み、書き出し、生成
 
 `import_image` は未作成のプロジェクトにも直接使える。受理時の自動作成と、初回取り込みの undo 後の再取り込みは §11.11 に従う。
+
+`dry_run` の配置検証は §6.2.2 に従う。`pipeline_only: true` は `dry_run: true` 専用で、GUI の変換プレビューに使える。この場合は来歴の保存と配置の検査を省略し、`checked: ["pipeline"]` と `pipeline_accepted` を返す。`would_commit` は返さない。通常の予行は来歴を要求し、配置まで検査した場合に `checked` へ `placement`、`structure` を加える。いずれも source と正本・履歴は保存せず、原画の一時コピー・段階画像・報告は予行用ディレクトリにだけ保存する。
 
 | ツール | 引数（既定） | 動作と `result` | 冪等性 |
 |---|---|---|---|
@@ -2585,7 +2591,7 @@ tests/golden/<ケース名>/
 | `render.frame` | 1 フレームの合成結果（RGBA）を返す。`region` で矩形だけを取れる。オニオンスキン用に複数フレームをまとめて取れる |
 | `history.list` / `history.undo` / `history.redo` | |
 | `validate.run` | 検証報告 |
-| `pipeline.preview` | 取り込みの予行（段階画像と関門の結果）。キャンバスは変えない |
+| `pipeline.preview` | `import_image` の `dry_run: true, pipeline_only: true`（段階画像と関門の結果）。`pipeline_accepted` を返し、配置可否は保証しない。キャンバスは変えない |
 | `import.commit` / `export.run` | `import_image` / `export_*` と同じ |
 | `sources.list` / `sources.get` | |
 | `prefs.get` / `prefs.set` | GUI の設定 |
@@ -3152,7 +3158,7 @@ L = (M2i[0][0] × l' + M2i[0][1] × m' + M2i[0][2] × s' + 32768) >> 16      （
 | `E_HISTORY_UNAVAILABLE` | 必要な履歴が残っていない | リビジョン |
 | `E_VALIDATION_FAILED` | 検証が通っていないため拒否した | エラー水準の指摘 |
 | `E_INVARIANT` | 適用後に構造不変条件が破れた（実装の不具合） | 規則 ID |
-| `E_PATH_NOT_ALLOWED` | 許可されていないパス | 許可されているディレクトリ |
+| `E_PATH_NOT_ALLOWED` | 許可されていないパス | 許可されているディレクトリ。予約領域への書き出しは `reason: "protected_project_file"`、`path`、`project` |
 | `E_IO` | 読み書きの失敗 | パス、OS のエラー |
 | `E_TIMEOUT` | 時間切れ | |
 | `E_PLUGIN` | プラグインがない、または失敗した | プラグイン名、入れ方 |

@@ -74,7 +74,7 @@ def export_image(p, a, root=None):
         )
         for frame in sequence
     ]
-    paths = preflight(names, a.overwrite)
+    paths = preflight(names, a.overwrite, project_root=root)
     # Resolve and render every item before writing so option errors cannot leave partial output.
     images = []
     for frame in sequence:
@@ -113,7 +113,9 @@ def export_sheet(p, a, root=None):
     items, warnings = enumerate_items(p, a)
     result["warnings"].extend(warnings)
     pixels, palette = build_sheet(p, a, items)
-    paths = preflight([a.out, *([a.data_out] if a.data_out else [])], a.overwrite)
+    paths = preflight(
+        [a.out, *([a.data_out] if a.data_out else [])], a.overwrite, project_root=root
+    )
     h, w = pixels.shape[:2]
     data = sheet_data(p, a, items, w, h, Path(a.out).name) if a.data_out else None
     result["files"].append(_png_file(paths[0], pixels, palette, a.compression))
@@ -161,7 +163,7 @@ def export_animation(p, a, root=None):
     for r in rendered:
         result["warnings"].extend(r.warnings)
     expected = [_canonical_transparency(rgba_pixels(im, palette)) for im in images]
-    path = preflight([a.out], a.overwrite)[0]
+    path = preflight([a.out], a.overwrite, project_root=root)[0]
     if format == "gif":
         transparent = [bool(np.any(im[..., 3] == 0)) for im in expected]
         # GIF only has a binary transparency flag; every used non-transparent entry is opaque.
@@ -250,7 +252,7 @@ def export_palette(p, a, root=None):
         actual_colors, actual_names = decode_palette(data, format)
         return actual_colors == expected and (format != "gpl" or actual_names == names)
 
-    path = preflight([a.out], a.overwrite)[0]
+    path = preflight([a.out], a.overwrite, project_root=root)[0]
     pixels = np.array([[rgba(c) for c in expected]], dtype=np.uint8)
     result["files"].append(
         write_verified(path, raw, verify, pixels=pixels if format == "png" else None)
@@ -325,7 +327,9 @@ def export_tileset(p, a, root=None):
             )
         )
     pixels, palette = build_sheet(q, sheet_args, items)
-    paths = preflight([a.out, *([a.data_out] if a.data_out else [])], a.overwrite)
+    paths = preflight(
+        [a.out, *([a.data_out] if a.data_out else [])], a.overwrite, project_root=root
+    )
     result["files"].append(_png_file(paths[0], pixels, palette, a.compression))
     if a.data_out:
         data = dict(
@@ -364,7 +368,7 @@ def export_aseprite(p, a, root=None):
     from .aseprite_io import decode_aseprite, encode_aseprite, equivalent
 
     result = gate(p, a, root)
-    path = preflight([a.out], a.overwrite)[0]
+    path = preflight([a.out], a.overwrite, project_root=root)[0]
     raw = encode_aseprite(p)
 
     def verify(data):

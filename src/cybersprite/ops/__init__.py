@@ -453,10 +453,14 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
         )
     if options:
         raise invalid("Transaction options are accepted only by mutate operations.")
-    p = synchronize(root, load_project(project), actor=actor)
+    p = load_project(project)
+    if definition.kind != "export":
+        p = synchronize(root, p, actor=actor)
     value = definition.apply(OpContext(p, root), parsed)
     # Validate output without injecting optional absent query sections.
     definition.result.model_validate(value)
+    if definition.kind == "export":
+        synchronize(root, p, actor=actor)
     return {
         "ok": True,
         "op": name,

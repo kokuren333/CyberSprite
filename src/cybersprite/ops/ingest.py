@@ -1,5 +1,6 @@
 """Source ingestion, conversion and registered transactional placement."""
 
+from contextlib import nullcontext
 from copy import deepcopy
 from hashlib import sha256
 from pathlib import Path
@@ -132,6 +133,13 @@ class ImportArgs(Model):
             "exclusive with files."
         ),
     )
+    pipeline_only: bool = Field(
+        False,
+        description=(
+            "Preview conversion only; requires dry_run=true and returns pipeline_accepted "
+            "instead of would_commit. Placement and new-file provenance are not checked."
+        ),
+    )
 
 
 class ImportResult(Model):
@@ -219,7 +227,7 @@ def decode_files(paths, sheet=None):
     return frames, durations, warnings, dimensions
 
 
-def _capture(root, args, manifest):
+def _capture(root, args, manifest, *, dry_run=False):
     if (args.files is None) == (args.source is None):
         raise invalid("Specify exactly one of files or source.")
     if args.source:
@@ -236,7 +244,10 @@ def _capture(root, args, manifest):
                 )
         frames, durations, warnings, _ = decode_files(paths, args.sheet)
         return source, frames, durations, warnings
-    if args.provenance is None or not args.provenance.license.strip():
+    provenance = args.provenance
+    if provenance is None and args.pipeline_only:
+        provenance = Provenance.model_validate({"license": "unknown"})
+    if provenance is None or not provenance.license.strip():
         raise invalid("provenance.license is required; use unknown when usage terms are unknown.")
     paths = [Path(p) for p in ([args.files] if isinstance(args.files, str) else args.files)]
     # Decode the captured bytes, never a separately re-opened mutable input.
@@ -246,7 +257,9 @@ def _capture(root, args, manifest):
         manifest.next_id += 1
         source_id = f"SRC{manifest.next_id}"
         directory = Path(root) / "source" / source_id
-    directory.mkdir(parents=True)
+    if dry_run:
+        directory = Path(root) / ".cybersprite/previews/dry"
+    directory.mkdir(parents=True, exist_ok=dry_run)
     captured = []
     for i, path in enumerate(paths):
         name = "original" if len(paths) == 1 else f"original_{i:04d}"
@@ -258,7 +271,7 @@ def _capture(root, args, manifest):
     frames, durations, warnings, dimensions = decode_files(captured, args.sheet)
     files = [
         SourceFile(
-            path=path.relative_to(root).as_posix(),
+            path=(path.resolve().as_posix() if dry_run else path.relative_to(root).as_posix()),
             sha256=sha256(path.read_bytes()).hexdigest(),
             width=size[0],
             height=size[1],
@@ -266,7 +279,7 @@ def _capture(root, args, manifest):
         )
         for path, size in zip(captured, dimensions, strict=True)
     ]
-    stamp = now()
+    stamp = "1970-01-01T00:00:00+00:00" if dry_run else now()
     source = Source(
         id=source_id,
         files=files,
@@ -274,11 +287,12 @@ def _capture(root, args, manifest):
         imported_at=stamp,
         pipeline=None,
         placements=[],
-        **args.provenance.model_dump(),
+        **provenance.model_dump(),
     )
     manifest.next_id += 1
     manifest.sources.append(source)
-    sources.save_manifest(root, manifest)
+    if not dry_run:
+        sources.save_manifest(root, manifest)
     return source, frames, durations, warnings
 
 
@@ -295,51 +309,9 @@ def import_top(registry, path, args, tx, actor):
 
 def _import_top(registry, path, args, tx, actor):
     root = project_path(path).parent
-    if tx.dry_run:
-        existing = load_project(root) if project_path(root).exists() else None
-        if tx.expect_revision is not None and tx.expect_revision != (
-            existing.revision if existing else 0
-        ):
-            fail("E_REVISION_CONFLICT", "Import revision does not match the current project.")
-        if (args.files is None) == (args.source is None):
-            raise invalid("Specify exactly one of files or source.")
-        if args.source:
-            manifest = sources.read_manifest(root)
-            # _capture does not write when reusing an existing source.
-            source, images, _, warnings = _capture(root, args, manifest)
-            source_id = source.id
-        else:
-            paths = [Path(p) for p in ([args.files] if isinstance(args.files, str) else args.files)]
-            images, _, warnings, _ = decode_files(paths, args.sheet)
-            source_id = "dry"
-        directory = root / ".cybersprite/previews/dry"
-        _, _, report = run_pipeline(
-            images,
-            directory,
-            source_id=source_id,
-            preset=args.preset,
-            overrides=args.pipeline.model_dump(exclude_unset=True),
-            project=existing,
-            position=(args.target.x, args.target.y),
-        )
-        return {
-            "ok": True,
-            "op": "import_image",
-            "project": root.as_posix(),
-            "dry_run": True,
-            "revision": existing.revision if existing else 0,
-            "would_commit": report["accepted"],
-            "result": {
-                "source": None,
-                "accepted": report["accepted"],
-                "report_path": ".cybersprite/previews/dry/pipeline_report.json",
-                "stage_paths": [f".cybersprite/previews/dry/{s}" for s in report["stage_paths"]],
-                "gates": report["gates"],
-                "placed": None,
-            },
-            "warnings": warnings + report.get("warnings", []),
-        }
-    with history.ProjectLock(root, actor) as lock:
+    if args.pipeline_only and not tx.dry_run:
+        raise invalid("pipeline_only requires dry_run=true; omit it to commit placement.")
+    with nullcontext() if tx.dry_run else history.ProjectLock(root, actor) as lock:
         existing = load_project(root) if project_path(root).exists() else None
         if tx.expect_revision is not None and tx.expect_revision != (
             existing.revision if existing else 0
@@ -349,16 +321,19 @@ def _import_top(registry, path, args, tx, actor):
                 "Import revision does not match the current project.",
                 current_revision=existing.revision if existing else 0,
             )
-        if tx.idempotency_key:
+        if tx.idempotency_key and not args.pipeline_only:
             for entry in reversed(history.read_journal(root)[-1000:]):
                 if entry.get("idempotency_key") == tx.idempotency_key and entry.get("result"):
-                    result = entry["result"]
+                    result = deepcopy(entry["result"])
                     result["replayed"] = True
+                    if tx.dry_run:
+                        result.update(dry_run=True, would_commit=False, checked=["idempotency"])
                     return result
         manifest = sources.read_manifest(root)
         previous_manifest = deepcopy(manifest)
-        source, images, durations, warnings = _capture(root, args, manifest)
-        directory = root / "source" / source.id
+        source, images, durations, warnings = _capture(root, args, manifest, dry_run=tx.dry_run)
+        directory = root / (".cybersprite/previews/dry" if tx.dry_run else f"source/{source.id}")
+        relative = directory.relative_to(root).as_posix()
         overrides = args.pipeline.model_dump(exclude_unset=True) if args.pipeline else {}
         if existing is not None and not any(
             i != existing.palette.transparent_index and color[7:9].lower() == "ff"
@@ -398,7 +373,7 @@ def _import_top(registry, path, args, tx, actor):
             preset=args.preset,
             params=report["settings"],
             report={
-                "path": f"source/{source.id}/pipeline_report.json",
+                "path": f"{relative}/pipeline_report.json",
                 "grid_score": report["grid"]["grid_score"],
                 "warnings": report.get("warnings", []),
             },
@@ -406,18 +381,31 @@ def _import_top(registry, path, args, tx, actor):
             accepted=accepted,
             gates_overridden=list(source.pipeline.gates_overridden) if source.pipeline else [],
         )
-        sources.save_manifest(root, manifest)
+        if not tx.dry_run:
+            sources.save_manifest(root, manifest)
         value = {
-            "source": source.id,
+            "source": None if tx.dry_run else source.id,
             "accepted": accepted,
-            "report_path": f"source/{source.id}/pipeline_report.json",
-            "stage_paths": [f"source/{source.id}/{s}" for s in report["stage_paths"]],
+            "report_path": f"{relative}/pipeline_report.json",
+            "stage_paths": [f"{relative}/{s}" for s in report["stage_paths"]],
             "gates": report["gates"],
             "placed": None,
         }
         report["accepted"] = accepted
         report["gates_overridden"] = failed if accepted else []
         history.atomic_write(directory / "pipeline_report.json", metadata_bytes(report))
+        if args.pipeline_only:
+            return {
+                "ok": True,
+                "op": "import_image",
+                "project": root.as_posix(),
+                "revision": existing.revision if existing else 0,
+                "dry_run": True,
+                "checked": ["pipeline"],
+                "pipeline_accepted": accepted,
+                "result": value,
+                "warnings": warnings,
+            }
         if report.get("capacity_failure") and args.on_gate_fail == "accept":
             fail(
                 "E_LIMIT_EXCEEDED",
@@ -430,7 +418,7 @@ def _import_top(registry, path, args, tx, actor):
                 "Unfreeze the palette or choose palette.mode=project before placement.",
             )
         if not accepted:
-            return {
+            result = {
                 "ok": True,
                 "op": "import_image",
                 "project": root.as_posix(),
@@ -438,6 +426,9 @@ def _import_top(registry, path, args, tx, actor):
                 "result": value,
                 "warnings": warnings,
             }
+            if tx.dry_run:
+                result.update(dry_run=True, would_commit=False, checked=["pipeline"])
+            return result
         initial = None
         if existing is None:
             initial = new_project(
@@ -471,6 +462,10 @@ def _import_top(registry, path, args, tx, actor):
             prepared=prepared,
             held_lock=lock,
         )
+        if tx.dry_run:
+            result["checked"] = ["pipeline", "placement", "structure"]
+            # Preserve the dry-run result contract; planned changes remain in changed/preview.
+            result["result"]["placed"] = None
         return result
 
 

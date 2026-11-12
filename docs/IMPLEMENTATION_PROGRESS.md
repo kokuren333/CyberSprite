@@ -204,3 +204,11 @@
 - 全体受入は未完。共有Windowsホストの空き物理メモリが約130〜320MiB（全体約16GiB）まで減った状態で、全体 `uv run pytest -q --tb=short` とcore/opsのmypyは進行が著しく遅くなり、こちらのプロセスを停止して直列化したため最終結果はない。npm run buildは41アイコンの検証付き書出しとtscを通過し、Viteの52モジュール変換後も完了しなかったためrendering chunksの段階で手動停止した。npm run test:e2eはconfig.webServerの30000ms起動待ちで失敗し、テスト本体は未実行。これら4コマンドは負荷の下がった環境で再実行が必要であり、成功扱いにはしない。
 - レビュー§7 Pと同じ0〜2の有限pingpongは、repeat 1／2／3でGUIの4／8／12ステップからcoreと同じ3／5／7ステップになった。修正後の列はそれぞれ0,1,2／0,1,2,1,0／0,1,2,1,0,1,2。速度の改善は主張せず、性能の前後測定は対象外。
 - 判断I-1061〜I-1062。SPEC §5.7に有限GUI＝loop 1、無限GUI＝loop 0と表示時間消化後の停止を補足した。新規依存・外部参照・ビジュアル判断のTODOなし。Linuxの実行とmain統合はオーケストレーターへ引き継ぐ。
+## R1-A1: 書き出し保護・GUIポリシー・取り込み予行（2026-11-12）
+
+- 全形式の最終出力先を共通preflightで検査し、正本・source・.cyberspriteとcase別名・リンクを保護する。複数出力は全件の事前検査を終えてから書く。拒否時の履歴同期も防ぐ。
+- GUIにroot/allow-dirのexport_policyを束縛し、返却パスもroot基準に揃えた。import_imageの予行は同じpreparedによる配置・構造検査まで通し、GUIの変換専用経路はpipeline_acceptedを返す。
+- 品質検査は未保存でも明示されたメモリ内source_manifestを使い、初回の予行/本実行の検証デルタを一致させた。修正後の初回配置・source再利用・undo後再取り込みは3 passed（23.41秒、回帰46件のうち3件の再確認）。
+- 追加回帰は46 passed / 3 skipped（832.94秒、symlink権限不足の3面）。新規GUI RPC 6件も成功。初回のpipeline/server検査は26 passed / 3 failed / 1 error（既存GUIの起動5秒・応答3秒のタイムアウト）。全体コマンドは32分以上未完のため停止し、全体greenは未確認。Ruff check/format、core/ops mypy 36ファイル、schema drift、repository checkは成功。手動再現で3面の正本・履歴bytes不変、cwd外GUI出力の自己検査、予行/本実行のロック拒否を確認した。
+- before/after性能値は対象外（高速化の変更・主張なし）。判断I-1001〜I-1006、SPEC §4.2/6.2.2/8.8/10.1.3/10.12/14.6/付録Cを補足。ゴールデン・依存の追加変更、外部参照、ビジュアル判断なし。
+- 全体greenと既存GUIタイムアウトの再確認、Linux、main統合は未完。共有環境の空きメモリは約0.41→0.33 GiBだったが、負荷だけが原因とは断定しない。Windowsの権限がないsymlink作成はskip。実装コミットは7575632。詳細は [R1_A1_REPORT.md](R1_A1_REPORT.md)。

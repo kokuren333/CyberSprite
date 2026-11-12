@@ -410,7 +410,7 @@ def report(
     sources: dict[str, Any] = {"total": 0, "accepted": 0, "overridden": 0, "grid_scores": {}}
     if root is not None:
         path = Path(root) / "source/manifest.json"
-        if path.is_file():
+        if source_manifest is not None or path.is_file():
             manifest = (
                 source_manifest
                 if source_manifest is not None
