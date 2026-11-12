@@ -5,6 +5,7 @@ from math import isqrt
 import numpy as np
 
 from .errors import invalid
+from .limits import output_bytes
 from .pixels import pixels_from_rows, resolve_color, rgba
 from .references import resolve_tag
 from .render import render
@@ -73,6 +74,8 @@ def preview_array(
     inline=False,
 ):
     scale = scale_for(p, scale, inline)
+    pad = 18 if rulers else 0
+    output_bytes(p.canvas.width * scale + pad, p.canvas.height * scale + pad)
     data = render(p, frame, {"layers": layers})
     image = checker(np.zeros_like(data), background, p)
     if onion:
@@ -210,6 +213,7 @@ def _contact_sheet(tile_w, tile_h, fs, thumbnail, *, layout, scale, pad=0):
         (tile_h * scale + pad + available_h - 1) // available_h,
     )
     w, h, width, height = dimensions(scale, step)
+    output_bytes(width, height)
     output = np.full((height, width, 4), (240, 240, 240, 255), dtype=np.uint8)
     for index, frame in enumerate(fs):
         image = thumbnail(frame, scale, step)

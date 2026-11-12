@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from .errors import CyberSpriteError, invalid
+from .limits import output_bytes
 from .models import GroupLayer, ImageLayer, LinkCel, Project
 from .pixels import pixels_from_rows, rgb_distance, rgba, tiles_from_rows
 from .references import cel_at, cel_owner, resolve_layer, walk_layers
@@ -91,7 +92,18 @@ def _options(project, frame, options):
             or r["y"] + r["h"] > project.canvas.height
         ):
             raise invalid("crop must be a positive integer rectangle contained within the canvas.")
+    output_dimensions(project, opts)
     return opts
+
+
+def output_dimensions(project, options):
+    """Check the final crop, scale and pixel ratio before rendering or repeating."""
+    w = options.crop["w"] if options.crop else project.canvas.width
+    h = options.crop["h"] if options.crop else project.canvas.height
+    w *= options.scale * (project.canvas.pixel_ratio.w if options.apply_pixel_ratio else 1)
+    h *= options.scale * (project.canvas.pixel_ratio.h if options.apply_pixel_ratio else 1)
+    output_bytes(w, h)
+    return w, h
 
 
 def _draws(project, frame, options):
@@ -227,6 +239,7 @@ def _background(project, options):
 
 
 def _finish(project, pixels, options):
+    output_dimensions(project, options)
     if options.crop:
         r = options.crop
         pixels = pixels[r["y"] : r["y"] + r["h"], r["x"] : r["x"] + r["w"]]

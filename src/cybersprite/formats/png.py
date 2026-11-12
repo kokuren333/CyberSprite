@@ -143,6 +143,9 @@ def decode_png(data: bytes) -> DecodedPNG:
     elif b"PLTE" in values:
         raise fail("RGBA file unexpectedly contains a palette.")
     stride = width * (1 if color_type == 3 else 4)
+    from cybersprite.core.limits import output_bytes
+
+    output_bytes(width, height)
     expected = (stride + 1) * height
     try:
         decompressor = zlib.decompressobj()

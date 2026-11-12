@@ -113,8 +113,11 @@ def decode_gif(data):
     """Independent reader used only for verification; Pillow never writes exports."""
     from PIL import Image
 
+    from cybersprite.core.limits import output_bytes
+
     frames, durations = [], []
     with Image.open(io.BytesIO(data)) as image:
+        output_bytes(*image.size, image.n_frames)
         repeats = image.info.get("loop")
         plays = 1 if repeats is None else 0 if repeats == 0 else repeats + 1
         for index in range(image.n_frames):
@@ -187,6 +190,9 @@ def decode_apng(data):
             if count is not None:
                 raise ValueError("Duplicate APNG animation control.")
             count, plays = struct.unpack(">II", payload)
+            from cybersprite.core.limits import output_bytes
+
+            output_bytes(*struct.unpack_from(">II", header[0][1]), count)
         elif kind == b"fcTL":
             if control is not None:
                 raise ValueError("Missing APNG frame data.")

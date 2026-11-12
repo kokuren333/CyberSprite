@@ -7,11 +7,12 @@ import numpy as np
 
 from cybersprite.core.canonical import json_bytes
 from cybersprite.core.errors import CyberSpriteError, invalid
+from cybersprite.core.limits import OUTPUT_BYTES, check_limit, output_bytes
 from cybersprite.core.models import Frame, ImageCel, ImageLayer
 from cybersprite.core.pixels import rgba
 from cybersprite.core.projects import new_project
 from cybersprite.core.references import resolve_layer, resolve_tag
-from cybersprite.core.render import indexed_result, render_result
+from cybersprite.core.render import _options, indexed_result, output_dimensions, render_result
 
 from .animation import decode_apng, decode_gif, encode_apng, encode_gif, gif_durations
 from .common import (
@@ -77,6 +78,7 @@ def export_image(p, a, root=None):
     paths = preflight(names, a.overwrite, project_root=root)
     # Resolve and render every item before writing so option errors cannot leave partial output.
     images = []
+    held_bytes = 0
     for frame in sequence:
         crop = (
             slice_bounds(p, a.slice, frame)[1]
@@ -84,6 +86,21 @@ def export_image(p, a, root=None):
             else a.crop.model_dump()
             if a.crop
             else None
+        )
+        size = output_bytes(
+            *output_dimensions(
+                p,
+                _options(
+                    p, frame, dict(crop=crop, scale=a.scale, apply_pixel_ratio=a.apply_pixel_ratio)
+                ),
+            )
+        )
+        held_bytes += size
+        check_limit(
+            "output_bytes",
+            held_bytes,
+            OUTPUT_BYTES,
+            "Export fewer frames or reduce scale/crop dimensions.",
         )
         rendered = (indexed_result if a.color_mode == "indexed" else render_result)(
             p,
@@ -142,7 +159,8 @@ def export_animation(p, a, root=None):
         raise invalid("Animation format must be gif or apng (or use an explicit format).")
     if format == "gif" and a.color_mode == "rgba":
         raise invalid("GIF requires indexed color_mode; use APNG for RGBA.")
-    sequence = animation_sequence(p, a.frames, a.tag, a.loop)
+    sequence = animation_sequence(p, a.frames, a.tag, a.loop, scale=a.scale)
+    output_bytes(p.canvas.width * a.scale, p.canvas.height * a.scale, len(sequence))
     options = dict(layers=a.layers, scale=a.scale, flatten=a.flatten, background=a.background)
     indexed = format == "gif" or a.color_mode != "rgba"
     rendered = []
@@ -271,6 +289,7 @@ def export_tileset(p, a, root=None):
         fail("E_AMBIGUOUS_REF", "Tileset name is ambiguous; use its ID.", reference=a.tileset)
     ts = matches[0]
     indices = list(range(0 if a.include_empty else 1, len(ts.tiles)))
+    output_bytes(ts.tile_w * a.scale, ts.tile_h * a.scale, len(indices))
     # Tiles are exposed to exactly the same renderer through a transient indexed project.
     q = new_project(
         width=ts.tile_w,
@@ -372,7 +391,7 @@ def export_aseprite(p, a, root=None):
     raw = encode_aseprite(p)
 
     def verify(data):
-        other, _ = decode_aseprite(data, name=p.name)
+        other, _ = decode_aseprite(data, name=p.name, source_limits=False)
         # Common export verification is mandatory even when semantic comparison is disabled.
         return (not a.verify or equivalent(p, other)) and all(
             np.array_equal(render_result(p, f).pixels, render_result(other, f).pixels)

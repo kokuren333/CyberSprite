@@ -466,7 +466,10 @@ def test_no_float_or_unapproved_import_in_raster():
         if isinstance(node, ast.Import):
             assert all(alias.name.split(".")[0] in allowed for alias in node.names)
         if isinstance(node, ast.ImportFrom):
-            assert node.module.split(".")[0] in allowed
+            assert node.module.split(".")[0] in allowed or node.module in (
+                "cybersprite.core.errors",
+                "cybersprite.core.limits",
+            )
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
             assert node.func.id != "float"
 

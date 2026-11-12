@@ -1,0 +1,200 @@
+"""Header-only raster reservations before delegating to input codecs."""
+
+import re
+import struct
+import zlib
+
+from cybersprite.core.errors import CyberSpriteError, invalid
+from cybersprite.core.limits import (
+    FRAME_COUNT,
+    SOURCE_AREA,
+    TILES_PER_SET,
+    DecodeBudget,
+    check_limit,
+    output_bytes,
+    source_dimensions,
+)
+
+
+def _positive_dimensions(width, height, *, source_limits=True):
+    if width < 1 or height < 1:
+        raise ValueError("Raster width and height must be positive.")
+    if source_limits:
+        source_dimensions(width, height)
+
+
+def _tile_count(count):
+    check_limit(
+        "source_tiles",
+        count,
+        TILES_PER_SET,
+        "Reduce the source tileset to at most 65536 tiles per set.",
+    )
+
+
+def _tile_stride(bits):
+    if bits < 1:
+        raise ValueError("Tile references must contain at least one bit.")
+    return (bits + 7) // 8
+
+
+def pillow_bomb_error(error):
+    """Pillow may reject a huge header before returning its lazy image object."""
+    match = re.search(r"\((\d+) pixels\)", str(error))
+    requested = int(match[1]) if match else str(error)
+    return CyberSpriteError(
+        "E_LIMIT_EXCEEDED",
+        "Source header exceeds the raster pixel budget.",
+        "Resize the source to sides at most 8192 pixels and area at most 67108864 pixels.",
+        {"limit_name": "source_area", "requested": requested, "limit": SOURCE_AREA},
+    )
+
+
+def native_limits(sprite, *, source_limits=True):
+    """Also protect callers converting an already-decoded adapter object."""
+    _positive_dimensions(sprite.width, sprite.height)
+    check_limit("source_frames", len(sprite.frames), FRAME_COUNT, "Import at most 4096 frames.")
+    DecodeBudget(source_limits=source_limits).reserve(
+        sprite.width, sprite.height, len(sprite.frames)
+    )
+    budget = DecodeBudget(source_limits=source_limits)
+    owners = {}
+
+    def owner_at(frame, layer):
+        key, path, seen = (frame, layer), [], set()
+        while key not in owners:
+            if key in seen or not 0 <= key[0] < len(sprite.frames):
+                raise invalid("Aseprite contains a cyclic or invalid cel link.")
+            seen.add(key)
+            cel = sprite.frames[key[0]].cel(key[1])
+            if cel is None:
+                raise invalid("Aseprite link targets a missing cel.")
+            if cel.link is None:
+                owners[key] = cel
+                break
+            path.append(key)
+            key = (cel.link, layer)
+        owner = owners[key]
+        for visited in path:
+            owners[visited] = owner
+        return owner
+
+    for tileset in sprite.tilesets:
+        _tile_count(tileset.tile_count)
+        if tileset.pixels is not None:
+            _positive_dimensions(
+                tileset.tile_width, tileset.tile_height, source_limits=source_limits
+            )
+            budget.reserve_pixels(tileset.tile_width, tileset.tile_height, tileset.tile_count)
+    for index, frame in enumerate(sprite.frames):
+        for cel in frame.cels:
+            cel = owner_at(index, cel.layer_index)
+            if cel.pixels is not None:
+                _positive_dimensions(
+                    cel.pixels.width, cel.pixels.height, source_limits=source_limits
+                )
+                budget.reserve_pixels(cel.pixels.width, cel.pixels.height)
+            if cel.tilemap is not None:
+                _positive_dimensions(
+                    cel.tilemap.width, cel.tilemap.height, source_limits=source_limits
+                )
+                factor = max(1, (_tile_stride(cel.tilemap.bits_per_tile) + 3) // 4)
+                budget.reserve_pixels(cel.tilemap.width, cel.tilemap.height, factor)
+
+
+def project_output_limits(project):
+    """Check native export rasters before to_native materializes their arrays."""
+    from cybersprite.core.references import cel_owner, walk_layers
+
+    budget = DecodeBudget(source_limits=False)
+    check_limit(
+        "output_frames",
+        len(project.frames),
+        FRAME_COUNT,
+        "Export at most 4096 native frames at once.",
+    )
+    output_bytes(project.canvas.width, project.canvas.height, len(project.frames))
+    for layer, _ in walk_layers(project.layers):
+        for cel in getattr(layer, "cels", []):
+            owner = cel_owner(layer, cel)
+            if owner is None:
+                raise invalid("Native export cel has no direct data owner.")
+            _positive_dimensions(owner.w, owner.h, source_limits=False)
+            budget.reserve_pixels(owner.w, owner.h)
+    for tileset in project.tilesets:
+        _tile_count(len(tileset.tiles))
+        _positive_dimensions(tileset.tile_w, tileset.tile_h, source_limits=False)
+        budget.reserve_pixels(tileset.tile_w, tileset.tile_h, len(tileset.tiles))
+
+
+def aseprite_limits(data, *, source_limits=True):
+    """Scan container/chunk headers; never ask the adapter to inflate unchecked rasters."""
+    if len(data) < 128 or struct.unpack_from("<H", data, 4)[0] != 0xA5E0:
+        return  # The adapter reports malformed signatures.
+    count, width, height, depth = struct.unpack_from("<HHHH", data, 6)
+    if depth not in (8, 16, 32):
+        raise ValueError("Native color depth must be 8, 16, or 32 bits.")
+    _positive_dimensions(width, height)
+    check_limit("source_frames", count, FRAME_COUNT, "Import at most 4096 frames.")
+    DecodeBudget(source_limits=source_limits).reserve(width, height, count)
+    budget = DecodeBudget(source_limits=source_limits)
+    streams = []
+    offset = 128
+    for _ in range(count):
+        size, magic, old_count = struct.unpack_from("<IHH", data, offset)
+        if size < 16 or magic != 0xF1FA or offset + size > len(data):
+            raise ValueError("Invalid frame header or size.")
+        chunks = struct.unpack_from("<I", data, offset + 12)[0] or old_count
+        cursor, end = offset + 16, offset + size
+        for _ in range(chunks):
+            length, kind = struct.unpack_from("<IH", data, cursor)
+            if length < 6 or cursor + length > end:
+                raise ValueError("Invalid chunk size.")
+            body = memoryview(data)[cursor + 6 : cursor + length]
+            if kind == 0x2005:  # Image or tilemap cel, including off-canvas cels.
+                cel_type = struct.unpack_from("<H", body, 7)[0]
+                if cel_type in (0, 2, 3):
+                    w, h = struct.unpack_from("<HH", body, 16)
+                    _positive_dimensions(w, h, source_limits=source_limits)
+                    budget.reserve_pixels(w, h)
+                    if cel_type == 2:
+                        streams.append((body[20:], w * h * (depth // 8)))
+                    elif cel_type == 3:
+                        bits = struct.unpack_from("<H", body, 20)[0]
+                        stride = _tile_stride(bits)
+                        extra = max(0, (stride + 3) // 4 - 1)
+                        budget.reserve_pixels(w, h, extra)
+                        streams.append((body[48:], w * h * stride))
+            elif kind == 0x2023:  # Embedded tiles are one compressed vertical strip.
+                _, flags, tiles, w, h = struct.unpack_from("<IIIHH", body)
+                _tile_count(tiles)
+                _positive_dimensions(w, h, source_limits=source_limits)
+                budget.reserve_pixels(w, h, tiles)
+                name_len = struct.unpack_from("<H", body, 32)[0]
+                start = 34 + name_len + (8 if flags & 1 else 0)
+                if flags & 2:
+                    compressed_size = struct.unpack_from("<I", body, start)[0]
+                    streams.append(
+                        (
+                            body[start + 4 : start + 4 + compressed_size],
+                            w * h * tiles * (depth // 8),
+                        )
+                    )
+            cursor += length
+        offset = end
+    # Bound expansion even when an input stream lies about its dimensions. Validate
+    # in 64 KiB pieces, so the adapter's subsequent full inflation is known bounded.
+    for compressed, expected in streams:
+        try:
+            decoder = zlib.decompressobj()
+            pending, total = compressed, 0
+            while pending:
+                raw = decoder.decompress(pending, min(65_536, expected - total + 1))
+                total += len(raw)
+                if total > expected:
+                    raise ValueError("Compressed raster exceeds its declared dimensions.")
+                pending = decoder.unconsumed_tail
+            if total != expected or not decoder.eof or decoder.unused_data:
+                raise ValueError("Compressed raster length does not match its dimensions.")
+        except zlib.error as error:
+            raise ValueError("Invalid compressed raster stream.") from error

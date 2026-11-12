@@ -28,8 +28,35 @@ def region(p, value, image):
     return raster.region_mask(spec, p.canvas.width, p.canvas.height, image)
 
 
+def _work(p, a, name):
+    """Estimate all enumeration before requesting even a canvas-sized image."""
+    if name == "set_pixel":
+        return 1
+    if name == "set_pixels":
+        return len(a.pixels or a.points or [])
+    if name == "draw_rows":
+        return sum(len(row) for row in a.rows)
+    if name in ("line", "rect", "ellipse", "polygon", "stroke"):
+        return raster.geometry_work(a)
+    area = p.canvas.width * p.canvas.height
+    if name == "cleanup_pixels":
+        count = len(frames(p, a.frames)) if a.frame is None else 1
+        return area * count * a.max_passes
+    if name == "replace_color":
+        count = len(frames(p, a.frames)) * (
+            len(a.layers)
+            if a.layers is not None
+            else sum(isinstance(node, ImageLayer) for node, _ in walk_layers(p.layers))
+        )
+        return area * count + (
+            sum(ts.tile_w * ts.tile_h * len(ts.tiles) for ts in p.tilesets) if a.tilesets else 0
+        )
+    return area
+
+
 def drawing(ctx, a, name):
     p = ctx.project
+    ctx.drawing_budget.reserve(_work(p, a, name))
     if name == "cleanup_pixels":
         from cybersprite.core.pixels import rgba
         from cybersprite.core.references import cel_at, cel_owner
@@ -115,6 +142,23 @@ def drawing(ctx, a, name):
         return {"pixels_written": count}
     layer = image_layer(p, a.layer)
     frame_index(p, a.frame)
+
+    # These two exact counts need neither a raster nor a point list. Other
+    # shapes retain bounded enumeration to preserve their exact clipped count.
+    if name in ("line", "rect") and a.brush.size == 1:
+        if name == "line":
+            x0, x1 = sorted((a.x0, a.x1))
+            y0, y1 = sorted((a.y0, a.y1))
+            count = max(x1 - x0, y1 - y0) + 1
+        else:
+            x0, y0, x1, y1 = a.x, a.y, a.x + a.w - 1, a.y + a.h - 1
+            count = a.w * a.h
+            if not a.filled:
+                count -= max(0, a.w - 2) * max(0, a.h - 2)
+        if x1 < 0 or y1 < 0 or x0 >= p.canvas.width or y0 >= p.canvas.height:
+            resolve_color(p.palette, a.color)
+            ctx.clipped_pixels += count
+            return {"pixels_written": 0}
 
     def image():
         return canvas_pixels(p, layer, a.frame)

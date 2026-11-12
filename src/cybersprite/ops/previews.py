@@ -111,6 +111,8 @@ def transaction_previews(p, changed, root, mode, dry):
 
 
 def diff(p, root, from_revision, to_revision, fs=None, inline=True):
+    from cybersprite.core.limits import output_bytes
+
     before = history.restore(root, from_revision)
     after = p if to_revision == p.revision else history.restore(root, to_revision)
     candidates = fs if fs is not None else list(range(max(len(before.frames), len(after.frames))))
@@ -125,6 +127,8 @@ def diff(p, root, from_revision, to_revision, fs=None, inline=True):
             max(before.canvas.width, after.canvas.width),
             max(before.canvas.height, after.canvas.height),
         )
+        scale = max(1, min(16, 512 // max(w * 3, h)))
+        output_bytes(w * 3 * scale, h * scale)
         old = np.zeros((h, w, 4), dtype=np.uint8)
         new = old.copy()
         for project, destination in ((before, old), (after, new)):
