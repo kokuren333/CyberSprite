@@ -2,8 +2,9 @@
 
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, Field, create_model
+from pydantic import BaseModel, Field, create_model, model_validator
 
+from cybersprite.core.errors import CyberSpriteError
 from cybersprite.core.models import (
     BlendMode,
     Coordinate,
@@ -16,6 +17,7 @@ from cybersprite.core.models import (
     SliceKey,
     UserData,
 )
+from cybersprite.core.raster import RasterError, check_region_tree
 
 from .descriptions import argument_model
 
@@ -33,6 +35,30 @@ class AllRegion(Model):
 
 class RectRegion(Rect):
     type: Literal["rect"]
+
+
+class EllipseRegion(Rect):
+    type: Literal["ellipse"]
+
+
+class PolygonRegion(Model):
+    type: Literal["polygon"]
+    points: Annotated[list[Point], Field(min_length=2)]
+
+
+class CombinedRegion(Model):
+    type: Literal["and", "or", "not"]
+    of: list["Region"]
+
+    @model_validator(mode="before")
+    @classmethod
+    def bounded_tree(cls, value):
+        if isinstance(value, dict):
+            try:
+                check_region_tree(value)
+            except RasterError as error:
+                raise CyberSpriteError(error.code, error.message, error.hint) from error
+        return value
 
 
 class MaskRegion(Model):
@@ -55,8 +81,32 @@ class WandRegion(Model):
 
 
 Region = Annotated[
-    AllRegion | RectRegion | MaskRegion | ColorRegion | WandRegion, Field(discriminator="type")
+    AllRegion
+    | RectRegion
+    | EllipseRegion
+    | PolygonRegion
+    | MaskRegion
+    | ColorRegion
+    | WandRegion
+    | CombinedRegion,
+    Field(discriminator="type"),
 ]
+CombinedRegion.model_rebuild()
+
+
+class DrawingMask(Model):
+    only_on: list[Color] | None = None
+    not_on: list[Color] | None = None
+    region: Region = Field(default_factory=AllRegion)
+
+
+class Guide(Model):
+    source: str
+    file: str | None = None
+    x: Annotated[int, Field(ge=0)] = 0
+    y: Annotated[int, Field(ge=0)] = 0
+    scale: Annotated[int, Field(ge=1, le=64)] | None = None
+    mode: Literal["side"] = "side"
 
 
 class Brush(Model):
@@ -126,6 +176,23 @@ ARGS: dict[str, type[BaseModel]] = {}
 
 
 def define(name: str, fields: dict[str, Any], draw: bool = False) -> None:
+    if name in {
+        "set_pixel",
+        "set_pixels",
+        "draw_rows",
+        "line",
+        "rect",
+        "ellipse",
+        "polygon",
+        "stroke",
+        "fill",
+        "erase",
+        "replace_color",
+        "transform_region",
+        "outline",
+        "cleanup_pixels",
+    }:
+        fields = {**fields, "mask": (DrawingMask | None, None)}
     ARGS[name] = argument_model(
         name, contract("".join(s.title() for s in name.split("_")) + "Args", fields, draw=draw)
     )
@@ -148,6 +215,7 @@ define(
         "rows": (list[str], ...),
         "format": (Literal["hex", "sym"], "hex"),
         "skip_transparent": (bool, False),
+        "legend": (dict[str, Color] | None, None),
     },
     True,
 )
@@ -216,6 +284,7 @@ define(
     {
         "color": COLOR,
         "placement": (Literal["outside", "inside"], "outside"),
+        "exclude_colors": (list[Color] | None, None),
         "connectivity": (Literal[4, 8], 4),
         "region": REGION,
     },
@@ -575,6 +644,8 @@ define(
         "grid": (bool, False),
         "rulers": (bool, False),
         "onion": (Onion | None, None),
+        "rect": (Rect | None, None),
+        "guide": (Guide | None, None),
         "background": (Color, "checker"),
         "inline": (bool, True),
     },

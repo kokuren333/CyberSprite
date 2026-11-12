@@ -285,6 +285,7 @@ class Placement(Model):
 class Source(Model):
     id: Annotated[str, Field(pattern=r"^SRC[1-9][0-9]*$")]
     kind: Literal["generated", "imported"]
+    use: Literal["canvas", "design"] = "canvas"
     files: list[SourceFile]
     provider: str
     model: SourceModel | None

@@ -23,12 +23,15 @@ from .descriptions import OPERATIONS
 from .drawing import drawing
 from .frames import frame_op
 from .ingest import (
+    AddSourceArgs,
+    AddSourceResult,
     GetSourceArgs,
     GetSourceResult,
     ImportArgs,
     ImportResult,
     ListSourcesArgs,
     ListSourcesResult,
+    add_source_top,
     import_top,
     place,
     source_query,
@@ -327,6 +330,17 @@ def registry():
         register_generators(_registry)
         _registry.register(
             Op(
+                "add_source",
+                AddSourceArgs,
+                _special,
+                AddSourceResult,
+                "ingest",
+                "N",
+                description="Register design images with provenance, without canvas placement.",
+            )
+        )
+        _registry.register(
+            Op(
                 "import_image",
                 ImportArgs,
                 place,
@@ -371,6 +385,10 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
         ) from error
     parsed = definition.parse(args)
     root = project_path(project).parent
+    if name == "add_source":
+        value = add_source_top(project, parsed, tx, actor)
+        definition.result.model_validate(value["result"])
+        return value
     if name == "import_aseprite" and definition.kind == "ingest":
         if options:
             raise invalid("Transaction options are accepted only by mutate operations.")

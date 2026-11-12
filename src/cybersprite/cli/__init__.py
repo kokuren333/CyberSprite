@@ -618,6 +618,7 @@ cli.add_command(
         "source",
         help="Read source provenance.",
         routes={
+            "add": ("add_source", "M12", "files"),
             "list": ("list_sources", "M6", None),
             "show": ("get_source", "M6", "id"),
         },

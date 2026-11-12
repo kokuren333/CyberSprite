@@ -166,7 +166,38 @@
         "before": 2,
         "after": 1
       }
-    }
+    },
+    "resolved_points": [
+      {
+        "rule": "Q-PIX-02",
+        "frame": 1,
+        "layer": "L1",
+        "x": 1,
+        "y": 1
+      },
+      {
+        "rule": "Q-PIX-02",
+        "frame": 1,
+        "layer": "L1",
+        "x": 2,
+        "y": 1
+      },
+      {
+        "rule": "Q-PIX-02",
+        "frame": 4,
+        "layer": "L1",
+        "x": 1,
+        "y": 1
+      },
+      {
+        "rule": "Q-PIX-02",
+        "frame": 4,
+        "layer": "L1",
+        "x": 2,
+        "y": 1
+      }
+    ],
+    "resolved_points_count": 4
   },
   "preview": {
     "paths": [],

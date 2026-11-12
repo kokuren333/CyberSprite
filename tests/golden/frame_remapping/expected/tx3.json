@@ -176,7 +176,69 @@
         }
       }
     ],
-    "metrics_delta": {}
+    "metrics_delta": {},
+    "new_points": [
+      {
+        "rule": "Q-PIX-02",
+        "frame": 1,
+        "layer": "L1",
+        "x": 1,
+        "y": 1
+      },
+      {
+        "rule": "Q-PIX-02",
+        "frame": 1,
+        "layer": "L1",
+        "x": 2,
+        "y": 1
+      },
+      {
+        "rule": "Q-PIX-02",
+        "frame": 3,
+        "layer": "L1",
+        "x": 1,
+        "y": 1
+      },
+      {
+        "rule": "Q-PIX-02",
+        "frame": 3,
+        "layer": "L1",
+        "x": 2,
+        "y": 1
+      }
+    ],
+    "new_points_count": 4,
+    "resolved_points": [
+      {
+        "rule": "Q-PIX-02",
+        "frame": 0,
+        "layer": "L1",
+        "x": 1,
+        "y": 1
+      },
+      {
+        "rule": "Q-PIX-02",
+        "frame": 0,
+        "layer": "L1",
+        "x": 2,
+        "y": 1
+      },
+      {
+        "rule": "Q-PIX-02",
+        "frame": 2,
+        "layer": "L1",
+        "x": 1,
+        "y": 1
+      },
+      {
+        "rule": "Q-PIX-02",
+        "frame": 2,
+        "layer": "L1",
+        "x": 2,
+        "y": 1
+      }
+    ],
+    "resolved_points_count": 4
   },
   "preview": {
     "paths": [],

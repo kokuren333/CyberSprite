@@ -45,6 +45,15 @@
           "title": "Kind",
           "type": "string"
         },
+        "use": {
+          "default": "canvas",
+          "enum": [
+            "canvas",
+            "design"
+          ],
+          "title": "Use",
+          "type": "string"
+        },
         "files": {
           "items": {
             "$ref": "#/$defs/SourceFile"

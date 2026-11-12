@@ -18,7 +18,7 @@ from .execution import DeadlineExpired, Execution
 from .paths import PathPolicy
 
 TEXT_LIMIT = 256 * 1024
-TIMEOUTS = {"import_image": 300, "generate_image": 1800}
+TIMEOUTS = {"import_image": 300, "add_source": 300, "generate_image": 1800}
 
 
 def _sdk():

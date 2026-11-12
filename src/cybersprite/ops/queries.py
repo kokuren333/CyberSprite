@@ -161,6 +161,8 @@ def query(ctx, a, name):
             grid=a.grid,
             rulers=a.rulers,
             onion=a.onion.model_dump() if a.onion else None,
+            rect=a.rect.model_dump() if a.rect else None,
+            guide=a.guide.model_dump() if a.guide else None,
             background=a.background,
             layers=a.layers,
         )

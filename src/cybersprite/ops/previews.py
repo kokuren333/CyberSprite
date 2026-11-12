@@ -8,7 +8,13 @@ import numpy as np
 
 from cybersprite.core import history
 from cybersprite.core.errors import CyberSpriteError, invalid
-from cybersprite.core.previews import checker, composite_preview, preview_array, tileset_preview
+from cybersprite.core.previews import (
+    checker,
+    composite_preview,
+    preview_array,
+    scale_for,
+    tileset_preview,
+)
 from cybersprite.core.quality import bbox
 from cybersprite.core.render import render, render_indexed
 from cybersprite.formats.png import encode_png
@@ -16,10 +22,77 @@ from cybersprite.formats.png import encode_png
 from .common import frame_index
 
 
+def guide_image(root, guide):
+    from hashlib import sha256
+
+    from cybersprite.core.sources import find_source, read_manifest, source_path
+    from cybersprite.formats.design_sources import decode_design
+
+    source = find_source(read_manifest(root), guide["source"])
+    file = guide.get("file")
+    candidates = [f for f in source.files if file is None or f.path == file]
+    if not candidates:
+        raise invalid(
+            "Guide file must be registered in the selected source.",
+            candidates=[f.path for f in source.files],
+        )
+    record = candidates[0]
+    try:
+        raw = source_path(root, record.path).read_bytes()
+    except OSError as error:
+        raise CyberSpriteError(
+            "E_IO",
+            f"Cannot read guide image: {error}",
+            "Restore the original registered source file.",
+        ) from error
+    if sha256(raw).hexdigest() != record.sha256:
+        raise invalid("Guide source hash changed; restore the original or register a new source.")
+    image = decode_design(raw)
+    x, y = guide.get("x", 0), guide.get("y", 0)
+    if x >= image.shape[1] or y >= image.shape[0]:
+        raise invalid("Guide crop origin must lie inside the design image.")
+    return image[y:, x:]
+
+
+def beside(data, design, scale, render_step=1):
+    """Sample both decorations on one grid before allocating the bounded side view."""
+    h, w = design.shape[:2]
+    gap = 2
+    guide_w = (w * scale + render_step - 1) // render_step
+    guide_h = (h * scale + render_step - 1) // render_step
+    width = data.shape[1] + gap + guide_w
+    height = max(data.shape[0], guide_h)
+    step = max(1, (max(width, height) + 1023) // 1024)
+    yy = np.arange(0, height, step, dtype=np.int64)
+    xx = np.arange(0, width, step, dtype=np.int64)
+    output = np.full((len(yy), len(xx), 4), (240, 240, 240, 255), dtype=np.uint8)
+    left_y, left_x = yy[yy < data.shape[0]], xx[xx < data.shape[1]]
+    output[: len(left_y), : len(left_x)] = data[left_y[:, None], left_x]
+    right = xx >= data.shape[1] + gap
+    gy = yy[yy < guide_h] * render_step // scale
+    gx = (xx[right] - data.shape[1] - gap) * render_step // scale
+    # Alpha is display decoration, composited without touching the project palette.
+    sampled = design[gy[:, None], gx]
+    output[: len(gy), right] = checker(sampled)
+    return output
+
+
 def previews(
-    p, fs, root, *, dry=False, inline=False, retain=True, layout="frames", tileset=None, **options
+    p,
+    fs,
+    root,
+    *,
+    dry=False,
+    inline=False,
+    retain=True,
+    layout="frames",
+    tileset=None,
+    guide=None,
+    **options,
 ):
     if tileset is not None:
+        if guide is not None or options.get("rect") is not None:
+            raise invalid("rect and guide apply to canvas previews; omit tileset.")
         from .tiles import resolve_tileset
 
         ts = resolve_tileset(p, tileset)
@@ -69,11 +142,26 @@ def previews(
     paths, images = [], []
     scale = 1
     width = height = 0
+    design = guide_image(root, guide) if guide is not None else None
     for frame in fs if layout == "frames" else [None]:
+        render_step = 1
         if frame is None:
-            data, scale = composite_preview(p, fs, layout=layout, **options)
+            if design is None:
+                data, scale = composite_preview(p, fs, layout=layout, **options)
+            else:
+                data, scale, render_step = composite_preview(
+                    p, fs, layout=layout, return_sampling=True, **options
+                )
         else:
-            data, scale = preview_array(p, frame, inline=inline, **options)
+            frame_options = options
+            if design is not None:
+                frame_options = {
+                    **options,
+                    "scale": scale_for(p, options.get("scale", "auto"), True, options.get("rect")),
+                }
+            data, scale = preview_array(p, frame, inline=inline and design is None, **frame_options)
+        if design is not None:
+            data = beside(data, design, guide.get("scale") or scale, render_step)
         data_bytes = encode_png(data)
         suffix = f"f{frame}" if frame is not None else layout
         path = folder / f"r{p.revision:06d}_{suffix}.png"

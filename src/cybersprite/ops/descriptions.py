@@ -6,6 +6,16 @@ from typing import Any
 from pydantic import BaseModel, create_model
 
 ARGUMENTS = {
+    "mask": "Optional protection: only_on/not_on colors and region, tested once before drawing.",
+    "legend": (
+        "Symbol-to-color mapping for sym rows; indices, exact colors or @name. Dot is reserved."
+    ),
+    "exclude_colors": (
+        "Colors excluded from outline seeds; excluding the outside outline color is idempotent."
+    ),
+    "guide": (
+        "Design source beside the preview: source, file, x/y crop origin, integer scale, mode=side."
+    ),
     "tile_w": "Tile width in pixels (1-256).",
     "tile_h": "Tile height in pixels (1-256).",
     "tile": "Zero-based tile index; set_tile_pixels also accepts new to append.",
@@ -28,7 +38,7 @@ ARGUMENTS = {
     "h": "Height in integer pixels.",
     "width": "Width in integer pixels.",
     "height": "Height in integer pixels.",
-    "color": "Palette index or an exact palette color; editing never approximates colors.",
+    "color": "Palette index, @name, or an exact palette color; editing never approximates colors.",
     "colors": "Ordered palette colors as #rrggbbaa strings, at most 256 entries.",
     "pixels": "Pixel triples [x, y, palette index or exact palette color].",
     "points": "Ordered integer [x, y] coordinates.",
@@ -46,7 +56,9 @@ ARGUMENTS = {
     "pixel_perfect": "Remove redundant corner pixels for a size-one stroke.",
     "connectivity": "Neighbor connectivity: 4 uses edges, 8 also includes diagonals.",
     "sample": "Read flood-fill boundaries from this layer or the rendered composite.",
-    "region": "Explicit all, rectangle, mask, color, or wand selection in canvas coordinates.",
+    "region": (
+        "Canvas selection: all, rect, ellipse, polygon, mask, color, wand, bounded and/or/not tree."
+    ),
     "from_": "Inclusive starting frame index.",
     "to": "Inclusive ending frame index.",
     "layers": "Layer references to include; omission uses the operation default selection.",

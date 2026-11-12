@@ -95,7 +95,28 @@
         "before": 2,
         "after": 1
       }
-    }
+    },
+    "updated_issues": [
+      {
+        "rule": "Q-PAL-02",
+        "where": {
+          "frames": [],
+          "layer": null,
+          "bbox": null,
+          "points": []
+        },
+        "before": {
+          "count": 2,
+          "level": "info",
+          "message": "Unused palette indices: [1, 2]."
+        },
+        "after": {
+          "count": 1,
+          "level": "info",
+          "message": "Unused palette indices: [2]."
+        }
+      }
+    ]
   },
   "preview": {
     "paths": [],
