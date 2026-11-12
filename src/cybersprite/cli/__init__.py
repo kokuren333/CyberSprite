@@ -729,7 +729,12 @@ def gui_command(state, path, port, no_browser, root, allow_dir):
 
 
 class GenerationGroup(RegistryGroup):
+    def list_commands(self, ctx):
+        return sorted(set(super().list_commands(ctx)) | set(self.commands))
+
     def get_command(self, ctx, cmd_name):
+        if cmd_name in self.commands:
+            return self.commands[cmd_name]
         if cmd_name not in self.routes:
             return None
         op, milestone, _ = self.routes[cmd_name]
@@ -790,6 +795,59 @@ cli.add_command(
         },
     )
 )
+
+
+@cli.commands["gen"].command("register-model")
+@click.argument("path", type=click.Path(path_type=Path, exists=True))
+@click.option("--name", required=True)
+@click.option(
+    "--kind",
+    type=click.Choice(["diffusers-dir", "checkpoint", "lora", "vae", "controlnet"]),
+    required=True,
+)
+@click.option("--base-model", default="unknown", show_default=True)
+@click.option("--license", required=True)
+@click.option("--license-url", default="")
+@click.option("--commercial-use", type=click.Choice(["yes", "no", "unknown"]), default="unknown")
+@click.option("--source-url", default="")
+@click.option("--note", default="")
+@click.pass_obj
+def gen_register_model(state, path, **options):
+    """Register local BYOW metadata in user config (human CLI only)."""
+    from cybersprite.generate.models import register_model
+
+    _emit(state, "register_model", register_model(path, **options))
+
+
+@cli.commands["gen"].command("models")
+@click.pass_obj
+def gen_models(state):
+    """List registered BYOW models with license badges; no GPU runtime is loaded."""
+    from cybersprite.generate.models import list_models
+
+    result = list_models()
+    if state.get("format") == "text":
+        for item in result["models"]:
+            click.echo(" ".join(b["message"] for b in item["badges"]))
+    else:
+        _emit(state, "models", result)
+
+
+@cli.commands["gen"].command("comfy-inspect")
+@click.argument("file", type=click.Path(path_type=Path, exists=True, dir_okay=False))
+@click.pass_obj
+def gen_comfy_inspect(state, file):
+    """Suggest workflow bindings for human review; never registers or executes nodes."""
+    from cybersprite.generate.comfyui import inspect_workflow
+
+    result = inspect_workflow(file)
+    if state.get("format") == "text":
+        click.echo(result["message"])
+        click.echo("[generators.comfyui.workflows.NAME.bind]")
+        for key, path in sorted(result["bind"].items()):
+            click.echo(f"{key} = {json.dumps(path)}")
+    else:
+        _emit(state, "comfy_inspect", result)
 
 
 def _pipeline_options():

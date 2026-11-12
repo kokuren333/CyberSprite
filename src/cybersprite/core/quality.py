@@ -14,6 +14,7 @@ from .models import GroupLayer, ImageLayer, LinkCel, Sources
 from .pixels import rgba, tiles_from_rows
 from .references import cel_owner, walk_layers
 from .render import frame_signature, indexed_result, render
+from .source_terms import source_terms
 from .validation import check_structure
 
 DEFAULT_LEVELS = {
@@ -39,6 +40,7 @@ DEFAULT_LEVELS = {
     "Q-SRC-01": "warning",
     "Q-SRC-02": "warning",
     "Q-SRC-03": "error",
+    "Q-SRC-04": "warning",
 }
 
 # Derived data only: at most 64 frames / 262144 pixels (including component points).
@@ -433,6 +435,19 @@ def report(
                     add("Q-SRC-01", f"Source {source.id} was placed with {reason}.", fs=fs)
                 if source.license == "unknown":
                     add("Q-SRC-02", f"Source {source.id} has unknown usage terms.", fs=fs)
+                restricted = [
+                    m.get("id", "unknown")
+                    for m in source_terms(source)
+                    if m.get("commercial_use", "unknown") != "yes"
+                ]
+                if restricted:
+                    add(
+                        "Q-SRC-04",
+                        f"Source {source.id} needs commercial-use review for models, "
+                        f"adapters or bases: {', '.join(sorted(set(restricted)))}. "
+                        "Check their terms before publication or commercial use.",
+                        fs=fs,
+                    )
                 for file in source.files:
                     relative = Path(file.path)
                     target = (

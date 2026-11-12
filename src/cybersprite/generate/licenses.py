@@ -42,7 +42,13 @@ def fingerprint(path):
     )
 
 
-def model_info(setting, alias, base_model=None):
+def model_info(setting, alias, base_model=None, registered=None, visited=(), include_adapters=True):
+    if alias in visited:
+        from cybersprite.core.errors import invalid
+
+        raise invalid(
+            "Cyclic model or adapter reference; repair base_model in config.toml.", model=alias
+        )
     path = Path(setting.local_path).expanduser() if setting.local_path else None
     if path is not None and not path.is_absolute():
         path = config_path().parent / path
@@ -54,11 +60,32 @@ def model_info(setting, alias, base_model=None):
         source_url=setting.source_url,
         local_path=str(path.resolve()) if path is not None else "",
         sha256=digest,
-        base_model=base_model,
+        base_model=setting.base_model
+        if setting.base_model != "unknown"
+        else base_model or "unknown",
+        display_name=setting.display_name or alias,
+        kind=setting.kind,
+        license_url=setting.license_url,
+        commercial_use=setting.commercial_use,
+        note=setting.note,
+        registered_at=setting.registered_at,
+        bases=[
+            model_info(
+                registered[setting.base_model],
+                setting.base_model,
+                registered=registered,
+                visited=(*visited, alias),
+                include_adapters=False,
+            )
+        ]
+        if registered and setting.base_model in registered
+        else [],
         adapters=[
-            model_info(a, f"{alias}:adapter:{i}", setting.id or alias)
+            model_info(a, f"{alias}:adapter:{i}", alias, registered)
             for i, a in enumerate(getattr(setting, "adapters", []))
-        ],
+        ]
+        if include_adapters
+        else [],
     )
 
 
@@ -85,9 +112,18 @@ def records():
 
 
 def identities(model):
-    return [
-        {"id": m.id, "license": m.license, "sha256": m.sha256} for m in [model, *model.adapters]
-    ]
+    values = []
+    for info in all_models(model):
+        row = {"id": info.id, "license": info.license, "sha256": info.sha256}
+        if row not in values:
+            values.append(row)
+    return values
+
+
+def all_models(model):
+    yield model
+    for child in [*model.adapters, *model.bases]:
+        yield from all_models(child)
 
 
 def require_license(model, *, accept=False):
