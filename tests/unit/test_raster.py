@@ -245,7 +245,10 @@ def test_seeded_line_properties():
         assert (x0, y0) in path and (x1, y1) in path
         assert len(path) == max(abs(x1 - x0), abs(y1 - y0)) + 1
         assert len(path) == len(set(path))
-        assert all(max(abs(a[0] - b[0]), abs(a[1] - b[1])) == 1 for a, b in zip(path, path[1:], strict=False))
+        assert all(
+            max(abs(a[0] - b[0]), abs(a[1] - b[1])) == 1
+            for a, b in zip(path, path[1:], strict=False)
+        )
 
 
 def is_l_corner(p, c, n):
