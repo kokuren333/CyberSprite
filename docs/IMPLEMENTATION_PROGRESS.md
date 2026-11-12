@@ -3,6 +3,9 @@
 オーケストレーター: Claude Opus 5.5（effort 高）。仕様の正本は `docs/SPEC.md`、判断は `docs/DECISIONS.md`。
 新しい記録を下に足していく（追記式）。
 
+**現在地（R1-DOC、2026-11-12）**: 全R1実装を `dc0fe4f` に統合し、終了文書を作成。全統合版のPythonは2089 passed / 12 skipped（479.27秒）、core/ops・strict・schema・repository・ライセンス検査が成功。全src mypyは61件/20ファイルを残す。最終CIとe2e-07人間判定は待ち。現在の対応表は [FIX_ROUND_1_REPORT](FIX_ROUND_1_REPORT.md)、残件は [KNOWN_ISSUES](KNOWN_ISSUES.md)。R1後は一旦止めて仕様を締め直し、R2は発注者の決定時にだけ行う。下のM10表と各工程の「未統合」は当時の記録である。
+
+
 ## FIX-5: トランザクション／GUI遅延とCLI・再取り込み（2026-11-12）
 
 - `fix5-perf` でフレーム解析の内容SHA-256キャッシュ、画素使用数・行検査・トリム・正準行JSONの上限付き再利用、検証済み正準bytesのsnapshot共有、gzip level=1、複製1回とその内部での正規化を実装した。汎用copy-on-writeは任意プラグインの可変編集を隔離するため見送った。
@@ -15,7 +18,7 @@
 - 実CLI子プロセス10呼出しでカンマ指定、作成不要import、undo、再import、validate、stored PNG exportを実行し、validation_ok/verified=trueと書出しファイルの復号画素一致を確認した。全5フレームの一覧と実PNGも確認した。警告・エラーは0、未使用色と空の初期レイヤーのinfo指摘は工学用fixtureの意図どおりとして保持した。成果物はgit管理外の `build/fix5-verified/`。
 - 判断 **I-881〜I-887**。仕様変更は§10.12／§11.11の自動作成・undo後再取り込みの補足だけ。新規依存・外部参照・ビジュアル判断なし。mainへの統合はオーケストレーターが行う。
 
-## 現在地（2026-11-12 12:55 JST）— **M0〜M10 完了。レビュー依頼 1 回目を作成済み**
+## M10時点の記録（2026-11-12 12:55 JST）— 実装完了・受入の残件は当時のもの
 
 | マイルストーン | 状態 | 備考 |
 |---|---|---|
@@ -36,18 +39,12 @@
 
 ## 次セッションへの引き継ぎ
 
-**完了範囲**: 仕様 §16.4 の M0〜M10 すべて。作業ツリーに未コミットの変更はない（`_handoff/`・`_private/` は git 管理外）。
+1. [FIX_ROUND_1_REPORT](FIX_ROUND_1_REPORT.md)と[KNOWN_ISSUES](KNOWN_ISSUES.md)を現在地として読む。旧M10時点の「リポジトリ未作成」「Linux全未実行」「R1未実施」は履歴で、現在の指示ではない。
+2. オーケストレーターが総括とREVIEW_REQUEST_2の `<!-- CI_RESULT -->` に最終pushのSHA／URL／全matrix結果、`<!-- E2E07 -->` に3関門シート・最終実ファイル・検証結果・人間の合否を追記する。Discordツールはないため監督者が `e2e-tests/07-ds-turnaround/discord/` の実在ファイルと投稿を確認する。第9項の原文番号対応も総括§4.2へ追記する。
+3. 発注者が仕様を締め直すため一旦停止する。**自動でR2を実行しない**。[REVIEW_REQUEST_2](REVIEW_REQUEST_2.md)は実施を決めた際の準備文書。Fable §6の7判断・48px境界・M13範囲と、I-010/I-012事後承認の状態を同書§6で確認する。コネクタ標準化は後続発注指示で確定済み、403時の回避は試みていない。
+4. 実装残件は専用GUIフォーム／palette／設定、95%関門、offset links/analyze、importers、追加native/sidecars、性能目標一部・全src型検査・M0棚卸しなど。DOCが実装したとは扱わない。
 
-**次の作業（優先順）**
-1. **GitHub リポジトリの作成と push**（発注者の操作が要る。`docs/UPSTREAM_REPORT.md` §3 の手順 A か B）。push すると CI（Windows / Ubuntu × Python 3.12 / 3.13）が初めて走り、**Linux での決定性（ゴールデンのバイト一致）が初めて検証される**。落ちたら最優先で直す。
-2. **レビューループ**（§16.5）: `docs/REVIEW_REQUEST_1.md` を Fable 5.2 に渡し、`docs/REVIEW_1.md` を受けて `docs/REVIEW_LOG.md` に対応を書く。最大 3 回。
-3. `docs/KNOWN_ISSUES.md` の残件: 性能 2 項目（1 トランザクション 205 ms / 目標 150 ms、GUI 往復 93 ms / 目標 50 ms）、mypy 47 件、GUI の専用メニュー、生成画像コーパス (d) と実 GPU での生成、M0 の未撮影画面と発注者のよく使うキー。
-
-**注意点**
-- サブエージェントの起動: Codex は `_handoff/codex/run_codex.sh <TASK> <worktree>`（共通ブリーフ `_handoff/codex/COMMON.md` ＋タスク別の指示を連結し、`codex exec -m gpt-6.1-sol -c model_reasoning_effort=high` で実行）。1 タスク 1 worktree・1 ブランチで、オーケストレーターが検証してから `main` に統合した。`docs/DECISIONS.md` と本ファイルの衝突は行の和集合で解消できる（`_handoff/tools/union_merge.py`）。
-- Opus のサブエージェント（Agent ツール）は、この環境では `REPORT.md` という名前のファイルを書けないことがある。その場合は最終メッセージで本文を受け取り、オーケストレーターが保存した。
-- CLI の書き出し先はカレントディレクトリの配下に限られる（I-602）。プロジェクトの中から実行すると外へ書けない。
-- 全体テストは約 5 分かかる。高負荷時に `uv run` の再ビルド通知が stderr に混ざる問題は FIX-6 で修正済み。
+CLI出力先はcwd配下（I-602）。Pythonの最終全体試験は本統合版で約8分、機能試験の時間を性能比較にしない。並行負荷の16GB機で中断・期限切れを複数工程が記録している。非公開ファイルをコミットしない。
 
 ## 体制とサブエージェントの起動方法
 
@@ -341,3 +338,16 @@
 - 関門は前後とも(e)10/12拒否=83.3%、(d)8/13合格。alignment下限308では(e)12/12になるが(d)2/13へ悪化する。小格子・残差の候補も正例を追加拒否し、独立した8×8格子の反例でも失敗したため既定・閾値を維持した。95%条件未達をSPECへ明記した。
 - 判断 **I-1331〜I-1346**。SPEC §11の再実装可能な定義・確定値表と§15のbatch契約を補足した。新規gridベクタ7件を手計算で検査。統合由来のDMG/NDS golden応答JSON2件だけを唯一の更新器で更新し、全diffを確認した。正本・PNG・画素は不変。
 - 不足は95%分類条件、PPA上流既定倍率2の別較正、実アニメーション/写真の意匠判断、GPU、Linux、全同梱バイナリ配布監査。台帳・来歴ログ・main統合はオーケストレーターへ引き継ぐ。詳細は [R1_D2_IMPLEMENTATION_REPORT.md](R1_D2_IMPLEMENTATION_REPORT.md)、[PIXELIZE_BENCH.md](PIXELIZE_BENCH.md)。
+
+## R1-H: CI対象OSとJS台帳の検査（2026-11-12）
+
+- 既存commit `3962a41`／merge `61ae19f` の記録をDOCで補記。GUI CIをubuntu-latest（26.04）からPlaywright対応のubuntu-24.04へ固定し、WindowsはJS台帳を `--check`、他OSは実nativeの原文監査とした。Fable R1-01/22に対応する。
+- 独立H報告・I番号はない。ローカルJS46件の照合とINTのGUI698 tests／100対／Playwright5成功は確認記録があるが、最終リモートCIはオーケストレーター差込み待ち。性能変更・依存追加・意匠変更なし。
+
+## R1-DOC: 修正ラウンド1の終了文書（2026-11-12）
+
+- THIRD_PARTYの欠落5依存とJS別表・L05/06・Pillow版方針、SPEC §2.1の既存例外2件（事後承認待ち）を記録。利用者導入／評価対象を別節とし、全PROVENANCE-ready行を元の確認範囲で転記した。
+- KNOWN_ISSUESを現在の状態へ更新、FIX_ROUND_1_REPORTに18工程・全40指摘・全22要求・全198 R1判断・実測条件と延期を集約。REVIEW_LOGから対応表を参照し、REVIEW_REQUEST_2は仕様締直し後の準備依頼とした。CI/e2e-07の指定placeholderを両文書に残した。
+- 全統合版 `uv run pytest -q --tb=short` は **2089 passed / 12 skipped（479.27秒）**。skipはWindows symlink5、未導入外部方式6、明示GPU1。Ruff check/format（259ファイル）、core/ops mypy50・strict7、schema／grid7ベクタ／repository、Python依存42＋build閉包5項目・JS46原文検査が成功。全src mypyは **61 errors / 20 files（115検査）** を残件として明記した。
+- 性能変更・新しいbefore/after計測なし。各工程の3生値・中央値・条件を転記し、並行負荷・RAM圧迫・測定母数の差を注記。コード・依存宣言・lock・goldenは変更せず、新規依存0件。既存LICENSE原文とリポジトリ内の報告だけを参照した。
+- 判断 **I-1941〜I-1945**。不足は最終CI／e2e-07／Discord投稿／第9項原文対応の差込みと既知の実装残件。R2は自動開始しない。人間の美的判定や新しいビジュアル判断はしていない。
