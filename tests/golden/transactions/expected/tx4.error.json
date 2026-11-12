@@ -1,0 +1,9 @@
+{
+  "code": "E_REVISION_CONFLICT",
+  "message": "Project revision does not match expect_revision.",
+  "details": {
+    "expected_revision": 0,
+    "current_revision": 1
+  },
+  "hint": "Read get_info and rebase the operation on the current revision."
+}

@@ -1,0 +1,69 @@
+{
+  "format": "cybersprite-project",
+  "schema_version": 1,
+  "revision": 2,
+  "name": "Untitled",
+  "canvas": {
+    "width": 4,
+    "height": 4,
+    "grid": {
+      "x": 0,
+      "y": 0,
+      "w": 16,
+      "h": 16
+    },
+    "pixel_ratio": {
+      "w": 1,
+      "h": 1
+    },
+    "color_profile": "srgb"
+  },
+  "palette": {
+    "transparent_index": 0,
+    "frozen": false,
+    "colors": [
+      "#00000000",
+      "#000000ff",
+      "#ffffffff"
+    ],
+    "names": {}
+  },
+  "frames": [
+    {
+      "duration_ms": 100
+    }
+  ],
+  "layers": [
+    {
+      "id": "L1",
+      "name": "Layer 1",
+      "type": "image",
+      "visible": true,
+      "locked": false,
+      "opacity": 255,
+      "blend_mode": "normal",
+      "background": false,
+      "continuous": false,
+      "cels": []
+    }
+  ],
+  "tags": [],
+  "slices": [],
+  "tilesets": [],
+  "validation": {
+    "palette_max": 256,
+    "colors_per_frame_max": null,
+    "orphan_pixels_max": null,
+    "min_cluster": 2,
+    "require_tag_coverage": false,
+    "silhouette_jitter_max": null,
+    "severity": {}
+  },
+  "id_counters": {
+    "layer": 1,
+    "tag": 0,
+    "slice": 0,
+    "tileset": 0
+  },
+  "extensions": {}
+}

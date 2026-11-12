@@ -1,0 +1,36 @@
+{
+  "ok": true,
+  "op": "set_pixel",
+  "project": "golden.csprite",
+  "revision": {
+    "before": 1,
+    "after": 1
+  },
+  "no_op": true,
+  "replayed": false,
+  "dry_run": false,
+  "result": {
+    "pixels_written": 0
+  },
+  "changed": {
+    "data": false,
+    "frames": [],
+    "layers": [],
+    "linked_frames": [],
+    "clipped_pixels": 0
+  },
+  "validation": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "new_issues": [],
+    "resolved_issues": [],
+    "metrics_delta": {}
+  },
+  "preview": {
+    "paths": [],
+    "scale": 1,
+    "omitted_frames": []
+  },
+  "warnings": []
+}

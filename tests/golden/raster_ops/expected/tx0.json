@@ -1,0 +1,98 @@
+{
+  "ok": true,
+  "op": "line",
+  "project": "golden.csprite",
+  "revision": {
+    "before": 0,
+    "after": 1
+  },
+  "no_op": false,
+  "replayed": false,
+  "dry_run": false,
+  "result": {
+    "pixels_written": 16
+  },
+  "changed": {
+    "data": true,
+    "frames": [
+      {
+        "frame": 0,
+        "pixels_changed": 16,
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "w": 16,
+          "h": 8
+        }
+      }
+    ],
+    "layers": [
+      "L1"
+    ],
+    "linked_frames": [],
+    "clipped_pixels": 0
+  },
+  "validation": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "new_issues": [],
+    "resolved_issues": [
+      {
+        "rule": "Q-LYR-03",
+        "level": "info",
+        "message": "Layer has no cels.",
+        "where": {
+          "frames": [],
+          "layer": "L1",
+          "bbox": null,
+          "points": []
+        }
+      }
+    ],
+    "metrics_delta": {
+      "cels": {
+        "before": 0,
+        "after": 1
+      },
+      "colors_per_frame": {
+        "before": {
+          "sum": 1,
+          "max": 1
+        },
+        "after": {
+          "sum": 2,
+          "max": 2
+        }
+      },
+      "colors_per_frame_max": {
+        "before": 1,
+        "after": 2
+      },
+      "colors_used": {
+        "before": 0,
+        "after": 2
+      },
+      "opaque_pixels": {
+        "before": {
+          "sum": 0,
+          "max": 0
+        },
+        "after": {
+          "sum": 16,
+          "max": 16
+        }
+      },
+      "unused_palette": {
+        "before": 3,
+        "after": 1
+      }
+    }
+  },
+  "preview": {
+    "paths": [],
+    "scale": 1,
+    "omitted_frames": []
+  },
+  "warnings": []
+}

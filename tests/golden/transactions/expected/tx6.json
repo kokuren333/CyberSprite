@@ -1,0 +1,135 @@
+{
+  "ok": true,
+  "op": "undo",
+  "project": "golden.csprite",
+  "revision": {
+    "before": 1,
+    "after": 2
+  },
+  "no_op": false,
+  "replayed": false,
+  "dry_run": false,
+  "result": {
+    "restored_revision": 0
+  },
+  "changed": {
+    "data": true,
+    "frames": [
+      {
+        "frame": 0,
+        "pixels_changed": 1,
+        "bbox": {
+          "x": 1,
+          "y": 1,
+          "w": 1,
+          "h": 1
+        }
+      }
+    ],
+    "layers": [
+      "L1"
+    ],
+    "linked_frames": [],
+    "clipped_pixels": 0
+  },
+  "validation": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "new_issues": [
+      {
+        "rule": "Q-LYR-03",
+        "level": "info",
+        "message": "Layer has no cels.",
+        "where": {
+          "frames": [],
+          "layer": "L1",
+          "bbox": null,
+          "points": []
+        }
+      }
+    ],
+    "resolved_issues": [
+      {
+        "rule": "Q-PIX-02",
+        "level": "info",
+        "message": "Frame has clusters below min_cluster.",
+        "where": {
+          "frames": [
+            0
+          ],
+          "layer": null,
+          "bbox": null,
+          "points": [
+            [
+              1,
+              1
+            ]
+          ]
+        }
+      }
+    ],
+    "metrics_delta": {
+      "cels": {
+        "before": 1,
+        "after": 0
+      },
+      "colors_per_frame": {
+        "before": {
+          "sum": 2,
+          "max": 2
+        },
+        "after": {
+          "sum": 1,
+          "max": 1
+        }
+      },
+      "colors_per_frame_max": {
+        "before": 2,
+        "after": 1
+      },
+      "colors_used": {
+        "before": 1,
+        "after": 0
+      },
+      "opaque_pixels": {
+        "before": {
+          "sum": 1,
+          "max": 1
+        },
+        "after": {
+          "sum": 0,
+          "max": 0
+        }
+      },
+      "orphan_pixels": {
+        "before": {
+          "sum": 1,
+          "max": 1
+        },
+        "after": {
+          "sum": 0,
+          "max": 0
+        }
+      },
+      "orphan_pixels_total": {
+        "before": 1,
+        "after": 0
+      },
+      "small_clusters_total": {
+        "before": 1,
+        "after": 0
+      },
+      "unused_palette": {
+        "before": 2,
+        "after": 3
+      }
+    }
+  },
+  "preview": {
+    "paths": [],
+    "scale": 1,
+    "omitted_frames": []
+  },
+  "warnings": []
+}

@@ -1,7 +1,10 @@
 """Shared golden execution without any expectation-writing side effects."""
 
 import json
+import os
+import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 from cybersprite.core.canonical import dumps_project, json_bytes, load_project
 from cybersprite.core.errors import CyberSpriteError
@@ -24,6 +27,59 @@ def execute_case(directory: Path) -> dict[str, bytes]:
         ids = [project.id_counters.issue(kind) for kind in case["issue_ids"]]
         output["ids.json"] = json_bytes(ids)
         output["after.project.json"] = dumps_project(project)
+    if case.get("raster_vectors"):
+        import hashlib
+
+        if __package__:
+            from tools.gen_raster_vectors import build_vectors
+        else:
+            from gen_raster_vectors import build_vectors
+
+        output["raster.vectors.sha256.json"] = json_bytes(
+            {
+                name: hashlib.sha256(data).hexdigest()
+                for name, data in sorted(build_vectors().items())
+            }
+        )
+    if "transactions" in case:
+        from cybersprite.ops import execute
+
+        with (
+            tempfile.TemporaryDirectory() as temporary,
+            patch.dict(
+                os.environ,
+                {"CYBERSPRITE_NOW": "2026-11-12T00:00:00Z", "CYBERSPRITE_ACTOR": "agent:golden"},
+            ),
+        ):
+            root = Path(temporary) / "golden.csprite"
+            root.mkdir()
+            (root / "project.json").write_bytes(dumps_project(project))
+            for index, action in enumerate(case["transactions"]):
+                try:
+                    envelope = execute(
+                        action["op"],
+                        root,
+                        action.get("args", {}),
+                        preview="none",
+                        **action.get("options", {}),
+                    )
+                    envelope["project"] = "golden.csprite"
+                    output[f"tx{index}.json"] = json_bytes(envelope)
+                except CyberSpriteError as error:
+                    if error.code != action.get("error"):
+                        raise
+                    output[f"tx{index}.error.json"] = json_bytes(
+                        {
+                            **error.as_dict(),
+                            **({"op_index": error.op_index} if hasattr(error, "op_index") else {}),
+                        }
+                    )
+                else:
+                    if "error" in action:
+                        raise AssertionError(f"Expected {action['error']}")
+                output[f"tx{index}.project.json"] = (root / "project.json").read_bytes()
+            project = load_project(root)
+            output["after.project.json"] = dumps_project(project)
     for i, action in enumerate(case.get("renders", [])):
         name = action.get("name", f"f{i}")
         try:

@@ -1,0 +1,163 @@
+{
+  "ok": true,
+  "op": "add_frame",
+  "project": "golden.csprite",
+  "revision": {
+    "before": 0,
+    "after": 1
+  },
+  "no_op": false,
+  "replayed": false,
+  "dry_run": false,
+  "result": {
+    "frames": [
+      1,
+      2
+    ]
+  },
+  "changed": {
+    "data": true,
+    "frames": [
+      {
+        "frame": 1,
+        "pixels_changed": 2,
+        "bbox": {
+          "x": 1,
+          "y": 1,
+          "w": 2,
+          "h": 1
+        }
+      },
+      {
+        "frame": 4,
+        "pixels_changed": 2,
+        "bbox": {
+          "x": 1,
+          "y": 1,
+          "w": 2,
+          "h": 1
+        }
+      },
+      {
+        "frame": 5,
+        "pixels_changed": 0,
+        "bbox": null
+      }
+    ],
+    "layers": [
+      "L1"
+    ],
+    "linked_frames": [],
+    "clipped_pixels": 0
+  },
+  "validation": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "new_issues": [
+      {
+        "rule": "Q-PIX-02",
+        "level": "info",
+        "message": "Frame has clusters below min_cluster.",
+        "where": {
+          "frames": [
+            1
+          ],
+          "layer": null,
+          "bbox": null,
+          "points": [
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        }
+      },
+      {
+        "rule": "Q-PIX-02",
+        "level": "info",
+        "message": "Frame has clusters below min_cluster.",
+        "where": {
+          "frames": [
+            4
+          ],
+          "layer": null,
+          "bbox": null,
+          "points": [
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        }
+      }
+    ],
+    "resolved_issues": [],
+    "metrics_delta": {
+      "cels": {
+        "before": 2,
+        "after": 4
+      },
+      "colors_per_frame": {
+        "before": {
+          "sum": 8,
+          "max": 3
+        },
+        "after": {
+          "sum": 14,
+          "max": 3
+        }
+      },
+      "frames": {
+        "before": 4,
+        "after": 6
+      },
+      "linked_cels": {
+        "before": 1,
+        "after": 3
+      },
+      "opaque_pixels": {
+        "before": {
+          "sum": 4,
+          "max": 2
+        },
+        "after": {
+          "sum": 8,
+          "max": 2
+        }
+      },
+      "orphan_pixels": {
+        "before": {
+          "sum": 4,
+          "max": 2
+        },
+        "after": {
+          "sum": 8,
+          "max": 2
+        }
+      },
+      "orphan_pixels_total": {
+        "before": 4,
+        "after": 8
+      },
+      "small_clusters_total": {
+        "before": 4,
+        "after": 8
+      }
+    }
+  },
+  "preview": {
+    "paths": [],
+    "scale": 1,
+    "omitted_frames": []
+  },
+  "warnings": []
+}

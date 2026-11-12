@@ -1,0 +1,60 @@
+{
+  "ok": true,
+  "op": "stroke",
+  "project": "golden.csprite",
+  "revision": {
+    "before": 2,
+    "after": 3
+  },
+  "no_op": false,
+  "replayed": false,
+  "dry_run": false,
+  "result": {
+    "pixels_written": 9
+  },
+  "changed": {
+    "data": true,
+    "frames": [
+      {
+        "frame": 0,
+        "pixels_changed": 9,
+        "bbox": {
+          "x": 1,
+          "y": 13,
+          "w": 9,
+          "h": 2
+        }
+      }
+    ],
+    "layers": [
+      "L1"
+    ],
+    "linked_frames": [],
+    "clipped_pixels": 0
+  },
+  "validation": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "new_issues": [],
+    "resolved_issues": [],
+    "metrics_delta": {
+      "opaque_pixels": {
+        "before": {
+          "sum": 37,
+          "max": 37
+        },
+        "after": {
+          "sum": 46,
+          "max": 46
+        }
+      }
+    }
+  },
+  "preview": {
+    "paths": [],
+    "scale": 1,
+    "omitted_frames": []
+  },
+  "warnings": []
+}

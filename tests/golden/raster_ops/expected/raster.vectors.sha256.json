@@ -1,0 +1,12 @@
+{
+  "brush.json": "e544631e945b3efb996f8694fb04ff2c458c8820d0f9440d75829e3b6eecf662",
+  "ellipse.json": "e5c873c710400f4f9bb9622d4f122460ca9e2afe9bb876c5ddaa1aa1bae1c493",
+  "flood_fill.json": "47d0df788788bc7bca33b329617168df52673a4bc890c81354ea9ed2ae8cb982",
+  "line.json": "3071fee5c2c65ced01ce72e500bb05c77ae49681956b18f43c8bc5c8231a87d5",
+  "outline.json": "7e9dd625a380635bc9132139d14fdd774aa66ddea7f2f3c7c744affb6791bd52",
+  "polygon.json": "20dd2658fc8eee3a2693e490f5dbdb5e4d08ae89905b4c6ec0c39bc8f6a2c512",
+  "rect.json": "453346f652f5c917ea568bf1c400a9dd00f4e2152d2a4e19ad046d91db984bfd",
+  "region.json": "57d48a28c76227895e658c8d43b65b5bcc0f4f17668a128256358e447b8741c5",
+  "stroke.json": "7c0cb5489cd08468cc4cc972df3fc0095f063ab667cd3e2de0c02d197f6b604e",
+  "transform.json": "3b49f030c841c5214d631df1d7cf2ab28fd1272edfc681ca1b0173f5abee5dc5"
+}
