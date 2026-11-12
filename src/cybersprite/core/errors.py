@@ -2,6 +2,49 @@
 
 from typing import Any
 
+# SPEC §9.2 and Appendix C. Keep every public code explicit; unknown bugs exit 5.
+EXIT_CODES = {
+    "E_VALIDATION_FAILED": 1,
+    "E_INVALID_ARGS": 2,
+    "E_UNKNOWN_OP": 2,
+    "E_PROJECT_NOT_FOUND": 3,
+    "E_EXISTS": 3,
+    "E_LAYER_NOT_FOUND": 3,
+    "E_CEL_NOT_FOUND": 3,
+    "E_TAG_NOT_FOUND": 3,
+    "E_SLICE_NOT_FOUND": 3,
+    "E_TILESET_NOT_FOUND": 3,
+    "E_SOURCE_NOT_FOUND": 3,
+    "E_FRAME_OUT_OF_RANGE": 3,
+    "E_AMBIGUOUS_REF": 3,
+    "E_WRONG_LAYER_TYPE": 3,
+    "E_LAYER_LOCKED": 3,
+    "E_PALETTE_FROZEN": 3,
+    "E_INDEX_OUT_OF_RANGE": 3,
+    "E_COLOR_NOT_IN_PALETTE": 3,
+    "E_OUT_OF_CANVAS": 3,
+    "E_REVISION_CONFLICT": 3,
+    "E_NOTHING_TO_UNDO": 3,
+    "E_NOTHING_TO_REDO": 3,
+    "E_HISTORY_UNAVAILABLE": 3,
+    "E_PLUGIN": 3,
+    "E_BACKEND_UNAVAILABLE": 3,
+    "E_LICENSE_NOT_ACCEPTED": 3,
+    "E_GENERATION_FAILED": 3,
+    "E_TIMEOUT": 4,
+    "E_IO": 4,
+    "E_LOCKED": 4,
+    "E_PATH_NOT_ALLOWED": 4,
+    "E_INVALID_PROJECT": 4,
+    "E_INTERNAL": 5,
+    "E_INVARIANT": 5,
+    "E_LIMIT_EXCEEDED": 6,
+    "E_UNSUPPORTED": 6,
+    "E_NEEDS_QUANTIZE": 6,
+    "E_NOT_PALETTE_CLOSED": 6,
+    "E_SCHEMA_TOO_NEW": 6,
+}
+
 
 class CyberSpriteError(Exception):
     def __init__(
@@ -18,23 +61,7 @@ class CyberSpriteError(Exception):
 
     @property
     def exit_code(self) -> int:
-        if self.code == "E_VALIDATION_FAILED":
-            return 1
-        if self.code in {"E_INVALID_ARGS", "E_UNKNOWN_OP"}:
-            return 2
-        if self.code in {"E_IO", "E_LOCKED", "E_PATH_NOT_ALLOWED", "E_INVALID_PROJECT"}:
-            return 4
-        if self.code in {"E_INTERNAL", "E_INVARIANT"}:
-            return 5
-        if self.code in {
-            "E_LIMIT_EXCEEDED",
-            "E_UNSUPPORTED",
-            "E_NEEDS_QUANTIZE",
-            "E_NOT_PALETTE_CLOSED",
-            "E_SCHEMA_TOO_NEW",
-        }:
-            return 6
-        return 3
+        return EXIT_CODES.get(self.code, 5)
 
 
 def invalid(message: str, **details: Any) -> CyberSpriteError:
