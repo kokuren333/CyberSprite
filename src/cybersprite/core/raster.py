@@ -82,8 +82,7 @@ def _neighbours(connectivity: int) -> tuple[Point, ...]:
     if connectivity == 4:
         return ((0, -1), (-1, 0), (1, 0), (0, 1))
     if connectivity == 8:
-        return ((-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0),
-                (-1, 1), (0, 1), (1, 1))
+        return ((-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1))
     raise _invalid("connectivity must be 4 or 8.", "Choose connectivity=4 or 8.")
 
 
@@ -120,8 +119,12 @@ def rect_points(x: int, y: int, w: int, h: int, filled: bool = False) -> list[Po
     """Return the full rectangle or its one-pixel perimeter in row order."""
     x, y = _integer(x, "x"), _integer(y, "y")
     w, h = _dimensions(w, h)
-    return [(x + i, y + j) for j in range(h) for i in range(w)
-            if filled or i == 0 or j == 0 or i == w - 1 or j == h - 1]
+    return [
+        (x + i, y + j)
+        for j in range(h)
+        for i in range(w)
+        if filled or i == 0 or j == 0 or i == w - 1 or j == h - 1
+    ]
 
 
 def ellipse_mask(w: int, h: int) -> np.ndarray:
@@ -131,7 +134,8 @@ def ellipse_mask(w: int, h: int) -> np.ndarray:
     maximum = max(w * w * h * h, (w - 1) ** 2 * h * h + (h - 1) ** 2 * w * w)
     if maximum > (1 << 63) - 1:
         raise RasterError(
-            "E_LIMIT_EXCEEDED", "Ellipse arithmetic exceeds signed 64-bit range.",
+            "E_LIMIT_EXCEEDED",
+            "Ellipse arithmetic exceeds signed 64-bit range.",
             "Reduce w and h; canvas dimensions up to 8192 are supported.",
         )
     i = np.arange(w, dtype=np.int64)[None, :]
@@ -140,7 +144,11 @@ def ellipse_mask(w: int, h: int) -> np.ndarray:
 
 
 def ellipse_points(
-    x: int, y: int, w: int, h: int, filled: bool = False,
+    x: int,
+    y: int,
+    w: int,
+    h: int,
+    filled: bool = False,
 ) -> list[Point]:
     """Return ellipse interior, or interior pixels bordering its complement."""
     x, y = _integer(x, "x"), _integer(y, "y")
@@ -151,7 +159,9 @@ def ellipse_points(
 
 
 def polygon_points(
-    points: Sequence[Point], closed: bool = True, filled: bool = False,
+    points: Sequence[Point],
+    closed: bool = True,
+    filled: bool = False,
 ) -> list[Point]:
     """Union line outlines with the exact integer even-odd interior test."""
     vertices = _points(points, 2)
@@ -190,7 +200,10 @@ def check_pixel_perfect(pixel_perfect: bool, brush_size: int = 1) -> None:
 
 
 def stroke_path(
-    points: Sequence[Point], pixel_perfect: bool = False, *, brush_size: int = 1,
+    points: Sequence[Point],
+    pixel_perfect: bool = False,
+    *,
+    brush_size: int = 1,
 ) -> list[Point]:
     """Build the directed path, then discard L corners and force-accept successors.
 
@@ -211,9 +224,12 @@ def stroke_path(
     i = 1
     while i < len(path) - 1:
         p, c, n = result[-1], path[i], path[i + 1]
-        if ((p[0] == c[0] or p[1] == c[1])
-                and (n[0] == c[0] or n[1] == c[1])
-                and p[0] != n[0] and p[1] != n[1]):
+        if (
+            (p[0] == c[0] or p[1] == c[1])
+            and (n[0] == c[0] or n[1] == c[1])
+            and p[0] != n[0]
+            and p[1] != n[1]
+        ):
             result.append(n)
             i += 2
         else:
@@ -230,7 +246,8 @@ def _brush_size(size: int) -> int:
         raise _invalid("Brush size must be positive.", "Choose a brush size from 1 to 64.")
     if size > 64:
         raise RasterError(
-            "E_LIMIT_EXCEEDED", f"Brush size {size} exceeds the limit of 64.",
+            "E_LIMIT_EXCEEDED",
+            f"Brush size {size} exceeds the limit of 64.",
             "Choose a brush size from 1 to 64.",
         )
     return size
@@ -261,7 +278,10 @@ def stamp(points: Sequence[Point], brush: Mapping | None = None) -> list[Point]:
 
 
 def flood_fill_mask(
-    image: np.ndarray, x: int, y: int, connectivity: int = 4,
+    image: np.ndarray,
+    x: int,
+    y: int,
+    connectivity: int = 4,
 ) -> np.ndarray:
     """Find the seed's uniform connected component using an iterative FIFO queue."""
     _array(image, np.uint8, "image")
@@ -270,7 +290,8 @@ def flood_fill_mask(
     h, w = image.shape
     if not (0 <= x < w and 0 <= y < h):
         raise RasterError(
-            "E_OUT_OF_CANVAS", f"Seed ({x}, {y}) is outside canvas {w}x{h}.",
+            "E_OUT_OF_CANVAS",
+            f"Seed ({x}, {y}) is outside canvas {w}x{h}.",
             f"Choose a seed with 0 <= x < {w} and 0 <= y < {h}.",
         )
     selected = np.zeros(image.shape, dtype=bool)
@@ -281,15 +302,16 @@ def flood_fill_mask(
         px, py = queue.popleft()
         for dx, dy in neighbours:
             nx, ny = px + dx, py + dy
-            if (0 <= nx < w and 0 <= ny < h
-                    and not selected[ny, nx] and image[ny, nx] == target):
+            if 0 <= nx < w and 0 <= ny < h and not selected[ny, nx] and image[ny, nx] == target:
                 selected[ny, nx] = True
                 queue.append((nx, ny))
     return selected
 
 
 def outline_mask(
-    opaque: np.ndarray, placement: str = "outside", connectivity: int = 4,
+    opaque: np.ndarray,
+    placement: str = "outside",
+    connectivity: int = 4,
 ) -> np.ndarray:
     """Return the inner or outer border; all off-array pixels are nonopaque."""
     _array(opaque, np.bool_, "opaque")
@@ -300,7 +322,7 @@ def outline_mask(
     padded = np.pad(opaque, 1, constant_values=False)
     adjacent = np.zeros(opaque.shape, dtype=bool)
     for dx, dy in neighbours:
-        neighbour = padded[1 + dy:1 + dy + h, 1 + dx:1 + dx + w]
+        neighbour = padded[1 + dy : 1 + dy + h, 1 + dx : 1 + dx + w]
         adjacent |= ~neighbour if placement == "inside" else neighbour
     return adjacent & (opaque if placement == "inside" else ~opaque)
 
@@ -315,7 +337,8 @@ def region_mask(
     w, h = _dimensions(canvas_w, canvas_h)
     if w > 8192 or h > 8192 or w * h > 16_777_216:
         raise RasterError(
-            "E_LIMIT_EXCEEDED", "Canvas exceeds the dimension or area limit.",
+            "E_LIMIT_EXCEEDED",
+            "Canvas exceeds the dimension or area limit.",
             "Use dimensions <= 8192 and area <= 16777216.",
         )
     kind = region.get("type")
@@ -325,11 +348,15 @@ def region_mask(
         image = layer_image_fn() if callable(layer_image_fn) else layer_image_fn
         _array(image, np.uint8, "layer image")
         if image.shape != (h, w):
-            raise _invalid("Layer image must match the canvas.", f"Supply an image of shape ({h}, {w}).")
+            raise _invalid(
+                "Layer image must match the canvas.", f"Supply an image of shape ({h}, {w})."
+            )
         if kind == "color":
             color = _integer(region["color"], "color")
             if not 0 <= color <= 255:
-                raise _invalid("color must be a palette index.", "Resolve color to an index in 0..255.")
+                raise _invalid(
+                    "color must be a palette index.", "Resolve color to an index in 0..255."
+                )
             return image == color
         return flood_fill_mask(image, region["x"], region["y"], region.get("connectivity", 4))
     if kind not in ("rect", "mask"):
@@ -344,11 +371,17 @@ def region_mask(
             selected[top:bottom, left:right] = True
     else:
         rows = region["rows"]
-        if (not rows or not all(isinstance(row, str) for row in rows)
-                or not rows[0] or any(len(row) != len(rows[0]) for row in rows)
-                or any(c not in ".#" for row in rows for c in row)):
-            raise _invalid("Mask rows must be a nonempty rectangle of '.' and '#'.",
-                           "Supply equal-length, nonempty strings containing only '.' and '#'.")
+        if (
+            not rows
+            or not all(isinstance(row, str) for row in rows)
+            or not rows[0]
+            or any(len(row) != len(rows[0]) for row in rows)
+            or any(c not in ".#" for row in rows for c in row)
+        ):
+            raise _invalid(
+                "Mask rows must be a nonempty rectangle of '.' and '#'.",
+                "Supply equal-length, nonempty strings containing only '.' and '#'.",
+            )
         for j in range(max(0, -y), min(len(rows), h - y)):
             for i in range(max(0, -x), min(len(rows[0]), w - x)):
                 selected[y + j, x + i] = rows[j][i] == "#"
@@ -356,21 +389,27 @@ def region_mask(
 
 
 def transform_block(
-    pixels: np.ndarray, mask: np.ndarray, flip: str | None = None, rotate: int = 0,
+    pixels: np.ndarray,
+    mask: np.ndarray,
+    flip: str | None = None,
+    rotate: int = 0,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Flip then rotate clockwise; return independent block and mask copies."""
     _array(pixels, np.uint8, "pixels")
     _array(mask, np.bool_, "mask")
     if pixels.shape != mask.shape:
-        raise _invalid("Block and mask shapes differ.", "Extract pixels and mask from the same bounding box.")
+        raise _invalid(
+            "Block and mask shapes differ.", "Extract pixels and mask from the same bounding box."
+        )
     if flip not in (None, "h", "v"):
         raise _invalid("Unknown flip direction.", "Choose flip=None, 'h' or 'v'.")
     rotate = _integer(rotate, "rotate")
     if rotate not in (0, 90, 180, 270):
-        raise _invalid("rotate must be 0, 90, 180 or 270.", "Choose a clockwise quarter-turn angle.")
+        raise _invalid(
+            "rotate must be 0, 90, 180 or 270.", "Choose a clockwise quarter-turn angle."
+        )
     if flip == "h":
         pixels, mask = pixels[:, ::-1], mask[:, ::-1]
     elif flip == "v":
         pixels, mask = pixels[::-1, :], mask[::-1, :]
-    return (np.rot90(pixels, -(rotate // 90)).copy(),
-            np.rot90(mask, -(rotate // 90)).copy())
+    return (np.rot90(pixels, -(rotate // 90)).copy(), np.rot90(mask, -(rotate // 90)).copy())
