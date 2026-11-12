@@ -29,6 +29,18 @@ class ExportBase(Model):
     )
 
 
+class PluginExportArgs(ExportBase):
+    out: str = Field(
+        description="Single output path.", json_schema_extra={"x-cybersprite-path": "output"}
+    )
+    format: str | None = Field(
+        None, description="Enabled exporter entry-point name; omission uses extension."
+    )
+    options: dict = Field(
+        default_factory=dict, description="Options validated by the exporter options model."
+    )
+
+
 class ImageArgs(ExportBase):
     frames: Frames = Field(
         None,
@@ -299,6 +311,7 @@ class ExportResult(Model):
     warnings: list[dict]
     validation_ok: bool
     verified: bool
+    verification_reason: str | None = None
     sheet: dict[str, int] | None = None
     items: int | None = None
 

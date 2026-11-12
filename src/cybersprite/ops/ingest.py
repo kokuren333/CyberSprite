@@ -101,7 +101,7 @@ class ImportArgs(Model):
         "ai", description="Pipeline preset: ai, exact (lossless), upscaled, or photo."
     )
     pipeline: PipelineSettings = Field(
-        default_factory=PipelineSettings,
+        default_factory=lambda: PipelineSettings.model_validate({}),
         description="Documented section overrides; unspecified fields inherit preset values.",
     )
     target: Target = Field(
@@ -401,6 +401,11 @@ def _import_top(registry, path, args, tx, actor):
                 "path": f"source/{source.id}/pipeline_report.json",
                 "grid_score": report["grid"]["grid_score"],
                 "warnings": report.get("warnings", []),
+                **(
+                    {"plugins": report["plugins"], "determinism": report["determinism"]}
+                    if report.get("plugins")
+                    else {}
+                ),
             },
             result_sha256=sha256((directory / "result.png").read_bytes()).hexdigest(),
             accepted=accepted,

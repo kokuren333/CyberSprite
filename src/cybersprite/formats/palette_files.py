@@ -11,8 +11,15 @@ from cybersprite.core.errors import CyberSpriteError, invalid
 from cybersprite.core.pixels import rgba
 
 
-def presets():
+def builtin_presets():
     return json.loads(files("cybersprite").joinpath("data/palettes/index.json").read_text("utf-8"))
+
+
+def presets():
+    from cybersprite.plugins.palettes import palette_presets
+
+    builtin = builtin_presets()
+    return builtin + palette_presets([item["name"] for item in builtin])
 
 
 def raw_color(value):
@@ -117,7 +124,14 @@ def encode_palette(colors, names, format, name="Palette"):
 
 
 def read_palette_with_names(source):
-    preset = source in [item["name"] for item in presets()]
+    from cybersprite.plugins.palettes import palette_presets
+
+    builtin = builtin_presets()
+    preset = source in [item["name"] for item in builtin]
+    if not preset and not Path(source).exists():
+        for item in palette_presets([item["name"] for item in builtin]):
+            if item["name"] == source:
+                return item["colors"], item["names"]
     try:
         if preset:
             data = files("cybersprite").joinpath(f"data/palettes/{source}.gpl").read_bytes()

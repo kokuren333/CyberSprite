@@ -1,9 +1,8 @@
 """Lazy entry-point registry; user configuration is the sole plugin authority."""
 
-from importlib.metadata import entry_points
-
 from cybersprite.config import load_config
 from cybersprite.core.errors import CyberSpriteError, invalid
+from cybersprite.plugins import PluginManager
 
 from .backends import CommandBackend, DiffusersBackend
 from .contracts import Availability
@@ -16,8 +15,9 @@ class BackendRegistry:
         for name in sorted(self.settings.generators.command):
             backend = CommandBackend(name, self.settings.generators.command[name])
             self.builtins[backend.name] = backend
+        self.loader = PluginManager(self.settings, groups=("cybersprite.generators",))
         self.plugins = {}
-        for entry in sorted(entry_points(group="cybersprite.generators"), key=lambda e: e.name):
+        for entry in self.loader.descriptors("cybersprite.generators", enabled_only=False):
             if entry.name in self.plugins or entry.name in self.builtins:
                 raise invalid("Generator names must be unique.", backend=entry.name)
             self.plugins[entry.name] = entry
@@ -29,21 +29,19 @@ class BackendRegistry:
             raise invalid(
                 "Unknown generation backend.", candidates=sorted([*self.builtins, *self.plugins])
             )
-        if name not in self.settings.plugins.enabled:
+        if not self.loader.enabled(self.plugins[name]):
             raise CyberSpriteError(
                 "E_PLUGIN",
                 f"Generator plugin {name!r} is not enabled.",
                 "Enable the installed plugin in user config.toml.",
             )
         try:
-            factory = self.plugins[name].load()
-            if getattr(factory, "plugin_api", None) != 1:
-                raise ValueError("plugin_api must be 1")
-            backend = factory()
+            backend = self.loader.load("cybersprite.generators", name)
             if backend.name != name:
                 raise ValueError("backend name must match its entry point")
             return backend
         except Exception as error:
+            self.loader.discard("cybersprite.generators", name)
             raise CyberSpriteError(
                 "E_PLUGIN",
                 f"Cannot load generator {name}: {error}",
@@ -56,7 +54,7 @@ class BackendRegistry:
             if name in self.plugins:
                 reason = (
                     "Plugin is enabled; select it to load and check its runtime."
-                    if name in self.settings.plugins.enabled
+                    if self.loader.enabled(self.plugins[name])
                     else "Plugin is not enabled in user config.toml."
                 )
                 available, models, schema = Availability(available=False, reason=reason), [], {}

@@ -62,6 +62,7 @@ class GuiSettings(SettingsModel):
 
 class PluginSettings(SettingsModel):
     enabled: list[str] = Field(default_factory=list)
+    disabled: list[str] = Field(default_factory=list)
 
 
 class UserConfig(SettingsModel):

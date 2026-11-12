@@ -10,13 +10,16 @@ from cybersprite.core.history import atomic_write
 from cybersprite.core.pixels import rgba
 from cybersprite.formats.palette_files import read_palette
 from cybersprite.formats.png import decode_png, encode_png, environment_fingerprint
+from cybersprite.plugins import plugin_error
+from cybersprite.plugins.contracts import IndexedImage
 
 from ._common import PipelineError, require, rgba_frames
 from .cleanup import cleanup_pixels
 from .decisions import outline_and_dither
-from .downsample import downsample
+from .downsample import downsample, remove_background
 from .grid import detect_grid
 from .metrics import build_pipeline_report, compute_metrics, evaluate_gates, stage_report
+from .plugin_steps import StepRunner
 from .presets import resolve_preset
 from .quantize import quantize
 
@@ -70,6 +73,8 @@ def _run(images, directory, source_id, preset, overrides, project, position):
     settings, origin = resolve_preset(
         preset, existing_project=project is not None, overrides=overrides
     )
+    if settings.get("reconstruct") is None:
+        settings.pop("reconstruct", None)
     allowed = {
         "grid",
         "downsample",
@@ -79,16 +84,78 @@ def _run(images, directory, source_id, preset, overrides, project, position):
         "dither",
         "outline",
         "gates",
+        "reconstruct",
     }
     require(not (set(settings) - allowed), "Unknown pipeline settings section.")
     for key in settings:
         require(isinstance(settings[key], dict), f"Pipeline section {key} must be an object.")
-    grid = detect_grid(images, **settings["grid"])
+    plugins = StepRunner()
+    grid_settings = dict(settings["grid"])
+    grid_method = grid_settings.pop("method", None)
+    grid_settings.pop("params", None)
+    if "reconstruct" in settings:
+        grid = detect_grid(images, mode="none")
+    elif plugins.resolve("grid", grid_method) is not None:
+        images, _ = plugins.run("grid", grid_method, images, settings["grid"])
+        grid = detect_grid(images, **grid_settings)
+    else:
+        require(not settings["grid"].get("params"), "grid.params requires a plugin method.")
+        if grid_method is not None:
+            grid_settings["mode"] = grid_method
+        grid = detect_grid(images, **grid_settings)
     # Preserve a diagnostic conversion when auto fails, without calling it a detected grid.
     working_grid = grid if grid["detected"] else detect_grid(images, mode="none")
-    downs, down_report = downsample(
-        images, working_grid, **settings["downsample"], background=settings["background"]
-    )
+    down_settings = dict(settings["downsample"])
+    down_method = down_settings["method"]
+    down_settings.pop("params", None)
+    if (
+        down_method == "auto"
+        and grid["mode"] == "target"
+        and any(
+            d.name in ("downsample.pixeloe", "pixeloe")
+            for d in plugins.manager.descriptors("cybersprite.pipeline_steps")
+        )
+    ):
+        down_method = "pixeloe"
+    if "reconstruct" in settings:
+        reconstruct = settings["reconstruct"]
+        plugins.resolve("reconstruct", reconstruct["method"])
+        downs, down_report = plugins.run(
+            "reconstruct",
+            reconstruct["method"],
+            images,
+            reconstruct,
+            grid=working_grid,
+            grid_settings=grid_settings,
+        )
+        grid = detect_grid(downs, mode="none")
+        working_grid = grid
+    elif plugins.resolve("downsample", down_method) is not None:
+        downs, down_report = plugins.run(
+            "downsample", down_method, images, settings["downsample"], grid=working_grid
+        )
+        if any(im.shape[:2] != (grid["rows"], grid["columns"]) for im in downs):
+            raise plugin_error(down_method, "downsample dimensions must match the detected grid.")
+    else:
+        require(
+            not settings["downsample"].get("params"),
+            "downsample.params requires a plugin method.",
+        )
+        downs, down_report = downsample(
+            images, working_grid, **down_settings, background=settings["background"]
+        )
+    if "background" not in down_report:
+        backgrounds, normalized = [], []
+        for image in downs:
+            image = image.copy()
+            opaque = image[..., 3] >= down_settings.get("alpha_threshold", 128)
+            image[~opaque] = 0
+            image[opaque, 3] = 255
+            image, background = remove_background(image, **settings["background"])
+            normalized.append(image)
+            backgrounds.append(background)
+        downs = normalized
+        down_report["background"] = backgrounds
     # Measure error before background removal or palette quantization can hide a bad grid.
     variance_sum = variance_pixels = 0
     if grid["detected"] and grid["mode"] != "none":
@@ -104,20 +171,61 @@ def _run(images, directory, source_id, preset, overrides, project, position):
     ti = project.palette.transparent_index if project else 0
     existing = [rgba(c) for c in project.palette.colors] if project else None
     pal_settings = dict(settings["palette"])
+    quant_method = pal_settings.pop("method", None)
+    pal_settings.pop("params", None)
+    quant_plugin = plugins.resolve("quantize", quant_method)
+    if quant_method is not None and quant_plugin is None:
+        pal_settings["mode"] = quant_method
     if pal_settings.get("mode") == "fixed":
         src = pal_settings.get("source")
         if isinstance(src, str):
             pal_settings["source"] = [rgba(c) for c in read_palette(src)]
     capacity_failure = None
     try:
-        indices, palette, quant_report = quantize(
-            downs,
-            **pal_settings,
-            project_palette=existing,
-            transparent_index=ti,
-            dither_type=settings["dither"]["type"],
-            strength=settings["dither"]["strength"],
-        )
+        if quant_plugin is None:
+            require(
+                not settings["palette"].get("params"), "palette.params requires a plugin method."
+            )
+            indices, palette, quant_report = quantize(
+                downs,
+                **pal_settings,
+                project_palette=existing,
+                transparent_index=ti,
+                dither_type=settings["dither"]["type"],
+                strength=settings["dither"]["strength"],
+            )
+        else:
+            quantized, quant_report = plugins.run(
+                "quantize",
+                quant_method,
+                downs,
+                settings["palette"],
+                project_palette=existing,
+                transparent_index=ti,
+                dither_type=settings["dither"]["type"],
+                strength=settings["dither"]["strength"],
+            )
+            palette = quantized[0].palette
+            if (
+                any(
+                    im.pixels.shape != src.shape[:2]
+                    for im, src in zip(quantized, downs, strict=True)
+                )
+                or ti >= len(palette)
+                or existing is None
+                and palette[ti][3] != 0
+                or any(c[3] != 255 for c in palette[len(existing) if existing else 1 :])
+                or existing is not None
+                and palette[: len(existing)] != existing
+                or pal_settings["mode"] == "project"
+                and palette != existing
+            ):
+                raise plugin_error(
+                    quant_method, "quantizer must preserve dimensions and the locked palette."
+                )
+            indices = [im.pixels for im in quantized]
+            quant_report["palette_added"] = palette[len(existing) if existing else 1 :]
+            quant_report["palette_size"] = len(palette)
     except PipelineError as error:
         if error.details.get("gate") != "palette_budget":
             raise
@@ -143,14 +251,29 @@ def _run(images, directory, source_id, preset, overrides, project, position):
                 min(choices, key=lambda i: (dist2(lab, rgb_to_oklab_fixed(palette[i][:3])), i))
             )
     cleanup_settings = dict(settings["cleanup"])
+    cleanup_method = cleanup_settings.pop("method", None)
+    cleanup_settings.pop("params", None)
+    cleanup_plugin = plugins.resolve("cleanup", cleanup_method)
     cleanup_settings["protect"] = sorted(set(cleanup_settings["protect"] + protected_indices))
     cleaned, clean_reports = [], []
-    for frame in indices:
-        frame, clean_report = cleanup_pixels(
-            frame, palette, transparent_index=ti, **cleanup_settings
+    if cleanup_plugin is not None:
+        outputs, clean_report = plugins.run(
+            "cleanup",
+            cleanup_method,
+            [IndexedImage(im, palette) for im in indices],
+            settings["cleanup"],
+            transparent_index=ti,
         )
-        cleaned.append(frame)
-        clean_reports.append(clean_report)
+        cleaned = [im.pixels for im in outputs]
+        clean_reports = clean_report["frames"]
+    else:
+        require(not settings["cleanup"].get("params"), "cleanup.params requires a plugin method.")
+        for frame in indices:
+            frame, clean_report = cleanup_pixels(
+                frame, palette, transparent_index=ti, **cleanup_settings
+            )
+            cleaned.append(frame)
+            clean_reports.append(clean_report)
     outline = dict(settings["outline"])
     if isinstance(outline.get("color"), str):
         outline["color"] = rgba(outline["color"])
@@ -262,7 +385,7 @@ def _run(images, directory, source_id, preset, overrides, project, position):
         preset=preset,
         settings=settings,
         environment=environment_fingerprint(),
-        plugins=[],
+        plugins=plugins.records,
         steps=steps,
         grid=grid,
         gates=judged["gates"],
@@ -280,6 +403,20 @@ def _run(images, directory, source_id, preset, overrides, project, position):
         for g in judged["gates"]
         if g["outcome"] == "warn"
     ]
+    if plugins.records:
+        report["determinism"] = (
+            "level-a" if all(p["level_a"] for p in plugins.records) else "same-platform"
+        )
+        report["warnings"].extend(
+            {
+                "code": "W_PLUGIN_DETERMINISM",
+                "plugin": p["name"],
+                "message": "Plugin step declares same-platform determinism only.",
+                "hint": "Retain the recorded plugin version, parameters and platform to reproduce.",
+            }
+            for p in plugins.records
+            if not p["level_a"]
+        )
     report["warnings"].extend(
         {
             "code": "W_BACKGROUND_KEPT",

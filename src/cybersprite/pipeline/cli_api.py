@@ -64,6 +64,8 @@ def _convert(input_path, output_path, **options):
             "dither",
             "outline",
             "gates",
+            "quantize",
+            "reconstruct",
         ):
             pipeline[name] = value
         else:

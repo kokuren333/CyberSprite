@@ -24,7 +24,7 @@ add_tileset delete_tileset set_tile_pixels delete_tiles move_tiles set_tile set_
 tileset_from_layer
 resize_canvas crop_canvas scale_sprite transform_sprite
 import_image import_aseprite export_image export_sheet export_animation export_aseprite
-export_tileset export_palette list_sources get_source list_generators generate_image
+export_tileset export_palette export_plugin list_sources get_source list_generators generate_image
 """.split()
 MINIMAL = frozenset(
     """

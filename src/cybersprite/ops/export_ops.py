@@ -17,7 +17,9 @@ from cybersprite.formats.export_args import (
     ExportResult,
     ImportAsepriteArgs,
     ImportResult,
+    PluginExportArgs,
 )
+from cybersprite.formats.plugin_export import export_plugin
 
 
 def apply_export(ctx, args, name):
@@ -29,6 +31,18 @@ def _ingest_only(_ctx, _args):
 
 
 def register_exports(registry):
+    registry.register(
+        Op(
+            "export_plugin",
+            PluginExportArgs,
+            lambda ctx, args: export_plugin(ctx.project, args, ctx.root),
+            ExportResult,
+            "export",
+            "E",
+            False,
+            "Export through an enabled format plugin using common validation and path preflight.",
+        )
+    )
     for name in sorted(EXPORT_ARGS):
         registry.register(
             Op(
