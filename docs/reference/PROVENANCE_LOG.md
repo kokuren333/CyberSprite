@@ -35,3 +35,5 @@
 **Aseprite の実機（Steam 版）は、上流工程では参照していない。** 実装フェーズの M0（2026-11-12）で参照した（下の行）。
 | 2026-11-12 | オーケストレーター（Opus 5.5） | Aseprite 実機 v1.3.18.6（バッチモード） | P-11: CyberSprite が書いた `.aseprite` を開けること、描画結果が CyberSprite と全ピクセル一致すること | ASEPRITE_INVENTORY §2 |
 | 2026-11-12 | Codex / M9 | PyPI JSON（diffusers 0.35.2、torch 2.9.0）と PyPI wheel 内 dist-info の LICENSE（diffusers 0.35.2、transformers 4.57.1、regex 2025.9.18）。Hugging Face 公式 Diffusers 文書（api/loaders/single_file、using-diffusers/loading_adapters） | 任意依存の候補と原文ライセンスを確認。regex に CNRI Python 1.6 表記があるため依存追加を保留。API の local_files_only、from_single_file、LoRA 読込・有効化を確認（コード転用なし） | DECISIONS I-708、GENERATION、generate/backends.py |
+| 2026-11-12 | オーケストレーター（Opus 5.5） | Hugging Face API（モデルカードの cardData）: SD 1.5、SDXL base / refiner、FLUX.1 [schnell]、Pixel Art XL、PixArt-α / Σ | 各モデルのライセンス欄の値（L-10） | THIRD_PARTY §3 |
+| 2026-11-12 | オーケストレーター（Opus 5.5） | OpenAI 利用規約（openai.com/terms の検索結果の抜粋） | 出力の帰属と、出力が一意でないこと（L-12） | THIRD_PARTY §3 |
