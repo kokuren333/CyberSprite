@@ -5,7 +5,7 @@
 - 担当: Codex、実装・正確性・性能の独立レビュー
 - 変更範囲: 本文書のみ。実装・仕様・既存テスト・ゴールデン・申し送りは変更していない。コミットは作成していない。
 - 入力: `docs/REVIEW_REQUEST_1.md`、`KNOWN_ISSUES.md`、`IMPLEMENTATION_PROGRESS.md`、`SPEC.md`、`REQUIREMENTS_NOTES.md`、`DECISIONS.md`、M1〜M10・INT/FIX の報告、`src/cybersprite/`、`gui/`、`skills/`、`tests/`、制作 e2e 報告。
-- 必須申し送り: `_handoff/REVIEW_NOTES_FOR_FABLE.md`、`DM 知見メモ（非公開）`、`_private/e2e-ds/REPORT.md` を評価した。非公開画像・DM 生データ・ROM・他製品のソースコードは開いていない。本書にそれらを転載していない。
+- 必須申し送り: `_handoff/REVIEW_NOTES_FOR_FABLE.md`、DM 知見メモ（非公開）、`_private/e2e-ds/REPORT.md` を評価した。非公開画像・DM 生データ・ROM・他製品のソースコードは開いていない。本書にそれらを転載していない。
 - `docs/review/FABLE_REVIEW_R1.md` は確認時点で存在しなかった。したがって他レビューとの一致・不一致は未比較であり、以下は独立の指摘である。
 
 ## 1. 判定
