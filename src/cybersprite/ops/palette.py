@@ -1,14 +1,16 @@
 """Palette mutation and index remapping; edits never silently quantize colors."""
 
 from collections import Counter
+from functools import cmp_to_key
 
 import numpy as np
 
+from cybersprite.core.color import compare_hue, rgb_to_oklab_fixed
 from cybersprite.core.errors import invalid
 from cybersprite.core.models import ImageLayer, LinkCel, Palette
 from cybersprite.core.pixels import pixels_from_rows, pixels_to_rows, rgb_distance, rgba
 from cybersprite.core.references import walk_layers
-from cybersprite.formats.palette_files import raw_color, read_palette
+from cybersprite.formats.palette_files import raw_color, read_palette_with_names
 
 from .common import fail
 
@@ -50,12 +52,16 @@ def palette_op(ctx, a, name):
     if name == "load_palette":
         from .args import ARGS
 
-        colors = read_palette(a.source)
+        colors, names = read_palette_with_names(a.source)
         if a.mode == "append":
-            palette_op(ctx, ARGS["add_palette_colors"](colors=colors), "add_palette_colors")
+            palette_op(
+                ctx, ARGS["add_palette_colors"](colors=colors, names=names), "add_palette_colors"
+            )
             return {}
         return palette_op(
-            ctx, ARGS["set_palette"](colors=colors, on_shrink=a.on_shrink), "set_palette"
+            ctx,
+            ARGS["set_palette"](colors=colors, names=names, on_shrink=a.on_shrink),
+            "set_palette",
         )
     if name == "set_palette":
         colors = [raw_color(c) for c in a.colors]
@@ -134,28 +140,17 @@ def palette_op(ctx, a, name):
             raise invalid("order must be a permutation of every old palette index.")
         order = list(a.order)
     elif a.sort_by is not None:
+        labs = [rgb_to_oklab_fixed(rgba(c)[:3]) for c in pal.colors]
+        if a.sort_by == "hue":
 
-        def key(i):
-            r, g, b, _ = rgba(pal.colors[i])
-            if a.sort_by == "usage":
-                return (-counts[i], i)
-            if a.sort_by == "lightness":
-                return (2126 * r + 7152 * g + 722 * b, i)
-            # Integer six-sector hue, with achromatic colors before hue zero.
-            high, low = max(r, g, b), min(r, g, b)
-            span = high - low
-            if not span:
-                return (-1, high, i)
-            hue = (
-                (g - b) * 256 // span
-                if high == r
-                else 512 + (b - r) * 256 // span
-                if high == g
-                else 1024 + (r - g) * 256 // span
-            ) % 1536
-            return (hue, high, i)
+            def hue_compare(i: int, j: int) -> int:
+                return compare_hue(labs[i], labs[j]) or (i > j) - (i < j)
 
-        order.sort(key=key)
+            order.sort(key=cmp_to_key(hue_compare))
+        elif a.sort_by == "lightness":
+            order.sort(key=lambda i: (labs[i][0], i))
+        else:
+            order.sort(key=lambda i: (-counts[i], i))
     elif a.merge_duplicates:
         unique = {}
         order = []

@@ -1,8 +1,8 @@
 # MCP サーバ
 
-現状: サーバ実装と SDK 2.3.0 による動作確認は完了したが、依存採用は保留。Windows 必須依存 pywin32 の未使用 LGPL 同梱物と cffi の MIT-0 が今回の許可一覧に抵触するため、`pyproject.toml` の mcp extra はまだ空である。以下の登録・導入例は依存採用の判断後に使用する。既存の Pillow 13.0.0（MIT-CMU）も現在のライセンス検査では失敗する。
+現状: M3/M5/M6 の統合済み。`mcp==2.3.0` は optional extra として固定され、I-012 の既存承認方針に従うライセンス監査を通る。過去の依存採用保留は解消済み。標準プロファイルは69 Op、minimal は仕様の13 Opを公開する。
 
-`uv sync --extra mcp` で任意依存を導入する。M3 の CLI 統合前も次の直接起動が使える。
+`uv sync --extra mcp` で任意依存を導入する。CLI の `cybersprite mcp serve` または次の直接起動が使える。
 
 ```powershell
 uv run --extra mcp python -m cybersprite.mcp --root C:/sprites
@@ -25,9 +25,9 @@ tool_timeout_sec = 310
 
 生成を有効にする場合はクライアント側の `tool_timeout_sec` も1810秒以上にする。
 
-M3 統合後は `python -m cybersprite.mcp` を `cybersprite mcp serve` に置き換えられる。HTTP は `--transport http --port 8765` で起動し、接続先は `http://127.0.0.1:8765/mcp`。待受はループバック限定、HTTP セッションはステートレス。
+`python -m cybersprite.mcp` と `cybersprite mcp serve` は同じサーバを起動する。HTTP は `--transport http --port 8765` で起動し、接続先は `http://127.0.0.1:8765/mcp`。待受はループバック限定、HTTP セッションはステートレス。
 
-`standard` は登録済みの組み込みツールを仕様書の掲載順に公開する。`--profile minimal` は13種類の小さな集合（未実装の Op は除く）を公開し、個別編集を `apply_ops` にまとめる。`--read-only` は query だけに制限する。生成は `--enable-generation`、プラグインは `--allow-plugin-op 名前` による明示指定が必要で、バッチ内でも同じ制限を適用する。
+`standard` は import_image/list_sources/get_source/cleanup_pixels と各 export を含む登録済みの組み込みツールを仕様書の掲載順に公開する。`--profile minimal` は13種類の小さな集合（未実装の Op は除く）を公開し、個別編集を `apply_ops` にまとめる。`--read-only` は query だけに制限する。生成は `--enable-generation`、プラグインは `--allow-plugin-op 名前` による明示指定が必要で、バッチ内でも同じ制限を適用する。
 
 相対パスは入出力とも `--root` 基準。別の場所が必要なら `--allow-dir C:/inputs` を追加する。シンボリックリンク・ジャンクションの実体を検査し、結果のパスも root 基準の `/` 区切りで返す。allow-dir が root の外なら `../inputs/...` のようになる。
 
@@ -48,8 +48,15 @@ M3 統合後は `python -m cybersprite.mcp` を `cybersprite mcp serve` に置�
 検査:
 
 ```powershell
-uv run --extra mcp pytest tests/mcp tests/e2e/test_scenario1.py -q
+uv run --extra mcp pytest tests/mcp tests/e2e/test_scenario1.py tests/e2e/test_scenario2.py -q
 uv run --extra mcp python tools/check_licenses.py --extra mcp
 ```
 
-シナリオ1の期待値更新は `uv run --extra mcp python -m tests.e2e.replay --case scenario1`。書込みは `tools/update_goldens.py` を通る。変更した正本とハッシュを確認してからコミットする。fixture は幾何形状による工学用テストベクタであり、作例として公開する前の見た目の判断は Opus が担当する。
+シナリオ1・2の期待値更新は `uv run --extra mcp python -m tests.e2e.replay --case scenario1 --case scenario2`。書込みは `tools/update_goldens.py` を通る。変更した正本とハッシュを確認してからコミットする。fixture は幾何形状による工学用テストベクタであり、作例として公開する前の見た目の判断は Opus が担当する。
+
+
+import_image の `files`（単体文字列・配列）と `pipeline.palette.source` のファイル参照にも root/allow-dir 制限を適用する。
+拒否された入力は source に保持され、正本がまだなくても list_sources/get_source で確認できる。minimal では個別の cleanup_pixels は apply_ops 内から呼び出す。
+書き出し先と返却される `result.files[].path` はともにサーバ root 基準。許可範囲外の出力はファイル作成前に拒否する。
+
+シナリオ2は既存の自作非ドット画像による代用で、生成コーパス(d)は M9 待ち。JSONL は拒否→設定変更→合格→手直し→書出しを実際の SDK Client（in-process/stdio 両方）で実行する。

@@ -11,6 +11,7 @@ from pydantic import ValidationError
 from cybersprite import ops
 from cybersprite.core.canonical import load_project
 from cybersprite.core.errors import CyberSpriteError, invalid
+from cybersprite.formats.common import export_policy
 
 from .contracts import FORBIDDEN, GENERATION, MINIMAL, ORDER, describe, with_path_metadata
 from .execution import DeadlineExpired, Execution
@@ -162,8 +163,11 @@ class MCPService:
                 values.pop("project")
                 # Registry execution is the sole mutation path. The boundary also
                 # rolls back if response serialization or the deadline fails.
-                value = ops.execute(name, project_path, values, actor=actor)
-                return self._pack(value, root)
+                with export_policy(self.policy.root, self.policy.allowed):
+                    value = ops.execute(name, project_path, values, actor=actor)
+                return self._pack(
+                    value, self.policy.root if self.exposed[name].kind == "export" else root
+                )
 
             return scope.run(execute)
         except DeadlineExpired:

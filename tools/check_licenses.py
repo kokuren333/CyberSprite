@@ -20,13 +20,13 @@ ALLOWED = {
     "ISC",
     "Zlib",
     "HPND",
+    "MIT-CMU",  # Explicitly included as HPND (MIT-CMU) in SPEC §2.1.
     "PSF-2.0",
     "Unlicense",
     "CC0-1.0",
     # Explicitly permissive variants (decision I-012): MIT without attribution, the HPND
     # variant named in SPEC §2.1, and zero-clause BSD.
     "MIT-0",
-    "MIT-CMU",
     "0BSD",
 }
 # (normalized distribution name, exact version): (SPDX, reason). No silent unknown exemptions.

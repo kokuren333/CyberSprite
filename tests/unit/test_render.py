@@ -182,9 +182,16 @@ def test_strict_opacity_palette_alpha_and_nearest():
     assert render_indexed(project, options={"flatten": "nearest"})[0, 0] == 0
 
 
-def test_nearest_tie_uses_lowest_index():
+def test_nearest_uses_oklab_for_dark_rgb_midpoint():
     project = new_project(width=1, height=1)
     project.palette.colors = ["#00000000", "#000000ff", "#020000ff", "#01000080"]
+    project.layers = [image(index=3)]
+    assert render_indexed(project, options={"flatten": "nearest"})[0, 0] == 2
+
+
+def test_nearest_tie_uses_lowest_index():
+    project = new_project(width=1, height=1)
+    project.palette.colors = ["#00000000", "#020000ff", "#020000ff", "#01000080"]
     project.layers = [image(index=3)]
     assert render_indexed(project, options={"flatten": "nearest"})[0, 0] == 1
 

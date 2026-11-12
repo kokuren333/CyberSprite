@@ -4,7 +4,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from difflib import get_close_matches
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, ValidationError, create_model
 
@@ -18,6 +18,11 @@ class OpContext:
     root: Path
     linked_frames: set[int] = field(default_factory=set)
     clipped_pixels: int = 0
+    prepared: object = None
+    side_writes: list = field(default_factory=list)
+    source_manifest: object = None
+    previous_source_manifest: object = None
+    warnings: list = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -69,26 +74,51 @@ class Op:
         }
 
     def describe(self) -> dict:
-        input_fields = {"project": (str, ...)}
-        if self.kind == "mutate":
+        input_fields: dict[str, Any] = {
+            "project": (str, Field(description="Project directory or project.json path."))
+        }
+        if self.kind in ("mutate", "ingest"):
             input_fields.update(
                 {
-                    "expect_revision": (int | None, None),
-                    "idempotency_key": (str | None, Field(None, min_length=1, max_length=64)),
-                    "dry_run": (bool, False),
-                    "preview": (Literal["none", "path", "inline"], "path"),
+                    "expect_revision": (
+                        int | None,
+                        Field(None, description="Reject if the current revision differs."),
+                    ),
+                    "idempotency_key": (
+                        str | None,
+                        Field(
+                            None,
+                            min_length=1,
+                            max_length=64,
+                            description="Replay a prior result for this transaction key.",
+                        ),
+                    ),
+                    "dry_run": (
+                        bool,
+                        Field(False, description="Validate without committing project changes."),
+                    ),
+                    "preview": (
+                        Literal["none", "path", "inline"],
+                        Field(
+                            "path",
+                            description="Return no preview, PNG paths, or inline PNG images.",
+                        ),
+                    ),
                 }
             )
         input_model = create_model(self.name + "Input", __base__=self.args, **input_fields)
-        output_fields = {
+        output_fields: dict[str, Any] = {
             "ok": (bool, ...),
             "op": (str, ...),
             "project": (str, ...),
             "revision": (int | dict[str, int], ...),
             "result": (self.result, ...),
-            "warnings": (list[dict], Field(default_factory=list)),
+            "warnings": (list[dict], Field(default_factory=lambda: [])),
         }
-        if self.kind == "mutate" and self.name != "new_project":
+        if self.kind in ("mutate", "ingest") and self.name not in (
+            "new_project",
+            "import_aseprite",
+        ):
             output_fields.update(
                 {
                     "no_op": (bool, ...),
@@ -101,6 +131,14 @@ class Op:
                 }
             )
         output_model = create_model(self.name + "Output", __base__=Model, **output_fields)
+        output_schema = output_model.model_json_schema(by_alias=True)
+        if self.kind == "ingest":
+            # A gate rejection keeps originals and a report but performs no mutation.
+            output_schema["required"] = [
+                key
+                for key in output_schema["required"]
+                if key in {"ok", "op", "project", "revision", "result"}
+            ]
         return {
             "name": self.name,
             "title": self.name.replace("_", " ").title(),
@@ -110,7 +148,7 @@ class Op:
             "provider": self.provider,
             "annotations": self.annotations,
             "inputSchema": input_model.model_json_schema(by_alias=True),
-            "outputSchema": output_model.model_json_schema(by_alias=True),
+            "outputSchema": output_schema,
             "resultSchema": self.result.model_json_schema(by_alias=True),
         }
 

@@ -10,15 +10,15 @@
 | M0 準備と実機参照 | **完了** | 下記 |
 | M1 コア基盤 | **完了**（main に統合） | Windows で 168 テスト。Linux は CI 設定のみ（I-007） |
 | M2 Op とトランザクション | **完了**（main に統合） | 59 Op、22 品質規則、履歴・取り消し、プレビュー・差分。ラスタライズは先行ブランチ `m2-raster` で作成 |
-| M3 CLI | 進行中（Codex、`m3-cli`） | |
-| M4 MCP サーバ | 進行中（Codex、`m4-mcp`） | |
-| M5 形式 | 進行中（Codex、`m5-formats`） | |
-| M6 変換パイプライン | 進行中（Codex、`m6-pipeline`） | 純粋アルゴリズムと固定小数点 Oklab は先行ブランチで完了・統合済み。較正コーパスの原画は Opus が作成 |
+| M3 CLI | int-m356 に統合・Windows 検証完了 | INT-1 報告参照 |
+| M4 MCP サーバ | int-m356 に統合・Windows 検証完了 | 依存の保留は既存 I-012 で解消 |
+| M5 形式 | int-m356 に統合・Windows 検証完了 | CLI/MCP と実書出しを接続 |
+| M6 変換パイプライン | int-m356 に統合・Windows 検証完了 | 取り込み・来歴・配置・較正を統合。(a)255/255完全一致。生成(d)とLinux実行は未了 |
 | M7 タイルマップ | 未着手（M5 の後） | 指示書は準備済み |
 | M8 GUI | テーマ 3 案を作成し案 C を選定（I-011） | 実装は M7 の後 |
 | M9 / M10 | 未着手 | |
 
-main のテスト: 622 passed（M2 統合時点、Windows / Python 3.12）。
+main のテスト: 622 passed（M2 統合時点、Windows / Python 3.12）。M6 ブランチの検証結果は下記。
 
 ## 体制とサブエージェントの起動方法
 
@@ -73,3 +73,26 @@ main のテスト: 622 passed（M2 統合時点、Windows / Python 3.12）。
 | e2e-02 #3 | 名前だけの `set_palette` でも `changed.frames` にフレームが出る | 修正項目 |
 | e2e-02 #6 | `docs/CLI.md` に `pixels --rect` の既定範囲の説明がない | 修正項目 |
 | e2e-01 #1〜4、#9 | 書き出し、`preview` / `pixels` / `validate` のオプション、`docs/CLI.md` | M3 / M5（作業中） |
+
+## M6: 変換パイプライン — Windows 検証完了（2026-11-12）
+
+- 来歴マニフェスト、取り込み・読み取り3 Op、共通cleanup、6ステップ・報告・段階PNG・関門、配置と履歴の原子的保存、M3指定の cli_api を実装。CLI パッケージは未変更。
+- Oklab をコアへ集約し、距離とパレット並べ替えの暫定実装を置換。ゴールデンは専用更新器で3ケース9ファイルを更新し、JSON・ハッシュ・PNGを確認した。
+- 実画像471件を較正版1で測定。17作品の倍率2〜16は auto で **255/255、100% RGBA完全一致**。JPEG・非整数補間・非ドット・誤格子も記録。負例95%拒否を満たす区間がないため、仕様どおり正解側の全合格を優先した。
+- 全体 `uv run pytest -q --tb=short`: **924 passed、125.00秒**。最終のGIF表示時間修正後は取り込み境界・トランザクションの **23 passed** も確認。Ruff、スキーマ、コア依存境界、依存ライセンス監査が成功。mypy は既存68件（分岐元は70件）が残る。
+- 手動で等倍・疎な4倍・JPEG q75を取り込み、全段階と配置PNGを開き、ファイルを再復号して画素一致を確認した。1024×1024変換は805/1133/656 msで、保存と再復号を含め5秒目標を達成。
+- 判断 I-463〜I-473。仕様変更は §11.3.2 の整数境界補正、§11.8 の容量・凍結のoverride制限。追加依存なし。既存PillowのLICENSE原文確認とMIT-CMU識別子の監査修正を実施し、台帳は未編集。
+- Linux、生成(d)、M4のJSONL e2e、M5のexport_imageとのシナリオ接続は統合後の確認事項。`tests/e2e/scenarios/` はリベース後もないため未作成。詳細は [M6_IMPLEMENTATION_REPORT.md](M6_IMPLEMENTATION_REPORT.md)、較正は [tests/pipeline/CALIBRATION.md](../tests/pipeline/CALIBRATION.md)、性能は [PERFORMANCE.md](PERFORMANCE.md)。
+
+
+## INT-1: M3/M5/M6 と MCP の統合（2026-11-12）
+
+- `int-m356` 上で M6 の5競合を解消し、`f56ed83` でマージ。共通 Source API、両側の登録、明示 actor 優先を保持した。
+- `41a22da` で CLI/MCP の export_policy、M6 cli_api と source 再試行、パス制限と契約、制作試験01の説明・ラベル・レイヤー指摘を統合した。既存の描画件数・undo/redoプレビュー・CLIオプションも回帰確認。
+- 最終 `uv run pytest -q --tb=short`: **1150 passed, 2 skipped、214.96秒**。スキップは Windows でシンボリックリンクを作る権限がない既存2件。
+- Ruff check/format、schema drift、repository check、`check_licenses.py --include-dev --extra mcp`（既存 I-012、41配布パッケージ）、diff check は成功。mypy は統合直後106件から **78件、新規0件**へ減少。
+- MCP JSONL シナリオ1・2を実 SDK Client の in-process/stdio で通し、実シート/GIF/PNGを復号照合。シナリオ2は非ドットの自作コーパスによる代用で、生成(d)は M9 待ち。
+- CLI 14呼出しで new16×16→draw→4frames→walk→validate→sheet(json-hash)/GIF/APNG/.aseprite→再取り込み比較、および corpus PNG exact import/export。正本（revision除外）と画素が一致し、全 export の validation_ok/verified=true。最終コミット後の再実行先は `build/int-acceptance-final/`。
+- シナリオの実書出しと全フレームを画像で確認した。意匠判断なし。unknown 来歴の Q-SRC-02 は仕様どおりの警告として保持し、理由を報告に記録した。
+- 判断 I-601〜I-608。INT の仕様変更は §9.4.1 の op --label だけ。新規依存・外部参照なし。Linux は I-007 のとおり CI 待ち。main への再統合はオーケストレーターが行う。
+- 詳細: [INT1_IMPLEMENTATION_REPORT.md](INT1_IMPLEMENTATION_REPORT.md)。

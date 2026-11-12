@@ -63,6 +63,20 @@ def test_color_import_does_not_load_pillow():
     assert result.strip() == b"(0, 0, 0)"
 
 
+def test_core_color_import_is_standalone():
+    result = subprocess.check_output(
+        [
+            sys.executable,
+            "-c",
+            "from cybersprite.core.color import rgb_to_oklab_fixed; import sys; "
+            "assert not any(n.startswith(('cybersprite.pipeline','PIL')) for n in sys.modules); "
+            "print(rgb_to_oklab_fixed((255,255,255)))",
+        ]
+    )
+    # Normative Appendix B vector, including the fixed-point rounding residual.
+    assert result.strip() == b"(65535, 0, 1)"
+
+
 def test_metrics_and_all_gates():
     palette = [(0, 0, 0, 0), (255, 255, 255, 255)]
     indices = np.array([[0, 1]], dtype=np.uint8)
@@ -132,7 +146,7 @@ def test_presets_defaults_and_overrides():
     for name in ("exact", "upscaled", "ai", "photo"):
         settings, report = resolve_preset(name)
         assert settings["dither"]["type"] == "none"
-        assert report["calibration"]["version"] == 0
+        assert report["calibration"]["version"] >= 1
     existing, _ = resolve_preset("ai", existing_project=True)
     assert existing["palette"]["mode"] == "project"
     overrides = {"grid": {"mode": "fixed", "cell_w": 4}, "cleanup": {"protect": [1]}}

@@ -72,6 +72,11 @@ def dumps_project(project: Project) -> bytes:
     return json_bytes(_ordered(project))
 
 
+def metadata_bytes(value: Any) -> bytes:
+    """Canonical metadata: schema field order for models, sorted keys for mappings."""
+    return json_bytes(_ordered(value))
+
+
 def loads_project(data: bytes | str) -> Project:
     try:
         raw = json.loads(data)

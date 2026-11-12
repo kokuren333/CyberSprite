@@ -144,7 +144,8 @@ def test_color_resolution_never_quantizes(project):
     with pytest.raises(CyberSpriteError) as caught:
         resolve_color(project.palette, "#808080")
     assert caught.value.code == "E_COLOR_NOT_IN_PALETTE"
-    assert [entry["index"] for entry in caught.value.details["nearest"]] == [2, 0, 1]
+    # Appendix B makes mid-gray closer to white; alpha-zero is not a candidate.
+    assert [entry["index"] for entry in caught.value.details["nearest"]] == [2, 1]
     assert project.palette.colors == before
     with pytest.raises(CyberSpriteError) as caught:
         resolve_color(project.palette, True)

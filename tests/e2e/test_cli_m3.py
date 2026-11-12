@@ -147,12 +147,19 @@ def register_fake(monkeypatch, name, fields=None):
 
 
 @pytest.mark.parametrize(("command", "op", "milestone", "positional"), ROUTES)
-def test_future_registry_command_contracts(
+def test_registered_command_contracts_and_schema_extension(
     runner, project, monkeypatch, command, op, milestone, positional
 ):
-    output = invoke(runner, *command.split(), "--future-option", "value", code=6)
-    assert output["error"]["code"] == "E_UNSUPPORTED"
-    assert milestone in output["error"]["hint"]
+    definition = registry().get(op)
+    from cybersprite.cli.generated import schema_options
+
+    options = schema_options(definition, skip=(positional,) if positional else ())
+    assert {option.name for option in options} == set(definition.args.model_fields) - (
+        {positional} if positional else set()
+    )
+    help_result = runner.invoke(cli, [*command.split(), "--help"])
+    assert help_result.exit_code == 0
+    assert " ".join(definition.description.split()) in " ".join(help_result.output.split())
     fields = {
         "split_tags": (bool, False),
         "item_name": (str, "default"),
@@ -183,8 +190,13 @@ def test_future_registry_command_contracts(
         (["gen", "backends"], "cybersprite.generate", "list_generators", "M9"),
         (["gen", "run", "--prompt", "日本語"], "cybersprite.generate", "generate_image", "M9"),
         (["gen", "accept-license", "model"], "cybersprite.generate", "accept_license", "M9"),
-        (["convert", "in.png", "out.png"], "cybersprite.pipeline", "convert", "M6"),
-        (["pipeline", "detect-grid", "in.png"], "cybersprite.pipeline", "detect_grid", "M6"),
+        (["convert", "in.png", "out.png"], "cybersprite.pipeline.cli_api", "convert", "M6"),
+        (
+            ["pipeline", "detect-grid", "in.png"],
+            "cybersprite.pipeline.cli_api",
+            "detect_grid",
+            "M6",
+        ),
     ],
 )
 def test_lazy_module_command_contracts(runner, monkeypatch, command, module, function, milestone):
@@ -339,30 +351,33 @@ def test_real_uv_stdout_utf8_and_errors(tmp_path):
 
 
 def test_external_input_adapter_contract(runner, monkeypatch):
-    definition = register_fake(monkeypatch, "export_image", {"out": (str, ...)})
-    output = invoke(runner, "export", "image", "--input", "in.png", "--out", "out.png", code=6)
-    assert "M5" in output["error"]["hint"]
-    captured = []
-    module = types.ModuleType("cybersprite.formats.input_adapter")
+    from cybersprite.core.projects import new_project
+    from cybersprite.formats import input_adapter
+    from cybersprite.formats.png import decode_png, encode_png
 
-    # Use an in-memory Project, with no temporary project or source artifacts.
-    from cybersprite.core.models import Canvas, Frame, Palette, Project
+    original = new_project(width=2, height=2)
+    from cybersprite.core.render import render
+
+    Path("in.png").write_bytes(encode_png(render(original, 0)))
+    captured = []
+    real_loader = input_adapter.load_external
 
     def load_external(path, options):
         captured.append((path, options))
-        return Project(
-            name="external",
-            canvas=Canvas(width=2, height=2),
-            palette=Palette(colors=["#00000000", "#ffffffff"]),
-            frames=[Frame(duration_ms=100)],
-            layers=[],
-        )
+        return real_loader(path, options)
 
-    module.load_external = load_external
-    monkeypatch.setitem(sys.modules, module.__name__, module)
+    monkeypatch.setattr(input_adapter, "load_external", load_external)
     output = invoke(runner, "export", "image", "--input", "in.png", "--out", "out.png")
-    assert output["op"] == definition.name and output["result"]["received"]["out"] == "out.png"
+    assert output["op"] == "export_image"
+    assert output["result"]["verified"] and output["result"]["validation_ok"]
     assert captured == [(Path("in.png"), {"out": "out.png"})]
+    assert decode_png(Path("out.png").read_bytes()).pixels.shape == (2, 2)
+    assert (
+        invoke(runner, "export", "image", "--input", "missing.png", "--out", "bad.png", code=4)[
+            "error"
+        ]["code"]
+        == "E_IO"
+    )
     assert not list(Path.cwd().rglob("project.json"))
     assert not (Path.cwd() / "source").exists()
 
@@ -471,7 +486,7 @@ def test_actor_project_placement_text_and_stdin(runner, project, monkeypatch):
 
 
 def test_progress_stdout_is_redirected_and_quiet(runner, monkeypatch):
-    module = types.ModuleType("cybersprite.pipeline")
+    module = types.ModuleType("cybersprite.pipeline.cli_api")
 
     def convert(**kwargs):
         print("converting 日本語")
@@ -531,7 +546,7 @@ def test_import_and_convert_pipeline_shortcuts(runner, project, monkeypatch):
     assert output["result"]["received"]["pipeline"] == {
         "dither": {"strength": 7, "type": "bayer4"},
     }
-    module = types.ModuleType("cybersprite.pipeline")
+    module = types.ModuleType("cybersprite.pipeline.cli_api")
     captured = {}
 
     def convert(**options):

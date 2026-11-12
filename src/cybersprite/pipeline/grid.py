@@ -72,6 +72,29 @@ def cell_purity(images, x_cells, y_cells, tolerance=16):
     frames = rgba_frames(images)
     integer(tolerance, "purity_tolerance", 0, 255)
     matched, total = 0, 0
+    uniform = regular_cells(frames[0].shape, x_cells, y_cells)
+    if uniform is not None:
+        ch, cw = uniform
+        dx, dy = (max(1, cw // 5) if cw >= 4 else 0), (max(1, ch // 5) if ch >= 4 else 0)
+        for frame in frames:
+            blocks = frame.reshape(len(y_cells), ch, len(x_cells), cw, 4).transpose(0, 2, 1, 3, 4)
+            pixels = blocks[:, :, dy : ch - dy, dx : cw - dx].reshape(
+                -1, (ch - 2 * dy) * (cw - 2 * dx), 4
+            )
+            med = np.partition(pixels, (pixels.shape[1] - 1) // 2, axis=1)[
+                :, (pixels.shape[1] - 1) // 2
+            ]
+            matched += int(
+                np.count_nonzero(
+                    np.all(np.abs(pixels.astype(np.int32) - med[:, None]) <= tolerance, axis=2)
+                )
+            )
+            total += pixels.shape[0] * pixels.shape[1]
+        return {
+            "grid_score": matched * 1000 // total,
+            "matched_pixels": matched,
+            "interior_pixels": total,
+        }
     for frame in frames:
         for top, bottom in y_cells:
             for left, right in x_cells:
@@ -84,6 +107,21 @@ def cell_purity(images, x_cells, y_cells, tolerance=16):
         "matched_pixels": matched,
         "interior_pixels": total,
     }
+
+
+def regular_cells(shape, xs, ys):
+    """Return uniform full-image cell height/width, or None for partial cells."""
+    if not xs or not ys:
+        return None
+    cw, ch = xs[0][1], ys[0][1]
+    if (
+        xs == [(i * cw, (i + 1) * cw) for i in range(len(xs))]
+        and ys == [(i * ch, (i + 1) * ch) for i in range(len(ys))]
+        and xs[-1][1] == shape[1]
+        and ys[-1][1] == shape[0]
+    ):
+        return ch, cw
+    return None
 
 
 def detect_grid(
@@ -126,6 +164,32 @@ def detect_grid(
             _select(cx, min_peak, harmonic_tolerance),
             _select(cy, min_peak, harmonic_tolerance),
         )
+
+        # A sparse drawing can concentrate all energy at a few boundaries.
+        # Explain every observed edge before comparing average peak heights.
+        def exact_candidates(candidates, signal):
+            events = set(int(i) for i in np.flatnonzero(signal))
+            return [
+                c
+                for c in candidates
+                if events
+                and c["family"] == "B"
+                and events.issubset(c["boundaries"])
+                and sum(b - a for a, b in _intervals(c, len(signal))) == len(signal)
+            ]
+
+        exact_x, exact_y = exact_candidates(cx, ex), exact_candidates(cy, ey)
+        if force_square:
+            sizes = sorted({c["cell"] for c in exact_x} & {c["cell"] for c in exact_y})
+            if sizes:
+                size = sizes[-1]
+                ax = min((c for c in exact_x if c["cell"] == size), key=lambda c: c["offset"])
+                ay = min((c for c in exact_y if c["cell"] == size), key=lambda c: c["offset"])
+        else:
+            if exact_x:
+                ax = min(exact_x, key=lambda c: (-c["cell"], c["offset"]))
+            if exact_y:
+                ay = min(exact_y, key=lambda c: (-c["cell"], c["offset"]))
         if ax is not None and ay is not None and force_square and _different_size(ax, ay):
             winner = ax if ax["peak"] >= ay["peak"] else ay
             choices = cy if winner is ax else cx

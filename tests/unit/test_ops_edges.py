@@ -135,7 +135,7 @@ def test_palette_readers_and_shrink_nearest_opaque_only(project, tmp_path):
     assert execute("get_pixels", project, DRAW)["result"]["rows"] == ["01"]
     with pytest.raises(CyberSpriteError) as error:
         read_palette(str(tmp_path / "palette.png"))
-    assert error.value.code == "E_UNSUPPORTED"
+    assert error.value.code == "E_IO"
     bad = tmp_path / "bad.pal"
     bad.write_text("JASC-PAL\n0100\n2\n0 0 0\n", encoding="utf-8")
     with pytest.raises(CyberSpriteError) as error:

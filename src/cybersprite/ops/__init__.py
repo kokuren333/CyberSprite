@@ -4,7 +4,8 @@ import os
 from contextlib import nullcontext
 from copy import deepcopy
 from functools import partial
-from typing import Any
+from types import SimpleNamespace
+from typing import Any, Literal
 
 from pydantic import Field, ValidationError, create_model
 
@@ -18,8 +19,20 @@ from cybersprite.core.transactions import synchronize, transact
 from .args import ARGS, TxOptions
 from .canvas import canvas_op
 from .common import fail
+from .descriptions import OPERATIONS
 from .drawing import drawing
 from .frames import frame_op
+from .ingest import (
+    GetSourceArgs,
+    GetSourceResult,
+    ImportArgs,
+    ImportResult,
+    ListSourcesArgs,
+    ListSourcesResult,
+    import_top,
+    place,
+    source_query,
+)
 from .palette import palette_op
 from .previews import transaction_previews
 from .queries import construct, query, summary
@@ -121,7 +134,14 @@ class PixelResult(Model):
 
 
 def _result(name):
-    fields = {
+    if name == "cleanup_pixels":
+        return create_model(
+            "CleanupResult",
+            __base__=PixelResult,
+            positions=(list[dict], ...),
+            positions_truncated=(bool, ...),
+        )
+    fields: dict[str, Any] = {
         "add_frame": {"frames": (list[int], ...)},
         "delete_frames": {"deleted": (list[int], ...), "removed_tags": (list[str], ...)},
         "move_frames": {"mapping": (dict[str, int], ...)},
@@ -180,13 +200,13 @@ def _result(name):
             "scale": (int, ...),
             "width": (int, ...),
             "height": (int, ...),
-            "images": (list[str], Field(default_factory=list)),
+            "images": (list[str], Field(default_factory=lambda: [])),
         },
         "diff_preview": {
             "frames": (list[dict], ...),
             "paths": (list[str], ...),
             "omitted_frames": (list[int], ...),
-            "images": (list[str], Field(default_factory=list)),
+            "images": (list[str], Field(default_factory=lambda: [])),
         },
     }
     if name in DRAWING:
@@ -228,8 +248,8 @@ def registry():
                 None,
             )
             apply = partial(function, name=name) if function else _special
-            kind = "query" if name in QUERY else "mutate"
-            idem = (
+            kind: Literal["query", "mutate"] = "query" if name in QUERY else "mutate"
+            idem: Literal["R", "N", "C", "I"] = (
                 "R"
                 if name in QUERY
                 else "N"
@@ -238,10 +258,9 @@ def registry():
                 if name in CONDITIONAL
                 else "I"
             )
-            description = (
-                f"{name.replace('_', ' ').capitalize()}. Integer pixel coordinates start at the "
-                "canvas top left; frame indices start at zero. Invalid references, locked "
-                "targets, or invalid arguments fail with a specific error code."
+            description = OPERATIONS[name] + (
+                " Coordinates are integer pixels from the canvas top left; frames start at zero. "
+                "invalid references, locked targets, or invalid arguments fail explicitly."
             )
             _registry.register(
                 Op(
@@ -255,10 +274,39 @@ def registry():
                     description,
                 )
             )
+        from .export_ops import register_exports
+
+        register_exports(_registry)
+        _registry.register(
+            Op(
+                "import_image",
+                ImportArgs,
+                place,
+                ImportResult,
+                "ingest",
+                "N",
+                description="Convert with provenance and gates, then place transactionally.",
+            )
+        )
+        for name, arguments, result in (
+            ("list_sources", ListSourcesArgs, ListSourcesResult),
+            ("get_source", GetSourceArgs, GetSourceResult),
+        ):
+            _registry.register(
+                Op(
+                    name,
+                    arguments,
+                    partial(source_query, name=name),
+                    result,
+                    "query",
+                    "R",
+                    description="Inspect stored source provenance and conversion reports.",
+                )
+            )
     return _registry
 
 
-def execute(name, project, args=None, *, actor=None, **options):
+def execute(name, project, args=None, *, actor=None, label=None, **options):
     """CLI, MCP and GUI share this entry; exceptions retain structured codes and op_index."""
     actor = os.environ.get("CYBERSPRITE_ACTOR", "cli") if actor is None else actor
     definition = registry().get(name)
@@ -275,6 +323,25 @@ def execute(name, project, args=None, *, actor=None, **options):
         ) from error
     parsed = definition.parse(args)
     root = project_path(project).parent
+    if name == "import_aseprite" and definition.kind == "ingest":
+        if options:
+            raise invalid("Transaction options are accepted only by mutate operations.")
+        from .export_ops import execute_import
+
+        return execute_import(project, parsed, actor=actor)
+    if name == "import_image" and definition.kind == "ingest":
+        return import_top(registry(), project, parsed, tx, actor)
+    if name in ("list_sources", "get_source") and not project_path(project).exists():
+        value = definition.apply(SimpleNamespace(root=root), parsed)
+        definition.result.model_validate(value)
+        return {
+            "ok": True,
+            "op": name,
+            "project": root.as_posix(),
+            "revision": 0,
+            "result": value,
+            "warnings": [],
+        }
     if name == "new_project":
         target = project_path(project)
         p = construct(parsed, root)
@@ -315,7 +382,7 @@ def execute(name, project, args=None, *, actor=None, **options):
             calls,
             tx,
             op=name,
-            label=parsed.label if name == "apply_ops" else None,
+            label=label if label is not None else parsed.label if name == "apply_ops" else None,
             actor=actor,
             previewer=transaction_previews,
         )

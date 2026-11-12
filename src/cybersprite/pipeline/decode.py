@@ -53,3 +53,30 @@ def decode_raster(path):
             "Check that the file exists and is a valid supported raster.",
             path=str(path),
         ) from exc
+
+
+def split_sheet(images, sheet):
+    """Split a static raster into complete row-major cells for both input surfaces."""
+    if sheet is None:
+        return images
+    keys = {"cell_w", "cell_h", "offset_x", "offset_y", "spacing"}
+    require(
+        isinstance(sheet, dict) and not set(sheet) - keys,
+        "sheet must contain integer cell dimensions, offsets, and spacing.",
+    )
+    require(all(type(v) is int for v in sheet.values()), "sheet values must be integers.")
+    w, h = sheet.get("cell_w", 0), sheet.get("cell_h", 0)
+    ox, oy, gap = (sheet.get(k, 0) for k in ("offset_x", "offset_y", "spacing"))
+    require(
+        w > 0 and h > 0 and min(ox, oy, gap) >= 0,
+        "Use positive sheet cell sizes and nonnegative offsets and spacing.",
+    )
+    require(len(images) == 1, "sheet requires exactly one static input image.")
+    image = images[0]
+    xs = range(ox, image.shape[1] - w + 1, w + gap)
+    ys = range(oy, image.shape[0] - h + 1, h + gap)
+    require(
+        0 < len(xs) * len(ys) <= 4096,
+        "Use sheet sizes and offsets yielding 1..4096 complete cells.",
+    )
+    return [image[y : y + h, x : x + w].copy() for y in ys for x in xs]

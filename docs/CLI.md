@@ -41,9 +41,9 @@ Op 対応コマンドのオプションは、登録済みの pydantic 引数モ�
 | `palette show` / `palette presets` | プロジェクトのパレット / 同梱プリセット一覧 |
 | `validate` | `--frames all|0-3|tag:walk`、`--rules Q-PAL-01,...`、`--strict` |
 | `render` | `--out <PNG>`（必須）、`--frame n`、`--scale n`、`--layers L1,L2`、`--bg <色>`、`--indexed`、`--flatten strict|nearest`、`--include-hidden`、`--compression zlib|stored`、`--apply-pixel-ratio` |
-| `preview` | `--frame n` またはカンマ区切りのフレーム列、`--scale auto|n`、`--grid`、`--rulers`、`--onion p,n`、`--layers`、`--background`、`--out <PNG またはディレクトリ>` |
+| `preview` | `--frame` / `--frames n` またはカンマ区切りのフレーム列、`--scale auto|n`、`--grid`、`--rulers`、`--onion p,n`、`--layers`、`--background`、`--out <PNG またはディレクトリ>` |
 | `diff` | `--from <rev>`、`--to <rev>`、`--frame n`、`--out <PNG またはディレクトリ>` |
-| `op <名前>` | `--args-file <JSON ファイル>`、`--args <JSON>`、`キー=値...` |
+| `op <名前>` | `--args-file <JSON ファイル>`、`--args <JSON>`、`キー=値...`、`--label <履歴ラベル>` |
 | `apply [<JSON ファイル>\|-]` | ファイル省略または `-` で標準入力の JSON。端末からの対話入力は拒否 |
 | `undo` / `redo` / `history` | `--steps n` / `--steps n` / `--limit n` |
 | `import image <ファイル...>` | `import_image` の引数モデルから生成（M6） |
@@ -74,7 +74,7 @@ Op 引数はファイル → `--args` → `キー=値` の順で上書きする�
 後続マイルストーンの Op やモジュールがまだない場合もコマンドは存在し、
 `E_UNSUPPORTED`・終了コード 6 と必要なマイルストーンのヒントを返す。
 `mcp serve` の依存がなければ `cybersprite[mcp]` の導入を案内する。
-M3 時点で `schema sheet` は M5 のスキーマ提供待ち。
+`schema sheet`、M5 の各 export、M6 の import/source/convert は統合済み。
 
 ## 例 1: 作成・描画・検証・確認
 
@@ -145,3 +145,19 @@ license = "unknown"
 `{seed}`、`{out}`、`{count}` だけ。`program` やモデルの場所をツール引数から定義できない。
 `doctor` は設定の場所と登録名を表示し、コマンド定義の本文は出力しない。
 外部プログラムの実行、モデルの利用と `models.json` へのライセンス承諾記録は M9 が担当する。
+
+## 統合後の入出力
+
+書き出しの相対パスは cwd 基準で、cwd 配下だけに出力できる（I-602）。`-p` はプロジェクトの選択であり、出力先の基準は変えない。
+MCP で複数の入出力ディレクトリを使う場合は、`mcp serve --root ... --allow-dir ...` を使う。
+
+```powershell
+uv run csp -p imported.csprite import image input.png --preset exact --provenance '{"license":"unknown"}'
+uv run csp -p imported.csprite source list
+uv run csp -p imported.csprite source show SRC1 --include-report
+uv run csp -p imported.csprite import image --source SRC1 --preset exact
+uv run csp convert input.png converted.png --preset exact --stages stages
+uv run csp pipeline detect-grid input.png
+```
+
+関門拒否も `ok: true` の診断結果として返るため、`result.accepted` を確認する。`false` の場合は `report_path` と段階画像を読み、設定を変更して同じ source ID で再試行する。

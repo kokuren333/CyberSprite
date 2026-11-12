@@ -5,6 +5,7 @@ from collections import Counter, deque
 import numpy as np
 
 from ._common import PipelineError, integer, interior, lower_median, neighbors, require, rgba_frames
+from .grid import regular_cells
 
 
 def _representative(pixels, center, method):
@@ -103,6 +104,22 @@ def downsample(images, grid, *, method="auto", alpha_threshold=128, background=N
     outputs, reports = [], []
     for frame in frames:
         out = np.zeros((grid["rows"], grid["columns"], 4), dtype=np.uint8)
+        uniform = regular_cells(frame.shape, grid["x_cells"], grid["y_cells"])
+        if method == "center" and uniform is not None:
+            ch, cw = uniform
+            dx, dy = (max(1, cw // 5) if cw >= 4 else 0), (max(1, ch // 5) if ch >= 4 else 0)
+            blocks = frame.reshape(grid["rows"], ch, grid["columns"], cw, 4).transpose(
+                0, 2, 1, 3, 4
+            )
+            alpha = blocks[:, :, dy : ch - dy, dx : cw - dx, 3] >= alpha_threshold
+            opaque = alpha.sum(axis=(2, 3)) * 2 >= alpha.shape[2] * alpha.shape[3]
+            out = frame[ch // 2 :: ch, cw // 2 :: cw].copy()
+            out[~opaque] = 0
+            out[opaque, 3] = 255
+            out, report = remove_background(out, **(background or {}))
+            outputs.append(out)
+            reports.append(report)
+            continue
         if method == "pixeloe":
             out = pixeloe(frame.copy(), grid)
             rgba_frames(out)

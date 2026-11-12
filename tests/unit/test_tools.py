@@ -29,6 +29,7 @@ def test_cleanroom_and_core_import_boundary():
     "expression",
     [
         "MIT",
+        "MIT-CMU",
         "MIT AND BSD-3-Clause",
         "MIT OR GPL-3.0-only",
         "Apache-2.0 OR BSD-2-Clause",

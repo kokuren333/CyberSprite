@@ -16,7 +16,12 @@ BAYER = {
 def _histogram(images):
     counts = Counter()
     for im in rgba_frames(images):
-        counts.update(tuple(int(v) for v in rgb) for rgb in im[im[:, :, 3] >= 128, :3])
+        rgb = im[im[:, :, 3] >= 128, :3].astype(np.int64)
+        values, frequencies = np.unique(
+            (rgb[:, 0] << 16) | (rgb[:, 1] << 8) | rgb[:, 2], return_counts=True
+        )
+        for value, frequency in zip(values, frequencies, strict=True):
+            counts[(int(value) >> 16, (int(value) >> 8) & 255, int(value) & 255)] += int(frequency)
     colors = sorted(counts)
     return colors, [counts[c] for c in colors]
 
@@ -133,22 +138,31 @@ def _assign_frames(frames, palette, transparent_index, dither_type, strength, in
     result = []
     for frame in frames:
         out = np.full(frame.shape[:2], transparent_index, dtype=index_dtype)
-        source_labs = rgb_to_oklab_fixed_numpy(frame[:, :, :3])
-        for y, x in np.argwhere(frame[:, :, 3] >= 128):
-            nearest = sorted(
-                range(len(candidates)),
-                key=lambda k: (dist2(source_labs[y, x], labs[k]), candidates[k]),
-            )[:2]
-            chosen = nearest[0]
-            if matrix and len(nearest) == 2:
-                d1, d2 = (dist2(source_labs[y, x], labs[k]) for k in nearest)
+        mask = frame[:, :, 3] >= 128
+        colors, inverse = np.unique(frame[mask, :3], axis=0, return_inverse=True)
+        if len(colors):
+            source_labs = rgb_to_oklab_fixed_numpy(colors)
+            nearest = np.empty((len(colors), 2), dtype=np.int64)
+            distances = np.empty((len(colors), 2), dtype=np.int64)
+            for start in range(0, len(colors), 4096):
+                delta = source_labs[start : start + 4096, None, :] - np.asarray(labs)[None, :, :]
+                d = (delta * delta).sum(axis=2, dtype=np.int64)
+                order = np.argsort(d, axis=1, kind="stable")[:, : min(2, len(candidates))]
+                if len(candidates) == 1:
+                    order = np.repeat(order, 2, axis=1)
+                nearest[start : start + len(d)] = order
+                distances[start : start + len(d)] = np.take_along_axis(d, order, axis=1)
+            chosen = nearest[inverse, 0].copy()
+            if matrix and len(candidates) > 1:
+                d1, d2 = distances[inverse, 0], distances[inverse, 1]
                 n = len(matrix)
-                if (
-                    d1 + d2
-                    and d1 * n * n * strength // ((d1 + d2) * 255) > matrix[int(y) % n][int(x) % n]
-                ):
-                    chosen = nearest[1]
-            out[y, x] = candidates[chosen]
+                y, x = np.nonzero(mask)
+                threshold = np.asarray(matrix)[y % n, x % n]
+                numerator = d1 * n * n * strength
+                denominator = (d1 + d2) * 255
+                take_second = numerator // np.maximum(denominator, 1) > threshold
+                chosen[take_second] = nearest[inverse[take_second], 1]
+            out[mask] = np.asarray(candidates)[chosen]
         result.append(out)
     return result
 

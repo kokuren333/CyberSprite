@@ -220,3 +220,22 @@ def test_background_transparent_index_is_opaque_for_cluster_metrics():
     result = report(p)
     assert result["metrics"]["orphan_pixels_total"] == 1
     assert result["metrics"]["opaque_pixels"] == [1]
+
+
+@pytest.mark.parametrize("rule", ["Q-PIX-01", "Q-PIX-02"])
+def test_pixel_issues_attribute_a_single_visible_layer(rule):
+    from cybersprite.core.models import ImageLayer
+
+    p = new_project(width=4, height=4)
+    p.validation.orphan_pixels_max = 0
+    p.layers[0].cels = [ImageCel(frame=0, x=1, y=1, w=1, h=1, pixels=["01"])]
+    p.layers.append(ImageLayer(id="L2", name="Empty"))
+    p.id_counters.layer = 2
+    issue = next(i for i in report(p)["issues"] if i["rule"] == rule)
+    assert issue["where"]["layer"] == "L1"
+    p.layers[1].cels = [ImageCel(frame=0, x=3, y=3, w=1, h=1, pixels=["02"])]
+    issue = next(i for i in report(p)["issues"] if i["rule"] == rule)
+    assert issue["where"]["layer"] is None  # One frame-wide issue includes both layers.
+    p.layers[1].visible = False
+    issue = next(i for i in report(p)["issues"] if i["rule"] == rule)
+    assert issue["where"]["layer"] == "L1"
