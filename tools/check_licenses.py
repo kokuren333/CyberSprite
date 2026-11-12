@@ -20,6 +20,7 @@ ALLOWED = {
     "ISC",
     "Zlib",
     "HPND",
+    "MIT-CMU",  # Explicitly included as HPND (MIT-CMU) in SPEC §2.1.
     "PSF-2.0",
     "Unlicense",
     "CC0-1.0",

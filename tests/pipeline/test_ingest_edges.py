@@ -120,6 +120,19 @@ def test_frame_bounds_locked_layers_and_outside_canvas_warning(tmp_path):
         == "warn"
     )
     assert result["result"]["accepted"]
+    # An animated input starting after frame zero must preserve blank-gap durations.
+    import struct
+
+    gif = tmp_path / "animation.gif"
+    data = b"GIF89a" + struct.pack("<HHBBB", 1, 1, 128, 0, 0) + b"\0\0\0\xff\xff\xff"
+    for pixel, delay in ((0, 3), (1, 4)):
+        codes = (4 | pixel << 3 | 5 << 6).to_bytes(2, "little")
+        data += b"\x21\xf9\x04\x09" + struct.pack("<H", delay) + b"\0\0"
+        data += b"," + struct.pack("<HHHHB", 0, 0, 1, 1, 0) + b"\x02\x02" + codes + b"\0"
+    gif.write_bytes(data + b";")
+    animation = tmp_path / "animation"
+    execute("import_image", animation, import_args(str(gif), target={"frame": 2}), preview="none")
+    assert [f.duration_ms for f in load_project(animation).frames] == [100, 100, 30, 40]
 
 
 def test_ingest_replay_preserves_source_count_actor_and_warnings(tmp_path, monkeypatch):

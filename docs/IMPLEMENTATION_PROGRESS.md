@@ -13,12 +13,12 @@
 | M3 CLI | 進行中（Codex、`m3-cli`） | |
 | M4 MCP サーバ | 進行中（Codex、`m4-mcp`） | |
 | M5 形式 | 進行中（Codex、`m5-formats`） | |
-| M6 変換パイプライン | 進行中（Codex、`m6-pipeline`） | 純粋アルゴリズムと固定小数点 Oklab は先行ブランチで完了・統合済み。較正コーパスの原画は Opus が作成 |
+| M6 変換パイプライン | Windows 検証完了・統合待ち（Codex、`m6-pipeline`） | 取り込み・来歴・配置・較正を統合。(a)255/255完全一致。生成(d)とLinux実行は未了 |
 | M7 タイルマップ | 未着手（M5 の後） | 指示書は準備済み |
 | M8 GUI | テーマ 3 案を作成し案 C を選定（I-011） | 実装は M7 の後 |
 | M9 / M10 | 未着手 | |
 
-main のテスト: 622 passed（M2 統合時点、Windows / Python 3.12）。
+main のテスト: 622 passed（M2 統合時点、Windows / Python 3.12）。M6 ブランチの検証結果は下記。
 
 ## 体制とサブエージェントの起動方法
 
@@ -69,3 +69,13 @@ main のテスト: 622 passed（M2 統合時点、Windows / Python 3.12）。
 | e2e-01 #8 | undo / redo の結果にプレビューがない | M3 後の修正 |
 | e2e-01 #10 | Q-PIX-02 の `where.layer` が null（どのレイヤーか分からない） | M3 後の修正 |
 | e2e-01 #1〜4、#9 | 書き出し、`preview` / `pixels` / `validate` のオプション、`docs/CLI.md` | M3 / M5（作業中） |
+
+## M6: 変換パイプライン — Windows 検証完了（2026-11-12）
+
+- 来歴マニフェスト、取り込み・読み取り3 Op、共通cleanup、6ステップ・報告・段階PNG・関門、配置と履歴の原子的保存、M3指定の cli_api を実装。CLI パッケージは未変更。
+- Oklab をコアへ集約し、距離とパレット並べ替えの暫定実装を置換。ゴールデンは専用更新器で3ケース9ファイルを更新し、JSON・ハッシュ・PNGを確認した。
+- 実画像471件を較正版1で測定。17作品の倍率2〜16は auto で **255/255、100% RGBA完全一致**。JPEG・非整数補間・非ドット・誤格子も記録。負例95%拒否を満たす区間がないため、仕様どおり正解側の全合格を優先した。
+- 全体 `uv run pytest -q --tb=short`: **924 passed、125.00秒**。最終のGIF表示時間修正後は取り込み境界・トランザクションの **23 passed** も確認。Ruff、スキーマ、コア依存境界、依存ライセンス監査が成功。mypy は既存68件（分岐元は70件）が残る。
+- 手動で等倍・疎な4倍・JPEG q75を取り込み、全段階と配置PNGを開き、ファイルを再復号して画素一致を確認した。1024×1024変換は805/1133/656 msで、保存と再復号を含め5秒目標を達成。
+- 判断 I-463〜I-473。仕様変更は §11.3.2 の整数境界補正、§11.8 の容量・凍結のoverride制限。追加依存なし。既存PillowのLICENSE原文確認とMIT-CMU識別子の監査修正を実施し、台帳は未編集。
+- Linux、生成(d)、M4のJSONL e2e、M5のexport_imageとのシナリオ接続は統合後の確認事項。`tests/e2e/scenarios/` はリベース後もないため未作成。詳細は [M6_IMPLEMENTATION_REPORT.md](M6_IMPLEMENTATION_REPORT.md)、較正は [tests/pipeline/CALIBRATION.md](../tests/pipeline/CALIBRATION.md)、性能は [PERFORMANCE.md](PERFORMANCE.md)。

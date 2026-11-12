@@ -401,7 +401,7 @@ def place(ctx, args):
         relative = len(p.frames) - target.frame
         duration = data["durations"][relative] if 0 <= relative < len(data["durations"]) else 100
         p.frames.append(Frame(duration_ms=max(1, min(65535, duration))))
-    if data["new_project"]:
+    if data["new_project"] and target.frame == 0:
         p.frames[0].duration_ms = max(1, min(65535, data["durations"][0]))
     p.palette.colors = color_strings(data["palette"])
     placed = list(range(target.frame, end))
