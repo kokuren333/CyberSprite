@@ -1,32 +1,30 @@
 # CyberSprite — Codex 独立実装レビュー R2
 
-- 日付: 2026-11-12 JST。担当: Codex、工学・正確性の独立レビュー。
-- 対象: `13b44e5c6eb731ac064bc0bdc1450243dc3e13bf`。開始時の作業ツリーは clean。`dc0fe4f` 以降に実装コードの変更はなく、文書・e2e-07 成果物が追加されている。
-- 最初に `docs/REVIEW_REQUEST_2.md` と `docs/FIX_ROUND_1_REPORT.md` を読み、R1 §2 の8件、§3〜6の実質論点、R1の再現コードを照合した。SPEC、判断・進捗・各R1報告、実装・テスト・skills、指定の申し送り2冊、旧DS報告も確認した。
-- 実装、仕様、既存テスト、ゴールデンは変更していない。再現には破棄用プロジェクトを使った。追加のスクリプト・生計測・CIログは `_private/review-r2/`、既存測定器の成果物は `build/` に置いた。コミット・pushはしていない。
-- 他製品のソース、非公開参照画像、DM生データ、モデルの重みは開いていない。新しい依存は導入していない。外部pixelizerは既存の別環境を利用した。
+- 再検証日: **2026-11-13 JST**。対象HEAD: **`d2cf0e856219f4bf8f42ab0a47b916a9960cd841`**。開始時の作業ツリーはclean。
+- 依頼どおり最初に `docs/REVIEW_REQUEST_2.md` と `docs/FIX_ROUND_1_REPORT.md` を読み、R1 §2の8件と§3〜6の実質論点を再検証した。SPECの関連節、REQUIREMENTS_NOTES、DECISIONS、進捗・総括の各R1報告への対応表、実装・既存テスト・skills、指定の非公開申し送り2冊と旧DS報告を照合した。
+- 指定先には2026-11-12の先行R2（対象`13b44e5`）が既にあった。本書は**今回の実行結果で更新**した。先行R2の実測やAPI取得を今回実施したとは扱わない。先行文書と今回の生計測は `_private/review-r2-20261113/` / `build/review-r2-20261113-*` に保管した。
+- 現HEADにはR1後の公開前修正も含む。`docs/PUBLICATION_FIX_REPORT.md` とI-2001〜2004を追加照合した。実装・仕様・既存テスト・ゴールデン・依存・lockは変更していない。当方の管理対象の変更は本書のみ。実行中に別途生じた`CODEX_REVIEW_R1.md`への追記は編集せず保持した。コミット・pushなし。
+- 新規依存・外部pixelizer・重みの導入なし。他製品のソース、非公開参照画像、DM生データは開いていない。既存資料の文章・ログ・自作入力だけを使った。
 
-## 1. 判定
+## 1. 判定と検査範囲
 
-**R1の正本破壊経路は解消した。ただし、書き出しの失敗時復元は全経路へ届いておらず、資源予算にも抜けが残る。修正報告の「Codex fixed 7 / partially 1」は、そのままでは承認しない。**
+**R1の正本破壊blockingは主な経路で解消した。ただし、既存出力の失敗時復元と資源予算に実害のある抜けが残る。** R1の8件は **解消5／部分解消3／未解消0／悪化0**。修正報告の「fixed 7 / partially 1」をそのまま承認しない。
 
-R1の8件は **解消5 / 部分解消3 / 未解消0 / 悪化0** と判定する。新規・残存指摘は **blocking 0 / major 4 / minor 1**。性能目標の未達だけで停止する判定ではない。大きな配列・再生列の実割当は避け、整数計算または割当前のスパイで境界を検査した。
+先行Codex R2の5件は今回も全件再現し、番号を維持した（**blocking 0／major 4／minor 1**、§3）。新発見の5件という意味ではない。Fableの既知指摘との対応・判定差は§7。性能の未達だけでblockingにしていない。
 
-### 実行した検査
+環境: Windows 11 10.0.26200、CPython 3.12.10、NumPy 2.3.4、Pillow 13.0.0。既存仮想環境を`--no-sync`で使用。BLAS/OpenMP/MKLは1 thread。巨大割当やブラウザ停止は実行せず、割当前のスパイと要求量の整数計算で検査した。
 
-環境はWindows 11 10.0.26200、Python 3.12.10、NumPy 2.3.4、Pillow 13.0.0。既存環境を `--no-sync` で使用した。
-
-| 検査 | R2の結果 |
+| 今回実行した検査 | 結果 |
 |---|---|
-| `uv run --no-sync pytest -q --tb=short` | **2089 passed / 12 skipped、1021.34秒** |
-| `cd gui; npm test` | **698 passed**、contrast **100/100** |
-| `cd gui; npm run build` | 成功 |
-| `cd gui; npm run test:e2e`（build後、全体pytest終了後） | **5 passed、1.2分** |
-| 既存外部pixelizer環境での接続2ファイル | **20 passed、151.90秒** |
-| schema drift / grid7ベクタ / check_repository | 全て成功 |
-| A1のR1再現測定器 | CLI/MCP/GUI正本保護、locked dry-run、cwd外GUI rootが全て期待どおり |
+| `uv run --no-sync pytest -q --tb=short` | **2143 passed, 12 skipped in 1131.26s (0:18:51)**。詳細は`build/review-r2-20261113-pytest.log` |
+| `cd gui; npm test` | **710 passed、contrast 102/102** |
+| schema drift / grid7ベクタ / check_repository | すべて成功 |
+| `tools/r1_a1_acceptance.py` | CLI/MCP/GUI最終path保護、locked dry-run、cwd外GUI root、すべて期待どおり |
+| 先行R2の故障注入・mask・PixelOE・tick、実TS再生関数 | 5件すべて再現（§3） |
+| 性能 | 履歴10/1000/10000行、独立フレーム4fixture、実stdio MCP、1024²密/4096²疎を各3回（§4） |
+| e2e-07既存成果物 | 最終PNG8枚/GIF8フレームを独立復号しcoreと全画素一致。A: error0/warning73/info9、B: error0/warning4/info1、両方validate成功。3関門シート実在。見た目の合否はpending |
 
-12 skipはWindowsのsymlink権限5件、主環境に未導入の外部方式6件、明示opt-inのGPU1件。外部6件は別環境の実行結果と分ける。最初のブラウザ試行は全体pytest・外部runtime試験と同時実行し、**2 passed / 3 failed**（1000ms通知制約1件、canvas待ち/timeout2件）だった。上記の追試では同じテストを緩めず全5件成功した。最初の失敗を成功数に混ぜず、通常の再生の契約と負荷下のタイミングの不安定さを分ける。試験中の切断時にASGIのWebSocketDisconnectedログも観測したが、正本破壊や認証回避の再現ではない。
+今回GUI build/Playwright、実外部3方式、GPU再生成、実ComfyUI、Linuxのローカル実行はしていない。先行R2・元実装報告の実行結果と区別する。通常環境の外部方式/GPU skipを「接続未実装」とも「今回の実runtime成功」とも扱わない。
 
 ## 2. R1 §2 の8件の再判定
 
@@ -37,8 +35,8 @@ R1の8件は **解消5 / 部分解消3 / 未解消0 / 悪化0** と判定する�
 | C-R1-01 正本を上書きするexport | **部分解消** | R1そのままのCLI直接名、MCP直接名、GUI `{name}.json` は全て `E_PATH_NOT_ALLOWED`、正本・履歴bytes不変。`tools/r1_a1_acceptance.py` 完走。既存の大小文字・hardlink・source/history・data_out保護試験もある。しかし期待修正に含めた「途中失敗・応答生成失敗で既存出力を復元」は残る（R2-01）。正本破壊blocking自体の再現ではない |
 | C-R1-02 復号前のサイズ・累積上限 | **解消** | 8193×1 PNGの元再現を再実行し、`E_LIMIT_EXCEEDED`、`source_width=8193 / 8192`、revision/正本bytes不変。`test_resource_limits.py` はseek/convert前のスパイ、4097f、複数ファイル累積、native入力も検査する |
 | C-R1-03 小さいJSONから巨大な仕事量・出力 | **部分解消** | 元の10^9角矩形は仕事量 `2000000000000000000 / 1048576`、4096²×64は `274877906944 / 268435456 bytes` で割当前に拒否。ところが新しい描画maskが取引予算に算入されない（R2-02）。追加の外部方式・GUIにも割当前の防御不足がある（R2-03/04） |
-| C-R1-04 履歴全量の二度書換え | **解消** | §4で元の10/1000/10000行Hを再計測。追記・区画化・末尾読取・1000取引索引をコードと試験で確認。耐久復元・roll・再送の試験あり。索引欠損再構築やrollの最悪時間まで証明した判定ではない |
-| C-R1-05 拡張点・API・無関係な提供者の読込 | **部分解消** | 自作entry pointで `allowed_read` だけを選択し、loaded/factoryとも `['allowed']`。API999の提供者は `E_PLUGIN`、factory未実行、既存登録不変。CLI/MCP共通登録、exporters/pipeline_steps/generators/validators/palettes/platformsの接続試験あり。importers実行は仕様・既知問題に明記してv1.xへ延期。隠蔽は解消したが当初の全群完成ではない |
+| C-R1-04 履歴全量の二度書換え | **解消** | 今回も§4で元の10/1000/10000行Hを再計測。追記・区画化・末尾読取・1000取引索引をコードと試験で確認。耐久復元・roll・再送の試験あり。索引欠損再構築やrollの最悪時間まで証明した判定ではない |
+| C-R1-05 拡張点・API・無関係な提供者の読込 | **部分解消** | 自作entry pointで `allowed_read` だけを選択し、loadedは `['allowed']` で許可Opが登録された。API999の提供者は `E_PLUGIN`、factory未実行、既存登録不変。CLI/MCP共通登録、exporters/pipeline_steps/generators/validators/palettes/platformsの接続試験あり。importers実行は仕様・既知問題に明記してv1.xへ延期。隠蔽は解消したが当初の全群完成ではない |
 | C-R1-06 GUIのroot/allow-dirを形式層が拒否 | **解消** | 元のcwd外TEMPをrootとする `Service(root).run_op('export_image',...)` が成功、`validation_ok / verified=true`。A1測定器でも再現。`server/app.py:111` が実policyを束縛し、実WebSocketの外部allow-dir/拒否試験もある |
 | C-R1-07 有限ping-pongの片道repeat | **解消** | 実TS関数を抽出して再評価。0..2、repeat1/2/3はcoreと同じ `[0,1,2]` / `[0,1,2,1,0]` / `[0,1,2,1,0,1,2]`。共有64ベクタと有限停止・末端durationのブラウザ試験がある。大きなrepeatの資源問題は別にR2-04へ記録 |
 | C-R1-08 dry-runが配置可能性を検査しない | **解消** | 元のlocked L1へのimportはdry-run・本実行とも `E_LAYER_LOCKED`。A1測定器で再現。`test_r1_a1_dry_run.py` はlayer/group、lock、frame延長、link、配置領域、bytes不変を検査。変換だけの `pipeline_only` を区別した契約も確認 |
@@ -50,13 +48,14 @@ uv run --no-sync python tools/r1_a1_acceptance.py
 uv run --no-sync pytest -q tests/unit/test_r1_a1_exports.py tests/pipeline/test_r1_a1_dry_run.py tests/unit/test_resource_limits.py tests/test_plugins_r1.py tests/test_platforms.py
 ```
 
+
 ## 3. 新規・残存指摘
 
-行番号は対象SHAのもの。以下のPythonブロックはPowerShellの `@'` と `'@ | uv run --no-sync python -` の間で実行する。故障注入は破棄用fixtureにだけ適用する。
+行番号は今回の対象SHAのもの。再現コードは今回すべて実行した。以下のPythonブロックはPowerShellの `@'` と `'@ | uv run --no-sync python -` の間で実行する。故障注入は破棄用fixtureにだけ適用する。
 
 ### R2-01 — major: exportの復元がsurface・形式によって異なり、失敗した要求が既存出力を失わせる
 
-**根拠:** `formats/plugin_export.py:95` は `staged.replace(path)` で直接確定するため、MCPのSaveContextに出力が記録されない。組み込み `export_native` もこの経路を使う。通常のPNGは `formats/common.py:280` の `history.atomic_write` を通り、MCPの応答失敗では復元される。一方CLI/GUI/直接Opの共通export経路（`ops/__init__.py:514`、`cli/__init__.py:458`、`server/app.py:111`）には出力群を包むsave contextがない。`write_verified` は復号失敗時に既存出力も削除する（`common.py:288`）。
+**根拠:** `formats/plugin_export.py:95` は `staged.replace(path)` で直接確定するため、MCPのSaveContextに出力が記録されない。組み込み `export_native` もこの経路を使う。通常のPNGは `formats/common.py:300` の `history.atomic_write` を通り、MCPの応答失敗では復元される。一方CLI/GUI/直接Opの共通export経路（`ops/__init__.py:535`、`cli/__init__.py:459`、`server/app.py:111`）には出力群を包むsave contextがない。`write_verified` は復号失敗時に既存出力も削除する（`common.py:308`）。
 
 **実測:** 同じ応答生成失敗の注入で、MCP `export_image` は旧10bytesを復元、`export_native` は旧10bytesが新64bytesへ置換されたまま、どちらも `E_INTERNAL`。CLIの2フレームPNGは2枚目でI/O故障を注入すると終了4、1枚目だけ上書き済みになる。
 
@@ -210,177 +209,168 @@ with TemporaryDirectory() as t:
 
 **期待:** タグ/タグ外区間の位相の規則を実行側と検証側で共通にする。非選択フレームのtick数の復元または明示tick情報の保持を設計し、部分・飛び飛び・重複タグ・分割呼出しのベクタを足す。単に検証の許容を狭める修正では足りない。目安1〜2人日。
 
-## 4. 性能の再実測と公表値の訂正
 
-**訂正のfixture・集計は正しい。一方、最終公表値と同じ速度・目標達成は今回の負荷条件で再現しなかった。** `_private/quiet-bench/b2-final.json` の3生値から全中央値を再計算し、PERFORMANCEと総括の転記が一致することを確認した。今回のB2 JSONの記録する3実装ファイルのhashもquiet測定と一致した。全フレーム同一内容の旧ベンチを代表値から外し、独立した内容のフレームを使う訂正は妥当である。
+## 4. 性能の再実測・公表値の訂正
 
-今回の計測は自己のpytest/外部runtime試験/ブラウザ試験を終えた後、各測定器を順次実行した。OS・常駐アプリ・他のレビュー作業の負荷は固定していない。B2直前の空き物理メモリは **233〜604MiB**で、quiet報告の約1.1GBより少ない。時間差をコード退行と断定せず、quietの達成値を通常負荷での保証にも使わない。BLAS/OpenMP/MKLは1 thread。各3回、単位は以下全てms。
+**訂正の中央値とfixtureの区別は正しい。今回の速度は以下の新しい観測値で判断する。** `_private/quiet-bench/b2-final.json` の全3生値から中央値を再計算し、PERFORMANCE・総括の公表値と一致した。旧ベンチの同一内容フレームを、独立した内容の代表フレームと区別した訂正は妥当である。
+
+性能計測は当方の全体pytest・GUI試験・故障注入終了後、下記の順で直列実行。他アプリ・OS負荷は固定していない。新旧の単一値の差をコードの退行／改善倍率と断定しない。単位ms、各3回。生値JSONには空き物理メモリ・ソースhash等も記録する。
 
 ```powershell
 $env:OPENBLAS_NUM_THREADS='1'
 $env:OMP_NUM_THREADS='1'
 $env:MKL_NUM_THREADS='1'
-uv run --no-sync python -m tools.bench_persistence --out _private/review-r2/history.json --real-edits 0
-uv run --no-sync python -m tools.benchmark_r1_b2 --case small_32_3_4 --case ds_96_8_45 --case validate_256_1_32 --case wide_480_270_1_16 --out _private/review-r2/b2.json
-uv run --no-sync python _private/review-r2/bench_mcp.py
-uv run --no-sync python -m tools.benchmark_r1_large --out _private/review-r2/large.json
-uv run --no-sync python -m tools.bench --out _private/review-r2/legacy.json
+uv run --no-sync python -m tools.bench_persistence --real-edits 0 --out build/review-r2-20261113-history.json
+uv run --no-sync python -m tools.benchmark_r1_b2 --case small_32_3_4 --case ds_96_8_45 --case validate_256_1_32 --case wide_480_270_1_16 --out build/review-r2-20261113-b2.json
+uv run --no-sync python -m tools.benchmark_r1_large --out build/review-r2-20261113-large.json
 ```
 
-### 4.1 元のH: 10 / 1000 / 10000行
+### 4.1 R1と同じ合成ジャーナルH
 
-R1 §7 Hそのままの16²・実コミット行の複製。previewなし。後の件数の最初の呼出しは元コードどおりno-opを含む。今回1200連続実編集の再測定は省き、`--real-edits 0` とした。undoの正確性、索引消失時・区画roll時の最悪費用をこの合成fixtureから主張しない。
+16²、実コミット由来行を複製し、1px変更、previewなし。1000/10000回の実編集ではない。後の件数で最初の呼出しがno-opになる元fixtureも維持した。1000キー索引初期化済み、roll/索引再構築最悪値を測っていない。1200実編集の別ベンチは今回省略し、元B1の結果を代用していない。
 
-| 初期行数 | 初期bytes | 3生値 | 中央値 | R1元レビューの中央値 |
-|---:|---:|---|---:|---:|
-| 10 | 4,391 | 219.423 / 117.299 / 76.563 | 117.299 | 74.668 |
-| 1000 | 440,893 | 43.356 / 123.227 / 88.647 | 88.647 | 338.066 |
-| 10000 | 4,418,894 | 306.442 / 139.684 / 167.043 | 167.043 | 1985.643 |
+| 初期行数 | bytes | 3生値ms | 中央値ms |
+|---:|---:|---|---:|
+| 10 | 4391 | 133.865 / 89.251 / 138.516 | 133.865 |
+| 1000 | 440893 | 31.654 / 123.766 / 118.319 | 118.319 |
+| 10000 | 4418894 | 46.596 / 129.293 / 122.291 | 122.291 |
 
-履歴全量の読込・二重書換えは除去され、件数が1000倍でも元の秒単位の増加は再現しなかった。元行の成功封筒を除いたためbytesも減っており、単に同じ17MBを高速に書いた測定ではない。修正報告の73.059msという特定観測値そのものは再現しなかった。
 
-### 4.2 独立フレームの代表値
+### 4.2 独立した密フレーム・実務CLI
 
-fixtureはB2と同じ8px格子＋フレーム番号マーカー。各セルが独立で内容も異なる。編集は毎回新しいx=1/2/3を異なる番号へ変更し、`no_op=false`を確認、previewなし。読込・正規化・前後報告・履歴・保存込み。coldは各回frame LRU消去、cachedは同じ全報告を再利用可能な状態で計算。`report(p)`の検証自体にはファイル読込を含めず、CLI infoにはプロセスの起動〜終了を含める。
+B2既存測定器を変更せず使用。編集は毎回別座標の実変更でno_op=false、previewなし。coldは各回LRUを消去、cachedは全規則・指標の評価を維持。CLIはインストール済exeの起動〜終了。fixture作成・import・初期履歴作成は測定外。
 
-| fixture | 操作 | 3生値 | 中央値 |
+| fixture | 操作 | 3生値ms | 中央値ms |
 |---|---|---|---:|
-| 32²・3層・4f | validate cold | 45.317 / 12.246 / 15.028 | 15.028 |
-| 同上 | edit | 81.201 / 99.526 / 163.377 | 99.526 |
-| 同上 | info要約 | 23.986 / 2.865 / 2.656 | 2.865 |
-| 同上 | CLI info | 2127.926 / 1720.392 / 1868.136 | 1868.136 |
-| 同上 | validate cached | 3.282 / 2.999 / 2.403 | 2.999 |
-| 96²・8層・45f | validate cold | 2802.023 / 2307.101 / 2477.182 | 2477.182 |
-| 同上 | edit | 3030.089 / 2382.646 / 3124.044 | 3030.089 |
-| 同上 | info要約 | 197.051 / 136.496 / 146.639 | 146.639 |
-| 同上 | CLI info | 3367.346 / 4209.535 / 3602.312 | 3602.312 |
-| 同上 | validate cached | 590.913 / 603.091 / 819.063 | 603.091 |
-| 256²・1層・32f | validate cold | 3734.089 / 3559.807 / 3812.981 | 3734.089 |
-| 同上 | edit | 2960.985 / 3048.938 / 2590.518 | 2960.985 |
-| 同上 | info要約 | 125.187 / 94.177 / 93.485 | 94.177 |
-| 同上 | CLI info | 5210.978 / 3251.112 / 2787.419 | 3251.112 |
-| 同上 | validate cached | 344.152 / 875.389 / 664.678 | 664.678 |
-| **480×270・1層・16f** | validate cold | 3086.238 / 2338.450 / 2963.918 | 2963.918 |
-| 同上 | **edit** | **2303.499 / 1606.347 / 2122.992** | **2122.992** |
-| 同上 | info要約 | 185.354 / 105.069 / 76.746 | 105.069 |
-| 同上 | CLI info | 2931.319 / 3453.284 / 3447.324 | 3447.324 |
-| 同上 | validate cached | 336.831 / 478.095 / 398.281 | 398.281 |
+| small_32_3_4 | validate_cold | 42.450 / 11.412 / 29.891 | 29.891 |
+| small_32_3_4 | edit | 126.522 / 199.875 / 186.447 | 186.447 |
+| small_32_3_4 | info_summary | 31.698 / 3.213 / 3.666 | 3.666 |
+| small_32_3_4 | cli_info | 3349.396 / 1429.206 / 1296.597 | 1429.206 |
+| small_32_3_4 | validate_cached | 2.497 / 2.285 / 2.273 | 2.285 |
+| ds_96_8_45 | validate_cold | 1874.807 / 1701.263 / 1670.524 | 1701.263 |
+| ds_96_8_45 | edit | 2830.110 / 1704.698 / 1960.515 | 1960.515 |
+| ds_96_8_45 | info_summary | 87.199 / 82.882 / 78.411 | 82.882 |
+| ds_96_8_45 | cli_info | 1423.812 / 1404.710 / 1645.010 | 1423.812 |
+| ds_96_8_45 | validate_cached | 361.848 / 307.690 / 455.127 | 361.848 |
+| validate_256_1_32 | validate_cold | 2361.019 / 1589.599 / 1665.533 | 1665.533 |
+| validate_256_1_32 | edit | 1428.463 / 1219.898 / 1117.142 | 1219.898 |
+| validate_256_1_32 | info_summary | 60.653 / 45.383 / 39.979 | 45.383 |
+| validate_256_1_32 | cli_info | 1488.975 / 1257.215 / 1439.247 | 1439.247 |
+| validate_256_1_32 | validate_cached | 181.703 / 164.693 / 184.027 | 181.703 |
+| wide_480_270_1_16 | validate_cold | 1729.940 / 2052.270 / 2101.661 | 2052.270 |
+| wide_480_270_1_16 | edit | 1383.231 / 1295.295 / 1470.093 | 1383.231 |
+| wide_480_270_1_16 | info_summary | 44.386 / 37.120 / 40.728 | 40.728 |
+| wide_480_270_1_16 | cli_info | 1412.021 / 1509.151 / 1247.449 | 1412.021 |
+| wide_480_270_1_16 | validate_cached | 168.756 / 179.489 / 232.684 | 179.489 |
 
-quiet公表値との照合:
 
-| 目標・指標 | 最終公表の中央値 | R2中央値 | 判定 |
-|---|---:|---:|---|
-| DS edit ≤1000 | 1379.037 | 3030.089 | 両方未達 |
-| 256²×32f cold validate ≤2000 | 1174.894 | 3734.089 | 公表観測では達成、今回未達。cachedで代用しない |
-| 小規模CLI info ≤1000 | 1539.322 | 1868.136 | 両方未達 |
-| 480×270×16f edit（固有目標なし） | 944.071 | 2122.992 | 条件依存。R1前B2の19,186msより短いが、無負荷での倍率保証ではない |
+静かな再計測の公表値はDS編集1379.037ms、256²×32f cold検証1174.894ms、小規模CLI1539.322ms、480×270×16f編集944.071ms。DS目標1000、256²検証2000、小規模CLI1000との照合では、cached値をcold目標の代わりにしない。
 
-従って公表値を改竄・誤集計とは判定しない。「この修正で256²の検証は常に2秒以内」という受け取り方は支持できない。旧同一内容fixtureの百数十msを代表値にしない訂正は維持すべきである。
+今回のds_96_8_45/editは中央値1960.515ms、目標1000msとの中央値比較は**未達**（3回中3回は目標超過）。
 
-### 4.3 MCP: service内と実stdio往復を分ける
+今回のvalidate_256_1_32/validate_coldは中央値1665.533ms、目標2000msとの中央値比較は**達成**（3回中1回は目標超過）。
 
-まずB1と同じ `MCPService.call` まで（通信なし、SDK初期化除外、32²×10の独立した密フレーム）を測った。
+今回のsmall_32_3_4/cli_infoは中央値1429.206ms、目標1000msとの中央値比較は**未達**（3回中3回は目標超過）。
 
-| 経路・操作 | 3生値 | 中央値 |
+B2計時直前の空き物理メモリは698〜937MiB。静かな公表測定の約1.1GBと同じ負荷条件ではない。
+
+
+### 4.3 MCPのservice内呼出しと実stdio往復
+
+前半はB1既存測定器の`MCPService.call`まで。32²×10独立フレーム、引数/path検査・保存・preview=path・SDK封筒化を含み、初期化と通信を除く。
+
+| 経路 | 3生値ms | 中央値ms |
 |---|---|---:|
-| 直接 set_pixel | 222.902 / 167.275 / 113.611 | 167.275 |
-| service set_pixel | 745.124 / 248.126 / 174.799 | 248.126 |
-| 直接 validate | 15.014 / 5.811 / 5.751 | 5.811 |
-| service validate | 37.167 / 21.364 / 23.440 | 23.440 |
+| direct_set_pixel_32_10 | 140.207 / 125.553 / 151.416 | 140.207 |
+| mcp_set_pixel_32_10 | 388.416 / 145.565 / 173.933 | 173.933 |
+| direct_validate_32_10 | 12.550 / 4.769 / 4.717 | 4.769 |
+| mcp_validate_32_10 | 29.501 / 19.384 / 14.553 | 19.384 |
 
-別に実子プロセス `python -m cybersprite.mcp --root TEMP` を、SDKの `Client(StdioServerParameters(...), mode='2026-07-28')` から呼んだ。fixtureは `tools.benchmark_r1_b2.fixture(w,h,1,frames)`。最初のvalidateを温めてから `await client.call_tool` の要求〜結果受信を計時した。編集引数はL1/frame0/(1,1)、color2/1/2、preview=path、全て実変更。起動・初回検証は測定外。補助スクリプトは `_private/review-r2/bench_mcp.py`、生値は `mcp-stdio.json`。
 
-| 実stdio往復 | 3生値 | 中央値 |
-|---|---|---:|
-| 32²×10f set_pixel | 463.056 / 154.884 / 164.369 | 164.369 |
-| 32²×10f validate | 43.543 / 25.396 / 29.727 | 29.727 |
-| 480×270×16f set_pixel | 2154.232 / 1863.831 / 1446.269 | 1863.831 |
-| 480×270×16f validate | 601.593 / 415.846 / 349.451 | 415.846 |
+後半は実子プロセス`python -m cybersprite.mcp --root TEMP`とSDK `Client(StdioServerParameters(...), mode='2026-07-28')`の要求送信〜結果受信。B2の`fixture(w,h,1,frames)`、初回validateで温め、L1/frame0/(1,1)の色2/1/2、preview=path、全件no_op=falseをassert。起動・握手・温めは除外。再現補助: `_private/review-r2-20261113/bench_suite.py`（末尾は先行R2の`bench_mcp.py`と同じ条件）、生値`build/review-r2-20261113-mcp-stdio.json`。B2の毎回新座標/previewなしとは条件が違う。
 
-service内よりstdioの中央値が短く見えるが、順次の別試行・cache/OS負荷が違うため通信の負の追加費用や改善倍率とは解釈しない。stdio編集は2版の往復で、B2の毎回新規画素・previewなしと同一条件でもない。R1の「MCP往復」と、通信を除いた修正報告のsingle callを分けて記録した。
-
-### 4.4 大キャンバスと旧補助fixture
-
-R1 §7 Lと同じ、新規子プロセスごとのrender→reportを各3回。
-
-| fixture | 操作 | 3生値 | 中央値 |
+| 実stdio往復 | 操作 | 3生値ms | 中央値ms |
 |---|---|---|---:|
-| 1024²・密・1層1f | render | 646.378 / 414.748 / 486.194 | 486.194 |
-| 同上 | validate | 932.135 / 716.989 / 1009.341 | 932.135 |
-| 4096²・1×1セル1個・1層1f | render | 55.328 / 44.799 / 79.725 | 55.328 |
-| 同上 | validate | 1669.077 / 1749.495 / 1282.444 | 1669.077 |
+| small_32_10 | set_pixel | 365.003 / 172.398 / 144.943 | 172.398 |
+| small_32_10 | validate | 28.978 / 21.366 / 14.428 | 21.366 |
+| wide_480_270_16 | set_pixel | 1633.188 / 1115.897 / 1101.366 | 1115.897 |
+| wide_480_270_16 | validate | 246.133 / 239.263 / 300.961 | 246.133 |
 
-peak working setは1024²で210.74 / 210.77 / 210.61MiB、4096²で321.71 / 248.35 / 328.76MiB。プロセスimportとfixtureも含む。4096²は**疎画像だけ**であり、密・多層・多数フレームへの外挿はしない。256MiB LRUはRSS上限ではないという修正報告の注意は正しい。
 
-R1 §4.1と同じ `tools.bench` の補助値も再実行した。このfixtureの多数フレームは同一内容なので、上の独立フレームの表を置き換えない。
+別試行のservice内値とstdio値の差を「通信の純追加費用」にしない。通信を除外した修正報告のsingle callを、MCP往復の公表値へ読み替えることもできない。定義サイズは元測定器と同じ`model_dump(by_alias=True, exclude_none=True)`＋既定`json.dumps`で、現standard **88ツール99,949bytes**、minimal **13ツール16,043bytes**を確認。R1の87ツール98,576bytesからはregister_referenceが増えており、母数を揃えず速度や縮小率へ換算しない。100KB目安の達成はFable R2-03が指摘する引数説明・入れ子の不足を解消しない。
 
-| 項目 | 3生値 | 中央値 | 目標 |
-|---|---|---:|---:|
-| インストール済CLI --version | 258.458 / 238.411 / 234.591 | 238.411 | 400 |
-| 64²・10層・32f edit+preview | 601.027 / 493.605 / 457.854 | 493.605 | 150 |
-| 256² render | 23.525 / 20.642 / 18.116 | 20.642 | 50 |
-| 同一内容256²×32f validate | 167.516 / 138.998 / 169.731 | 167.516 | 2000 |
-| GUI 128² Op＋RGBA往復 | 339.521 / 100.161 / 101.283 | 101.283 | 50 |
-| 1024² upscaled変換・段階保存/検査込み | 534.050 / 576.210 / 518.395 | 534.050 | 5000 |
+### 4.4 大キャンバス
 
-パイプライン5秒以内は同じ工程fixtureで再現。写真・実生成画像・3外部方式の一般速度を示す値ではない。CLI --versionは400ms以内だが実務のinfo起動を代表しない。64²編集/GUIの目標未達も再現した。GUI値はサーバOp＋render RPCであり、ブラウザpointer-upからpaintまでの実測ではない。
+R1 §7 Lと同じ、新規子プロセスごとのrender→report。1024²は密な単色セル、4096²は1×1セル1個の疎画像。peak working setはimport・fixtureを含む。密な4096²・多層・多数フレームへの外挿はしない。
 
-## 5. 新規実装の審査
+| fixture | render 3生値ms | validate 3生値ms | peak working set 3値MiB |
+|---|---|---|---|
+| dense | 416.424 / 347.528 / 320.974 | 524.181 / 562.460 / 585.096 | 210.742 / 210.773 / 210.836 |
+| sparse | 36.622 / 34.859 / 30.603 | 770.129 / 652.088 / 581.655 | 328.785 / 328.824 / 328.867 |
+
+256MiB LRU／入出力予算はプロセスのRSS上限ではない。コア品質検証・予算内処理の最悪時間や任意の画像での応答期限をこの測定から保証しない。
+
+
+## 5. 新規実装の正確性・境界
 
 ### 5.1 粒度プロファイル・機種仕様
 
-`platform` の解決済みsnapshot、ユーザー/ファイル/plugin/内蔵の優先順、継承・循環拒否、JSON Pointer、整数型、既定値の明示引数優先、旧正本のbytes保持を確認した。R1で提案したschema2ではなくschema1に省略可能な正式フィールドを足す分岐は、SPECとI-1401以降に理由があり、今回これを未解消バグとして再要求しない。検証は登録定義を再読込せずsnapshotだけで動く。
+schema1の省略可能な`platform`と解決済snapshotを採用した分岐を、SPEC §5.13／I-1401以降に照合した。R1のschema2・bank/slot全面モデル案を現契約へ強要しない。定義の優先順位、継承/循環拒否、JSON Pointer、整数、明示引数優先、snapshot独立性、旧正本のbytes保持は`tests/test_platforms.py`、行index/slot0、反転を考慮したtile数、native/rampsは`test_r1_e3*.py`に手計算ベクタがある。
 
-行index・slot0規約、未使用/非表示データ、tile/block/object/layer単位、反転を考慮したtile数は手計算ベクタがある。RGB表現は固定小数点距離、明示的な `conform_palette` だけがパレットを変更する。craftのseverity:errorをinfoに固定し、測定値を美的合格の関門にしない点も確認した。tickの部分選択だけはR2-05。
+制約検査と明示的な`conform_palette`を分離し、通常編集はpaletteを近似しない。craftは情報であり人間の合否を決めない。`gb-2bpp`の独立decoder・bitplane・実ファイル検査、表現不能色/部分alpha等のallow_invalid非迂回を確認した。tick部分選択の位相はC-R2-05。
 
-代表機種の数値はSPECの代表モードの範囲に照合した。DMG/NDS/CGB/NES/SFC/MD/GBAの全モード・VRAM割付・走査線上限を検証しているとは判定しない。NESは利用者RGB表なしで解決を拒否する。今回、実機仕様を外部一次資料から再確定する監査はしていない。
+内蔵機種は代表モードであり、全VRAM割付・bank/map/走査線・全モードの受入を意味しない。追加native/sidecars/offset links/analyzeは明示延期。今回実機仕様を外部一次資料から再監査したとは扱わない。R1で求めた基盤の実装可能性は実装で確認できたが、全機種対応の完成宣言は支持しない。
 
-`gb-2bpp` は手計算bitplane、独立decoder、実ディスクbytesとの照合があり、行混在・禁止slot・色表現不能・部分alpha・opacityを `allow_invalid` やseverity無効でも拒否する。追加native形式・palette/map sidecar・offset links・analyzeは明示延期である。nativeの最終保存にはR2-01が残る。
+### 5.2 3方式と中立ベンチ
 
-### 5.2 外部pixelizer3種と中立ベンチ
+Fixer/PPA/PixelOEは本体adapter→許可済entry point→共通StepRunner→1回のpalette lockへ接続されている。PPAはrun_framesとmodal mesh（同点は最初のframe）、PixelOEはCPU/明示target。未導入hint、返却型/フレーム数/寸法/閉包、stdout、選択した提供者だけのload、API不一致時のfactory拒否を既存試験とコードで照合した。外部runtimeの実試験は今回の通常環境ではskipで、元D2の実接続試験を再実行したとは書かない。PixelOE中間tensorはC-R2-03。
 
-既存 `../CyberSprite-wt/_pixenv` を使い、現HEADのsrcを `PYTHONPATH` で指定して `tests/pipeline/test_external.py tests/pipeline/test_pixelizer_steps.py` を実行、**20 passed、151.90秒**。Fixer、PPA、PixelOEの実runtime経路を含む。本体環境への追加導入は0件。
+保存済JSON全1,615件を独立に再集計した。
 
-選択提供者だけのロード、未導入hint、実効版・paramsの来歴、PPAの複数フレーム共通mesh、量子化1回、CPU/stdout境界を確認した。ただし資源境界はR2-03。
+| 方式 | 入力 | 寸法一致 | エラー | 成功時3反復hash一致 | 誤寸法でもaccepted |
+|---|---:|---:|---:|---:|---:|
+| builtin | 323 | 313 | 0 | 323 | 7 |
+| Fixer | 323 | 277 | 0 | 323 | 44 |
+| PPA | 323 | 163 | 3 | 320 | 144 |
+| PixelOE | 323 | 323 | 0 | 323 | 0 |
+| Xprite（評価専用） | 323 | 321 | 0 | 323 | 2 |
 
-`pixelize_bench_r1_d2_results.json` を独立に再集計した結果:
+5方式の`(source,recipe,input_sha256)`集合は一致。PixelOEは全323件oracleで、検出率ではない。PPA初期倍率1、エラー3件を拒否成功に算入していない点も公表と一致する。ただし17原画は較正と共通、187/323はnearest系列、画素指標は寸法一致出力に条件付けられている。この「中立」は同一入力・後処理の統制という範囲であり、一般的な順位や写真/実アニメの優劣は導けない。
 
-| 方式 | 入力 | 寸法一致 | エラー | 同入力3回の画素一致 |
-|---|---:|---:|---:|---:|
-| builtin | 323 | 313 | 0 | 323 |
-| Fixer Python | 323 | 277 | 0 | 323 |
-| proper-pixel-art | 323 | 163 | 3 | 320 |
-| PixelOE | 323 | 323 | 0 | 323 |
-| Xprite（評価のみ） | 323 | 321 | 0 | 323 |
+**Fable R2-02（major）へ合流:** 自作gradientと偽Fixer adapterでも、`accepted=true / gate_scope=reconstructed-output / input_grid_evaluated=false`、grid_detectedとgrid_score=1000がpassになった。実runtimeの検出精度の再測定ではなく共通関門の境界再現である。入力格子を測っていない事実を文書化するだけでは、passを読む利用者への保証は改善しない。未評価表示または入力純度での関門を要する。既定AUTOの非pixel拒否10/12=83.3%も95%未達のまま。
 
-5方式で `(source, recipe, input_sha256)` の集合が一致した。**PixelOEの323件は全件oracle**。PPAは初期倍率1であり、エラー3件は拒否成功へ数えられていない。画素精度は誤寸法の出力を除外した条件付き指標で、全入力の精度と混同できない。公開値の転記・集計は合っている。
+### 5.3 任意重み登録・ComfyUI
 
-この比較の「中立」は同じ入力・共通の後処理という範囲に留まる。17原画は既存較正用、187/323がnearest系列、PPAは上流既定と違い、PixelOEだけ正解寸法を得る。生成画像に正解寸法はなく、外部の関門は復元後。したがって方式の一般的な順位、写真・実アニメーション・設計三面図での優劣、既定維持の優越性をこの総合率から導けない。報告もその限定を明記しており、PixelOEの100%を検出性能とした誤公表は見つからなかった。AUTOの10/12=83.3%は95%未達のままであり、解消に数えない。
+登録メタデータ、ローカルfile/dir hash、base/adapter条件合成、欠落/循環base、内容変更で再承諾、Q-SRC-04、生成物のdesign/import両出口は`test_byow.py`・`test_generation.py`で検査される。登録コマンド/任意workflow/サーバURLをMCPへ公開しない設計を確認した。
 
-### 5.3 任意重み登録とComfyUI
+**Fable R2-09（major）へ合流:** 登録LoRAを選び、偽factoryでロード直前に止めると、`generate/backends.py:295`以降はkind/baseを使わずLoRAのlocal_pathを`StableDiffusionPipeline.from_single_file`へ渡す。登録baseのpathではない。登録できることと、そのLoRAを選んで生成できることは別で、後者は未完。自己作成のダミーbytesで再現し、実重みは使っていない。baseロード＋選択adapter適用か、未対応kindの早期E_UNSUPPORTEDと具体的hintが必要。再現補助`_private/review-r2-20261113/extra_boundaries.py`。
 
-BYOWはローカルファイル/ディレクトリのhash、base/adapterの条件合成、循環・欠落base拒否、hash変更時の再承諾、未知条件の表示、Q-SRC-04、過去sourceのsnapshotを確認した。`register-model` をMCP Opへ公開せず、設定変更と生成要求を分離している。LoRA/VAE/ControlNetを登録できることは、そのファイル単体でDiffusers生成できる意味ではない。この制限は文書に明記されている。
+ComfyUIは登録API graphのhashに承諾を結び、scalar bindのみ許し、未知引数/任意graph/redirect/巨大応答を拒否する。POST/poll/view、枚数/寸法、完成graph保存、再送時hashは自作HTTP試験で検査される。remote filenameをローカルpathにしない。**実ComfyUIは未試験（Fable R2-10、major）**。本レビューでも段階1/2の実サーバ受入を完了にはしない。サーバ上の重み条件やhashは推測しない。期限後jobが残りうる仕様も維持する。
 
-ComfyUIは登録済みAPI graphのhashに承諾を結び、結線ではなくscalar入力だけをbindし、任意workflow JSON/未登録alias/未知paramsを拒否する。自作HTTPでPOST/poll/view、redirect拒否、応答bytes・時間、画像数/寸法、完成graph保存、再送hash確認が検査される。remote filenameをローカルpathへ使っていない。**実ComfyUIサーバーは今回も未試験**で、実custom node互換性やサーバ上の重みhash/条件を保証する証拠はない。GPUの同seed一致も特定機・特定スタックの記録の範囲で、コアの水準Aへ一般化しない。
+### 5.4 Linux CI
 
-### 5.4 Linux CIと決定性
+現環境はgit remote/ghなし。今回GitHubのrun URLを再取得できず、直接APIに加え、接続済みGitHubツールのrepository取得とworkflow jobs取得も試したが、APIと接続ツールはいずれも**404 Not Found**だった。先行R2の「APIで独立取得した」という記録を今回の取得成功へ流用しない。
 
-報告のrunをGitHub APIから独立取得した。[Actions run 43196622534](https://github.com/kokuren333/CyberSprite/actions/runs/43196622534) は `dc0fe4f7b76cfa67b4ac440e94f755497c63c0db` に対して全6ジョブsuccess。Linuxの2ジョブログもダウンロードし、checkout SHAと末尾結果を照合した。
+保存済みLinuxジョブログ2本は今回読み、checkoutが`dc0fe4f7b76cfa67b4ac440e94f755497c63c0db`、同じgoldenを含むpytestと独立復号markerが成功していることを確認した。
 
-| OS / Python | 本体試験 | 独立復号marker |
-|---|---|---|
-| Ubuntu 26.04 / 3.12（job 131109114147） | 2093 passed / 8 skipped、174.13秒 | 7 passed |
-| Ubuntu 26.04 / 3.13（job 131109113986） | 2093 passed / 8 skipped、153.78秒 | 7 passed |
-| Windows / 3.12、3.13 | APIで各success。保存済みジョブログにも2094 passed / 7 skipped | CIに同じmarkerの明示実行あり |
-| GUI Windows / Ubuntu 24.04 | APIで各success | wheel・独立導入までのステップあり |
+| 保存ログ | 確認結果 |
+|---|---|
+| `_private/review-r2/ci-131109114147.log`、Ubuntu/Python3.12 | 2093 passed / 8 skipped、174.13秒。独立復号7 passed |
+| `_private/review-r2/ci-131109113986.log`、Ubuntu/Python3.13 | 2093 passed / 8 skipped、153.78秒。独立復号7 passed |
 
-対象HEADの [run 43201142512](https://github.com/kokuren333/CyberSprite/actions/runs/43201142512) もcompleted/successを確認した。LinuxのテストをこのWindows端末で実行したという意味ではない。同じ期待ゴールデンを4環境で検査するCIが通っているため、R1の「Linux未検証」は解消。ただし任意の全入力・外部pixelizer・GPU・全OSに対する数学的な決定性の証明ではない。
+原run: https://github.com/kokuren333/CyberSprite/actions/runs/43196622534 。R1コードでLinux未検証だった論点には解消の証拠がある。一方、公開前修正を含む**現HEADのLinux成功は今回独立確認できていない**。CI設定はWindows/Ubuntu×3.12/3.13とGUI Windows/Ubuntu24.04を維持するが、設定の存在を結果に代用しない。GPU/外部方式の同環境一致をコア水準Aへ一般化しない。
+
+### 5.5 契約・堅牢性
+
+CLI/MCP/projectスキーマは同一レジストリと生成物に照合し、schema driftなし。これは一覧の説明不足や副作用の正しさを保証する検査ではない。保存途中・封筒失敗・再送・revision競合・cached/uncached報告の同値、透明番号・リンク・tile反転・canvas端の既存ベクタを全体試験で再確認した。故障時の形式差はC-R2-01として残る。
+
+GUIのloopback起動/token、Host/Origin、WebSocket認証、path policyとgeneration opt-inはserver試験を含めて検査した。認証回避は今回得ていない。権限不足でskipしたsymlink試験は成功へ数えない。プラグインは信頼したPythonの実行であり、許可した第三者コードの全副作用まで取消すsandboxはない。API/許可提供者の検査とその限界を分ける。MCPの協調期限もnative割当や単一Opの強制停止にはならず、C-R2-02/03の代わりにならない。
 
 ## 6. R1の実質論点・制作摩擦の照合
 
 | 論点（R1 §3〜6 / 旧DS §6） | R2の判定・残る作業 |
 |---|---|
-| 整数・決定性・palette閉包・tile反転・link | 手計算/seeded性質/ゴールデン、cached対uncachedの全報告同値を確認。今回見つけたtick問題以外に画素計算の反例は得ていない。全機種・全入力の保証とはしない |
+| 整数・決定性・palette閉包・tile反転・link | 手計算/seeded性質/ゴールデン、cached対uncachedの報告同値を全体試験で再確認。今回再現したtick問題以外に画素計算の反例は得ていない。全機種・全入力の保証とはしない |
 | 正本保護・巨大入力・GUI認証/パス | 正本最終pathとヘッダ拒否は解消。GUIのloopback/token/same-origin、typed path検査、generation opt-inの試験あり。保存と資源の残存はR2-01〜04 |
 | linked set_cel / 相対移動 | 既定error＋all/unlink、必須scope付きmove_celが実装され、元の無言の全員移動は解消。R1の「旧意味維持」案との差はFable優先の明示決定。画像だけ共有するoffset linksは別工程のまま |
 | セル原点 / strip / frames=all | layersに原点、strip/grid、一貫したフレーム解決は維持。旧報告の不足を再指摘しない |
@@ -392,18 +382,30 @@ ComfyUIは登録済みAPI graphのhashに承諾を結び、結線ではなくsca
 | undo→再apply差替え | replace-lastは未実装・明示延期。単一トランザクションとして設計するR1案は今も有効、工学2〜3人日程度 |
 | 色名・ramps / sym legend | @name、@ramp:k、legendが番号へ厳密解決。閉包と既存paletteを維持する試験あり |
 | include / background説明 / 古いskills | 複数include・boolean説明・フレーム指定の記述が更新済み。タグ/スライス表示色がパレット外なのは現仕様どおり |
-| 三面図→部品→フレーム→関門 | 5workflow、登録原画、3関門、自己採点しない/pendingの記録を確認。e2e-07の3シートは実在。最終PNG8枚をPillowで独立復号してcoreと全一致、GIF8フレームも全一致、.aseprite往復equivalent=true/dropped=[]。Aのvalidateはerror0/warning73/info9、Bもok |
+| 三面図→部品→フレーム→関門 | 5workflow、登録原画、3関門、自己採点しない/pendingの記録を確認。e2e-07の3シートは実在。最終PNG8枚をPillowで独立復号してcoreと全一致、GIF8フレームも全一致（.aseprite往復は先行R2の確認記録）。Aのvalidateはerror0/warning73/info9、Bもok |
 | 人間の合否・美的品質 | **未了（pending）**。R1より工程が増えたことと、人が採用する品質に達したことを分ける。本レビューは新たなビジュアル採点をしない |
 | profile/機種機構の実装可能性 | 基盤は実装済み。残るoffset linksは画像資源と位置インスタンスの分離、schema/正準化/形式/undo/GUI横断が必要でR1の8〜15人日規模を維持。追加nativeは既存exporter拡張点へ載るが、bank/map/VRAM等の明示モデルと独立decoderが必要。形式を足すだけで全機種対応とはしない |
 
-## 7. Fableレビューとの対応と限界
 
-2026-11-12 21:30 JSTの照合時点で、指定の `docs/review/FABLE_REVIEW_R2.md` は存在しない。別担当が作成中の `docs/REVIEW_2.md` はあり、冒頭に未完成と明記され、§1/2/4は未挿入だった。これをFableの確定した全指摘一覧とは扱わない。本書のR2-xxは独立Codexの番号であり、横断台帳ではC-R2-xxとして区別できる。
+## 7. Fableとの対応・優先順位・限界
 
-その下書き§5.1のベンチ解釈とは、nearest系列の比重、較正用原画との重複、PPA倍率1、PixelOE oracle、生成画像に正解がない点で一致する。本書は数値の転記・同じ入力集合・反復一致が正しいことを確認したのであり、比較の一般化を承認していない。「中立」という名称を同じ入力・同じ後処理の統制条件の範囲で認める点と、独立した評価集合として不十分とする点を両立させる。
+指定の`docs/review/FABLE_REVIEW_R2.md`は存在しないが、**完成済みの`docs/REVIEW_2.md`**がFable 5.2のレビューとして存在するため照合した。先行Codexの番号を維持し、Fable側の同番号と混同しない。
 
-Fable下書きの制作・新しいワークフロー設計の議論は本書で重複して採点しない。人間の判定pendingを維持する点は一致する。schema1/platform・行index規約・共有位置の既定errorの採用は、R1で提案が異なったが現SPECに従って検査した。今回の工学上の追加は、特にnative/pluginの最終置換とsurface間復元、mask取引予算、拡大tensor、巨大repeat、部分tickの境界である。他方の完成版が後から出た場合、同じ番号だけで同一指摘と判断せず、再現条件を照合すべきである。
+| 本書 | Fable | 判定差／今回の確認 |
+|---|---|---|
+| C-R2-01 出力失敗時復元 | R2-06 | ともにmajor。native・複数出力の不完全復元を再現 |
+| C-R2-02 mask予算 | R2-05 | ともにmajor。17mask Opの超過成功を再現 |
+| C-R2-03 PixelOE中間tensor | R2-07 | ともにmajor。割当前スパイで再現 |
+| C-R2-04 repeat全展開 | R2-20 | 本書major／Fable minor。合法な小さいmetadataで同期全展開しGUIが停止しうるためmajorを維持 |
+| C-R2-05 tick位相 | R2-19 | ともにminor。分割と一括の差・検証見逃しを再現 |
+| C-R1-05 plugins | R1-04再判定 | Fable解消、本書部分解消。許可/API/接続の修正には一致。importers延期を元要求の完成へ数えるかという判定基準の差 |
+| 外部関門 / LoRA / 実ComfyUI | R2-02/09/10 | §5で既知majorへ合流。先行Codexより、要求の受入不足を明示した。重複の独立新規番号は作らない |
+| CLI出力の経路保護 | R2-01 | 後続I-2001で修正済み。PUBLICATION_FIX_REPORT・test_publication_r2_01.pyと全体試験を照合。これを出力復元C-R2-01の修正と取り違えない |
 
-このレビューは実ComfyUI、今回のGPU再生成、追加の実機一次資料監査、実アニメーション全方式の新規比較を行っていない。配布依存のLICENSE原文全件を再監査したものでもない。既存のI-010/I-012の事後承認待ち、GUI専用forms・palette・設定、取り込み95%未達、M13延期を、テスト成功で完了へ変更しない。
+C-R2-01〜03を先に直し、取引・形式・surface横断の失敗時bytes保持と割当前拒否で受け入れる。続いてC-R2-04/05。目安は各指摘の末尾（概算、合計5〜10人日程度）。Fableの機能受入残件は別に見積もる。仕様締め直しが必要な部分をテスト成功だけで済みにしない。
 
-最終の `git diff --exit-code -- src gui skills tests pyproject.toml uv.lock` は成功した。当方が追加した管理対象の成果物は本書だけである。作業中に出現した未追跡の `docs/REVIEW_2.md` は別担当の下書きで、編集していない。
+新しい見た目の採点・制作はしていない。e2e-07は機械検査・独立復号・3シート実在を確認した範囲で、**人間の判定pending**。I-010/I-012の事後承認、95%関門、専用GUIフォーム/設定、M13延期、全src型検査残件を解消へ変更しない。実GPU、実ComfyUI、全実機モード、現HEADのLinux CIを今回検証済みとは宣言しない。
+
+参照・来歴: 今回新たな外部実装/アセットを参照せず、ローカルの仕様・実装・報告・ログと自作fixtureで検証した。GitHubへの取得試行は404で内容を得ていない。非公開資料のゲーム名・画像・URL・DM本文は本書へ転載していない。
+
+完了前にHEADが`b7a44f14a6ae112fbd23c5121319f332fd90a331`へ進んだことを検出した。開始時SHAとの差分は`docs/PUBLICATION_AUDIT.md`のみ。`git diff --exit-code d2cf0e8 HEAD -- src gui skills tests pyproject.toml uv.lock`で検査対象の実装・試験・依存が不変であることを確認した。別作業の監査文書コミットとR1追補には変更を加えていない。

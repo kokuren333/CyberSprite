@@ -1,5 +1,7 @@
 # CyberSprite — Codex 独立実装レビュー R1
 
+> **今回の依頼に対する現 HEAD の評価は末尾の [§9（2026-11-13 追補）](#current-review)を参照。** §1〜8 は `e94bd7a` に対する当初のレビューとして保存した。そこでの未実装項目・blocking 判定・旧行番号を、現在の実装への判定として読み替えない。
+
 - レビュー日: 2026-11-12 JST
 - 対象: `e94bd7a823c9b2c4b49cab86b55591528c74dff2`（作業開始時 HEAD、main）
 - 担当: Codex、実装・正確性・性能の独立レビュー
@@ -473,3 +475,261 @@ for n, mode in ((1024, "dense"), (4096, "sparse")):
 2. R1-05 の v1 対応範囲を SPEC と実装で一致させる。GUI の policy と有限再生列を共通契約へ揃える。
 3. Windows/Linux の CI 結果、全ゴールデン一致、履歴肥大時ベンチを添える。既知の性能未達と実生成画像較正の未了は、修正済みと混同しない。
 4. DS 再試験では標準の三面図工程、linked パーツの移動、陰影クリップ、顔の実寸比較、最終全フレームと実書出しを確認する。利用者の採用判断を作者の自己評価で代替しない。
+
+<a id="current-review"></a>
+
+## 9. 依頼再受領時の現 HEAD 追補（2026-11-13 JST）
+
+### 9.1 対象と判定の読み方
+
+今回の依頼開始時点では R1 本書、Codex R2、上流の `docs/REVIEW_1.md`・`docs/REVIEW_2.md`、公開前修正が既に存在した。過去のレビューを上書きせず、現在の `main` **`d2cf0e8`** に対する再検証をここに残す。`REVIEW_REQUEST_1.md` の「1411 tests」「Linux 未実行」「プロファイル未実装」は依頼作成当時の状態である。現在の不足の入口は `KNOWN_ISSUES.md` と後続レビューだが、それらの解消申告だけで判定していない。
+
+作業途中に別作業の **`b7a44f1`** が加わった。`git diff d2cf0e8 b7a44f1` は `docs/PUBLICATION_AUDIT.md` だけで、`src`・`gui`・`skills`・`tests`・SPEC の差分がないことを確認した。本追補の再現対象の実装は同じである。
+
+完了直前には別担当の `CODEX_REVIEW_R2.md` 更新も作業ツリーに現れた。当方は同ファイルを編集していない。§9.2 の参照・追試は更新前の `d2cf0e8` にある R2 本文に基づくため、下の抽出コマンドも同コミットに固定した。新しい R2 文書の測定値を今回の値へ混ぜていない。
+
+指定された申し送り 2 冊、旧 DS 制作報告 §6、SPEC、要件メモ、判断・進捗・工程報告、実装・テスト・skills を照合した。非公開の申し送りは設計要求として評価し、協力者の識別子・DM 原文・参照画像を本書へ追加していない。外部サイト、他製品のソース、モデルの重みは参照していない。新規依存・実装変更・コミット・push はない。
+
+**当初の正本破壊 blocking を現在の不具合として再掲しない。一方、失敗時の出力復元と資源予算の残存を理由に、製品完成の承認は留保する。** 本追補で再現を確認した現存項目は **blocking 0 / major 5 / minor 2**。このうち major 4・minor 1 は既存 Codex R2 の追試であり、新規件数に足さない。新規は参照再登録の復旧不能（minor 1）と汎用 exporter の累積予算漏れ（major 1）。これは全レビュー台帳の残件総数ではない。
+
+### 9.2 既存指摘の追試結果（重複登録しない）
+
+当初の blocking の確認には `uv run --no-sync python tools/r1_a1_acceptance.py` も再実行した。CLI 直接名・MCP 直接名・GUI の `{name}` 展開の 3 経路とも `E_PATH_NOT_ALLOWED`、`canonical_and_history_unchanged=true`。locked layer への import は dry-run と本実行の両方で `E_LAYER_LOCKED`、cwd 外 root の GUI export は `validation_ok / verified=true` となった。この範囲は解消を維持する。
+
+以下の C-R2 は [Codex R2](CODEX_REVIEW_R2.md) §3 の番号である。再現コマンドの全文も同書にある。現在の行番号は今回の HEAD で確認したもの。巨大配列は実際には割り当てず、既存の無割当スパイで要求寸法を調べた。
+
+| 既存 ID・重大度 | 現 HEAD の根拠と実測 | 修正の単位・概算 |
+|---|---|---|
+| **C-R2-01 / major** 出力復元 | `formats/plugin_export.py:95` の `staged.replace(path)` が SaveContext を通らない。MCP の成功封筒生成を故障注入すると、PNG は旧 bytes を復元するが、`export_native` は `E_INTERNAL` を返して新 bytes を残す。CLI で連番 PNG の 2 枚目に I/O 故障を入れると終了 4、旧 bytes を保持したのは `[False, True]`。正本上書きの再現ではない | 本体の最終置換を共通保存境界に通す。CLI・GUI・直接 Op も出力群と結果検証まで同じ保存スコープで包む。第三者コードの任意副作用の取消しとは別。**1〜2 人日** |
+| **C-R2-02 / major** mask の取引予算漏れ | `ops/drawing.py:49` の `_work` は mask 付き `set_pixel` も 1 と数え、`:172` 以降で canvas 全体を走査する。1024²・`mask.only_on=[0]` の 17 Op が成功し、最低 **17,825,792 px** の走査が取引上限 **16,777,216** を超える。SPEC §5.11 の mask 面積予約に不適合 | region の各ノード、only_on/not_on、対象タイル群の走査を DrawingBudget に予約する。拒否は割当前・コミット前。境界の直下／直上、空 mask、1000 Op を確認。**1〜2 人日** |
+| **C-R2-03 / major** PixelOE の中間積 | `pipeline/external/pixeloe.py:29–31` が target と pixel_size を個別に検査し、`:50` 付近の interpolate が積を検査しない。1024²・pixel_size=16 は **16384²** の RGBA float tensor を要求することをスパイで再確認。単一 tensor だけで **4,294,967,296 bytes**、追加 scratch は別 | adapter が外部処理に入る前に中間 bytes を整数で検査する。入力／最終出力の 256 MiB 制限を RSS 保証と解釈する修正では足りない。未導入依存をロードする前の検査も可能。**0.5〜1 人日** |
+| **C-R2-04 / major** GUI repeat 全展開 | `gui/src/store/index.ts:15–26` と `Timeline.tsx`。実 TS 関数を抽出・transpile し、2f・pingpong・repeat=65535 で **65,536 要素**を得た。合法な最大 4096f の forward では **268,431,360 要素**になる（後者は算術のみ）。サーバの出力列上限はブラウザ内の同期展開を止めない | 再生カーソルを方向・片道番号・残り回数で管理するか、展開前に上限を検査する。有限停止と末端 duration の共有ベクタは保持する。**1〜2 人日** |
+| **C-R2-05 / minor** tick の部分選択 | `ops/platform_ops.py:152–158` が選択フレームだけで位相を作り直す。motion・6f・ticks=1 の一括は **[41,42,42,41,42,42] = 250 ms**。各コマを分割設定すると **[41,41,41,41,41,41] = 246 ms**。validate の tick_deviations は **0**。SPEC §5.13 のタグ先頭からの累積配分と不一致 | 実行と検証で同じ位相規則を共有する。非選択コマの tick 数の扱いを決め、飛び飛び選択・重複タグ・分割呼出しのベクタを固定する。**1〜2 人日** |
+
+追試は既存文書のコードをそのまま抽出して実行した。PowerShell、root からの再現コマンドは次のとおり（故障注入先は TemporaryDirectory 内の自作 fixture のみ）。
+
+```powershell
+@'
+import re, subprocess
+review = subprocess.check_output([
+    'git', 'show', 'd2cf0e8:docs/review/CODEX_REVIEW_R2.md'
+]).decode('utf-8')
+for item in ('R2-01', 'R2-02', 'R2-03', 'R2-05'):
+    section = review.split('### ' + item + ' ', 1)[1].split('\n### ', 1)[0]
+    code = re.search(r'```python\n(.*?)\n```', section, re.S).group(1)
+    print(item, flush=True)
+    exec(compile(code, item, 'exec'), {})
+'@ | uv run --no-sync python -
+```
+
+GUI の再現は同書 C-R2-04 の `node` コマンドである。試験が通っても、この 5 件が解消したとはしない。
+
+### 9.3 新規 R1-A01 — minor: 欠落・破損した参照を再登録しても復旧しない
+
+**根拠:** `ops/references.py:172–191` の重複判定は manifest に記録された SHA-256 だけを見る。同じ digest があれば `duplicate=true` を返し、保存先の存在・実 bytes の hash を検査しない。保存済みファイルを削除してから元画像を再登録しても `ok=true / duplicate=true`、ファイルは欠落したまま。破損 bytes の場合も修復されない。どちらも validate に **Q-SRC-05** が残ることを再現した。
+
+`.cybersprite/` の掃除による参照消失自体は公開前報告 §3.4 に申告済みである。今回の新規部分は、利用者が原本を持って再添付する通常の復旧手段でも直せないこと。作品ピクセルの破壊や登録先からの脱出は確認していないため minor とする。
+
+**再現コマンド（PowerShell、root）:**
+
+```powershell
+@'
+from pathlib import Path
+from tempfile import TemporaryDirectory
+import numpy as np
+from cybersprite import ops
+from cybersprite.formats.png import encode_png
+
+with TemporaryDirectory() as d:
+    r = Path(d); p = r / 'p'; f = r / 'reference.png'
+    f.write_bytes(encode_png(np.full((2, 2, 4), 255, dtype=np.uint8)))
+    ops.execute('new_project', p, {'width': 2, 'height': 2}, preview='none')
+    a = {'file': str(f), 'rights_note': 'self-authored review fixture'}
+    first = ops.execute('register_reference', p, a)['result']
+    target = p / first['files'][0]
+    target.unlink()
+    second = ops.execute('register_reference', p, a)
+    print(second['ok'], second['result']['duplicate'], target.exists())
+    # True True False
+    target.write_bytes(b'corrupted')
+    third = ops.execute('register_reference', p, a)
+    print(third['ok'], third['result']['duplicate'], target.read_bytes() == f.read_bytes())
+    # True True False
+    print([i['rule'] for i in ops.execute('validate', p)['result']['issues']])
+    # Includes Q-SRC-05
+'@ | uv run --no-sync python -
+```
+
+**期待:** 重複の早期 return 前に `sources.file_matches` 等で実体を照合する。不一致なら、今回受け取った digest 一致の bytes を既存 ID の場所へ保存トランザクションで復元するか、少なくとも具体的な復旧方法つきの失敗を返す。ID や最初の登録者を勝手に更新しない。正常重複の bytes 不変、欠落／破損の修復、dry_run 不変、修復途中の I/O 失敗時の復元を確認する。schema 変更は必須ではない。**0.5〜1 人日**。
+
+### 9.4 新規 R1-A02 — major: 汎用 exporter の比較画像に累積予算がない
+
+**根拠:** `formats/plugin_export.py:70` は `verification_frames` のない exporter に対して、`expected = [render(document, f) for f in range(len(document.frames))]` と全 RGBA を保持する。個々の render の出力検査はあるが、同時保持する全フレームの積を検査しない。`:81` の decoder 有無の確認より前なので、decoder を持たず `verified=false` を返す exporter でも不要な比較画像をすべて作る。writer の任意副作用ではなく、本体の事前処理の問題である。SPEC §5.11 の「同時保持する項目群」の予算に不適合。
+
+**安全な再現:** 下では入力・実 renderer・品質 gate は実物のまま、予算を 16 KiB に縮め、自作の無害な exporter を差し込む。各 4096 bytes は合法だが 5 枚合計 **20480 > 16384** の比較画像を本体が作り、出力が成功する。既定値のままでも 4096²・5f は **335,544,320 > 268,435,456 bytes** になる。別の無割当スパイで既定予算の 4096²・5f が全 5 回の render 呼出しと writer まで到達することも確認した。巨大 RGBA の実割当はしていない。
+
+```powershell
+@'
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from types import SimpleNamespace
+from unittest.mock import patch
+from cybersprite.core import limits
+from cybersprite.core.models import Model
+from cybersprite.core.projects import new_project
+from cybersprite.formats import common, plugin_export
+from cybersprite.formats.export_args import PluginExportArgs
+seen = []; real_render = plugin_export.render
+def record(p, frame):
+    rgba = real_render(p, frame); seen.append(rgba.nbytes); return rgba
+def writer(p, renderer, out, options):
+    out.write_bytes(b'fixture')
+    return dict(files=[], fingerprint='fixture', warnings=[],
+                validation_ok=True, verified=False)
+plugin = SimpleNamespace(name='fixture', extension='.tiny', options_model=Model, write=writer)
+p = new_project(width=32, height=32, frames=5)
+with TemporaryDirectory() as d, common.export_policy(d), \
+     patch.object(limits, 'OUTPUT_BYTES', 16384), \
+     patch.object(plugin_export, 'resolve_exporter', return_value=plugin), \
+     patch.object(plugin_export, 'render', record):
+    result = plugin_export.export_plugin(p, PluginExportArgs(out='result.tiny', format='fixture'))
+    print(seen, sum(seen), limits.OUTPUT_BYTES, (Path(d) / 'result.tiny').exists(),
+          result['validation_ok'])
+    # [4096, 4096, 4096, 4096, 4096] 20480 16384 True True
+'@ | uv run --no-sync python -
+```
+
+**期待:** decoder がない場合は比較画像を作らない。通常の全フレーム比較は、リスト生成前に `output_bytes(width, height, count)` 相当で累積量を検査するか、decoder との逐次比較を契約化する。`verification_frames` の独自経路も、組込 native と共通の予算責任を明記する。decoder 有／無・予算直下／直上を検査し、拒否時に writer が未実行であることを確認する。Python plugin 全体の sandbox を求める指摘ではない。**0.5〜1.5 人日**。
+
+### 9.5 正確性・契約・セキュリティの評価
+
+- **整数と決定性:** `raster`、合成、固定小数点 Oklab は整数の規範処理を保持している。ランダムな試験は固定 seed で、描画本体の乱数ではない。時刻は来歴・履歴の記録経路に分離されている。外部 PixelOE の浮動小数は明示された adapter 境界であり、内蔵ラスタ処理への混入として数えない。
+- **テストの有効な点:** `tests/unit/test_raster.py` の手計算・固定 seed 性質テスト、`tests/vectors/raster/` の Python/TS 共通ベクタ、`test_render.py` の palette 閉包と低 index の同距離 tie-break、`test_m7_tiles.py` の非対称形 8 反転・非正方形 d 規則、roundtrip のリンク／タイル／metadata を確認した。ゴールデンを変更して成功させる操作はしていない。
+- **境界の不足:** 正常な PNG の verified だけでは native 最終保存の応答失敗を覆えず、小さい repeat の共有ベクタでは巨大な再生列を覆えず、mask 1 回の単発上限では取引全体を覆えない。C-R2-01〜04 はこれらの層間の欠落である。
+- **契約:** schema drift 検査は成功した。これは CLI/MCP/保存モデルが共通定義へ追従する証拠だが、全組合せの意味的一致の証明ではない。C-R2-05 が実例。旧 R1 で提案した schema 2 は現 SPEC §5.13.1 の D-41 により不要となっており、現在は省略可 `platform` を schema 1 に追加する契約に従って評価した。
+- **GUI 認証・パス:** loopback、Host/Origin 一致、token の compare_digest、WebSocket の両必須条件、HTTP cookie、typed path の resolve を確認した。実サーバ試験には token 不正／欠落・異 origin・許可外出力・cwd 外 root のケースがある。認証回避は今回見つけていない。token 認証を、認証済み要求のメモリ上限と同一視しない。
+- **プラグイン:** API 版・許可した提供者・失敗時登録復元の共通境界が入っている。importers 実行は現 SPEC に v1.x と明記され、当初の「7 群すべて v1」の主張は残していない。Python plugin は信頼済み外部コードであり、sandbox 完成とは判定しない。native/plugin 最終置換の問題は C-R2-01 に集約する。
+
+### 9.6 必須申し送りの現在の実装可能性と残費用
+
+**汎用粒度／機種プロファイルの芯は実装済みで、初期案を一から作る段階ではない。** `core/models.py:Project.platform`、`core/platform.py` の型、`platforms/__init__.py` のデータ定義・継承解決、`ops/platform_ops.py` のレジストリ Op、`quality_platform.py` の Q-PLT、`core/craft.py` の情報指標、CLI/MCP/GUI が接続されている。
+
+| 要求 | 現状・必要な具体作業 | 残費用の目安 |
+|---|---|---:|
+| 任意粒度と画面／単体アセットの分離 | `system.screen` と `asset.canvas`、defaults、validation、workflow を分離。`new_project` / `set_platform` / `list_platforms` / `conform_palette` / `set_frame_ticks` が既存 Op。解決済み snapshot と master_colors を正本に保存し、既存作品を外部定義変更で変えない | 芯の再実装 **0**。追加の単純なデータプリセットは **0.5〜1 人日／件**、数値の一次資料確認は別 |
+| 機種の物理制約と binary 出力 | RGB bits／master、alpha、palette 行・slot0、tile/object/block 単位、tile flip・数・map 寸法の検査がある。gb-2bpp stream は実装済み。VRAM／bank／map／scanline の自動割付と追加形式は未完成 | 最初の追加 1 モードは **5〜10 人日**。後述の明示 layout モデル、独立 decoder・ベクタを含み、全機種分ではない |
+| リンク位置の罠（DS §6-1） | `set_cel` の既定 `linked=error`、all/unlink、必須 scope の `move_cel` で黙った全員移動を防ぐ。画像だけ共有して位置を独立させる offset links は未実装 | 安全策 **0**。共有画像／位置インスタンス分離は schema・正準化・履歴・形式・GUI 横断 **8〜15 人日** |
+| 相対移動と原点（§6-2） | move_cel dx/dy、get_info の cels がある | **0** |
+| 陰影 clip／図形選択（§6-3） | mask.only_on/not_on と ellipse/polygon・複合 region がある。取り込み後の近似色を増やす経路ではなく palette index で選ぶ | 機能追加 **0**。予算の直しは C-R2-02 の **1〜2 人日** |
+| outline（§6-4） | selective／exclude_colors で外周の条件付き冪等性を扱う。inside の一般冪等性は未完成と記録されている | 現契約を実装漏れとして数えない。inside の意味と種集合を拡張するなら **1〜3 人日** |
+| strip／crop／色名（§6-5、7、11） | strip/grid/review、rect crop、`@name` / `@ramp:k` が実装されている | **0** |
+| 24fps とタグ規約 | 有理数 tick と motion の任意タグガイドがある。256px が sheet 寸法か frame 寸法かは申し送りだけでは確定しない。固定 canvas 値へ断定していない | 部分設定の修正 C-R2-05 **1〜2 人日**。寸法解釈の決定は発注者事項 |
+| 実資料の統計と顔の比率 | 人が渡した参照を登録できる。craft は計測と情報であり、顔の可読性・人間の採用を機械判定しない。専用 analyze は延期 | 画像／既知 tile dump から色数・成分・占有率を抽出する初版 **2〜4 人日**。顔の自動意味認識・ROM 解析は含まない |
+
+**次のスキーマ変更をするなら:** pixel index 正本を保ったまま、明示的な hardware layout に tile/object→bank、slot→global index、map 属性、VRAM 割当を持たせる。`set_hardware_layout` のような mutate Op と `get_info` 表示を追加し、構造参照・slot 閉包・重複配置の検証、資源上限の Q ルール、native export の解除不可な表現可能性検査を分ける。互換性を壊す追加は §5.12 の schema 移行、正準キー順、undo snapshot、`.aseprite` metadata 保持、CLI/MCP の生成スキーマまで一緒に更新する。encoder だけを足して「機種対応済み」としない。
+
+費用は工学実装＋回帰確認の概算であり、独立した行の共通部分を重複加算しない。機種の数値・モードは今回外部一次資料で再監査していないため、表の期間にハード仕様の確定作業は含めない。
+
+**制作分担と知見:** skills/README と turnaround-parts は「通常三面図 → ピクセル風三面図の生成を Codex imagegen、解釈・打点・見た目の判断を Opus」とし、3 関門、人間判定 pending、改善前後の並置と疑う箇所 3 点を定めている。これは必須申し送りへの実装回答として成立する。ただし `turnaround-parts.md` には `add_source` 等を「まだ無ければ」とする実装前の説明が残り、新 Op を動く例で工程へ組み込む改訂は必要（上流 R2-08）。機能があることだけで、初見の制作担当が使いこなせるとは判定しない。48px は未較正の工程目安で、普遍的な成功境界とはしない。極小の顔の可読性、大きい題材の部品分割、色の役割、背景抜きの混色は工程・計測対象として扱い、ゲーム名や既存絵の画素を品質の固定雛形にしない。
+
+申し送り後半の「既定の制作担当は Opus、imagegen は例外」という再配分と今回の独立 Codex レビューは矛盾しない。今回、制作やビジュアル採点・他エージェントへの委任は行っていない。GPU／ComfyUI／外部方式については既存報告と接続境界を照合し、今回実 GPU・実 ComfyUI を動かしたとは主張しない。PixelOE の資源修正を除き、新しい生成方式を無断で追加する提案にはしていない。
+
+### 9.7 他レビューとの照合
+
+指定された `docs/review/FABLE_REVIEW_R1.md` は現 HEAD に存在しない。実際の上流レビューは `docs/REVIEW_1.md` と `docs/REVIEW_2.md` にある。後者は既存 Codex R2 の 5 件を採用済みなので、同じ問題に新番号を振って独立発見の件数を増やさない。
+
+- 本追補 C-R2-01 は上流 **R2-06**。公開前報告の「**R2-01 解消**」は CLI render/preview 等の予約領域保護を指し、**C-R2-01 の出力復元の解消ではない**。混同すると、今回再現した残件を閉じてしまう。
+- C-R2-02/03/04/05 はそれぞれ上流 **R2-05/07/20/19** と同根。同じ root cause として管理する。
+- **重大度の相違:** GUI repeat は上流 R2-20 が「通常の制作で踏む値ではない」として minor、Codex は major。本追補は、受理した保存データから同期処理でブラウザ停止規模の要求を作れ、サーバ予算も効かない点を重視して major を維持する。停止そのものの実験をしたという意味ではない。
+- 上流は importers を「延期を仕様へ明記したので R1 解消」、Codex R2 は「当初の全群完成ではないので部分解消」と評価した。完成範囲の評価軸の差であり、現状のコードや延期の有無で争っているわけではない。
+- 上流の制作物の見た目の講評は本追補では独立採点していない。利用者の採用待ちを維持する。特定の目の比率や形の禁止を、工学上のハードエラーとして追加しない。
+
+### 9.8 今回の検査記録と性能の扱い
+
+Windows の既存環境を `uv run --no-sync` で使い、依存を同期・追加していない。以下は今回の実行結果であり、§1〜8 や Codex R2 の成功件数の転記ではない。
+
+| 検査 | 今回の結果 |
+|---|---|
+| `uv run --no-sync pytest -q --tb=short` | **2143 passed / 12 skipped、1134.18 秒（18分54秒）**、終了 0 |
+| `cd gui; npm test -- --run` | **710 passed**、contrast **102/102**。余分な `--run` に npm の非推奨警告が出たが終了 0 |
+| `cd gui; npm run build` | icons・TypeScript・Vite 成功 |
+| build 後の `cd gui; npm run test:e2e` | **6 passed、1.5 分**。新しい手動参照添付も実ブラウザで成功 |
+| `uv run --no-sync python tools/gen_schemas.py --check` | 成功 |
+| `uv run --no-sync python tools/check_repository.py` | 成功 |
+| `uv run --no-sync python tools/r1_a1_acceptance.py` | 成功。正本保護 3 経路・locked import の両モード・cwd 外 GUI root を確認 |
+| §9.2 の既存 5 件・§9.3〜4 の新規 2 件 | 上記の実測どおり再現 |
+
+ブラウザ試験中、ページ切替時の WebSocket 送信に `WebSocketDisconnected` の ASGI ログも出た。6 件の試験は成功し、今回のログだけでデータ破壊や認証回避とは判定しない。この切断ログは既存 Codex R2 にも観測記録がある。Linux、Python 3.13、実 GPU、実 ComfyUI、外部 pixelizer の別導入環境、配布 wheel とライセンス原文全件は今回再実行していない。4 環境の CI 成功は既存報告の証拠と、今回の Windows での検査を区別する。
+
+12 skip は Windows の symlink 権限 5 件、未導入外部 pixelizer 6 件、明示 opt-in の GPU 1 件。新規の再現コードは既存テストへ追加しておらず、全体テスト成功と新規の境界不具合の再現が両立する。修正作業では再現を回帰テストへ移す必要がある。
+
+**性能の実測条件:** 各 3 回、既存の測定器を使用した。全体 pytest・GUI 検査・ほかの測定が並行し、B2 の呼出し直前の空き物理メモリは **約 180〜816 MiB** まで変動した。OS・他アプリ・CPU 周波数を固定していない。以下を「静かな再計測」「修正による回帰／改善率」「全環境の上限」として使わない。現条件で DS の編集が秒単位になる事実と、公表値が得られた条件を区別する。
+
+再現コマンド（root、出力 JSON は OS の一時領域）:
+
+```powershell
+uv run --no-sync python -m tools.benchmark_r1_b2 --case small_32_3_4 --case ds_96_8_45 --case validate_256_1_32 --out "$env:TEMP/cybersprite-review-r1-b2.json"
+uv run --no-sync python -m tools.benchmark_r1_large --out "$env:TEMP/cybersprite-review-r1-large.json"
+uv run --no-sync python tools/benchmark_pipeline.py
+```
+
+B2 はフレームごとに内容が異なる独立セルを使い、編集は毎回 `no_op=false` を assert する。cold 検証はメモリ上のモデルに対する全品質検査（フレーム解析 LRU を毎回空にする）で、読込時間は含まない。編集は正本読込・履歴・保存を含み preview=none。CLI は実行ファイルの起動〜info終了で uv の同期は含まない。**単位 ms、括弧内が中央値。**
+
+| fixture | 1px 編集の 3 回 | cold 検証の 3 回 | CLI info の 3 回 |
+|---|---|---|---|
+| 32²・3層・4f | 166.180 / 289.032 / 381.424（289.032） | 78.003 / 20.975 / 12.924（20.975） | 7016.266 / 5808.337 / 5126.698（5808.337） |
+| 96²・8層・45f | 5044.100 / 4092.543 / 3758.663（4092.543） | 3976.060 / 3534.530 / 3600.364（3600.364） | 3240.245 / 5132.413 / 3522.065（3522.065） |
+| 256²・1層・32f | 3006.087 / 2453.080 / 2012.685（2453.080） | 3731.898 / 3708.486 / 3983.445（3731.898） | 3992.350 / 3951.463 / 2753.717（3951.463） |
+
+解析再利用の検証中央値は順に **3.512 / 753.811 / 272.555 ms**。cold と取り違えない。`docs/PERFORMANCE.md` 冒頭の別条件での 96² 編集 1379.0 ms・256² cold 検証 1174.9 ms を、今回の値で誤計測と断定する根拠はない。一方、その静かな条件の目標達成を、メモリ圧迫時や任意の制作へ一般化することもできない。
+
+**4096² とメモリ:** 大画像用測定器は新しい子プロセスで render→validate し、全 6 試行で validate `ok=true`。1024² は密、4096² は **1×1 セル 1 個の疎画像**、いずれも 1 層 1f。
+
+| fixture | render ms・3 回（中央値） | validate ms・3 回（中央値） | peak working set bytes・3 回 |
+|---|---|---|---|
+| 1024²・密 | 930.914 / 785.860 / 754.762（785.860） | 1846.595 / 1084.498 / 1138.277（1138.277） | 218890240 / 221278208 / 221446144 |
+| 4096²・疎 | 82.642 / 47.415 / 45.301（47.415） | 1425.223 / 1526.217 / 1444.676（1444.676） | 277872640 / 345309184 / 282169344 |
+
+出力予算 256 MiB は RSS 上限ではなく、今回もピークはそれを超える。密な 4096²、多層・多フレーム・完全な点集合出力や craft を重ねた最悪負荷まで実測した結果ではない。preview 64 倍や PixelOE の 4 GiB 要求の実割当は行っていない。
+
+**パイプライン:** `benchmark_pipeline.py` の自作 hero をタイル状に繰返し、16 倍に拡大した 1024²→64²、upscaled・段階 PNG 保存までを計測。**1632 / 2084 / 2241 ms**、全 3 回 `accepted / verified=true`、5 秒目標内。同じ工程の再現であり、写真・実生成三面図・外部方式の一般精度や速度ではない。較正版 5 の (e)10/12 拒否、(f)3/34 拒否、(d)8/13 合格と 95% 未達は [CALIBRATION](../../tests/pipeline/CALIBRATION.md) に明記されており、この速度測定で精度の残件を閉じない。
+
+**履歴肥大:** `tools.bench_persistence` の元の H も再実行したが、各件数で色を 2/1/2 と固定するため、前の件数の最後の色が 2 なら次の先頭が no_op になりうる。性能改善の主表には使わず、§7 H を下のように、全試行で実変更を assert する形で再実行した。測定器自体は変更していない。
+
+| 初期合成 journal 行数 | 初期 bytes | 実変更 3 回 ms | 中央値 ms | no_op |
+|---:|---:|---|---:|---|
+| 10 | 4391 | 90.2101 / 130.2625 / 84.1471 | 90.2101 | 全て false |
+| 1000 | 440893 | 118.4967 / 91.6764 / 82.1526 | 91.6764 | 全て false |
+| 10000 | 4418894 | 156.0078 / 132.7863 / 176.2924 | 156.0078 | 全て false |
+
+これは実コミット 1 行を複製した合成負荷であり、1 万回の正当な編集・undo を積んだ耐久試験ではない。追記 journal・索引・区画化の実装と整合する結果だが、roll や索引欠損の再構築の最悪時間は未確定。大量 Op の点数／取引上限はあるものの、C-R2-02 が示すとおり走査仕事量の網羅は未完成である。
+
+```powershell
+@'
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from statistics import median
+from time import perf_counter_ns
+from cybersprite import ops
+from cybersprite.core import history
+with TemporaryDirectory() as d:
+    p = Path(d) / 'p'
+    ops.execute('new_project', p, {'width': 16, 'height': 16}, preview='none')
+    a = {'layer': 'L1', 'frame': 0, 'x': 1, 'y': 1, 'color': 1}
+    ops.execute('set_pixel', p, a, preview='none')
+    sample = history.read_journal(p)[-1]; previous = 1
+    for count in (10, 1000, 10000):
+        data = history.journal_bytes([dict(sample, revision=i+1) for i in range(count)])
+        (history.paths(p) / 'journal.jsonl').write_bytes(data)
+        values = []
+        for i in range(3):
+            previous = 3 - previous
+            start = perf_counter_ns()
+            v = ops.execute('set_pixel', p, {**a, 'color': previous}, preview='none')
+            values.append(round((perf_counter_ns() - start) / 1000000, 4))
+            assert v['ok'] and not v['no_op']
+        print(count, len(data), values, median(values), flush=True)
+'@ | uv run --no-sync python -
+```
+
+初回 `python tools/bench_persistence.py` は `ModuleNotFoundError: tools` で終了したため、パッケージ入口の `python -m tools.bench_persistence` に直して実行した。この起動ミスを製品の性能値に含めていない。
