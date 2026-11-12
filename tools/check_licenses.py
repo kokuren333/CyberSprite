@@ -27,7 +27,6 @@ ALLOWED = {
     # Explicitly permissive variants (decision I-012): MIT without attribution, the HPND
     # variant named in SPEC §2.1, and zero-clause BSD.
     "MIT-0",
-    "MIT-CMU",
     "0BSD",
 }
 # (normalized distribution name, exact version): (SPDX, reason). No silent unknown exemptions.

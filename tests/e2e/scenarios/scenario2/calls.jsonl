@@ -1,0 +1,8 @@
+{"name":"import_image","arguments":{"project":"converted.csprite","files":["input.png"],"preset":"photo","pipeline":{"grid":{"target_w":24,"target_h":24},"cleanup":{"min_cluster":1},"gates":{"fidelity":[0,0]}},"provenance":{"license":"unknown"},"preview":"none"},"expect":{"accepted":false,"placed":null}}
+{"name":"list_sources","arguments":{"project":"converted.csprite"}}
+{"name":"get_source","arguments":{"project":"converted.csprite","id":"SRC1","include_report":true},"expect":{"id":"SRC1"}}
+{"name":"import_image","arguments":{"project":"converted.csprite","source":"SRC1","preset":"photo","pipeline":{"grid":{"target_w":24,"target_h":24},"cleanup":{"min_cluster":1},"gates":{"fidelity":null}},"preview":"none"},"expect":{"accepted":true}}
+{"name":"apply_ops","arguments":{"project":"converted.csprite","preview":"none","label":"Clean and touch up corpus conversion","ops":[{"op":"cleanup_pixels","args":{"layer":"L2","frames":"all"}},{"op":"set_pixel","args":{"layer":"L2","frame":0,"x":0,"y":0,"color":1}}]}}
+{"name":"validate","arguments":{"project":"converted.csprite"}}
+{"name":"render_preview","arguments":{"project":"converted.csprite","frames":0,"inline":true}}
+{"name":"export_image","arguments":{"project":"converted.csprite","out":"converted.png","compression":"stored"}}

@@ -1,6 +1,6 @@
 """Strict Op arguments. Common transport options are validated separately."""
 
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field, create_model
 
@@ -15,6 +15,8 @@ from cybersprite.core.models import (
     SliceKey,
     UserData,
 )
+
+from .descriptions import argument_model
 
 Color = int | str
 Frames = int | list[int] | str
@@ -62,10 +64,16 @@ class Brush(Model):
 
 
 class TxOptions(Model):
-    expect_revision: Annotated[int, Field(ge=0)] | None = None
-    idempotency_key: Annotated[str, Field(min_length=1, max_length=64)] | None = None
-    dry_run: bool = False
-    preview: Literal["none", "path", "inline"] = "path"
+    expect_revision: Annotated[int, Field(ge=0)] | None = Field(
+        None, description="Reject if the current revision differs."
+    )
+    idempotency_key: Annotated[str, Field(min_length=1, max_length=64)] | None = Field(
+        None, description="Replay a prior result for this transaction key."
+    )
+    dry_run: bool = Field(False, description="Validate without committing project changes.")
+    preview: Literal["none", "path", "inline"] = Field(
+        "path", description="Return no preview, PNG paths, or inline PNG images."
+    )
 
 
 class OpCall(Model):
@@ -105,15 +113,18 @@ XY = {"x": (int, ...), "y": (int, ...)}
 WH = {"w": (Positive, ...), "h": (Positive, ...)}
 
 
-def contract(name, fields, *, draw=False):
-    return create_model(name, __base__=Model, **(COMMON_DRAW if draw else {}), **fields)
+def contract(name: str, fields: dict[str, Any], *, draw=False):
+    values: dict[str, Any] = {**(COMMON_DRAW if draw else {}), **fields}
+    return create_model(name, __base__=Model, **values)
 
 
 ARGS = {}
 
 
 def define(name, fields, draw=False):
-    ARGS[name] = contract("".join(s.title() for s in name.split("_")) + "Args", fields, draw=draw)
+    ARGS[name] = argument_model(
+        name, contract("".join(s.title() for s in name.split("_")) + "Args", fields, draw=draw)
+    )
 
 
 define("set_pixel", {**XY, "color": COLOR}, True)

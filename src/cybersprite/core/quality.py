@@ -3,6 +3,7 @@
 from collections import Counter, deque
 from hashlib import sha256
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
@@ -116,8 +117,8 @@ def report(p, *, root=None, selected_frames=None, rules=None, source_manifest=No
         }
     nodes = list(walk_layers(p.layers))
     cels = [c for node, _ in nodes if not isinstance(node, GroupLayer) for c in node.cels]
-    usage = Counter()
-    tile_usage = {ts.id: Counter() for ts in p.tilesets}
+    usage: Counter[int] = Counter()
+    tile_usage: dict[str, Counter[int]] = {ts.id: Counter() for ts in p.tilesets}
     for node, _ in nodes:
         if node.blend_mode != "normal":
             add("Q-LYR-02", "Non-normal blend mode is rendered as normal in v1.", layer=node.id)
@@ -218,6 +219,7 @@ def report(p, *, root=None, selected_frames=None, rules=None, source_manifest=No
             add("Q-PAL-05", "Frame exceeds the configured color count.", fs=[f])
         # Cluster metrics require an indexed frame; nearest is the explicit diagnostic fallback.
         transparent = p.palette.transparent_index
+        assert indexed.palette is not None
         if rgba(indexed.palette[transparent])[3] != 0:
             transparent = -1
         components = clusters(image, transparent)
@@ -225,17 +227,38 @@ def report(p, *, root=None, selected_frames=None, rules=None, source_manifest=No
         small = [part for part in components if len(part) < settings.min_cluster]
         orphans.append(len(orphan_points))
         small_total += len(small)
+
+        def pixel_layer(points, frame=f):
+            # Composite clusters can span several layers or blended contributions.
+            # Attribute only when all reported pixels have one unambiguous contributor.
+            contributors = []
+            for node, _ in nodes:
+                if isinstance(node, GroupLayer):
+                    continue
+                pixels = render(p, frame, {"layers": [node.id]})
+                if any(pixels[y, x, 3] for x, y in points):
+                    contributors.append(node.id)
+            return contributors[0] if len(contributors) == 1 else None
+
         if (
             settings.orphan_pixels_max is not None
             and len(orphan_points) > settings.orphan_pixels_max
         ):
-            add("Q-PIX-01", "Frame exceeds the orphan pixel budget.", fs=[f], points=orphan_points)
+            add(
+                "Q-PIX-01",
+                "Frame exceeds the orphan pixel budget.",
+                fs=[f],
+                layer=pixel_layer(orphan_points),
+                points=orphan_points,
+            )
         if small:
+            small_points = [pt for part in small for pt in part]
             add(
                 "Q-PIX-02",
                 "Frame has clusters below min_cluster.",
                 fs=[f],
-                points=[pt for part in small for pt in part],
+                layer=pixel_layer(small_points),
+                points=small_points,
             )
         opaque = rgba_image[:, :, 3] != 0
         opaque_counts.append(int(np.count_nonzero(opaque)))
@@ -280,7 +303,7 @@ def report(p, *, root=None, selected_frames=None, rules=None, source_manifest=No
         ]
         if bad:
             add("Q-SLC-01", f"Slice {slc.id} extends beyond the canvas.", fs=bad)
-    sources = {"total": 0, "accepted": 0, "overridden": 0, "grid_scores": {}}
+    sources: dict[str, Any] = {"total": 0, "accepted": 0, "overridden": 0, "grid_scores": {}}
     if root is not None:
         path = Path(root) / "source/manifest.json"
         if path.is_file():
@@ -396,7 +419,7 @@ def identity(issue):
 def validation_delta(before, after):
     old = {identity(i) for i in before["issues"]}
     new = {identity(i) for i in after["issues"]}
-    changes = {}
+    changes: dict[str, Any] = {}
 
     def compare(a, b, prefix=""):
         for key in sorted(set(a) & set(b)):

@@ -1550,7 +1550,7 @@ csp         [全体オプション] <コマンド> [引数…]      （短縮別
 
 #### 9.4.1 `op` と `apply`
 
-- `op` の共通オプション: `--dry-run`、`--expect-revision <n>`、`--idempotency-key <キー>`、`--preview none|path`（既定 `path`）。
+- `op` の共通オプション: `--label <履歴ラベル>`、`--dry-run`、`--expect-revision <n>`、`--idempotency-key <キー>`、`--preview none|path`（既定 `path`）。
 - 引数の渡し方は 3 通りで、併用した場合は後のものが優先する: `--args-file`、`--args`、`キー=値`。`キー=値` の値は、JSON として解釈できれば JSON、できなければ文字列として扱う。
 
 ```

@@ -1,6 +1,5 @@
 """Source ingestion, conversion and registered transactional placement."""
 
-import os
 from copy import deepcopy
 from hashlib import sha256
 from pathlib import Path
@@ -28,7 +27,7 @@ from cybersprite.core.pixels import pixels_to_rows
 from cybersprite.core.projects import new_project
 from cybersprite.core.transactions import transact
 from cybersprite.pipeline._common import PipelineError
-from cybersprite.pipeline.decode import decode_raster
+from cybersprite.pipeline.decode import decode_raster, split_sheet
 from cybersprite.pipeline.runner import color_strings, run_pipeline
 
 from .common import fail, image_layer, write_points
@@ -39,45 +38,116 @@ Positive = Annotated[int, Field(ge=1)]
 
 
 class Provenance(Model):
-    license: Annotated[str, Field(min_length=1)]
-    kind: Literal["imported", "generated"] = "imported"
-    provider: str = "file"
-    prompt: str = ""
-    negative_prompt: str = ""
-    model: SourceModel | None = None
-    url: str = ""
-    rights_note: str = ""
-    seed: int | None = None
-    params: dict = Field(default_factory=dict)
+    license: Annotated[str, Field(min_length=1)] = Field(
+        description="Usage license identifier; use unknown when usage terms are unknown."
+    )
+    kind: Literal["imported", "generated"] = Field(
+        "imported", description="Source origin: imported or generated."
+    )
+    provider: str = Field("file", description="Input provider name, for example file.")
+    prompt: str = Field(
+        "", description="Original generation prompt; empty for non-generated input."
+    )
+    negative_prompt: str = Field("", description="Original negative generation prompt, if any.")
+    model: SourceModel | None = Field(
+        None, description="Generator model identifier and version, if any."
+    )
+    url: str = Field("", description="Source attribution URL, if available.")
+    rights_note: str = Field("", description="Additional usage-rights or attribution notes.")
+    seed: int | None = Field(None, description="Original generation seed, if known.")
+    params: dict = Field(
+        default_factory=dict, description="Original generation parameters retained as provenance."
+    )
 
 
 class Target(Model):
-    mode: Literal["new_layer", "layer"] = "new_layer"
-    layer: str | None = None
-    name: Annotated[str, Field(min_length=1, max_length=255)] | None = None
-    frame: Nonnegative = 0
-    x: int = 0
-    y: int = 0
-    add_frames: bool = True
+    mode: Literal["new_layer", "layer"] = Field(
+        "new_layer",
+        description="Place in a new image layer or an explicitly referenced existing layer.",
+    )
+    layer: str | None = Field(None, description="Target layer ID, unique name, or group path.")
+    name: Annotated[str, Field(min_length=1, max_length=255)] | None = Field(
+        None, description="Human-readable resource name, at most 255 characters."
+    )
+    frame: Nonnegative = Field(0, description="Zero-based placement starting frame.")
+    x: int = Field(0, description="Horizontal pixel coordinate from the canvas left edge.")
+    y: int = Field(0, description="Vertical pixel coordinate from the canvas top edge.")
+    add_frames: bool = Field(
+        True, description="Extend the timeline when imported frames exceed its current length."
+    )
 
 
 class Sheet(Model):
-    cell_w: Positive
-    cell_h: Positive
-    offset_x: Nonnegative = 0
-    offset_y: Nonnegative = 0
-    spacing: Nonnegative = 0
+    cell_w: Positive = Field(description="Sheet cell width in integer pixels.")
+    cell_h: Positive = Field(description="Sheet cell height in integer pixels.")
+    offset_x: Nonnegative = Field(0, description="Horizontal sheet margin before the first cell.")
+    offset_y: Nonnegative = Field(0, description="Vertical sheet margin before the first cell.")
+    spacing: Nonnegative = Field(0, description="Integer gap between neighboring sheet items.")
 
 
 class ImportArgs(Model):
-    files: str | Annotated[list[str], Field(min_length=1, max_length=4096)] | None = None
-    sheet: Sheet | None = None
-    preset: Literal["ai", "exact", "upscaled", "photo"] = "ai"
-    pipeline: dict = Field(default_factory=dict)
-    target: Target = Field(default_factory=Target)
-    provenance: Provenance | None = None
-    on_gate_fail: Literal["reject", "accept"] = "reject"
-    source: str | None = None
+    files: str | Annotated[list[str], Field(min_length=1, max_length=4096)] | None = Field(
+        None,
+        description="One input raster path or a list of paths; mutually exclusive with source.",
+    )
+    sheet: Sheet | None = Field(
+        None,
+        description=(
+            "Split one static input into complete cells using integer sizes, offsets, and spacing."
+        ),
+    )
+    preset: Literal["ai", "exact", "upscaled", "photo"] = Field(
+        "ai", description="Pipeline preset: ai, exact (lossless), upscaled, or photo."
+    )
+    pipeline: dict = Field(
+        default_factory=dict,
+        json_schema_extra={
+            "properties": {
+                "palette": {
+                    "properties": {
+                        "source": {
+                            "anyOf": [
+                                {"type": "string", "x-cybersprite-path": "palette"},
+                                {"type": "array"},
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        description=(
+            "Pipeline section overrides: grid, downsample, background, palette, "
+            "cleanup, dither, outline, gates."
+        ),
+    )
+    target: Target = Field(
+        default_factory=lambda: Target.model_validate({}),
+        description=(
+            "Placement layer, zero-based starting frame, integer position, and "
+            "frame-extension policy."
+        ),
+    )
+    provenance: Provenance | None = Field(
+        None,
+        description=(
+            "Input origin and usage terms; license is required for new files (use "
+            "unknown when unknown)."
+        ),
+    )
+    on_gate_fail: Literal["reject", "accept"] = Field(
+        "reject",
+        description=(
+            "Reject failed gates or explicitly accept and record overridden gates; "
+            "capacity/freeze limits remain enforced."
+        ),
+    )
+    source: str | None = Field(
+        None,
+        description=(
+            "Existing source ID to reconvert with its original provenance; mutually "
+            "exclusive with files."
+        ),
+    )
 
 
 class ImportResult(Model):
@@ -98,8 +168,10 @@ class ListSourcesResult(Model):
 
 
 class GetSourceArgs(Model):
-    id: str
-    include_report: bool = False
+    id: str = Field(description="Stored source ID, such as SRC1.")
+    include_report: bool = Field(
+        False, description="Include the saved pipeline report in the source response."
+    )
 
 
 class GetSourceResult(Source):
@@ -153,20 +225,10 @@ def decode_files(paths, sheet=None):
     if not frames or any(f.shape != frames[0].shape for f in frames):
         raise invalid("All imported frames must have the same width and height.")
     if sheet:
-        if len(frames) != 1:
-            raise invalid("sheet requires exactly one static input image.")
-        image = frames[0]
-        frames = [
-            image[y : y + sheet.cell_h, x : x + sheet.cell_w].copy()
-            for y in range(
-                sheet.offset_y, image.shape[0] - sheet.cell_h + 1, sheet.cell_h + sheet.spacing
-            )
-            for x in range(
-                sheet.offset_x, image.shape[1] - sheet.cell_w + 1, sheet.cell_w + sheet.spacing
-            )
-        ]
-        if not frames:
-            raise invalid("No complete sheet cells fit the image; reduce cell size or offsets.")
+        try:
+            frames = split_sheet(frames, sheet.model_dump())
+        except PipelineError as error:
+            raise CyberSpriteError(error.code, error.message, error.hint, error.details) from error
         durations = [100] * len(frames)
     if len(frames) > 4096:
         fail("E_LIMIT_EXCEEDED", "Imported animation exceeds 4096 frames.", limit=4096)
@@ -249,7 +311,6 @@ def import_top(registry, path, args, tx, actor):
 
 def _import_top(registry, path, args, tx, actor):
     root = project_path(path).parent
-    actor = os.environ.get("CYBERSPRITE_ACTOR", actor)
     if tx.dry_run:
         raise invalid("import_image records originals and reports; dry_run is not supported.")
     with history.ProjectLock(root, actor) as lock:

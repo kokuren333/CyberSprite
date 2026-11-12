@@ -5,7 +5,7 @@ from contextlib import nullcontext
 from copy import deepcopy
 from functools import partial
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import Field, ValidationError, create_model
 
@@ -19,6 +19,7 @@ from cybersprite.core.transactions import synchronize, transact
 from .args import ARGS, TxOptions
 from .canvas import canvas_op
 from .common import fail
+from .descriptions import OPERATIONS
 from .drawing import drawing
 from .frames import frame_op
 from .ingest import (
@@ -140,7 +141,7 @@ def _result(name):
             positions=(list[dict], ...),
             positions_truncated=(bool, ...),
         )
-    fields = {
+    fields: dict[str, Any] = {
         "add_frame": {"frames": (list[int], ...)},
         "delete_frames": {"deleted": (list[int], ...), "removed_tags": (list[str], ...)},
         "move_frames": {"mapping": (dict[str, int], ...)},
@@ -199,13 +200,13 @@ def _result(name):
             "scale": (int, ...),
             "width": (int, ...),
             "height": (int, ...),
-            "images": (list[str], Field(default_factory=list)),
+            "images": (list[str], Field(default_factory=lambda: [])),
         },
         "diff_preview": {
             "frames": (list[dict], ...),
             "paths": (list[str], ...),
             "omitted_frames": (list[int], ...),
-            "images": (list[str], Field(default_factory=list)),
+            "images": (list[str], Field(default_factory=lambda: [])),
         },
     }
     if name in DRAWING:
@@ -247,8 +248,8 @@ def registry():
                 None,
             )
             apply = partial(function, name=name) if function else _special
-            kind = "query" if name in QUERY else "mutate"
-            idem = (
+            kind: Literal["query", "mutate"] = "query" if name in QUERY else "mutate"
+            idem: Literal["R", "N", "C", "I"] = (
                 "R"
                 if name in QUERY
                 else "N"
@@ -257,10 +258,9 @@ def registry():
                 if name in CONDITIONAL
                 else "I"
             )
-            description = (
-                f"{name.replace('_', ' ').capitalize()}. Integer pixel coordinates start at the "
-                "canvas top left; frame indices start at zero. Invalid references, locked "
-                "targets, or invalid arguments fail with a specific error code."
+            description = OPERATIONS[name] + (
+                " Coordinates are integer pixels from the canvas top left; frames start at zero. "
+                "invalid references, locked targets, or invalid arguments fail explicitly."
             )
             _registry.register(
                 Op(
@@ -306,7 +306,7 @@ def registry():
     return _registry
 
 
-def execute(name, project, args=None, *, actor=None, **options):
+def execute(name, project, args=None, *, actor=None, label=None, **options):
     """CLI, MCP and GUI share this entry; exceptions retain structured codes and op_index."""
     actor = os.environ.get("CYBERSPRITE_ACTOR", "cli") if actor is None else actor
     definition = registry().get(name)
@@ -323,13 +323,13 @@ def execute(name, project, args=None, *, actor=None, **options):
         ) from error
     parsed = definition.parse(args)
     root = project_path(project).parent
-    if name == "import_aseprite":
+    if name == "import_aseprite" and definition.kind == "ingest":
         if options:
             raise invalid("Transaction options are accepted only by mutate operations.")
         from .export_ops import execute_import
 
         return execute_import(project, parsed, actor=actor)
-    if name == "import_image":
+    if name == "import_image" and definition.kind == "ingest":
         return import_top(registry(), project, parsed, tx, actor)
     if name in ("list_sources", "get_source") and not project_path(project).exists():
         value = definition.apply(SimpleNamespace(root=root), parsed)
@@ -382,7 +382,7 @@ def execute(name, project, args=None, *, actor=None, **options):
             calls,
             tx,
             op=name,
-            label=parsed.label if name == "apply_ops" else None,
+            label=label if label is not None else parsed.label if name == "apply_ops" else None,
             actor=actor,
             previewer=transaction_previews,
         )

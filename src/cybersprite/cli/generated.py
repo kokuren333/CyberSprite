@@ -72,9 +72,9 @@ class SchemaValue(click.ParamType):
             for schema in self.schemas:
                 keys = set(schema.get("properties", {}))
                 if {"cell_w", "cell_h"} <= keys:
-                    parts = value.lower().split("x")
-                    if len(parts) == 2 and all(part.isdecimal() for part in parts):
-                        return {"cell_w": int(parts[0]), "cell_h": int(parts[1])}
+                    sizes = value.lower().split("x")
+                    if len(sizes) == 2 and all(part.isdecimal() for part in sizes):
+                        return {"cell_w": int(sizes[0]), "cell_h": int(sizes[1])}
                 if keys == {"prev", "next"}:
                     try:
                         parts = [int(item) for item in value.split(",")]
@@ -166,12 +166,14 @@ def definition_or_none(name):
 def external_export(state, definition, path, args):
     from cybersprite.cli import _emit
     from cybersprite.core.registry import OpContext
+    from cybersprite.formats.common import export_policy
 
     loader = optional_function("cybersprite.formats.input_adapter", "load_external", "M5")
     parsed = definition.parse(args)
     project = loader(Path(path), args.copy())
     context = OpContext(project, Path(path).resolve().parent)
-    result = definition.apply(context, parsed)
+    with export_policy(Path.cwd()):
+        result = definition.apply(context, parsed)
     definition.result.model_validate(result)
     _emit(state, definition.name, result, project=str(path), revision=project.revision)
 
@@ -224,7 +226,7 @@ class RegistryGroup(click.Group):
                 click.Argument(
                     [positional],
                     nargs=-1 if positional == "files" else 1,
-                    required=True,
+                    required=positional != "files",
                 ),
             )
         if definition.kind in {"mutate", "ingest"}:
@@ -244,7 +246,7 @@ class RegistryGroup(click.Group):
             if op == "import_image":
                 normalize_pipeline_aliases(values)
             if positional == "files":
-                values["files"] = list(values["files"])
+                values["files"] = list(values["files"]) or None
             if op == "load_palette" and values.pop("append"):
                 values["mode"] = "append"
             if op == "import_aseprite":

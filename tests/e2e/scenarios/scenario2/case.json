@@ -1,0 +1,10 @@
+{
+  "description": "Corpus non-pixel input: reject a strict fidelity gate, inspect provenance, adjust, touch up, verify exported pixels. Generated corpus (d) awaits M9.",
+  "project": "converted.csprite",
+  "inputs": {
+    "input.png": "tests/pipeline/corpus/non_pixel/aa_circles_256.png"
+  },
+  "exports": {
+    "converted.png": "image"
+  }
+}

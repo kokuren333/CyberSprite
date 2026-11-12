@@ -10,7 +10,7 @@ from cybersprite.core.errors import CyberSpriteError, invalid
 from cybersprite.core.history import atomic_write
 
 from ._common import PipelineError
-from .decode import decode_raster
+from .decode import decode_raster, split_sheet
 from .grid import detect_grid as _detect_grid
 from .runner import checked_png, color_strings, run_pipeline
 
@@ -46,6 +46,7 @@ def _convert(input_path, output_path, **options):
     preset = options.pop("preset", "ai")
     pipeline = deepcopy(options.pop("pipeline", None) or {})
     stages = options.pop("stages", None)
+    sheet = options.pop("sheet", None)
     if stages is not None and not isinstance(stages, (str, Path)):
         raise invalid("stages must be a directory path.")
     if not isinstance(pipeline, dict):
@@ -69,6 +70,7 @@ def _convert(input_path, output_path, **options):
             raise invalid("Unknown conversion option.", option=name)
     try:
         images, decoded = decode_raster(input_path)
+        images = split_sheet(images, sheet)
     except PipelineError as error:
         raise CyberSpriteError(error.code, error.message, error.hint, error.details) from error
     output = Path(output_path)

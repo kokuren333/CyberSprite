@@ -66,7 +66,8 @@ class ResultGroup(click.Group):
         state = extra.setdefault("obj", {})
         # Project selection may follow a nested command (SPEC §9.4.2 example).
         arguments = list(args) if args is not None else sys.argv[1:]
-        global_args, local_args = [], []
+        global_args: list[str] = []
+        local_args: list[str] = []
         index = 0
         while index < len(arguments):
             value = arguments[index]
@@ -92,7 +93,11 @@ class ResultGroup(click.Group):
             )
             code = result if isinstance(result, int) else 0
         except (click.exceptions.Exit, SystemExit) as error:
-            code = error.exit_code if isinstance(error, click.exceptions.Exit) else error.code
+            code = (
+                error.exit_code
+                if isinstance(error, click.exceptions.Exit)
+                else int(error.code or 0)
+            )
         except Exception as error:
             code = failure(state, error)
         if standalone_mode:
@@ -103,8 +108,8 @@ class ResultGroup(click.Group):
         if cmd_name in {"pixels", "preview", "diff"}:
             from .generated import read_command
 
-            op = {"pixels": "get_pixels", "preview": "render_preview", "diff": "diff_preview"}
-            return read_command(cmd_name, op[cmd_name])
+            read_ops = {"pixels": "get_pixels", "preview": "render_preview", "diff": "diff_preview"}
+            return read_command(cmd_name, read_ops[cmd_name])
         mappings = {
             "new": "new_project",
             "info": "get_info",
@@ -423,8 +428,9 @@ def doctor_command(state):
     )
 
 
-def _run(state, name, args, *, transform=None, **options):
+def _run(state, name, args, *, transform=None, label=None, **options):
     from cybersprite.core.canonical import load_project, project_path
+    from cybersprite.formats.common import export_policy
     from cybersprite.ops import execute
 
     path = state.get("project") or Path.cwd()
@@ -436,7 +442,10 @@ def _run(state, name, args, *, transform=None, **options):
     state["project_path"] = project_path(path).parent.as_posix()
     if project_path(path).exists():
         state["revision"] = load_project(path).revision
-    envelope = execute(name, path, {**args, **options}, actor=state.get("actor", "cli"))
+    with export_policy(Path.cwd()):
+        envelope = execute(
+            name, path, {**args, **options}, actor=state.get("actor", "cli"), label=label
+        )
     if transform:
         transform(envelope)
     write(state, envelope)
@@ -463,6 +472,7 @@ def _json_object(value):
 @click.option("--dry-run", is_flag=True, default=None)
 @click.option("--expect-revision", type=int, default=None)
 @click.option("--idempotency-key", default=None)
+@click.option("--label", default=None, help="History label for this transaction.")
 @click.option("--preview", type=click.Choice(["none", "path", "inline"]), default=None)
 @click.pass_obj
 def op_command(state, name, values, inline_args, args_file, **options):
@@ -801,7 +811,9 @@ class ConvertCommand(click.Command):
 def convert_command(**values):
     state = click.get_current_context().obj
     normalize_pipeline_aliases(values)
-    callback = optional_function("cybersprite.pipeline", "convert", "M6")
+    callback = optional_function("cybersprite.pipeline.cli_api", "convert", "M6")
+    values["input_path"] = values.pop("input")
+    values["output_path"] = values.pop("output")
     result = _call_with_diagnostics(
         state, callback, **{key: value for key, value in values.items() if value is not None}
     )
@@ -826,7 +838,7 @@ def pipeline_group():
 @click.argument("file", type=click.Path(path_type=Path))
 @click.pass_obj
 def detect_grid(state, file):
-    callback = optional_function("cybersprite.pipeline", "detect_grid", "M6")
+    callback = optional_function("cybersprite.pipeline.cli_api", "detect_grid", "M6")
     _emit(state, "detect_grid", _call_with_diagnostics(state, callback, file))
 
 

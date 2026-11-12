@@ -67,7 +67,7 @@
           "frames": [
             1
           ],
-          "layer": null,
+          "layer": "L1",
           "bbox": null,
           "points": [
             [
@@ -89,7 +89,7 @@
           "frames": [
             4
           ],
-          "layer": null,
+          "layer": "L1",
           "bbox": null,
           "points": [
             [

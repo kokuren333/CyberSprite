@@ -6,7 +6,6 @@ import pytest
 
 pytest.importorskip("mcp.server")
 
-from cybersprite import ops  # noqa: E402
 from tests.e2e.replay import SCENARIOS, replay  # noqa: E402
 
 
@@ -22,10 +21,6 @@ def test_scenario1_non_export(tmp_path, stdio):
 
 
 def test_scenario1_exports(tmp_path):
-    names = {op.name for op in ops.registry().all()}
-    required = {"export_sheet", "export_animation"}
-    if not required <= names:
-        pytest.skip("M5 export_sheet/export_animation are not registered; re-enabled on merge")
     directory = SCENARIOS / "scenario1"
     outputs, transcript = asyncio.run(replay(directory, tmp_path, stdio=True, exports=True))
     assert len(transcript) == 9

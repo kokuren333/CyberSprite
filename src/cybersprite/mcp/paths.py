@@ -71,7 +71,10 @@ class PathPolicy:
                 if Draft202012Validator({**variant, "$defs": definitions}).is_valid(value):
                     return self.arguments(
                         value,
-                        {**variant, **({"x-cybersprite-path": kind} if kind else {})},
+                        {
+                            **{k: v for k, v in schema.items() if k not in {"anyOf", "oneOf"}},
+                            **variant,
+                        },
                         definitions,
                     )
             return value  # The Op's parser will report malformed arguments.
