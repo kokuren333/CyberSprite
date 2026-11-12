@@ -19,7 +19,14 @@ jobs:
       - run: uv sync --locked --extra mcp --extra gui --python ${{ matrix.python }}
       - run: uv run ruff check
       - run: uv run ruff format --check
-      - run: uv run mypy
+      - run: uv run mypy src/cybersprite/core src/cybersprite/ops
+      - name: Strict typed model and argument contracts
+        run: >-
+          uv run mypy --strict --follow-imports=silent
+          src/cybersprite/core/models.py src/cybersprite/core/canonical.py
+          src/cybersprite/core/errors.py src/cybersprite/core/hashing.py
+          src/cybersprite/core/references.py src/cybersprite/ops/args.py
+          src/cybersprite/ops/descriptions.py
       - run: uv run pytest
       - run: uv run python tools/gen_schemas.py --check
       - run: uv run python tools/check_licenses.py --include-dev --extra mcp --extra gui
@@ -41,7 +48,7 @@ jobs:
           node-version: '24'
           cache: npm
           cache-dependency-path: gui/package-lock.json
-      - run: uv sync --locked --extra gui --python 3.12
+      - run: uv sync --locked --extra mcp --extra gui --python 3.12
       - run: npm ci
         working-directory: gui
       # Reports contain installed native packages, so audit on each target OS.
@@ -54,3 +61,7 @@ jobs:
         working-directory: gui
       - run: npm run test:e2e
         working-directory: gui
+      - name: Build release archives and inspect packaged GUI and license texts
+        run: uv run python tools/build_release.py
+      - name: Install wheel outside repository and probe CLI, MCP and GUI
+        run: uv run python tools/verify_release.py dist/cybersprite-0.1.0-py3-none-any.whl

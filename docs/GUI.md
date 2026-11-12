@@ -28,7 +28,7 @@ npm run dev
 
 Vite は 127.0.0.1 だけで待ち受け、`/ws`、`/auth`、`/files` をプロキシする。プロキシではバックエンド自身の Origin/Host に変換する。この開発サーバは信頼できるローカル作業専用で、配布物には含めない。
 
-`npm run build` は `src/cybersprite/server/static/` に出力する。`.gitkeep` 以外のビルド結果は git 管理外。M10 の wheel ビルドは **先に** `npm ci && npm run build` を実行し、その後 `uv build` を呼ぶこと。Node は配布後の実行には不要。
+`npm run build` は `src/cybersprite/server/static/` に出力する。`.gitkeep` 以外のビルド結果は git 管理外。リリースはリポジトリ直下から `uv run python tools/build_release.py` で作る。npm ci・原文ライセンス照合・CLIアイコン出力を含むGUIビルド・uv build・wheel内容照合を順に実行する。Nodeは配布後の実行には不要。`tools/verify_release.py <wheel>` はリポジトリ外の新規venvで認証付きHTML/JS/CSS/アイコン配信を確認する。
 
 ## 接続とデータ
 
@@ -68,7 +68,7 @@ npm run test:e2e
 
 JS の全インストール済み直接・推移依存は `THIRD_PARTY_JS.md`、原文は `LICENSES_JS.txt`。`node tools/check_js_licenses.mjs` で再生成し差分を読む。`--check` は記録との一致も検査する。ネイティブ依存は OS ごとにインストール集合が違うため、CI は Windows/Linux 各々で原文を検査する。esbuild/Rollup のネイティブ専用パッケージに LICENSE がない場合、**同じ版**の親パッケージが同梱する原文を読む。許可表外・不明・原文なしは拒否する。
 
-M5/M6 がこのブランチに未統合なので W3/W5 の実ファイルを伴う通し確認は統合後に行う。現時点でも登録 Op を追加すればスキーマとダイアログへ自動反映する。サーバ試験では仮の登録 Op によって予行・配置・書出しの転送、actor、dry_run、job.progress を検査している。合成・検証・描画・履歴・CLI 反映には実装済みの本物の Op を使う。
+M5/M6のOpは統合済みで、スキーマとダイアログへ反映される。M10シナリオ4は実GUI WebSocketとCLIを交互に使い、project.changed・構造変更のE_REVISION_CONFLICT・再読込・最終書き出しを検査する。W3/W5の専用フォームとブラウザ操作の拡充はKNOWN_ISSUES参照。
 
 ## テーマ
 
@@ -143,6 +143,6 @@ Playwright の試験はアクセシブルな名前（ツールの `aria-label`�
 | SchemaDialog | schema-dialog, op-schema, export-plan, dialog-error, operation-result, stage-image |
 | SettingsDialog / Tooltip | settings-dialog / tooltip（`data-tip` 属性を持つ要素に、ポインタとキーボードのフォーカスで出す） |
 
-既知の制約: `get_info` のセルに `link` が含まれないため、タイムラインのリンクセルの表示（中抜きの四角と連結線）は現在のサーバでは出ない（GUI 側は `link` を受け取れば表示する）。
+`get_info` はFIX-2で各リンクセルの `link` とレイヤーごとの `link_groups` を返すようになり、以前のリンク情報欠落は解消した。
 
 ショートカット設定の読み込み・永続 prefs、取り込みの専用項目 UI、書き出し種別ごとの予定寸法の詳細計算は後続拡張。現在は生成スキーマと JSON 入力で全引数を明示できる。GUI だけに保存・変換・書出しの処理を増やさないこと。

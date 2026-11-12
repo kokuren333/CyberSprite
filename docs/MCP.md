@@ -1,6 +1,6 @@
 # MCP サーバ
 
-現状: M3/M5/M6 の統合済み。`mcp==2.3.0` は optional extra として固定され、I-012 の既存承認方針に従うライセンス監査を通る。過去の依存採用保留は解消済み。標準プロファイルは69 Op、minimal は仕様の13 Opを公開する。
+現状: M1〜M9を統合済み。`mcp==2.3.0` は optional extra として固定され、I-012 の既存承認方針に従うライセンス監査を通る。過去の依存採用保留は解消済み。標準プロファイルは77ツール（生成2 Opを有効にすると79）、minimal は仕様の13 Opを公開する。
 
 `uv sync --extra mcp` で任意依存を導入する。CLI の `cybersprite mcp serve` または次の直接起動が使える。
 
@@ -59,4 +59,6 @@ import_image の `files`（単体文字列・配列）と `pipeline.palette.sour
 拒否された入力は source に保持され、正本がまだなくても list_sources/get_source で確認できる。minimal では個別の cleanup_pixels は apply_ops 内から呼び出す。
 書き出し先と返却される `result.files[].path` はともにサーバ root 基準。許可範囲外の出力はファイル作成前に拒否する。
 
-シナリオ2は既存の自作非ドット画像による代用で、生成コーパス(d)は M9 待ち。JSONL は拒否→設定変更→合格→手直し→書出しを実際の SDK Client（in-process/stdio 両方）で実行する。
+シナリオ2は既存の自作非ドット画像による代用で、生成コーパス(d)は未入手。JSONLは拒否→設定変更→合格→手直し→書出しを実際のSDK Client（in-process/stdio両方）で実行する。シナリオ3はタイル、5は自作.asepriteのimport→編集→export→読戻し同値性を検査する。1〜5にskip/xfailはない。
+
+M10の新規venv試験は、2025-06-18では `initialize` / `notifications/initialized` の後に `tools/list`、2026-07-28では `server/discover` と各要求の `params._meta` にprotocolVersion/clientCapabilities/clientInfoを付けた `tools/list` を実行する。2026版は初期化ハンドシェイクを使わない。moduleとCLI両入口を `tools/verify_release.py <wheel>` で確認できる。

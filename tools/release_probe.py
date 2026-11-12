@@ -236,12 +236,21 @@ def main():
             cookie = auth.headers["Set-Cookie"].split(";", 1)[0]
         with get("/app", cookie) as index:
             html = index.read().decode("utf-8")
+        static = installed.parent / "server/static"
+        assert html == (static / "index.html").read_text("utf-8")
         assets = re.findall(r'(?:src|href)="(/assets/[^\"]+)"', html)
         assert any(p.endswith(".js") for p in assets) and any(p.endswith(".css") for p in assets)
         for asset in [*assets, "/icons/settings.png"]:
             with get(asset, cookie) as response:
-                assert response.status == 200 and len(response.read()) > 0
-        results["gui"] = {"authenticated_index": True, "assets": assets, "icon": True}
+                assert response.status == 200
+                actual = response.read()
+                assert actual and actual == (static / asset.lstrip("/")).read_bytes()
+        results["gui"] = {
+            "authenticated_index": True,
+            "assets": assets,
+            "asset_bytes_verified": True,
+            "icon": True,
+        }
     finally:
         stop(server)
     args.out.write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8", newline="\n")

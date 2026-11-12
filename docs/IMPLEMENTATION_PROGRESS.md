@@ -148,3 +148,12 @@ main のテスト（2026-11-12 11:00、Windows / Python 3.12）: Python 1160 pas
 - 実CLIで原本runner.cspriteを一時ディレクトリへコピーし、tag:walkのstrip、全10フレームのgrid、フレーム0の前7/次1のonion、パレット外の白背景を生成した。実PNGを再復号して開き、原本とコピーの正本のバイト不変を確認した。validateはerror 0、warning 0、info 10。再現スクリプトは `tools/fix2_acceptance.py`、実画像と記録は `build/fix2-review/`。
 - ゴールデンは唯一の更新器で生成し、応答JSONの新しい契約・透明パレット警告と新規パレット出力を確認した。既存画像・正本・画素ハッシュの変更なし。判断I-751〜I-761。仕様は§5.8.1、§6.7.1、§8.8、§10.2.2、§10.3.1、§10.4、付録Cを補足した。追加依存・外部参照なし。
 - 実装コミットは `1547911` と `70fe2a9`。LinuxはI-007によりCI待ち、mainへの統合と表示の最終的な見やすさの評価はオーケストレーターの作業。極端に多数の合成では番号の判読に小さい範囲が必要。詳細は [FIX2_IMPLEMENTATION_REPORT.md](FIX2_IMPLEMENTATION_REPORT.md)。
+
+## M10: 仕上げの工学部分 — Windows検証完了（2026-11-12）
+
+- `m10-finish`でGUI付きwheel/sdistのビルドとpayload/原文照合、新規の外部venvでのCLI/MCP/GUI実行、全6目標のbench、E2Eシナリオ4/5、NOTICEとJS原文の配布、README/KNOWN_ISSUESを整備した。skills/examplesとFIX-3のtile opsは未編集。
+- 全体Python **1339 passed / 2 skipped**（413.44秒）、シナリオ1〜5 **10 passed**（skipなし）、GUI **627 passed** / コントラスト86組 / Playwright **3 passed**。Ruff・schema・repository・依存監査も成功。2 skipは既存Windowsシンボリックリンク権限。
+- core/opsの型診断41件を0へ減らし、CI必須化（36ファイル）。7ファイルはstrictでも0。全srcには47件/17ファイルが残り、既知の不足へ記録した。
+- 初回の重い構造検証・クラスタ処理を高速化し、全既存ゴールデンの出力を保持した。最終中央値はCLI189.549ms、transaction1654.159ms、render19.751ms、validate508.282ms、GUI212.382ms、pipeline464.683ms。transaction/GUIは未達で原因と対策をPERFORMANCEに記録。
+- wheelにはGUI index/JS/CSS・41アイコン・全規範データとNOTICE/ライセンス本文を収録。新規venvでmodule/CLIのMCP両入口×2025-06-18/2026-07-28の77ツール、認証付きGUIの実bytes配信を確認した。
+- 判断I-801〜I-807、SPEC変更・新規依存なし。LinuxはI-007により未実行。新規エージェント/作例/最大3回のレビューとmain統合はオーケストレーターの工程。詳細は [M10_IMPLEMENTATION_REPORT.md](M10_IMPLEMENTATION_REPORT.md)。

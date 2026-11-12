@@ -56,6 +56,8 @@ def replay_mixed(directory, root):
                 )
                 if "error" in call:
                     assert response["error"]["data"]["code"] == call["error"], response
+                    assert response["error"]["data"]["details"]["current_revision"] == 2
+                    assert response["error"]["data"]["hint"]
                     assert (project / "project.json").read_bytes() == raw_before
                     transcript.append({"surface": "gui", "error": call["error"]})
                     continue
@@ -67,6 +69,12 @@ def replay_mixed(directory, root):
                     ).reshape(8, 8, 4)
                     np.testing.assert_array_equal(actual, render(load_project(project)))
             assert value.get("ok", True), value
+            if "validation" in value:
+                assert value["validation"]["ok"], value
+            if call.get("method") == "validate.run":
+                assert value["result"]["ok"], value
+                assert value["result"]["counts"]["error"] == 0
+                assert value["result"]["counts"]["warning"] == 0
             if "revision" in call:
                 assert revision(value) == call["revision"], value
             if value.get("op") == "export_image":
