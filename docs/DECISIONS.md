@@ -83,3 +83,4 @@
 | 2026-11-12 | I-310 | §9.3、§9.6 | plugins list は entry point の登録名と設定上の許可・レジストリ上の読込状態を報告し、検査のためにプラグインを実行しない | 一覧表示を読み取りに保ち、設定やツール引数からの暗黙のコード読込を避ける | Codex / M3 |
 | 2026-11-12 | I-311 | §9.5、§11.5.4 | import image と convert は --sheet-cell 幅x高さ を sheet.cell_w/cell_h へ、--dither 種別を pipeline.dither.type へ変換する。既存の strength などは保持し、明示フラグを優先する | CLI 対応表にある短縮表記を変換処理の重複なしで実現する | Codex / M3 |
 | 2026-11-12 | I-312 | §9.1、§10.3、§10.4 | CLI の new/info も登録 Op の結果をそのまま返す。M1 の CLI 専用 result.name/frame_count などは result.summary に統一し、info.include の既定と選択肢も引数モデルに従う | CLI の成功結果が Op の出力契約に適合するようにし、MCP/GUI と別の結果スキーマを持たない | Codex / M3 |
+| 2026-11-12 | I-013 | §14.3.2 | GUI アイコンは 1 アイコン 1 プロジェクトで持ち、GUI のビルド時に `export image` でアイコンごとの PNG に書き出す。複数プロジェクトを 1 枚のシートにまとめる書き出しは作らない（e2e-02 の指摘） | `export_sheet` は 1 プロジェクトのフレームを並べるもので、複数プロジェクトの束ねは v1 の範囲外。アイコンごとの PNG で GUI の組み込みには足りる | オーケストレーター |

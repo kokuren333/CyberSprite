@@ -1,0 +1,114 @@
+{
+  "format": "cybersprite-project",
+  "schema_version": 1,
+  "revision": 2,
+  "name": "unlock",
+  "canvas": {
+    "width": 16,
+    "height": 16,
+    "grid": {
+      "x": 0,
+      "y": 0,
+      "w": 16,
+      "h": 16
+    },
+    "pixel_ratio": {
+      "w": 1,
+      "h": 1
+    },
+    "color_profile": "srgb"
+  },
+  "palette": {
+    "transparent_index": 0,
+    "frozen": false,
+    "colors": [
+      "#000000ff",
+      "#0b2a3aff",
+      "#0a86a8ff",
+      "#19c3e6ff",
+      "#bfeff9ff",
+      "#ffffffff",
+      "#e8a317ff",
+      "#e5484dff",
+      "#7c5cffff",
+      "#43606eff",
+      "#d9d0ffff"
+    ],
+    "names": {
+      "0": "transparent",
+      "1": "ink",
+      "2": "trace-deep",
+      "3": "trace",
+      "4": "trace-soft",
+      "5": "white",
+      "6": "warn",
+      "7": "error",
+      "8": "agent",
+      "9": "ink-soft",
+      "10": "agent-soft"
+    }
+  },
+  "frames": [
+    {
+      "duration_ms": 100
+    }
+  ],
+  "layers": [
+    {
+      "id": "L1",
+      "name": "icon",
+      "type": "image",
+      "visible": true,
+      "locked": false,
+      "opacity": 255,
+      "blend_mode": "normal",
+      "background": false,
+      "continuous": false,
+      "cels": [
+        {
+          "frame": 0,
+          "x": 2,
+          "y": 1,
+          "w": 12,
+          "h": 13,
+          "opacity": 255,
+          "z_index": 0,
+          "pixels": [
+            "000000000000010101010000",
+            "000000000001000000000100",
+            "000000000100000000000001",
+            "000000000100000000000001",
+            "000000000100000000000000",
+            "010101010101010101010101",
+            "010404040404040404040401",
+            "010404040401010404040401",
+            "010404040401010404040401",
+            "010404040404010404040401",
+            "010404040404010404040401",
+            "010404040404040404040401",
+            "010101010101010101010101"
+          ]
+        }
+      ]
+    }
+  ],
+  "tags": [],
+  "slices": [],
+  "tilesets": [],
+  "validation": {
+    "palette_max": 256,
+    "colors_per_frame_max": null,
+    "orphan_pixels_max": null,
+    "min_cluster": 2,
+    "require_tag_coverage": false,
+    "silhouette_jitter_max": null,
+    "severity": {}
+  },
+  "id_counters": {
+    "layer": 1,
+    "tag": 0,
+    "slice": 0,
+    "tileset": 0
+  },
+  "extensions": {}
+}

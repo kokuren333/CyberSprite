@@ -1,0 +1,15 @@
+GIMP Palette
+Name: CyberSprite UI icons (Solder Mask)
+Columns: 8
+#
+  0   0   0	transparent
+ 11  42  58	ink
+ 10 134 168	trace-deep
+ 25 195 230	trace
+191 239 249	trace-soft
+255 255 255	white
+232 163  23	warn
+229  72  77	error
+124  92 255	agent
+ 67  96 110	ink-soft
+217 208 255	agent-soft

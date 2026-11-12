@@ -58,6 +58,7 @@ main のテスト: 622 passed（M2 統合時点、Windows / Python 3.12）。
 | # | 題材 | 日付 | 実施 | 結果 | 記録 |
 |---|---|---|---|---|---|
 | 01 | キャラクター（32×32、2 フレームのまばたき、タグ） | 2026-11-12 | Opus 5.5 / 中 | validate ok（警告 0、情報 3 は個別に判断）。書き出し Op が未実装のため `render` で PNG を出力。使い心地 4/5 | `e2e-tests/01-character/REPORT.md` |
+| 02 | UI 素材（GUI アイコン 40 個、原本 `assets/ui/icons/*.csprite`） | 2026-11-12 | Opus 5.5 / 中 | 全件 validate ok。`render` で ×1 / ×4 を出力し、設計データと全ピクセル一致。使い心地 4/5 | `e2e-tests/02-ui-icons/REPORT.md` |
 
 ### e2e で見つかった問題（未対応のもの）
 
@@ -68,4 +69,7 @@ main のテスト: 622 passed（M2 統合時点、Windows / Python 3.12）。
 | e2e-01 #7 | 図形系 Op（`ellipse` など）の result に `pixels_written` がない | M3 後の修正 |
 | e2e-01 #8 | undo / redo の結果にプレビューがない | M3 後の修正 |
 | e2e-01 #10 | Q-PIX-02 の `where.layer` が null（どのレイヤーか分からない） | M3 後の修正 |
+| e2e-02 #2 | `new --palette <.gpl>` で色名が捨てられる | 修正項目 |
+| e2e-02 #3 | 名前だけの `set_palette` でも `changed.frames` にフレームが出る | 修正項目 |
+| e2e-02 #6 | `docs/CLI.md` に `pixels --rect` の既定範囲の説明がない | 修正項目 |
 | e2e-01 #1〜4、#9 | 書き出し、`preview` / `pixels` / `validate` のオプション、`docs/CLI.md` | M3 / M5（作業中） |
