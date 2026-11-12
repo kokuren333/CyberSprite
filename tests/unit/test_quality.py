@@ -99,14 +99,16 @@ def prepare(rule):
     return p, clean
 
 
-@pytest.mark.parametrize("rule", sorted(set(DEFAULT_LEVELS) - {"Q-SRC-01", "Q-SRC-02", "Q-SRC-03"}))
+@pytest.mark.parametrize(
+    "rule", sorted(set(DEFAULT_LEVELS) - {"Q-SRC-01", "Q-SRC-02", "Q-SRC-03", "Q-SRC-04"})
+)
 def test_each_quality_rule_detects_and_does_not_detect(rule):
     p, clean = prepare(rule)
     assert rule in {i["rule"] for i in report(p)["issues"]}
     assert rule not in {i["rule"] for i in report(clean)["issues"]}
 
 
-@pytest.mark.parametrize("rule", ["Q-SRC-01", "Q-SRC-02", "Q-SRC-03"])
+@pytest.mark.parametrize("rule", ["Q-SRC-01", "Q-SRC-02", "Q-SRC-03", "Q-SRC-04"])
 def test_source_quality_detection_and_no_placements(tmp_path, rule):
     p = base()
     source = tmp_path / "source/SRC1"
@@ -150,6 +152,20 @@ def test_source_quality_detection_and_no_placements(tmp_path, rule):
         value["pipeline"]["gates_overridden"] = ["grid"]
     elif rule == "Q-SRC-02":
         value["license"] = "unknown"
+    elif rule == "Q-SRC-04":
+        value["model"] = {
+            "id": "test/model",
+            "license": "CC0-1.0",
+            "sha256": "a" * 64,
+            "adapters": [],
+        }
+        value["params"] = {
+            "model_registry": {
+                "id": "test/model",
+                "license": "CC0-1.0",
+                "commercial_use": "unknown",
+            }
+        }
     else:
         (source / "original.png").write_bytes(b"changed")
     manifest = Sources.model_validate({"sources": [value]})
@@ -158,6 +174,11 @@ def test_source_quality_detection_and_no_placements(tmp_path, rule):
     result = report(p, root=tmp_path)
     assert rule in {i["rule"] for i in result["issues"]}
     assert result["metrics"]["sources"]["grid_scores"] == {"SRC1": 900}
+    if rule == "Q-SRC-04":
+        manifest.sources[0].params["model_registry"]["commercial_use"] = "yes"
+        path.write_bytes(json_bytes(manifest.model_dump()))
+        assert rule not in {i["rule"] for i in report(p, root=tmp_path)["issues"]}
+        manifest.sources[0].params["model_registry"]["commercial_use"] = "unknown"
     manifest.sources[0].placements = []
     path.write_bytes(json_bytes(manifest.model_dump()))
     assert rule not in {i["rule"] for i in report(p, root=tmp_path)["issues"]}
