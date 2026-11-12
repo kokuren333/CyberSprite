@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 from pydantic import ValidationError
 
-from . import history
+from . import history, sources
 from .canonical import dumps_project, json_bytes, load_project, project_path
 from .errors import CyberSpriteError, invalid
 from .journal_clock import now
@@ -222,6 +222,7 @@ def transact(
         no_op = before == after and kind == "tx" and not ctx.side_writes and initial_project is None
         if not no_op:
             after.revision = before.revision + 1
+        sources.stage_history(ctx, before.revision, after.revision, restored)
         previous_report = report(before, root=root, source_manifest=ctx.previous_source_manifest)
         next_report = report(after, root=root, source_manifest=ctx.source_manifest)
         changed = changes(before, after, ctx)
@@ -308,6 +309,7 @@ def transact(
             raise
         try:
             history.retain(root)
+            sources.retain_history(root)
             history.retain_previews(root)
         except (OSError, CyberSpriteError):
             # Derived retention must not turn an authoritative commit into a reported failure.

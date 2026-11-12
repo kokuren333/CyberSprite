@@ -4,7 +4,12 @@ import copy
 import json
 from importlib.resources import files
 
+from pydantic import ValidationError
+
+from cybersprite.core.errors import invalid
+
 from ._common import require
+from .args import PipelineSettings
 
 
 def _merge(base, extra):
@@ -18,6 +23,10 @@ def _merge(base, extra):
 
 
 def resolve_preset(name, *, existing_project=False, overrides=None):
+    try:
+        overrides = PipelineSettings.model_validate(overrides or {}).model_dump(exclude_unset=True)
+    except ValidationError as error:
+        raise invalid("Invalid pipeline overrides.", reason=str(error)) from error
     data = json.loads(files("cybersprite").joinpath("data", "pipeline_defaults.json").read_bytes())
     require(
         name in data["presets"], "Unknown pipeline preset.", "Choose exact, upscaled, ai or photo."

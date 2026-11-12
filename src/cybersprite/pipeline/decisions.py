@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from ._common import PipelineError, integer, neighbors, require
+from ._common import PipelineError, color_channels, integer, neighbors, require
 from .cleanup import indexed_image
 from .quantize import BAYER
 
@@ -28,8 +28,7 @@ def outline_and_dither(
         if isinstance(color, (int, np.integer)):
             color = integer(color, "outline index", 0, len(locked) - 1)
         else:
-            require(len(color) in (3, 4), "Outline color must be RGB or RGBA.")
-            color = tuple(integer(v, "outline channel", 0, 255) for v in color)
+            color = color_channels(color)
             if len(color) == 3:
                 color = (*color, 255)
             require(color[3] == 255, "An added outline color must be opaque.")

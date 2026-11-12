@@ -121,6 +121,38 @@ def evaluate_gates(
         grid_thresholds is None or score >= grid_thresholds[0],
         grid_thresholds is not None and score < grid_thresholds[1],
     )
+    if grid["mode"] != "none" and grid["detected"]:
+        short = min(grid["columns"], grid["rows"])
+        span = min(grid["x_cells"][-1][1], grid["y_cells"][-1][1])
+        auto = grid["mode"] == "auto"
+        add(
+            "grid_cell_count",
+            short,
+            {"warn_below": 12, "input_min": 96},
+            warning=short < 12 and span >= 96,
+        )
+        alignment = grid.get("alignment", 1000)
+        add(
+            "boundary_alignment",
+            alignment,
+            {"fail_below": 80, "warn_below": 250},
+            not auto or alignment >= 80,
+            auto and alignment < 250,
+        )
+        add(
+            "candidate_agreement",
+            not grid.get("ambiguous", False),
+            True,
+            warning=auto and grid.get("ambiguous", False),
+        )
+        variance = grid.get("snap_variance", 0)
+        add(
+            "snap_fidelity",
+            variance,
+            {"fail_above": 3000, "warn_above": 500},
+            not auto or variance <= 3000,
+            variance > 500,
+        )
     budget = min(256, integer(palette_max, "palette_max", 1, 256))
     add(
         "palette_budget",

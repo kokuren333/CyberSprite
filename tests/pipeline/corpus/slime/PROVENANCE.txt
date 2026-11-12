@@ -1,0 +1,19 @@
+slime_generated_like.jpg — provenance
+
+What it is: a SYNTHETIC STAND-IN for an image-generator output ("AI pixel-art-style" raster).
+No image generator was available in this environment, so the e2e test agent (Claude Opus 5.5)
+made one itself:
+  1. drew an original 32x32 slime monster as clean pixel art (slime_clean_32.png) with Pillow
+     in work/make_input.py (original work, no third-party assets);
+  2. degraded it the way generators typically look: flattened onto a near-white opaque
+     background (#F6F4EE), non-integer bicubic upscale 32 -> 347 px (x10.84), Gaussian blur 0.7,
+     smooth low-frequency sinusoidal colour drift (+-6, no fixed period) and per-pixel noise (+-4), JPEG quality 80.
+     Random seed 20261112 (deterministic).
+provider: user
+license: Apache-2.0 (same as the CyberSprite repository; created for this test)
+prompt we would have sent to a generator:
+  "pixel art, 32x32 sprite of a cute green slime monster, dark outline, two black eyes with
+   white highlights, pink cheeks, small smile, soft drop shadow, plain white background,
+   game asset, centered"
+rights_note: no third-party IP; synthetic test input.
+slime_clean_32.png is the ground truth used only for comparison (never imported).

@@ -111,3 +111,85 @@ def record_import(root, file, width, height, *, placements=()):
             "Check source directory permissions and retry in a new project.",
         ) from error
     return source_id
+
+
+def stage_history(ctx, before_revision, after_revision, restored=None):
+    """Stage placement/metric history atomically, retaining immutable source captures."""
+    from copy import deepcopy
+
+    from .history import paths, read_journal
+
+    current = read_manifest(ctx.root)
+    previous = ctx.previous_source_manifest if ctx.previous_source_manifest is not None else current
+    active = ctx.source_manifest if ctx.source_manifest is not None else deepcopy(current)
+    folder = paths(ctx.root) / "sources"
+
+    def snapshot(revision):
+        return folder / f"r{revision:06d}.json"
+
+    if restored is not None:
+        target = snapshot(restored)
+        if target.exists():
+            saved = Sources.model_validate_json(target.read_bytes())
+            records = {source.id: source for source in saved.sources}
+            for source in active.sources:
+                old = records.get(source.id)
+                source.placements = deepcopy(old.placements) if old else []
+                source.pipeline = deepcopy(old.pipeline) if old else None
+            ctx.side_writes.append((manifest_path(ctx.root), manifest_bytes(active)))
+        else:
+            # Legacy journals can identify active placements even though their
+            # previous conversion metrics were never snapshotted.
+            states, revisions = {}, set()
+            for entry in read_journal(ctx.root):
+                revision = entry["revision"]
+                if entry["kind"] in ("create", "external"):
+                    revisions = {
+                        p.revision
+                        for s in active.sources
+                        for p in s.placements
+                        if p.revision <= revision
+                    }
+                elif entry["kind"] in ("undo", "redo"):
+                    prior = (entry.get("result") or {}).get("result", {}).get("restored_revision")
+                    revisions = set(states.get(prior, ()))
+                elif any(call["op"] == "import_image" for call in entry.get("ops", [])):
+                    revisions = revisions | {revision}
+                states[revision] = set(revisions)
+            allowed = states.get(restored, set())
+            for source in active.sources:
+                original_count = len(source.placements)
+                source.placements = [p for p in source.placements if p.revision in allowed]
+                if not source.placements:
+                    source.pipeline = None
+                elif len(source.placements) != original_count and source.pipeline:
+                    source.pipeline.report.pop("grid_score", None)
+                    source.pipeline.report["history_status"] = "undone_conversion_metrics"
+                    source.pipeline.report["warnings"] = [
+                        {
+                            "code": "W_SOURCE_HISTORY_UNAVAILABLE",
+                            "message": "Legacy conversion metrics were not retained "
+                            "for this revision.",
+                            "hint": "Reconvert the source to recreate metrics "
+                            "for its current placement.",
+                        }
+                    ]
+                    source.pipeline.accepted = True
+                    source.pipeline.gates_overridden = []
+            ctx.side_writes.append((manifest_path(ctx.root), manifest_bytes(active)))
+    if current.sources or active.sources:
+        ctx.previous_source_manifest = previous
+        ctx.source_manifest = active
+        if not snapshot(before_revision).exists():
+            ctx.side_writes.append((snapshot(before_revision), manifest_bytes(previous)))
+        ctx.side_writes.append((snapshot(after_revision), manifest_bytes(active)))
+
+
+def retain_history(root):
+    """Source sidecars expire with their corresponding project snapshots."""
+    from .history import paths, snapshot_path
+
+    for path in sorted((paths(root) / "sources").glob("r*.json")):
+        revision = path.stem[1:]
+        if revision.isdigit() and not snapshot_path(root, int(revision)).exists():
+            path.unlink()

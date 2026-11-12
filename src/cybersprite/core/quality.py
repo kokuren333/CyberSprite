@@ -342,8 +342,11 @@ def report(p, *, root=None, selected_frames=None, rules=None, source_manifest=No
                 if not source.placements:
                     continue
                 fs = sorted({f for place in source.placements for f in place.frames})
-                if pipeline and pipeline.gates_overridden:
-                    add("Q-SRC-01", f"Source {source.id} was placed with overridden gates.", fs=fs)
+                if pipeline and (pipeline.gates_overridden or pipeline.report.get("warnings")):
+                    reason = (
+                        "overridden gates" if pipeline.gates_overridden else "pipeline warnings"
+                    )
+                    add("Q-SRC-01", f"Source {source.id} was placed with {reason}.", fs=fs)
                 if source.license == "unknown":
                     add("Q-SRC-02", f"Source {source.id} has unknown usage terms.", fs=fs)
                 for file in source.files:

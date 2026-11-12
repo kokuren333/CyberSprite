@@ -15,10 +15,6 @@ def _size_compare(a, b):
     return (ka > kb) - (ka < kb)
 
 
-def _rank_compare(a, b):
-    return ((b["peak"] > a["peak"]) - (b["peak"] < a["peak"])) or _size_compare(a, b)
-
-
 def axis_candidates(signal, min_cell=2, max_cell=64):
     """Signal includes e[0]=0. Rational A cell sizes stay numerator/denominator."""
     n, total = len(signal), sum(int(v) for v in signal)
@@ -50,14 +46,135 @@ def axis_candidates(signal, min_cell=2, max_cell=64):
     return result
 
 
-def _select(candidates, min_peak, harmonic_tolerance):
-    best = max((c["peak"] for c in candidates), default=0)
-    if best < min_peak:
-        return None
-    return min(
-        (c for c in candidates if c["peak"] * 1000 >= best * harmonic_tolerance),
-        key=cmp_to_key(_size_compare),
+def _normalized_candidates(candidates, energy, peaks):
+    """Integer phase correlation, with a separate local-edge alignment measure."""
+    n = len(energy)
+    positions = np.arange(n, dtype=np.int64)
+    total, peak_total = int(energy.sum()), int(peaks.sum())
+    for c in candidates:
+        period, count = c["numerator"], c["denominator"]
+        phase = ((positions - c["offset"]) * count) % period
+        distance = np.minimum(phase, period - phase)
+        triangle = np.maximum(period - 6 * distance, 0)
+        alignment = int((peaks * triangle).sum()) * 1000 // max(1, peak_total * period)
+        alignment = alignment * (period - count) // period
+        # 1 - 6*u**2 + 4*u**3, u=2*distance/period: symmetric, smooth,
+        # cosine-like signed contrast, evaluated entirely with integers.
+        weights = (
+            1000
+            - 24000 * distance * distance // (period * period)
+            + 32000 * distance * distance * distance // (period * period * period)
+        )
+        coherence = max(0, int((energy * weights).sum())) // max(1, total)
+        c["alignment"] = alignment
+        c["coherence"] = coherence
+        c["score"] = (coherence + 20) * alignment // 10
+
+
+def _knot_candidates(candidates, frames, axis):
+    """Bilinear/cubic interpolation changes slope at source-pixel centers."""
+    n = frames[0].shape[axis]
+    if n < 3:
+        return
+    knots = np.zeros(n, dtype=np.int64)
+    for image in frames:
+        delta = np.abs(np.diff(image.astype(np.int64), n=2, axis=axis)).sum(axis=2)
+        if axis == 0:
+            delta = delta.T
+        knots[1:-1] += np.where(delta * 4 >= int(delta.max(initial=0)), delta, 0).sum(
+            axis=0, dtype=np.int64
+        )
+    total = max(1, int(knots.sum()))
+    positions = np.arange(n, dtype=np.int64)
+    for c in candidates:
+        if c["family"] != "A":
+            continue
+        count = c["denominator"]
+        phase = (positions * count + n // 2) % n
+        distance = np.minimum(phase, n - phase)
+        weights = (
+            1000
+            - 24000 * distance * distance // (n * n)
+            + 32000 * distance * distance * distance // (n * n * n)
+        )
+        coherence = max(0, int((knots * weights).sum())) // total
+        alignment = int((knots * np.maximum(n - 6 * distance, 0)).sum()) * 1000 // (total * n)
+        score = (coherence + 20) * alignment // 40
+        c["knot_score"] = score
+        if score > c["score"]:
+            c["score"], c["alignment"] = score, alignment
+
+
+def _signals(frames, axis):
+    n = frames[0].shape[axis]
+    raw = np.zeros(n, dtype=np.int64)
+    energy, peaks = raw.copy(), raw.copy()
+    for image in frames:
+        gradient = np.abs(np.diff(image.astype(np.int64), axis=axis)).sum(axis=2)
+        if axis == 0:
+            gradient = gradient.T
+        raw[1:] += gradient.sum(axis=0, dtype=np.int64)
+        significant = gradient * 4 >= int(gradient.max(initial=0))
+        local = (gradient >= np.roll(gradient, 1, axis=1)) & (
+            gradient > np.roll(gradient, -1, axis=1)
+        )
+        energy[1:] += np.where(significant, gradient, 0).sum(axis=0, dtype=np.int64)
+        peaks[1:] += np.where(significant & local, gradient, 0).sum(axis=0, dtype=np.int64)
+    return raw, energy, peaks
+
+
+def _normalized_select(cx, cy, w, h, force_square, min_peak):
+    if not force_square:
+        winners = [max(cs, key=lambda c: c["score"], default=None) for cs in (cx, cy)]
+        return tuple(c if c and c["score"] >= min_peak else None for c in winners)
+    # Equal-division candidates cover all neighboring integer cell counts.
+    # A one-pixel span rounding difference is allowed between rectangular axes.
+    ys = {c["denominator"]: c for c in cy if c["family"] == "A"}
+    pairs = []
+    for x in cx:
+        if x["family"] != "A":
+            continue
+        nx = x["denominator"]
+        ny = (nx * h + w // 2) // w
+        if ny in ys and abs(nx * h - ny * w) * 4 <= max(w, h):
+            pairs.append((x, ys[ny]))
+    span_pair = max(pairs, key=lambda pair: pair[0]["score"] + pair[1]["score"], default=None)
+    best_span_score = sum(c["score"] for c in span_pair) if span_pair else 0
+    # A cropped integer grid needs substantially stronger evidence to replace
+    # a full-span rational explanation; this rejects JPEG's 2/8-pixel aliases.
+    # Retain integer phase candidates for cropped/offset grids as well.
+    for size in sorted({c["cell"] for c in cx if c["family"] == "B"}):
+        xs = [c for c in cx if c["family"] == "B" and c["cell"] == size]
+        yy = [c for c in cy if c["family"] == "B" and c["cell"] == size]
+        if xs and yy:
+            pair = (max(xs, key=lambda c: c["score"]), max(yy, key=lambda c: c["score"]))
+            near_span = span_pair is not None and all(
+                abs(c["numerator"] * ref["denominator"] - ref["numerator"] * c["denominator"]) * 10
+                <= ref["numerator"] * c["denominator"]
+                for c, ref in zip(pair, span_pair, strict=True)
+            )
+            if near_span and pair[0]["score"] + pair[1]["score"] >= best_span_score * 2:
+                pairs.append(pair)
+    if not pairs:
+        return None, None
+    ax, ay = max(
+        pairs,
+        key=lambda pair: (
+            (pair[0]["score"] + pair[1]["score"])
+            * min(
+                4,
+                (w * pair[0]["denominator"] + pair[0]["numerator"] // 2) // pair[0]["numerator"],
+                (h * pair[1]["denominator"] + pair[1]["numerator"] // 2) // pair[1]["numerator"],
+            ),
+            -pair[0]["cell"],
+            pair[0]["family"] == "B",
+            -pair[0]["offset"],
+            -pair[1]["offset"],
+        ),
     )
+    if min(ax["score"], ay["score"]) < min_peak:
+        return None, None
+    return ax, ay
 
 
 def _intervals(candidate, length):
@@ -149,21 +266,12 @@ def detect_grid(
     integer(harmonic_tolerance, "harmonic_tolerance", 0, 1000)
     integer(min_peak, "min_peak", 1)
     tops = {"x": [], "y": []}
+    exact = False
     if mode == "auto":
-        ex, ey = np.zeros(w, dtype=np.int64), np.zeros(h, dtype=np.int64)
-        for image in frames:
-            wide = image.astype(np.int64)
-            ex[1:] += np.abs(wide[:, 1:] - wide[:, :-1]).sum(axis=(0, 2), dtype=np.int64)
-            ey[1:] += np.abs(wide[1:] - wide[:-1]).sum(axis=(1, 2), dtype=np.int64)
+        ex, energy_x, peaks_x = _signals(frames, 1)
+        ey, energy_y, peaks_y = _signals(frames, 0)
         cx, cy = axis_candidates(ex, min_cell, max_cell), axis_candidates(ey, min_cell, max_cell)
-        tops = {
-            "x": sorted(cx, key=cmp_to_key(_rank_compare))[:5],
-            "y": sorted(cy, key=cmp_to_key(_rank_compare))[:5],
-        }
-        ax, ay = (
-            _select(cx, min_peak, harmonic_tolerance),
-            _select(cy, min_peak, harmonic_tolerance),
-        )
+        ax = ay = None
 
         # A sparse drawing can concentrate all energy at a few boundaries.
         # Explain every observed edge before comparing average peak heights.
@@ -173,40 +281,49 @@ def detect_grid(
                 c
                 for c in candidates
                 if events
-                and c["family"] == "B"
                 and events.issubset(c["boundaries"])
                 and sum(b - a for a, b in _intervals(c, len(signal))) == len(signal)
             ]
 
         exact_x, exact_y = exact_candidates(cx, ex), exact_candidates(cy, ey)
         if force_square:
-            sizes = sorted({c["cell"] for c in exact_x} & {c["cell"] for c in exact_y})
+            sizes = sorted(
+                {c["cell"] for c in exact_x if c["family"] == "B"}
+                & {c["cell"] for c in exact_y if c["family"] == "B"}
+            )
             if sizes:
+                exact = True
                 size = sizes[-1]
-                ax = min((c for c in exact_x if c["cell"] == size), key=lambda c: c["offset"])
-                ay = min((c for c in exact_y if c["cell"] == size), key=lambda c: c["offset"])
+                ax = min(
+                    (c for c in exact_x if c["family"] == "B" and c["cell"] == size),
+                    key=lambda c: c["offset"],
+                )
+                ay = min(
+                    (c for c in exact_y if c["family"] == "B" and c["cell"] == size),
+                    key=lambda c: c["offset"],
+                )
         else:
             if exact_x:
-                ax = min(exact_x, key=lambda c: (-c["cell"], c["offset"]))
+                ax = sorted(exact_x, key=cmp_to_key(_size_compare))[-1]
             if exact_y:
-                ay = min(exact_y, key=lambda c: (-c["cell"], c["offset"]))
-        if ax is not None and ay is not None and force_square and _different_size(ax, ay):
-            winner = ax if ax["peak"] >= ay["peak"] else ay
-            choices = cy if winner is ax else cx
-            choices = [c for c in choices if not _different_size(c, winner)]
-            # For a rational A period unavailable on the other axis, use its
-            # rounded nominal integer period and reselect only the B phase.
-            if not choices:
-                choices = [
-                    c
-                    for c in (cy if winner is ax else cx)
-                    if c["family"] == "B" and c["cell"] == winner["cell"]
-                ]
-            selected = sorted(choices, key=cmp_to_key(_rank_compare))[0] if choices else None
-            if winner is ax:
-                ay = selected
-            else:
-                ax = selected
+                ay = sorted(exact_y, key=cmp_to_key(_size_compare))[-1]
+        if not force_square and ax is not None and ay is not None:
+            exact = True
+        if not exact:
+            _normalized_candidates(cx, energy_x, peaks_x)
+            _normalized_candidates(cy, energy_y, peaks_y)
+            _knot_candidates(cx, frames, 1)
+            _knot_candidates(cy, frames, 0)
+            ax, ay = _normalized_select(cx, cy, w, h, force_square, min_peak)
+        else:
+            for c in cx + cy:
+                c["score"] = c["peak"]
+                c["alignment"] = 1000
+                c["coherence"] = 1000
+        tops = {
+            "x": sorted(cx, key=lambda c: (-c["score"], -c["peak"], c["cell"], c["offset"]))[:5],
+            "y": sorted(cy, key=lambda c: (-c["score"], -c["peak"], c["cell"], c["offset"]))[:5],
+        }
     elif mode == "target":
         integer(target_w, "target_w", 1, w)
         integer(target_h, "target_h", 1, h)
@@ -242,6 +359,19 @@ def detect_grid(
         "rows": len(ys),
         "peak": min(ax["peak"], ay["peak"]) if detected else 0,
         "candidates": tops,
+        "alignment": min(ax.get("alignment", 1000), ay.get("alignment", 1000)) if detected else 0,
+        "normalized_score": min(ax.get("score", 0), ay.get("score", 0)) if detected else 0,
+        "ambiguous": bool(
+            mode == "auto"
+            and detected
+            and not exact
+            and any(
+                len(tops[k]) > 1
+                and tops[k][1]["score"] * 100 >= tops[k][0]["score"] * 95
+                and _different_size(tops[k][0], tops[k][1])
+                for k in ("x", "y")
+            )
+        ),
         **purity,
     }
 

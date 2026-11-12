@@ -60,3 +60,22 @@ def neighbors(x, y, w, h, connectivity=8):
                 xx, yy = x + dx, y + dy
                 if 0 <= xx < w and 0 <= yy < h:
                     yield xx, yy
+
+
+def color_channels(color):
+    """Accept a validated hex color or RGB/RGBA sequence without approximation."""
+    if isinstance(color, str):
+        require(
+            len(color) in (7, 9) and color.startswith("#"), "Color must be #rrggbb or #rrggbbaa."
+        )
+        try:
+            color = list(bytes.fromhex(color[1:]))
+        except ValueError as error:
+            raise PipelineError(
+                "E_INVALID_ARGS", "Invalid hexadecimal color.", "Use #rrggbb or #rrggbbaa."
+            ) from error
+    require(
+        isinstance(color, (list, tuple, np.ndarray)) and len(color) in (3, 4),
+        "Color must be RGB, RGBA, #rrggbb or #rrggbbaa.",
+    )
+    return tuple(integer(v, "color channel", 0, 255) for v in color)
