@@ -1,0 +1,109 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "colors": {
+      "description": "Ordered palette colors as #rrggbbaa strings, at most 256 entries.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Colors",
+      "type": "array"
+    },
+    "names": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Palette-index keys mapped to human-readable color names.",
+      "title": "Names"
+    },
+    "transparent_index": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Palette index representing transparent pixels.",
+      "title": "Transparent Index"
+    },
+    "on_shrink": {
+      "default": "error",
+      "description": "Policy for removed palette entries: error, remap_nearest, or to_transparent.",
+      "enum": [
+        "error",
+        "remap_nearest",
+        "to_transparent"
+      ],
+      "title": "On Shrink",
+      "type": "string"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "colors",
+    "project"
+  ],
+  "title": "set_paletteInput",
+  "type": "object"
+}

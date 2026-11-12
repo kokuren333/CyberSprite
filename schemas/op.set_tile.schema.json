@@ -1,0 +1,97 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "layer": {
+      "description": "Target layer ID, unique name, or group path.",
+      "title": "Layer",
+      "type": "string"
+    },
+    "frame": {
+      "description": "Zero-based frame index.",
+      "title": "Frame",
+      "type": "integer"
+    },
+    "col": {
+      "description": "Zero-based column on the cel grid, including its origin offset.",
+      "title": "Col",
+      "type": "integer"
+    },
+    "row": {
+      "description": "Zero-based row on the cel grid, including its origin offset.",
+      "title": "Row",
+      "type": "integer"
+    },
+    "tile": {
+      "description": "Zero-based tile index; set_tile_pixels also accepts new to append.",
+      "title": "Tile",
+      "type": "integer"
+    },
+    "flip": {
+      "default": "",
+      "description": "Reflection flags in x, y, d order; diagonal is applied first.",
+      "pattern": "^x?y?d?$",
+      "title": "Flip",
+      "type": "string"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "layer",
+    "frame",
+    "col",
+    "row",
+    "tile",
+    "project"
+  ],
+  "title": "set_tileInput",
+  "type": "object"
+}

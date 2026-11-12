@@ -1,0 +1,82 @@
+{
+  "$defs": {
+    "Rect": {
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "title": "X",
+          "type": "integer"
+        },
+        "y": {
+          "title": "Y",
+          "type": "integer"
+        },
+        "w": {
+          "minimum": 0,
+          "title": "W",
+          "type": "integer"
+        },
+        "h": {
+          "minimum": 0,
+          "title": "H",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h"
+      ],
+      "title": "Rect",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "layer": {
+      "description": "Target layer ID, unique name, or group path.",
+      "title": "Layer",
+      "type": "string"
+    },
+    "frame": {
+      "description": "Zero-based frame index.",
+      "title": "Frame",
+      "type": "integer"
+    },
+    "rect": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Rect"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Integer rectangle {x,y,w,h}; content requests the opaque content bounds when supported."
+    },
+    "format": {
+      "default": "hex",
+      "description": "Pixel row encoding: hex uses two hexadecimal digits per palette index; sym uses one character from 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ for indices 0-61 and . for the transparent index (palette at most 62 colors).",
+      "enum": [
+        "hex",
+        "sym"
+      ],
+      "title": "Format",
+      "type": "string"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    }
+  },
+  "required": [
+    "layer",
+    "frame",
+    "project"
+  ],
+  "title": "get_pixelsInput",
+  "type": "object"
+}

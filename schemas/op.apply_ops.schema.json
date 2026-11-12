@@ -1,0 +1,105 @@
+{
+  "$defs": {
+    "OpCall": {
+      "additionalProperties": false,
+      "properties": {
+        "op": {
+          "title": "Op",
+          "type": "string"
+        },
+        "args": {
+          "additionalProperties": true,
+          "title": "Args",
+          "type": "object"
+        }
+      },
+      "required": [
+        "op"
+      ],
+      "title": "OpCall",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "ops": {
+      "description": "Ordered ordinary mutate calls, committed together as one atomic transaction.",
+      "items": {
+        "$ref": "#/$defs/OpCall"
+      },
+      "maxItems": 1000,
+      "minItems": 1,
+      "title": "Ops",
+      "type": "array"
+    },
+    "label": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Human-readable history label for the transaction.",
+      "title": "Label"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ops",
+    "project"
+  ],
+  "title": "apply_opsInput",
+  "type": "object"
+}

@@ -279,13 +279,13 @@ class ImportAsepriteArgs(Model):
 
 class ExportDataFile(Model):
     kind: Literal["data"]
-    path: str
+    path: str = Field(json_schema_extra={"format": "path"})
     bytes: int
     sha256: str
 
 
 class ExportFile(Model):
-    path: str
+    path: str = Field(json_schema_extra={"format": "path"})
     bytes: int
     sha256: str
     pixel_sha256: str

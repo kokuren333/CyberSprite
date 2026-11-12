@@ -472,5 +472,5 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
         "project": root.as_posix(),
         "revision": p.revision,
         "result": value,
-        "warnings": [],
+        "warnings": value.get("warnings", []),
     }

@@ -1,0 +1,333 @@
+{
+  "$defs": {
+    "AllRegion": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "all",
+          "default": "all",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "title": "AllRegion",
+      "type": "object"
+    },
+    "ColorRegion": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "color",
+          "title": "Type",
+          "type": "string"
+        },
+        "color": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "title": "Color"
+        }
+      },
+      "required": [
+        "type",
+        "color"
+      ],
+      "title": "ColorRegion",
+      "type": "object"
+    },
+    "MaskRegion": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "mask",
+          "title": "Type",
+          "type": "string"
+        },
+        "x": {
+          "title": "X",
+          "type": "integer"
+        },
+        "y": {
+          "title": "Y",
+          "type": "integer"
+        },
+        "rows": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rows",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "x",
+        "y",
+        "rows"
+      ],
+      "title": "MaskRegion",
+      "type": "object"
+    },
+    "RectRegion": {
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "title": "X",
+          "type": "integer"
+        },
+        "y": {
+          "title": "Y",
+          "type": "integer"
+        },
+        "w": {
+          "minimum": 0,
+          "title": "W",
+          "type": "integer"
+        },
+        "h": {
+          "minimum": 0,
+          "title": "H",
+          "type": "integer"
+        },
+        "type": {
+          "const": "rect",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h",
+        "type"
+      ],
+      "title": "RectRegion",
+      "type": "object"
+    },
+    "WandRegion": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "wand",
+          "title": "Type",
+          "type": "string"
+        },
+        "x": {
+          "title": "X",
+          "type": "integer"
+        },
+        "y": {
+          "title": "Y",
+          "type": "integer"
+        },
+        "connectivity": {
+          "default": 4,
+          "enum": [
+            4,
+            8
+          ],
+          "title": "Connectivity",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "x",
+        "y"
+      ],
+      "title": "WandRegion",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "layer": {
+      "description": "Target layer ID, unique name, or group path.",
+      "title": "Layer",
+      "type": "string"
+    },
+    "frame": {
+      "description": "Zero-based frame index.",
+      "title": "Frame",
+      "type": "integer"
+    },
+    "region": {
+      "description": "Explicit all, rectangle, mask, color, or wand selection in canvas coordinates.",
+      "discriminator": {
+        "mapping": {
+          "all": "#/$defs/AllRegion",
+          "color": "#/$defs/ColorRegion",
+          "mask": "#/$defs/MaskRegion",
+          "rect": "#/$defs/RectRegion",
+          "wand": "#/$defs/WandRegion"
+        },
+        "propertyName": "type"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/AllRegion"
+        },
+        {
+          "$ref": "#/$defs/RectRegion"
+        },
+        {
+          "$ref": "#/$defs/MaskRegion"
+        },
+        {
+          "$ref": "#/$defs/ColorRegion"
+        },
+        {
+          "$ref": "#/$defs/WandRegion"
+        }
+      ],
+      "title": "Region"
+    },
+    "action": {
+      "default": "move",
+      "description": "Move selected pixels (clearing the source) or copy them.",
+      "enum": [
+        "move",
+        "copy"
+      ],
+      "title": "Action",
+      "type": "string"
+    },
+    "dx": {
+      "default": 0,
+      "description": "Horizontal integer displacement; positive moves right.",
+      "title": "Dx",
+      "type": "integer"
+    },
+    "dy": {
+      "default": 0,
+      "description": "Vertical integer displacement; positive moves down.",
+      "title": "Dy",
+      "type": "integer"
+    },
+    "flip": {
+      "anyOf": [
+        {
+          "enum": [
+            "h",
+            "v"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Horizontal (h) or vertical (v) reflection; omit to keep orientation.",
+      "title": "Flip"
+    },
+    "rotate": {
+      "default": 0,
+      "description": "Clockwise rotation in integer degrees: 0, 90, 180, or 270.",
+      "enum": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "title": "Rotate",
+      "type": "integer"
+    },
+    "target_layer": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Destination layer reference; omit to use the source layer.",
+      "title": "Target Layer"
+    },
+    "target_frame": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Destination zero-based frame index; omit to use the source frame.",
+      "title": "Target Frame"
+    },
+    "overwrite_transparent": {
+      "default": false,
+      "description": "Allow transparent input pixels to erase destination pixels.",
+      "title": "Overwrite Transparent",
+      "type": "boolean"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "layer",
+    "frame",
+    "region",
+    "project"
+  ],
+  "title": "transform_regionInput",
+  "type": "object"
+}

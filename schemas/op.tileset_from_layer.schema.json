@@ -1,0 +1,151 @@
+{
+  "$defs": {
+    "MatchFlips": {
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "default": false,
+          "title": "X",
+          "type": "boolean"
+        },
+        "y": {
+          "default": false,
+          "title": "Y",
+          "type": "boolean"
+        },
+        "d": {
+          "default": false,
+          "title": "D",
+          "type": "boolean"
+        }
+      },
+      "title": "MatchFlips",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "layer": {
+      "description": "Target layer ID, unique name, or group path.",
+      "title": "Layer",
+      "type": "string"
+    },
+    "tile_w": {
+      "description": "Tile width in pixels (1-256).",
+      "maximum": 256,
+      "minimum": 1,
+      "title": "Tile W",
+      "type": "integer"
+    },
+    "tile_h": {
+      "description": "Tile height in pixels (1-256).",
+      "maximum": 256,
+      "minimum": 1,
+      "title": "Tile H",
+      "type": "integer"
+    },
+    "origin_x": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Grid origin X; defaults to canvas.grid.x.",
+      "title": "Origin X"
+    },
+    "origin_y": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Grid origin Y; defaults to canvas.grid.y.",
+      "title": "Origin Y"
+    },
+    "name": {
+      "anyOf": [
+        {
+          "maxLength": 255,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Human-readable resource name, at most 255 characters.",
+      "title": "Name"
+    },
+    "match_flips": {
+      "$ref": "#/$defs/MatchFlips",
+      "description": "Permit exact existing tile matches with x, y, or diagonal reflections."
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "layer",
+    "tile_w",
+    "tile_h",
+    "project"
+  ],
+  "title": "tileset_from_layerInput",
+  "type": "object"
+}

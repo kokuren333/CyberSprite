@@ -1,0 +1,120 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "at": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Insertion frame index; omit to append.",
+      "title": "At"
+    },
+    "count": {
+      "default": 1,
+      "description": "Number of frames to insert.",
+      "minimum": 1,
+      "title": "Count",
+      "type": "integer"
+    },
+    "duration_ms": {
+      "anyOf": [
+        {
+          "maximum": 65535,
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Frame display duration in integer milliseconds (1-65535).",
+      "title": "Duration Ms"
+    },
+    "cels": {
+      "default": "empty",
+      "description": "Initialize inserted cels as empty, independent copies, links, or automatic continuity.",
+      "enum": [
+        "empty",
+        "copy",
+        "link",
+        "auto"
+      ],
+      "title": "Cels",
+      "type": "string"
+    },
+    "copy_from": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Zero-based source frame for copied or linked cels.",
+      "title": "Copy From"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "project"
+  ],
+  "title": "add_frameInput",
+  "type": "object"
+}

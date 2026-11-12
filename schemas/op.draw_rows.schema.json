@@ -1,0 +1,109 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "layer": {
+      "description": "Target layer ID, unique name, or group path.",
+      "title": "Layer",
+      "type": "string"
+    },
+    "frame": {
+      "description": "Zero-based frame index.",
+      "title": "Frame",
+      "type": "integer"
+    },
+    "x": {
+      "description": "Horizontal pixel coordinate from the canvas left edge.",
+      "title": "X",
+      "type": "integer"
+    },
+    "y": {
+      "description": "Vertical pixel coordinate from the canvas top edge.",
+      "title": "Y",
+      "type": "integer"
+    },
+    "rows": {
+      "description": "Rectangular pixel row strings using the selected format.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Rows",
+      "type": "array"
+    },
+    "format": {
+      "default": "hex",
+      "description": "Pixel row encoding: hex uses two hexadecimal digits per palette index; sym uses one character from 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ for indices 0-61 and . for the transparent index (palette at most 62 colors).",
+      "enum": [
+        "hex",
+        "sym"
+      ],
+      "title": "Format",
+      "type": "string"
+    },
+    "skip_transparent": {
+      "default": false,
+      "description": "Leave existing pixels unchanged where input uses the transparent index.",
+      "title": "Skip Transparent",
+      "type": "boolean"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "layer",
+    "frame",
+    "x",
+    "y",
+    "rows",
+    "project"
+  ],
+  "title": "draw_rowsInput",
+  "type": "object"
+}

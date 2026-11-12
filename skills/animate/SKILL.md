@@ -30,7 +30,7 @@ csp -p hero.csprite op unlink_cel layer=details frame=1                    # こ
 csp -p hero.csprite info --include layers                                  # 各レイヤーの link_groups を見る
 ```
 
-フレーム指定は、整数、配列、`all`、範囲 `0-3`、`tag:<名前>` を受ける（Op の説明に「Frame selection」とあるもの）。`csp op … キー=値` で一覧を渡すときは `'frames=[2,6]'` と JSON 配列で書く（`frames=2,6` は `E_INVALID_ARGS`）。
+フレーム指定は、整数、配列、`all`、範囲 `0-3`、`tag:<名前>` を受ける（Op の説明に「Frame selection」とあるもの）。`csp op … キー=値` の一覧は `'frames=[2,6]'` の JSON 配列、または `frames=2,6` のカンマ区切りで書ける。
 
 ### 2.2 リンクセルを編集する前に予行する
 

@@ -1,7 +1,7 @@
 """Local GUI service; importing the CLI does not import optional server dependencies."""
 
 
-def serve(project=None, port=0, no_browser=False, root=None, allow_dir=()):
+def serve(project=None, port=0, no_browser=False, root=None, allow_dir=(), enable_generation=False):
     import secrets
     import socket
     import webbrowser
@@ -18,7 +18,12 @@ def serve(project=None, port=0, no_browser=False, root=None, allow_dir=()):
     sock.listen(128)
     address = f"http://127.0.0.1:{sock.getsockname()[1]}"
     app = create_app(
-        root=root or Path.cwd(), token=token, origin=address, project=project, allow_dir=allow_dir
+        root=root or Path.cwd(),
+        token=token,
+        origin=address,
+        project=project,
+        allow_dir=allow_dir,
+        enable_generation=enable_generation,
     )
     url = f"{address}/#{token}"
     print(url, flush=True)

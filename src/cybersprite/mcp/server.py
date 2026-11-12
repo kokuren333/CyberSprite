@@ -16,6 +16,7 @@ from cybersprite.formats.common import export_policy
 from .contracts import FORBIDDEN, GENERATION, MINIMAL, ORDER, describe, with_path_metadata
 from .execution import DeadlineExpired, Execution
 from .paths import PathPolicy
+from .result_paths import error_schema, response_schema
 
 TEXT_LIMIT = 256 * 1024
 TIMEOUTS = {"import_image": 300, "generate_image": 1800}
@@ -57,6 +58,7 @@ class MCPService:
             name: op for name, op in self.definitions.items() if self._allowed(op, listed=True)
         }
         self.contracts = {name: describe(op) for name, op in self.exposed.items()}
+        self.response_schemas = {name: response_schema(op) for name, op in self.exposed.items()}
 
     def _allowed(self, op, *, listed):
         if op.name in FORBIDDEN or op.kind not in {"query", "mutate", "ingest", "export"}:
@@ -92,10 +94,17 @@ class MCPService:
         ]
 
     def _arguments(self, op, values):
-        schema = self.contracts[op.name]["inputSchema"]
+        schema = self.contracts[op.name]["argumentSchema"]
         allowed = set(schema["properties"])
-        if not isinstance(values, dict) or set(values) - allowed:
+        if not isinstance(values, dict):
             raise invalid("Tool arguments must be an object containing only declared fields.")
+        unknown = sorted(set(values) - allowed)
+        if unknown:
+            raise invalid(
+                "Undeclared tool arguments: " + ", ".join(unknown) + ".",
+                arguments=unknown,
+                candidates=sorted(allowed),
+            )
         if not isinstance(values.get("project"), str):
             raise invalid("project is required and must be a path string.")
         values = self.policy.arguments(deepcopy(values), schema)
@@ -118,7 +127,12 @@ class MCPService:
         images = []
         for section in (value.get("result", {}), value.get("preview", {})):
             images.extend(section.pop("images", []))
-        value = self.policy.result(value, root)
+        schema = (
+            self.response_schemas[value["op"]]
+            if value["ok"]
+            else error_schema(value["error"]["code"])
+        )
+        value = self.policy.result(value, root, schema)
         text = json.dumps(value, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
         if len(text.encode("utf-8")) > TEXT_LIMIT:
             raise CyberSpriteError(
@@ -208,6 +222,11 @@ class MCPService:
         # Do not echo an untrusted absolute path or an arbitrarily large argument.
         if not isinstance(project, str) or len(project) > 1024 or Path(project).is_absolute():
             project = ""
+        if project:
+            try:
+                self.policy.resolve(project)
+            except CyberSpriteError:
+                project = ""
         info = error.as_dict()
         if hasattr(error, "op_index"):
             info["op_index"] = error.op_index
@@ -222,6 +241,7 @@ class MCPService:
             return self._pack(value, root)
         except CyberSpriteError:
             value["error"]["details"] = {}
+            value["project"] = ""
             return self._pack(value, root)
 
 

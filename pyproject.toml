@@ -50,6 +50,7 @@ select = ["E", "F", "I", "UP", "B"]
 testpaths = ["tests"]
 addopts = "-ra"
 pythonpath = ["."]
+markers = ["independent_decoder: cross-check built-in raster exports with Pillow on every CI OS"]
 
 [tool.mypy]
 python_version = "3.12"

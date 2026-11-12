@@ -1,0 +1,213 @@
+{
+  "$defs": {
+    "Above": {
+      "additionalProperties": false,
+      "properties": {
+        "above": {
+          "title": "Above",
+          "type": "string"
+        }
+      },
+      "required": [
+        "above"
+      ],
+      "title": "Above",
+      "type": "object"
+    },
+    "Below": {
+      "additionalProperties": false,
+      "properties": {
+        "below": {
+          "title": "Below",
+          "type": "string"
+        }
+      },
+      "required": [
+        "below"
+      ],
+      "title": "Below",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "description": "Human-readable resource name, at most 255 characters.",
+      "maxLength": 255,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "type": {
+      "default": "image",
+      "description": "Layer kind: image, group, or tilemap.",
+      "enum": [
+        "image",
+        "group",
+        "tilemap"
+      ],
+      "title": "Type",
+      "type": "string"
+    },
+    "parent": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Parent group reference; omit for a top-level layer.",
+      "title": "Parent"
+    },
+    "position": {
+      "anyOf": [
+        {
+          "enum": [
+            "top",
+            "bottom"
+          ],
+          "type": "string"
+        },
+        {
+          "$ref": "#/$defs/Above"
+        },
+        {
+          "$ref": "#/$defs/Below"
+        }
+      ],
+      "default": "top",
+      "description": "Stack position: top, bottom, or an above/below layer reference.",
+      "title": "Position"
+    },
+    "opacity": {
+      "default": 255,
+      "description": "Opacity from 0 (transparent) to 255 (opaque).",
+      "maximum": 255,
+      "minimum": 0,
+      "title": "Opacity",
+      "type": "integer"
+    },
+    "blend_mode": {
+      "default": "normal",
+      "description": "Layer blend mode; non-normal modes use the v1 fallback renderer.",
+      "enum": [
+        "normal",
+        "multiply",
+        "screen",
+        "overlay",
+        "darken",
+        "lighten",
+        "color_dodge",
+        "color_burn",
+        "hard_light",
+        "soft_light",
+        "difference",
+        "exclusion",
+        "hue",
+        "saturation",
+        "color",
+        "luminosity",
+        "addition",
+        "subtract",
+        "divide"
+      ],
+      "title": "Blend Mode",
+      "type": "string"
+    },
+    "visible": {
+      "default": true,
+      "description": "Include this layer in normal rendering.",
+      "title": "Visible",
+      "type": "boolean"
+    },
+    "continuous": {
+      "default": false,
+      "description": "Use linked cels when automatically extending the layer timeline.",
+      "title": "Continuous",
+      "type": "boolean"
+    },
+    "tileset": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Tileset ID associated with this operation.",
+      "title": "Tileset"
+    },
+    "if_exists": {
+      "default": "error",
+      "description": "Policy when a matching resource already exists; see the allowed enum values.",
+      "enum": [
+        "error",
+        "reuse",
+        "allow"
+      ],
+      "title": "If Exists",
+      "type": "string"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "project"
+  ],
+  "title": "add_layerInput",
+  "type": "object"
+}

@@ -395,7 +395,7 @@ def test_external_input_adapter_contract(runner, monkeypatch):
 
 
 def test_schema_variants_and_sheet_hook(runner, monkeypatch):
-    for kind in ("project", "sources", "all"):
+    for kind in ("project", "sources", "sheet", "all"):
         assert invoke(runner, "schema", kind)["ok"]
     invoke(runner, "schema", "op", "line", "--out", "schemas")
     assert Path("schemas/op.schema.json").is_file()
@@ -403,11 +403,9 @@ def test_schema_variants_and_sheet_hook(runner, monkeypatch):
         invoke(runner, "schema", "project", "unexpected", code=2)["error"]["code"]
         == "E_INVALID_ARGS"
     )
-    module = types.ModuleType("cybersprite.formats.sheet")
-    monkeypatch.setitem(sys.modules, module.__name__, module)
-    assert invoke(runner, "schema", "sheet", code=6)["error"]["code"] == "E_UNSUPPORTED"
-    module.sheet_schema = lambda: {"type": "object"}
-    assert invoke(runner, "schema", "sheet")["result"]["sheet"] == {"type": "object"}
+    from cybersprite.formats.sheet_models import sheet_schema
+
+    assert invoke(runner, "schema", "sheet")["result"]["sheet"] == sheet_schema()
 
 
 def test_output_copy_and_project_safety(runner, project):

@@ -1,0 +1,138 @@
+{
+  "$defs": {
+    "Brush": {
+      "additionalProperties": false,
+      "properties": {
+        "size": {
+          "default": 1,
+          "maximum": 64,
+          "minimum": 1,
+          "title": "Size",
+          "type": "integer"
+        },
+        "shape": {
+          "default": "square",
+          "enum": [
+            "square",
+            "circle"
+          ],
+          "title": "Shape",
+          "type": "string"
+        }
+      },
+      "title": "Brush",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "layer": {
+      "description": "Target layer ID, unique name, or group path.",
+      "title": "Layer",
+      "type": "string"
+    },
+    "frame": {
+      "description": "Zero-based frame index.",
+      "title": "Frame",
+      "type": "integer"
+    },
+    "x0": {
+      "description": "Horizontal pixel coordinate of the line start, inclusive.",
+      "title": "X0",
+      "type": "integer"
+    },
+    "y0": {
+      "description": "Vertical pixel coordinate of the line start, inclusive.",
+      "title": "Y0",
+      "type": "integer"
+    },
+    "x1": {
+      "description": "Horizontal pixel coordinate of the line end, inclusive.",
+      "title": "X1",
+      "type": "integer"
+    },
+    "y1": {
+      "description": "Vertical pixel coordinate of the line end, inclusive.",
+      "title": "Y1",
+      "type": "integer"
+    },
+    "color": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "description": "Palette index or an exact palette color; editing never approximates colors.",
+      "title": "Color"
+    },
+    "brush": {
+      "$ref": "#/$defs/Brush",
+      "description": "Integer brush size (1-64) and square or circle footprint."
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "layer",
+    "frame",
+    "x0",
+    "y0",
+    "x1",
+    "y1",
+    "color",
+    "project"
+  ],
+  "title": "lineInput",
+  "type": "object"
+}

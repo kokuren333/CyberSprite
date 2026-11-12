@@ -39,18 +39,6 @@
   "layers": [
     {
       "id": "L1",
-      "name": "Layer 1",
-      "type": "image",
-      "visible": true,
-      "locked": false,
-      "opacity": 255,
-      "blend_mode": "normal",
-      "background": false,
-      "continuous": false,
-      "cels": []
-    },
-    {
-      "id": "L2",
       "name": "original",
       "type": "image",
       "visible": true,
@@ -111,7 +99,7 @@
     "severity": {}
   },
   "id_counters": {
-    "layer": 2,
+    "layer": 1,
     "tag": 0,
     "slice": 0,
     "tileset": 0

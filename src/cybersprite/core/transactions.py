@@ -327,7 +327,12 @@ def transact(
             "changed": changed,
             "validation": validation_delta(previous_report, next_report),
             "preview": {"paths": [], "scale": 1, "omitted_frames": []},
-            "warnings": ctx.warnings,
+            "warnings": ctx.warnings
+            + (
+                [{"code": "W_CLIPPED", "clipped_pixels": ctx.clipped_pixels}]
+                if ctx.clipped_pixels
+                else []
+            ),
         }
         check_deadline()
         if options.dry_run:

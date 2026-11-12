@@ -1,6 +1,7 @@
 """The only expectation writer. Review the printed summary and git diff after each update."""
 
 import argparse
+import difflib
 import hashlib
 from pathlib import Path
 
@@ -26,6 +27,18 @@ def update(case: Path) -> int:
                 f"{case.name}/{name}: {len(before or b'')} -> {len(data)} bytes; "
                 f"{old_hash} -> {hashlib.sha256(data).hexdigest()[:12]}"
             )
+            if before is not None and name.endswith(".json"):
+                print(
+                    "".join(
+                        difflib.unified_diff(
+                            before.decode("utf-8").splitlines(keepends=True),
+                            data.decode("utf-8").splitlines(keepends=True),
+                            fromfile=f"{case.name}/{name} (before)",
+                            tofile=f"{case.name}/{name} (after)",
+                        )
+                    ),
+                    end="",
+                )
             path.write_bytes(data)
             changed += 1
     for path in sorted(destination.iterdir()):
@@ -38,11 +51,26 @@ def update(case: Path) -> int:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--case", action="append", help="Update only named cases (repeatable).")
+    selection = parser.add_mutually_exclusive_group(required=True)
+    selection.add_argument("--case", action="append", help="Update only named cases (repeatable).")
+    selection.add_argument(
+        "--all", action="store_true", help="Select all cases; requires --confirm-all."
+    )
+    parser.add_argument(
+        "--confirm-all", action="store_true", help="Confirm an intentional full update."
+    )
     args = parser.parse_args()
+    if args.all != args.confirm_all:
+        parser.error("Use --all and --confirm-all together, or select explicit --case names.")
+    available = {
+        case.name: case for case in sorted(ROOT.iterdir()) if (case / "case.json").is_file()
+    }
+    unknown = sorted(set(args.case or []) - available.keys())
+    if unknown:
+        parser.error(f"Unknown cases: {', '.join(unknown)}. Available: {', '.join(available)}")
     count = 0
-    for case in sorted(ROOT.iterdir()):
-        if (case / "case.json").is_file() and (not args.case or case.name in args.case):
+    for name, case in available.items():
+        if args.all or name in args.case:
             count += update(case)
     print(
         f"Changed {count} expectation files. "

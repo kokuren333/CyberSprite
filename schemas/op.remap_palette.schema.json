@@ -1,0 +1,112 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "order": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Explicit permutation of old palette indices in new order.",
+      "title": "Order"
+    },
+    "sort_by": {
+      "anyOf": [
+        {
+          "enum": [
+            "lightness",
+            "hue",
+            "usage"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Sort palette entries by integer perceptual lightness, hue, or pixel usage.",
+      "title": "Sort By"
+    },
+    "merge_duplicates": {
+      "default": false,
+      "description": "Share identical entries instead of keeping duplicates.",
+      "title": "Merge Duplicates",
+      "type": "boolean"
+    },
+    "remove_unused": {
+      "default": false,
+      "description": "Remove palette entries with no pixel references.",
+      "title": "Remove Unused",
+      "type": "boolean"
+    },
+    "keep_transparent_first": {
+      "default": true,
+      "description": "Keep the transparent palette entry at index zero.",
+      "title": "Keep Transparent First",
+      "type": "boolean"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "project"
+  ],
+  "title": "remap_paletteInput",
+  "type": "object"
+}

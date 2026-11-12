@@ -18,7 +18,7 @@ from tools.bench import fixture
 from tools.m5_cases import tile_project
 
 
-@pytest.mark.parametrize("seed", [881, 882, 883])
+@pytest.mark.parametrize("seed", range(881, 889))
 def test_random_op_sequences_cached_reports_and_deltas_match_full(tmp_path, seed):
     rng = Random(seed)
     root = tmp_path / "sequence.csprite"

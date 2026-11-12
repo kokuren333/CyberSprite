@@ -1516,6 +1516,7 @@ Ra = 0 のとき: 結果は (0, 0, 0, 0)
 - **正本と予約領域の保護（MUST）。** 形式層の共通境界で、ファイル名の展開後・実体パス解決後の全出力先を検査する。プロジェクト直下の予約名 `project.json`、`source/`、`.cybersprite/`（その配下を含む）への書き出しは `overwrite` によらず拒否する。大小文字の別名、シンボリックリンク／ジャンクション、および既存正本への同一 inode（ハードリンク）も拒否する。`E_PATH_NOT_ALLOWED` の `details.reason` は `protected_project_file` とし、プロジェクト外または予約領域以外の許可された出力先を選ぶヒントを返す。画像、シートJSON、パレット、.aseprite、タイルセット、アニメーション、連番のすべてが対象。複数ファイルは、1つも書く前に全最終パスを検査する。拒否された書き出しは正本・履歴を変更しない。
 - **自己検査（MUST）。** 書き出しは、書いたファイルを復号し直し、レンダラの出力とピクセル単位で一致することを確かめる（§13.7）。一致しなければファイルを消して `E_INTERNAL` を返す。
 - 書き出しの結果（共通）: `files`、`fingerprint`（実行環境指紋）、`warnings`、`validation_ok`、`verified`（自己検査の結果）。`files[]` は画像（PNG、GIF、APNG、.aseprite、パレットPNG）ならパス、バイト数、`sha256`、`pixel_sha256`、幅、高さを持つ。データ（シートJSON、テキストパレット）は `kind: "data"` とパス、バイト数、`sha256` だけを持つ。
+- 利用面の警告の正本は封筒の `warnings`。書き出しの `result.warnings` は互換のため残す同内容の別名であり、異なる一覧にしない。描画で切り捨てた画素があれば `W_CLIPPED` と `clipped_pixels` を封筒に入れる。
 - GPL/PAL/HEXパレット出力は保存された実RGBをそのまま書き、アルファを持たないため透明番号を `W_PALETTE_TRANSPARENT_ENTRY`（`index` と message に番号を明記）で通知する。HEX出力は `#rrggbb`、入力は既存のRGBA形式も受理する。
 - `.aseprite` などの外部ファイルを直接入力にして書き出す一括変換（プロジェクトを作らない）は、CLI の `--input` で行う（§9.4）。
 
@@ -1672,6 +1673,7 @@ cybersprite mcp serve [--root <ディレクトリ>] [--allow-dir <ディレク�
 ```
 
 - 対応する MCP 仕様は 2026-07-28 版。**サーバはステートレスである [D-20]。** 接続やセッションに状態を持たず、すべてのツールが `project` 引数で対象を明示する。
+- HTTP の既定ポートは 8765（CLI と `python -m cybersprite.mcp` 共通）。
 - トランスポートは stdio（既定）と Streamable HTTP。HTTP は `127.0.0.1` だけで待ち受ける。
 - サーバ名は `cybersprite`。ツールの一覧は毎回同じ順（この章の掲載順）で返す。
 
@@ -1683,6 +1685,8 @@ cybersprite mcp serve [--root <ディレクトリ>] [--allow-dir <ディレク�
 | `minimal` | `new_project` `get_info` `get_pixels` `get_palette` `validate` `render_preview` `diff_preview` `apply_ops` `undo` `import_image` `export_image` `export_sheet` `export_animation`。個別の変更は `apply_ops` にまとめる。ツール定義がコンテキストを圧迫する場合に使う |
 
 - `--enable-generation` を付けたときだけ `list_generators` と `generate_image` を公開する。
+- MCP のスキーマは説明用の冗長なタイトルを省略し、成功・失敗の共通フィールドを 1 つの封筒にまとめる。ファイルパスには `format: "path"` を付け、結果の相対パス化はこの情報だけを使う。レイヤー経路などの文字列は変換しない。
+- ツール一覧はコンパクトな宣言を返す。入力は必須キー・スカラー制約と小さな入れ子の形を掲載し、大きな入れ子は型だけを掲載する。出力は共通封筒の必須キーと成功・失敗の分岐を掲載する。完全な引数・結果の検証とパス検査には省略前の登録定義を使い、詳細は `ops describe` と `schema op` で取得できる。外部参照の取得は要求しない。
 - プラグインの Op は、`--allow-plugin-op` で名前を挙げたものだけを公開する。
 - `--read-only` は `query` のツールだけを公開する。
 - **`run_lua`、`run_script`、`eval`、任意のシェルコマンドを実行するツールは作らない。** プラグインもそのようなツールを MCP に出してはならない（サーバは Op の種別と定義元を検査し、`--allow-plugin-op` にないものを出さない）。
@@ -1901,8 +1905,8 @@ MCP ではツール実行エラー（`isError: true`）として返す。プロ�
 | `update_layer` | `layer`、`name`、`visible`、`locked`、`opacity`、`blend_mode`、`continuous`、`collapsed`、`background`、`user_data`、`parent`、`position`（指定したものだけ変える） | `background: true` は §5.5.2 の条件を満たす形に直す（最背面へ移し、全フレームにキャンバス大のセルを作り、空いた部分を透明インデックスで埋める）。グループを自分の子孫の下へ動かすのは `E_INVALID_ARGS` | I |
 | `delete_layer` | `layer`、`missing_ok`（false） | グループは子ごと消す。最後の 1 枚は消せない（`E_INVALID_ARGS`）。タイルマップレイヤーを消しても、タイルセットは残る | C（`missing_ok: true` で I） |
 | `duplicate_layer` | `layer`、`name`（`"<元の名前> copy"`） | 直上に複製を作る。リンクの関係は複製の中で保つ。`result`: `{id}` | N |
-| `merge_layers` | `layers`（同じ親を持つ 2 枚以上の画像レイヤー）、または `down`（1 枚。直下のレイヤーと結合）。`flatten`（`"strict"`） | 最も下のレイヤーに結合し、他を消す。関係するセルがパレット閉包でなければ `E_NOT_PALETTE_CLOSED`（`"nearest"` で丸める）。結合後のレイヤーは不透明度 255、Normal。`result`: `{id}` | N |
-| `flatten` | `visible_only`（true）、`flatten`（`"strict"`） | 表示中の全レイヤーを 1 枚の画像レイヤーにする。非表示のレイヤーは `visible_only: true` なら消す | I |
+| `merge_layers` | `layers`（同じ親を持つ連続した 2 枚以上の画像レイヤー）、または `down`（1 枚。直下のレイヤーと結合）。`flatten`（`"strict"`） | 可視合成を最も下のレイヤーに結合し、他を消す。非表示の入力は描画せず、結果は入力のいずれかが表示なら表示する。背景属性は最下層のものを保つ。関係するセルがパレット閉包でない、または strict で結果を厳密に保存できない場合は `E_NOT_PALETTE_CLOSED`（`"nearest"` で丸める）。非連続の指定は重なり順を保てないため `E_INVALID_ARGS`。結合後は不透明度 255、Normal。`result`: `{id}` | N |
+| `flatten` | `visible_only`（true）、`flatten`（`"strict"`） | 全レイヤーを 1 枚に置き換える。true は現在の可視合成を保存し非表示レイヤーを捨てる。false は非表示の祖先・子もすべて表示した合成を焼き込み、結果を表示する。最下層が背景なら背景属性を保つ。strict で結果の属性と画素を厳密に保存できない場合は `E_NOT_PALETTE_CLOSED` | I |
 
 ### 10.9 タグとスライス
 
@@ -2187,6 +2191,7 @@ Bayer の場合、ピクセル `(x, y)` について、最も近い色 `c1`（�
 ### 11.11 配置
 
 合格した結果を、1 つのトランザクションでキャンバスに入れる。
+自動作成したプロジェクトでは、初期の空画像レイヤー L1 を配置先として再利用する。空の「Layer 1」と余分な ID を残さない。
 
 - `project.json` がなければ変換結果の寸法・フレーム数で自動作成し、`target.mode` は `new_layer` とする。初回取り込みを undo した後もプロジェクト自体は残る。不透明色がない既存パレットでは、明示 `pipeline.palette.mode` がない場合は `extract` を使い、色追加と再配置を同じトランザクションに含める。
 - `target.mode: "new_layer"`: `target.name`（既定は元ファイル名）の画像レイヤーを最上位に作る。`"layer"`: 既存の画像レイヤーに書く（透明でないピクセルだけを上書きする）。
@@ -2350,6 +2355,7 @@ license = "model card license name"
 ```
 
 `severity` は、品質ルールの ID から水準（`"error"` `"warning"` `"info"` `"off"`）への対応で、既定を上書きする。キーはこの順で書く。
+`set_validation` は未知の品質ルール ID を `E_INVALID_ARGS` とし、既知の ID を候補として返す。
 
 ### 13.4 検証報告と検証デルタ
 
@@ -2607,6 +2613,7 @@ tests/golden/<ケース名>/
 
 ### 14.6 GUI サーバとプロトコル
 
+- 生成 Op は `cybersprite gui --enable-generation` で明示的に有効にした場合だけ実行できる。既定では実行前に `E_INVALID_ARGS` と具体的な再起動方法を返す。生成バックエンドの一覧取得は読み取りとして利用できる。
 - `cybersprite gui` が、`127.0.0.1` の空きポートでサーバを起動し、既定のブラウザで開く。起動のたびに乱数のトークンを作り、URL のフラグメントで渡す。サーバは、トークンのない要求と、`Origin` が自分自身でない要求を拒否する。パスの制限は MCP と同じ（§10.1.3、`--root`）。
   - フラグメントは HTTP に送られないため、データを含まない初期ページだけは未認証で返せる。初期ページがフラグメントを読み、同一 Origin の認証要求でトークンを渡す。以後の HTTP は認証済み Cookie、WebSocket はトークンと厳密な Origin を必須とする。通常の静的ファイル取得はブラウザが Origin を付けないため、Origin がある場合は必ず照合し、Host も照合する（I-651）。
 - デスクトップアプリとしての包装（単独ウィンドウ）は v1.x（候補: pywebview、BSD-3-Clause）。
@@ -2908,7 +2915,7 @@ tests/golden/<ケース名>/
 | PixArt 系などの重みのライセンス（二次情報が矛盾） | 未確認。既定の例に使わない |
 | Pixelorama の `.pxo` 形式の詳細 | 未確認。v1 では対応しない |
 | sharp / libvips、gif.js、Rust の `gif` クレートなど | 未確認。使わない |
-| Aseprite の実機での挙動（P-01〜P-11） | 未確認。M0 と M5 で確認する |
+| Aseprite の実機での挙動（P-01〜P-11） | **確認済み**。`docs/reference/ASEPRITE_INVENTORY.md` §2 と M10 記録。P-11 は自作の 2 ファイル・全 4 フレームで画素差 0。GUI の未撮影画面は別の残件である |
 | 名称 `cybersprite` の空き（PyPI、GitHub、商標） | 未確認。M0 で確認する |
 | 各指標のしきい値（グリッド整合スコア、忠実度） | 暫定値。M6 の較正で確定する |
 
@@ -3206,6 +3213,10 @@ L = (M2i[0][0] × l' + M2i[0][1] × m' + M2i[0][2] × s' + 32768) >> 16      （
 | `W_EXPORT_INVALID` | 検証が通っていないプロジェクトを強行して書き出した |
 | `W_PREVIEW_UNAVAILABLE` | 正本の保存後に派生プレビューを生成できなかった。変更はコミット済み |
 | `W_PALETTE_TRANSPARENT_ENTRY` | アルファを持たないパレット形式に透明番号の実RGBを書いた（index を付記） |
+| `W_BACKGROUND_KEPT` | 背景の自動除去に失敗し、元の背景を残した |
+| `W_DEFAULT_PALETTE` | 明示パレットがなく、未変更の既定プロジェクトパレットへ暗黙に写像した |
+| `W_PIPELINE_GATE` | 変換の関門が不合格になった（段階画像と gates を確認する） |
+| `W_SOURCE_HISTORY_UNAVAILABLE` | 古い履歴にソース指標がなく、復元できない値を明示した |
 
 ---
 

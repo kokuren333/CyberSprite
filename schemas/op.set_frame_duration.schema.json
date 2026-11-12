@@ -1,0 +1,87 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "frames": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "items": {
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "description": "Frame selection: zero-based index, index list, all, range 0-3, or tag:name.",
+      "title": "Frames"
+    },
+    "duration_ms": {
+      "description": "Frame display duration in integer milliseconds (1-65535).",
+      "maximum": 65535,
+      "minimum": 1,
+      "title": "Duration Ms",
+      "type": "integer"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "frames",
+    "duration_ms",
+    "project"
+  ],
+  "title": "set_frame_durationInput",
+  "type": "object"
+}

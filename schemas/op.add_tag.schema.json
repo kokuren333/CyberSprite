@@ -1,0 +1,122 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "description": "Human-readable resource name, at most 255 characters.",
+      "maxLength": 255,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "from": {
+      "description": "Inclusive starting frame index.",
+      "title": "From",
+      "type": "integer"
+    },
+    "to": {
+      "description": "Inclusive ending frame index.",
+      "title": "To",
+      "type": "integer"
+    },
+    "direction": {
+      "default": "forward",
+      "description": "Tag playback direction: forward, reverse, pingpong, or pingpong_reverse.",
+      "enum": [
+        "forward",
+        "reverse",
+        "pingpong",
+        "pingpong_reverse"
+      ],
+      "title": "Direction",
+      "type": "string"
+    },
+    "repeat": {
+      "default": 0,
+      "description": "Tag repeat/leg count; zero uses the default playback behavior.",
+      "title": "Repeat",
+      "type": "integer"
+    },
+    "color": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Raw display color as #rrggbb; it need not belong to the palette.",
+      "title": "Color"
+    },
+    "if_exists": {
+      "default": "error",
+      "description": "Policy when a matching resource already exists; see the allowed enum values.",
+      "enum": [
+        "error",
+        "update",
+        "allow"
+      ],
+      "title": "If Exists",
+      "type": "string"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "from",
+    "to",
+    "project"
+  ],
+  "title": "add_tagInput",
+  "type": "object"
+}

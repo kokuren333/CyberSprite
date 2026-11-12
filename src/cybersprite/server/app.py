@@ -24,6 +24,7 @@ from cybersprite.core.render import RenderOptions, render
 from cybersprite.formats.common import export_policy
 from cybersprite.mcp.contracts import with_path_metadata
 from cybersprite.mcp.paths import PathPolicy
+from cybersprite.mcp.result_paths import response_schema
 
 BOOTSTRAP = """<!doctype html><html><meta charset="utf-8"><title>CyberSprite</title>
 <body><p id="message">Connecting to CyberSprite…</p><script>
@@ -51,13 +52,14 @@ class Session:
 
 
 class Service:
-    def __init__(self, root, project=None, allow_dir=()):
+    def __init__(self, root, project=None, allow_dir=(), enable_generation=False):
         self.policy = PathPolicy(root, allow_dir)
         self.initial = self.path(project) if project else None
         self.sessions = set()
         self.watched = {}
         self.models = OrderedDict()
         self.lock = asyncio.Lock()
+        self.enable_generation = enable_generation
         self.prefs = {"language": "auto", "zoom": 8, "grid": False, "onion": False}
 
     def read_project(self, project):
@@ -89,6 +91,10 @@ class Service:
 
     def run_op(self, name, project, arguments):
         definition = with_path_metadata(ops.registry().get(name))
+        if definition.idempotency == "G" and not self.enable_generation:
+            raise invalid(
+                "Generation is disabled; restart the GUI with --enable-generation.", op=name
+            )
         schema = definition.args.model_json_schema()
         arguments = self.policy.arguments(arguments, schema)
         if definition.kind != "export":
@@ -109,7 +115,11 @@ class Service:
             # Convert them for the generic project-relative response adapter.
             for file in value["result"].get("files", []):
                 file["path"] = str(self.policy.root / file["path"])
-        return self.policy.result(value, project)
+        return self.policy.result(
+            value,
+            self.policy.root if definition.kind == "export" else project,
+            response_schema(definition),
+        )
 
     def check_outputs(self, value, schema, project, definitions=None):
         definitions = definitions or schema.get("$defs", {})
@@ -445,8 +455,10 @@ class Service:
         return None if notify else response
 
 
-def create_app(*, root, token, origin, project=None, allow_dir=(), static=None):
-    service = Service(root, project, allow_dir)
+def create_app(
+    *, root, token, origin, project=None, allow_dir=(), static=None, enable_generation=False
+):
+    service = Service(root, project, allow_dir, enable_generation=enable_generation)
     static = Path(static or Path(__file__).parent / "static").resolve()
 
     @asynccontextmanager

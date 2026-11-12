@@ -3,6 +3,7 @@
 from copy import deepcopy
 from typing import cast
 
+import numpy as np
 from pydantic import ValidationError
 
 from cybersprite.core.errors import CyberSpriteError, invalid
@@ -18,7 +19,7 @@ from cybersprite.core.models import (
 )
 from cybersprite.core.pixels import pixels_to_rows, rgba
 from cybersprite.core.references import resolve_layer, resolve_tag, walk_layers
-from cybersprite.core.render import indexed_result
+from cybersprite.core.render import indexed_result, render
 
 from .common import background_fit, fail, frame_index, siblings, unlocked
 
@@ -96,7 +97,11 @@ def layer_op(ctx, a, name):
             flat_layer = ImageLayer(id=p.layers[0].id, name=p.layers[0].name)
         else:
             bottom = next(node for node, _ in walk_layers(p.layers) if node.id == layers[0])
-            flat_layer = ImageLayer(id=bottom.id, name=bottom.name)
+            flat_layer = ImageLayer(
+                id=bottom.id,
+                name=bottom.name,
+                background=isinstance(bottom, ImageLayer) and bottom.background,
+            )
         for f in range(len(p.frames)):
             data = indexed_result(
                 p, f, {"include_hidden": not a.visible_only, "flatten": a.flatten}
@@ -111,6 +116,17 @@ def layer_op(ctx, a, name):
                     pixels=pixels_to_rows(data),
                 )
             )
+        if a.flatten == "strict":
+            candidate = p.model_copy(update={"layers": [flat_layer]})
+            for f in range(len(p.frames)):
+                if not np.array_equal(
+                    render(p, f, {"include_hidden": not a.visible_only}), render(candidate, f)
+                ):
+                    fail(
+                        "E_NOT_PALETTE_CLOSED",
+                        "Flattened background cannot preserve the composite exactly.",
+                        frame=f,
+                    )
         p.layers = [flat_layer]
         return {}
     if name == "merge_layers":
@@ -133,13 +149,19 @@ def layer_op(ctx, a, name):
             if not isinstance(node, ImageLayer):
                 fail("E_WRONG_LAYER_TYPE", "Merge requires image layers.")
         chosen.sort(key=items.index)
+        indices = [items.index(node) for node in chosen]
+        if indices != list(range(indices[0], indices[-1] + 1)):
+            raise invalid(
+                "Merge requires consecutive sibling layers to preserve stacking order.",
+                layers=[node.id for node in chosen],
+            )
         bottom = cast(ImageLayer, chosen[0])
         # Render in an isolated root so group opacity is not applied twice after the merge.
         temp = deepcopy(p)
         temp.layers = deepcopy(chosen)
         cels: list[ImageCel | LinkCel] = []
         for f in range(len(p.frames)):
-            data = indexed_result(temp, f, {"include_hidden": True, "flatten": a.flatten}).pixels
+            data = indexed_result(temp, f, {"flatten": a.flatten}).pixels
             cels.append(
                 ImageCel(
                     frame=f,
@@ -150,7 +172,24 @@ def layer_op(ctx, a, name):
                     pixels=pixels_to_rows(data),
                 )
             )
-        bottom.cels, bottom.opacity, bottom.blend_mode = cels, 255, "normal"
+        merged = deepcopy(bottom)
+        merged.cels, merged.opacity, merged.blend_mode = cels, 255, "normal"
+        merged.visible = any(node.visible for node in chosen)
+        if a.flatten == "strict":
+            candidate = temp.model_copy(update={"layers": [merged]})
+            for f in range(len(p.frames)):
+                if not np.array_equal(render(temp, f), render(candidate, f)):
+                    fail(
+                        "E_NOT_PALETTE_CLOSED",
+                        "Merged background cannot preserve the composite exactly.",
+                        frame=f,
+                    )
+        bottom.cels, bottom.opacity, bottom.blend_mode, bottom.visible = (
+            merged.cels,
+            merged.opacity,
+            merged.blend_mode,
+            merged.visible,
+        )
         for node in chosen[1:]:
             items.remove(node)
         return {"id": bottom.id}
@@ -311,6 +350,13 @@ def metadata_op(ctx, a, name):
         if (p.canvas.pixel_ratio.w, p.canvas.pixel_ratio.h) not in ((1, 1), (2, 1), (1, 2)):
             raise invalid("pixel_ratio must be 1:1, 2:1, or 1:2.")
         return {}
+    from cybersprite.core.quality import DEFAULT_LEVELS
+
+    unknown = sorted(set(a.settings.severity or {}) - DEFAULT_LEVELS.keys())
+    if unknown:
+        raise invalid(
+            "Unknown validation rule IDs.", rules=unknown, candidates=sorted(DEFAULT_LEVELS)
+        )
     values = p.validation.model_dump()
     values.update(a.settings.model_dump(exclude_unset=True))
     try:

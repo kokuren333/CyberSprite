@@ -1,0 +1,172 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "out": {
+      "description": "Output file path, relative to the surface root. export image supports {name}, {frame} (zero-based), {frame1} (one-based), {layer}, {tag}, {tagframe} (zero-based within tag), and {slice}; integer frame fields accept widths such as {frame:02}. Other export subcommands use literal paths.",
+      "title": "Out",
+      "type": "string"
+    },
+    "overwrite": {
+      "default": true,
+      "description": "Replace existing output files when true.",
+      "title": "Overwrite",
+      "type": "boolean"
+    },
+    "allow_invalid": {
+      "default": false,
+      "description": "Explicitly export even when validation has errors, recording a warning.",
+      "title": "Allow Invalid",
+      "type": "boolean"
+    },
+    "tileset": {
+      "description": "Tileset ID associated with this operation.",
+      "title": "Tileset",
+      "type": "string"
+    },
+    "data_out": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Optional sheet/tileset metadata JSON output path, relative to the surface root.",
+      "title": "Data Out"
+    },
+    "layout": {
+      "default": "rows",
+      "description": "Item layout: horizontal, vertical, fixed rows/columns, or deterministic packed shelves.",
+      "enum": [
+        "horizontal",
+        "vertical",
+        "rows",
+        "columns",
+        "packed"
+      ],
+      "title": "Layout",
+      "type": "string"
+    },
+    "columns": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Maximum item columns for rows layout.",
+      "title": "Columns"
+    },
+    "rows": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Maximum item rows for columns layout.",
+      "title": "Rows"
+    },
+    "width": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Width in integer pixels.",
+      "title": "Width"
+    },
+    "height": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Height in integer pixels.",
+      "title": "Height"
+    },
+    "spacing": {
+      "default": 0,
+      "description": "Integer gap between neighboring sheet items.",
+      "minimum": 0,
+      "title": "Spacing",
+      "type": "integer"
+    },
+    "border": {
+      "default": 0,
+      "description": "Transparent integer padding around the outer sheet edge.",
+      "minimum": 0,
+      "title": "Border",
+      "type": "integer"
+    },
+    "inner": {
+      "default": 0,
+      "description": "Transparent integer padding inside every sheet item.",
+      "minimum": 0,
+      "title": "Inner",
+      "type": "integer"
+    },
+    "scale": {
+      "default": 1,
+      "description": "Integer nearest-neighbor scale; auto fits previews within their size limit.",
+      "maximum": 64,
+      "minimum": 1,
+      "title": "Scale",
+      "type": "integer"
+    },
+    "power_of_two": {
+      "default": false,
+      "description": "Round sheet dimensions up to powers of two.",
+      "title": "Power Of Two",
+      "type": "boolean"
+    },
+    "include_empty": {
+      "default": false,
+      "description": "Include the transparent tile at index zero.",
+      "title": "Include Empty",
+      "type": "boolean"
+    },
+    "compression": {
+      "default": "zlib",
+      "description": "PNG compression: deterministic stored blocks or environment-dependent zlib bytes.",
+      "enum": [
+        "stored",
+        "zlib"
+      ],
+      "title": "Compression",
+      "type": "string"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    }
+  },
+  "required": [
+    "out",
+    "tileset",
+    "project"
+  ],
+  "title": "export_tilesetInput",
+  "type": "object"
+}
