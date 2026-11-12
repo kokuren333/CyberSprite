@@ -157,11 +157,16 @@ def previews(
     scale = 1
     width = height = 0
     design = guide_image(root, guide) if guide is not None else None
+    panels = None
     for frame in fs if layout == "frames" else [None]:
         check_deadline()
         render_step = 1
         if frame is None:
-            if design is None:
+            if layout == "review":
+                from cybersprite.core.review_sheet import review_sheet
+
+                data, scale, panels = review_sheet(p, fs, design=design, guide=guide, **options)
+            elif design is None:
                 data, scale = composite_preview(p, fs, layout=layout, **options)
             else:
                 data, scale, render_step = composite_preview(
@@ -175,7 +180,7 @@ def previews(
                     "scale": scale_for(p, options.get("scale", "auto"), True, options.get("rect")),
                 }
             data, scale = preview_array(p, frame, inline=inline and design is None, **frame_options)
-        if design is not None:
+        if design is not None and layout != "review":
             data = beside(data, design, guide.get("scale") or scale, render_step)
         data_bytes = encode_png(data)
         suffix = f"f{frame}" if frame is not None else layout
@@ -188,6 +193,8 @@ def previews(
     if not dry and retain:
         defer_retention(history.retain_previews, root)
     result = {"paths": paths, "scale": scale, "width": width, "height": height}
+    if panels is not None:
+        result["panels"] = panels
     if images:
         result["images"] = images
     return result

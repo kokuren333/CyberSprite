@@ -68,3 +68,5 @@ import_image の `files`（単体文字列・配列）と `pipeline.palette.sour
 シナリオ2は既存の自作非ドット画像による代用で、生成コーパス(d)は未入手。JSONLは拒否→設定変更→合格→手直し→書出しを実際のSDK Client（in-process/stdio両方）で実行する。シナリオ3はタイル、5は自作.asepriteのimport→編集→export→読戻し同値性を検査する。1〜5にskip/xfailはない。
 
 M10の新規venv試験は、2025-06-18では `initialize` / `notifications/initialized` の後に `tools/list`、2026-07-28では `server/discover` と各要求の `params._meta` にprotocolVersion/clientCapabilities/clientInfoを付けた `tools/list` を実行する。2026版は初期化ハンドシェイクを使わない。moduleとCLI両入口を `tools/verify_release.py <wheel>` で確認できる。
+
+R1-E3: render_previewのlayout=reviewは1枚のシートとpanels座標表を返す。get_paletteはrampsを返し、set_paletteのramps、@ramp:k、shift_ramp(direction=lighter/darker)、outline.selectiveを共通Opで扱う。export_native(format=gb-2bpp、layerまたはtileset、out)は出力先のroot制約と独立復号検査を共有する。palette_out/map_outは予約・未実装。metrics.platform.craftとQ-CRF-01は情報であり、検証の関門ではない。

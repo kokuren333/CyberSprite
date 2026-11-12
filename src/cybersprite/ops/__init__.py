@@ -56,6 +56,7 @@ DRAWING = {
     "replace_color",
     "transform_region",
     "outline",
+    "shift_ramp",
     "cleanup_pixels",
 }
 FRAME = {
@@ -104,6 +105,7 @@ QUERY = {
     "get_tiles",
 }
 NON_IDEMPOTENT = {
+    "shift_ramp",
     "move_cel",
     "delete_tiles",
     "move_tiles",
@@ -224,6 +226,7 @@ def _result(name):
             "used": (list[dict], ...),
         },
         "get_palette": {
+            "ramps": (list[dict], Field(default_factory=lambda: [])),
             "transparent_index": (int, ...),
             "frozen": (bool, ...),
             "colors": (list[dict], ...),
@@ -248,6 +251,7 @@ def _result(name):
             "width": (int, ...),
             "height": (int, ...),
             "images": (list[str], Field(default_factory=lambda: [])),
+            "panels": (list[dict], Field(default_factory=lambda: [])),
         },
         "diff_preview": {
             "frames": (list[dict], ...),

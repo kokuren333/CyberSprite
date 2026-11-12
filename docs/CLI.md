@@ -46,7 +46,7 @@ Op 対応コマンドのオプションは、登録済みの pydantic 引数モ�
 | `palette show` / `palette presets` | プロジェクトのパレット / 同梱プリセット一覧 |
 | `validate` | `--frames all|0-3|tag:walk`、`--rules Q-PAL-01,...`、`--strict` |
 | `render` | `--out <PNG>`（必須）、`--frame n`、`--scale n`、`--layers L1,L2`、`--bg <色>`、`--indexed`、`--flatten strict|nearest`、`--include-hidden`、`--compression zlib|stored`、`--apply-pixel-ratio` |
-| `preview` | `--frame` / `--frames all\|0-3\|tag:walk` または整数・カンマ区切り・JSON配列、`--layout frames\|strip\|grid`、`--scale auto\|n`、`--grid`、`--rulers`、`--onion p,n` またはJSON、`--layers`、`--background checker\|<番号>\|#rrggbb`、`--out <PNG またはディレクトリ>` |
+| `preview` | `--frame` / `--frames all\|0-3\|tag:walk` または整数・カンマ区切り・JSON配列、`--layout frames\|strip\|grid\|review`、`--scale auto\|n`、`--rect x,y,w,h`、`--guide <JSON>`、`--grid`、`--rulers`、`--onion p,n` またはJSON、`--layers`、`--background checker\|<番号>\|#rrggbb`、`--out <PNG またはディレクトリ>` |
 | `diff` | `--from <rev>`、`--to <rev>`、`--frame n`、`--out <PNG またはディレクトリ>` |
 | `op <名前>` | `--args-file <JSON ファイル>`、`--args <JSON>`、`キー=値...`、`--label <履歴ラベル>` |
 | `apply [<JSON ファイル>\|-]` | ファイル省略または `-` で標準入力の JSON。端末からの対話入力は拒否 |
@@ -54,7 +54,7 @@ Op 対応コマンドのオプションは、登録済みの pydantic 引数モ�
 | `import image <ファイル...>` | `import_image` の引数モデルから生成（M6） |
 | `import aseprite <ファイル>` | `--out <プロジェクト>`、ほかは `import_aseprite` から生成（M5） |
 | `import palette <ファイルまたはプリセット>` | `--append` または `--mode replace|append`、`--on-shrink <方針の JSON>` |
-| `export image|sheet|anim|aseprite|tileset|palette` | 各 `export_*` の全引数。`anim` は `export_animation`。`--input <外部ファイル>` も可（M5） |
+| `export image|sheet|anim|aseprite|tileset|palette|native|plugin` | 各 `export_*` の全引数。`anim` は `export_animation`。nativeは`--format gb-2bpp --layer L1`または`--tileset TS1`。palette_out/map_outは予約・未実装 |
 | `convert <入力> <出力>` | `import_image` と同じ変換オプション、`--stages <ディレクトリ>`（M6） |
 | `pipeline detect-grid <ファイル>` | 検出の診断（M6） |
 | `source list` / `source show <ID>` | `list_sources` / `get_source` の引数（M6） |

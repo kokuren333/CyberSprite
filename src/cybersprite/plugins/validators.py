@@ -3,6 +3,7 @@
 import re
 
 from cybersprite.core import quality
+from cybersprite.core.quality_platform import LEVELS as PLATFORM_LEVELS
 
 from . import PluginManager, as_items, plugin_error
 
@@ -23,6 +24,8 @@ def rules(manager):
                     or rule.rule in pending
                     or rule.rule in staged
                     or rule.rule in quality.DEFAULT_LEVELS
+                    or rule.rule in PLATFORM_LEVELS
+                    or rule.rule == "Q-CRF-01"
                 ):
                     raise ValueError("rule must have a unique ID and callable check")
                 pending[rule.rule] = rule

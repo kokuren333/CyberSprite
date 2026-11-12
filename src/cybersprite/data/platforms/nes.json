@@ -1,0 +1,63 @@
+{
+  "id": "nes",
+  "title": "NES-compatible sprite constraints; user RGB table required",
+  "preset_version": 1,
+  "extends": "free",
+  "system": {
+    "id": "nes",
+    "screen": {
+      "w": 256,
+      "h": 240
+    },
+    "color": {
+      "model": "master",
+      "master_palette": "user-provided",
+      "alpha": "binary"
+    },
+    "palette": {
+      "rows": 4,
+      "row_size": 4,
+      "slot0": "transparent",
+      "unit": "object"
+    },
+    "tile": {
+      "w": 8,
+      "h": 8,
+      "bpp": 2,
+      "flips": {
+        "x": true,
+        "y": true,
+        "d": false
+      },
+      "unique_max": 512
+    },
+    "object": {
+      "sizes": [
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          16
+        ]
+      ],
+      "notes": "Representative non-affine sprite mode; runtime allocation and global size-pair selection are not validated."
+    },
+    "native": [
+      "nes-chr"
+    ]
+  },
+  "defaults": {
+    "grid": {
+      "w": 8,
+      "h": 8
+    },
+    "palette": [
+      "#00000000",
+      "#000000ff",
+      "#ffffffff"
+    ]
+  },
+  "notes": "No standardized hardware RGB palette is supplied. Provide system.color.master_palette or master_colors. Background mode uses block 16x16, slot0=shared; runtime pattern bank assignment is not validated."
+}

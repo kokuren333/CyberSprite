@@ -225,9 +225,13 @@ def apply_defaults(p, a, name):
         return []
     defaults = p.platform.defaults
     used = []
-    if name == "render_preview" and a.scale == "auto" and defaults.preview.scale:
-        a.scale = defaults.preview.scale
-        used.append("defaults.preview.scale")
+    if name == "render_preview" and a.scale == "auto":
+        if a.layout == "review" and defaults.export.review_scale:
+            a.scale = defaults.export.review_scale
+            used.append("defaults.export.review_scale")
+        elif a.layout != "review" and defaults.preview.scale:
+            a.scale = defaults.preview.scale
+            used.append("defaults.preview.scale")
     if name in ("add_tileset", "tileset_from_layer"):
         tile = p.platform.system.tile
         for key, axis in (("tile_w", "w"), ("tile_h", "h")):

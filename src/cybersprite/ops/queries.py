@@ -224,6 +224,7 @@ def query(ctx, a, name):
         return {
             "transparent_index": p.palette.transparent_index,
             "frozen": p.palette.frozen,
+            "ramps": [r.model_dump() for r in p.palette.ramps],
             "colors": [
                 {
                     "index": i,
@@ -249,7 +250,12 @@ def query(ctx, a, name):
             raise invalid("Preview requires at least one frame.")
         return previews(
             p,
-            frames(p, a.frames) if a.tileset is None else [],
+            frames(
+                p,
+                "all" if a.layout == "review" and "frames" not in a.model_fields_set else a.frames,
+            )
+            if a.tileset is None
+            else [],
             root,
             inline=a.inline,
             tileset=a.tileset,

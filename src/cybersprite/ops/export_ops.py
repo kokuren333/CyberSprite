@@ -35,6 +35,20 @@ def _ingest_only(_ctx, _args):
 
 
 def register_exports(registry):
+    from cybersprite.formats.native import NativeArgs, export_native
+
+    registry.register(
+        Op(
+            "export_native",
+            NativeArgs,
+            lambda ctx, args: export_native(ctx.project, args, ctx.root),
+            ExportResult,
+            "export",
+            "E",
+            False,
+            "Export exact native tile bytes with independent decoding.",
+        )
+    )
     registry.register(
         Op(
             "export_plugin",

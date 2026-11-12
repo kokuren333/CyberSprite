@@ -3,40 +3,40 @@
 import json
 import re
 from copy import deepcopy
-from importlib import metadata
 from importlib.resources import files
 from pathlib import Path
 
 from pydantic import ValidationError
 
 from cybersprite.config import config_path, load_config
-from cybersprite.core.errors import CyberSpriteError, invalid
+from cybersprite.core.errors import invalid
 from cybersprite.core.platform import Platform, check_integer_data
+from cybersprite.plugins import PluginManager, plugin_error
 
 
-def plugin_definitions():
-    """Single discovery seam for the shared plugin infrastructure (R1-C)."""
+def plugin_definitions(manager=None):
+    """Load data definitions through the shared enabled/API-checked boundary."""
+    manager = manager or PluginManager(groups=("cybersprite.platforms",))
     result = {}
-    for ep in sorted(
-        metadata.entry_points(group="cybersprite.platforms"), key=lambda x: (x.name, x.value)
-    ):
+    for descriptor in manager.descriptors("cybersprite.platforms"):
         try:
-            payload = ep.load()
-            payload = payload() if callable(payload) else payload
+            payload = manager.load(descriptor.group, descriptor.name)
             if not isinstance(payload, dict):
                 raise ValueError(
                     "Platform entry point must supply a mapping of IDs to definitions."
                 )
             for key in sorted(payload):
+                if not isinstance(key, str) or not key or not isinstance(payload[key], dict):
+                    raise ValueError("Platform IDs must be nonempty strings with JSON definitions.")
                 if key in result:
                     raise ValueError(f"Duplicate plugin platform ID: {key}.")
-                result[key] = (payload[key], "plugin:" + ep.name)
+                check_integer_data(payload[key])
+                if payload[key].get("id", key) != key:
+                    raise ValueError(f"Platform definition ID must match {key}.")
+                result[key] = ({**payload[key], "id": key}, "plugin:" + descriptor.name)
         except Exception as error:
-            raise CyberSpriteError(
-                "E_PLUGIN",
-                f"Cannot load platform plugin {ep.name}: {error}",
-                "Fix or uninstall the indicated platform plugin.",
-            ) from error
+            manager.discard(descriptor.group, descriptor.name)
+            raise plugin_error(descriptor.name, f"platform registration failed: {error}") from error
     return result
 
 
@@ -186,7 +186,9 @@ def resolve(
             name = payload["system"]["color"]["master_palette"]
             if name not in known_palettes:
                 raise invalid(
-                    "Use a registered master_palette ID, or embed master_colors in the snapshot.",
+                    "Provide a registered system.color.master_palette ID or explicit "
+                    "system.color.master_colors via platform_overrides; no hardware RGB table "
+                    "is supplied for this platform.",
                     palette=name,
                 )
             payload["system"]["color"]["master_colors"] = sorted(

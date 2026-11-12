@@ -244,6 +244,7 @@ def to_native(p):
         name=p.name,
         **({"platform": p.platform.model_dump(by_alias=True)} if p.platform else {}),
         frozen=p.palette.frozen,
+        **({"ramps": [r.model_dump() for r in p.palette.ramps]} if p.palette.ramps else {}),
         shapes={},
         extension_ids={name: n + 1 for n, name in enumerate(extensions)},
         tag_user_colors=[t.user_data.color if t.user_data else None for t in p.tags],
@@ -783,7 +784,11 @@ def from_native(sprite, *, name="Imported", quantize=None, source_limits=True):
     if not palette or ti >= len(palette):
         raise invalid("Aseprite transparent index is outside its palette.")
     p.palette = Palette(
-        colors=palette, names=names, transparent_index=ti, frozen=metadata.get("frozen", False)
+        ramps=metadata.get("ramps", []),
+        colors=palette,
+        names=names,
+        transparent_index=ti,
+        frozen=metadata.get("frozen", False),
     )
     if old_tilesets:
         for ts in p.tilesets:

@@ -109,6 +109,8 @@ Web ページ、取り込んだ画像のメタデータ、`source/` の資料、
 
 ### 6.2 方向性を決める場面
 
+確認用シートは `render_preview layout="review"` / CLI `preview --layout review`。`panels` が各番号の内容と座標を返す。rampsはset_paletteの任意引数、色参照は`@ramp:k`、shift_rampはdirection=lighter/darker。実機タイルは`export_native format="gb-2bpp"`でlayerまたはtilesetを指定する。Q-CRF-01は情報であり、関門にはしない。
+
 新しいアセットの作風や構図など、方向性の判断が要る場面では、3 案ほどを小さく作って利用者に選んでもらう。細部は自分で決めて進める。
 
 ### 6.3 完了条件（「できた」と言ってよい条件）

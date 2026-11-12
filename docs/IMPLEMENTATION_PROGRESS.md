@@ -278,3 +278,11 @@
 - 判断I-1461〜I-1475。SPECの領域・輪郭・preview・色名・delta・sourcesと付録C、sources schema、skillsの引数事実を更新した。追加依存・外部参照なし。実装と契約更新は9546d6b / 79413c1 / 58335c7 / 6dedadf。
 - 限定: 種集合除外とinsideの一般冪等性は両立しないため、Iの保証はoutsideだけ、insideはN（I-1463）。guide under/GUI、ramps、H-08/H-06、platform既定値は範囲外。LinuxはCI待ち。見た目の良否は判断していない。統合時は非直列化の完全点集合とMCPの事前領域制限・guideパス往復を維持する。
 - 詳細: [R1_E2_IMPLEMENTATION_REPORT.md](R1_E2_IMPLEMENTATION_REPORT.md)。最終コミット後にも書き出したファイルを確認する。
+
+## R1-E3: レビューシート・作法指標・実機タイル・ランプ（2026-11-12）
+- platformsを共通PluginManagerへ接続し、H-08 review、H-06/Q-CRF-01、Q-PLT-04/06、cgb/nes/sfc/md/gba、exporters経由gb-2bppと独立decoder、palette.ramps/@ramp:k/shift_ramp/選択輪郭を実装した。89 Op、標準MCP87ツール。journal/history/MCP実行器とquality.pyのcluster処理は変更していない。
+- 専用63件を含むplatform/golden/MCPの最終確認は131 passed（36.36秒）。Ruff check/format（219ファイル）、core/ops mypy45ファイル、schemas、repository、diff checkが成功。最終全体pytestは1725 passed / 8 skipped（442.04秒）、終了コード0。skipはWindows symlink権限5件と未導入の任意コンバータ3件。初回完走の登録名一覧だけの1 failureは期待一覧を補って解消した。M11の既存golden応答2件はE2の点差分・updated_issuesの未反映だけを唯一の更新器で整合し、PNG・正本・画素hashは不変。
+- 実CLI13呼出しでNDS/DMGを作成し、実ファイルの646×762/266×268 review PNGを開いて実寸枠・4倍像・guide・シルエット・明度・0/1/2/1/0列を確認した。通常PNGと192bytesのGB出力はvalidation_ok/verified=true。各4件のQ-PLT-05は複数物体のcanvasと6×7の工学セルとして理由付きで保持した。
+- before/afterの性能改善は主張せず、レビュー性能fixtureの速度測定は対象外。新規指標と未参照タイル検査を含む実制作の負荷はR1-B統合後の測定課題。追加依存なし。公開技術文書の事実の来歴行は報告に用意した。
+- 判断I-1501〜I-1517。SPECのramps/preview/測定/行と反転/実機出力/プラグイン/M12-M13/付録Cとschema、AGENTS/skillsの引数事実を局所更新。offset links、analyze、追加native形式とsidecarsはM13-later/v1.xへ明示延期。Opusの意匠・制作合否、Linux、統合mergeは未完。
+- 実装09b2679、screen厳密枠と非正方形tileの整合8559df0、契約網羅09ef46d、同RGBA別番号のタイル数61b6350。詳細は [R1_E3_IMPLEMENTATION_REPORT.md](R1_E3_IMPLEMENTATION_REPORT.md)。

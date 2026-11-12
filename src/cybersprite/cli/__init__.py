@@ -613,6 +613,7 @@ cli.add_command(
             "tileset": ("export_tileset", "M5", None),
             "palette": ("export_palette", "M5", None),
             "plugin": ("export_plugin", "R1-C", None),
+            "native": ("export_native", "R1-E3", None),
         },
     )
 )

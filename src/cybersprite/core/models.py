@@ -6,7 +6,7 @@ import re
 from datetime import datetime
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from .platform import Platform
 
@@ -77,11 +77,30 @@ class Canvas(Model):
     color_profile: Literal["srgb", "none"] = "srgb"
 
 
+class Ramp(Model):
+    name: Annotated[str, Field(min_length=1, max_length=255, pattern=r"^[^:]+$")]
+    indices: Annotated[list[Byte], Field(min_length=1, max_length=256)]
+
+
 class Palette(Model):
     transparent_index: Annotated[int, Field(ge=0)] = 0
     frozen: bool = False
     colors: list[RGBA]
     names: dict[str, str] = Field(default_factory=dict)
+    ramps: list[Ramp] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def valid_ramps(self):
+        names, indices = set(), set()
+        for ramp in self.ramps:
+            if ramp.name in names:
+                raise ValueError("Palette ramp names must be unique.")
+            names.add(ramp.name)
+            for index in ramp.indices:
+                if index == self.transparent_index or index >= len(self.colors) or index in indices:
+                    raise ValueError("Ramp indices must be in-range, non-transparent and disjoint.")
+                indices.add(index)
+        return self
 
     @field_validator("names")
     @classmethod

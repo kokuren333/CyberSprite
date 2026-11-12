@@ -93,6 +93,8 @@ csp -p hero.csprite export palette --out export/hero.gpl
 
 ## 3. 失敗チェックリスト
 
+R1-E3の引数事実: `render_preview layout="review"` / `preview --layout review` は実寸・整数拡大・シルエット・明度・任意guide・タグ再生順を1枚にする。パネル番号の意味は戻り値`panels`で確認する。`metrics.platform.craft`とQ-CRF-01は情報だけ。実機の`export_native` / `export native --format gb-2bpp --layer L1`（またはtileset）は局所パレットに厳密写像し、独立復号で確かめる。palette_out/map_outは未実装で拒否する。
+
 - [ ] 書き出し先が cwd の外で `E_PATH_NOT_ALLOWED` になっていないか（作業ディレクトリに移ってから実行する）。
 - [ ] 複数フレームを 1 つのファイル名に書こうとして「Export filenames collide」になっていないか（`{frame}`、`{frame1}`、`{tag}` などを使う）。
 - [ ] 書き出しの後に変更して、書き出しが古くなっていないか（最後のコミットの後に書き出し直す）。

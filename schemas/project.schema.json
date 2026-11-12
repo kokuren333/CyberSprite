@@ -1037,6 +1037,13 @@
           },
           "title": "Names",
           "type": "object"
+        },
+        "ramps": {
+          "items": {
+            "$ref": "#/$defs/Ramp"
+          },
+          "title": "Ramps",
+          "type": "array"
         }
       },
       "required": [
@@ -1247,6 +1254,35 @@
         }
       },
       "title": "PreviewDefaults",
+      "type": "object"
+    },
+    "Ramp": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "maxLength": 255,
+          "minLength": 1,
+          "pattern": "^[^:]+$",
+          "title": "Name",
+          "type": "string"
+        },
+        "indices": {
+          "items": {
+            "maximum": 255,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 256,
+          "minItems": 1,
+          "title": "Indices",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "indices"
+      ],
+      "title": "Ramp",
       "type": "object"
     },
     "Rect": {

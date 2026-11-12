@@ -1,0 +1,5 @@
+{
+  "description": "Authored hand vector. For row 01233210 the low plane is 01011010 (5a), high plane 00111100 (3c). Remaining rows isolate constants and alternating bits.",
+  "rows": ["01233210", "00000000", "11111111", "22222222", "33333333", "01010101", "02020202", "03030303"],
+  "hex": "5a3c0000ff0000ffffff550000555555"
+}

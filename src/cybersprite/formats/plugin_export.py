@@ -16,6 +16,10 @@ from .export_args import ExportResult
 
 
 def resolve_exporter(name=None, *, extension=None, manager=None):
+    if name == "gb-2bpp":
+        from .native import GBExporter
+
+        return GBExporter()
     manager = manager or PluginManager(groups=("cybersprite.exporters",))
     if name is None:
         # Extension lookup is explicit use of the enabled exporter group.
@@ -45,7 +49,7 @@ def resolve_exporter(name=None, *, extension=None, manager=None):
 
 def export_plugin(document, args, root=None):
     result = gate(document, args, root)
-    path = preflight([args.out], args.overwrite)[0]
+    path = preflight([args.out], args.overwrite, project_root=root)[0]
     if root is not None:
         canonical = Path(root).resolve() / "project.json"
         if path == canonical or path.exists() and canonical.exists() and path.samefile(canonical):
@@ -57,7 +61,13 @@ def export_plugin(document, args, root=None):
         raise invalid(
             "Invalid plugin exporter options.", format=exporter.name, reason=str(error)
         ) from error
-    expected = [render(document, f) for f in range(len(document.frames))]
+    prepare = getattr(exporter, "verification_frames", None)
+    if callable(prepare):
+        if not callable(getattr(exporter, "decode", None)):
+            raise plugin_error(exporter.name, "verification_frames requires decode(bytes).")
+        expected = prepare(document.model_copy(deep=True), render, options)
+    else:
+        expected = [render(document, f) for f in range(len(document.frames))]
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
         # A failed writer/decoder cannot replace a previous successful export.

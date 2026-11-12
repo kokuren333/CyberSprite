@@ -76,6 +76,12 @@ class PaletteStructure(Data):
     unit: Literal["object", "tile", "block", "layer"] = "object"
     block: Size | None = None
 
+    @model_validator(mode="after")
+    def block_required(self):
+        if self.unit == "block" and self.block is None:
+            raise ValueError("palette.unit=block requires palette.block dimensions.")
+        return self
+
 
 class Flips(Data):
     x: bool = False
@@ -106,6 +112,12 @@ class System(Data):
     tile: TileSpec | None = None
     object: ObjectSpec | None = None
     native: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def tile_required(self):
+        if self.palette and self.palette.unit == "tile" and self.tile is None:
+            raise ValueError("palette.unit=tile requires system.tile dimensions.")
+        return self
 
 
 class Canvas(Size):

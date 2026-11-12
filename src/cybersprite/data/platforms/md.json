@@ -1,0 +1,121 @@
+{
+  "id": "md",
+  "title": "MD-class H40 224-line sprite display",
+  "preset_version": 1,
+  "extends": "free",
+  "system": {
+    "id": "md",
+    "screen": {
+      "w": 320,
+      "h": 224
+    },
+    "color": {
+      "bits": {
+        "r": 3,
+        "g": 3,
+        "b": 3
+      },
+      "expand": "replicate",
+      "alpha": "binary"
+    },
+    "palette": {
+      "rows": 4,
+      "row_size": 16,
+      "slot0": "transparent",
+      "unit": "object"
+    },
+    "tile": {
+      "w": 8,
+      "h": 8,
+      "bpp": 4,
+      "flips": {
+        "x": true,
+        "y": true,
+        "d": false
+      }
+    },
+    "object": {
+      "sizes": [
+        [
+          8,
+          8
+        ],
+        [
+          16,
+          8
+        ],
+        [
+          24,
+          8
+        ],
+        [
+          32,
+          8
+        ],
+        [
+          8,
+          16
+        ],
+        [
+          16,
+          16
+        ],
+        [
+          24,
+          16
+        ],
+        [
+          32,
+          16
+        ],
+        [
+          8,
+          24
+        ],
+        [
+          16,
+          24
+        ],
+        [
+          24,
+          24
+        ],
+        [
+          32,
+          24
+        ],
+        [
+          8,
+          32
+        ],
+        [
+          16,
+          32
+        ],
+        [
+          24,
+          32
+        ],
+        [
+          32,
+          32
+        ]
+      ],
+      "notes": "Representative non-affine sprite mode; runtime allocation and global size-pair selection are not validated."
+    },
+    "native": [
+      "md-4bpp"
+    ]
+  },
+  "defaults": {
+    "grid": {
+      "w": 8,
+      "h": 8
+    },
+    "palette": [
+      "#00000000",
+      "#000000ff",
+      "#ffffffff"
+    ]
+  }
+}
