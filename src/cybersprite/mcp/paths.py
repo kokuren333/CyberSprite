@@ -102,28 +102,35 @@ class PathPolicy:
             return [self.arguments(v, items, definitions) for v in value]
         return value
 
-    def result(self, value, project_root, *, key=""):
-        """Core preview paths are project-relative; other returned paths are absolute."""
+    def result(self, value, project_root, schema, definitions=None):
+        """Rewrite only fields whose response schema explicitly identifies a file path."""
+        definitions = schema.get("$defs", {}) if definitions is None else definitions
+        if "$ref" in schema:
+            return self.result(
+                value, project_root, definitions[schema["$ref"].split("/")[-1]], definitions
+            )
+        if isinstance(value, str) and schema.get("format") == "path":
+            if not value:
+                return value
+            if schema.get("x-cybersprite-base") == "root":
+                project_root = self.root
+            return self.relative(Path(value) if Path(value).is_absolute() else project_root / value)
+        variants = schema.get("anyOf", schema.get("oneOf", []))
+        if variants:
+            from jsonschema import Draft202012Validator
+
+            for variant in variants:
+                if Draft202012Validator({**variant, "$defs": definitions}).is_valid(value):
+                    return self.result(value, project_root, variant, definitions)
         if isinstance(value, dict):
-            return {k: self.result(v, project_root, key=k) for k, v in value.items()}
+            return {
+                k: self.result(
+                    v, project_root, schema.get("properties", {}).get(k, {}), definitions
+                )
+                for k, v in value.items()
+            }
         if isinstance(value, list):
-            return [self.result(v, project_root, key=key) for v in value]
-        if isinstance(value, str):
-            if key in {
-                "project",
-                "allowed_dirs",
-                "paths",
-                "path",
-                "report_path",
-                "stage_paths",
-                "files",
-                "file",
-                "out",
-                "data_out",
-            }:
-                if Path(value).is_absolute():
-                    return self.relative(value)
-                if key == "project":
-                    return value
-                return self.relative(project_root / value)
+            return [
+                self.result(v, project_root, schema.get("items", {}), definitions) for v in value
+            ]
         return value

@@ -146,6 +146,11 @@ class ResultGroup(click.Group):
                 params = command.params[:2] + params  # PATH and composite --size.
             if cmd_name == "validate":
                 params.append(click.Option(["--strict"], is_flag=True))
+            if cmd_name == "info":
+                for option in params:
+                    if option.name == "include":
+                        option.multiple = True
+                        option.default = ()
             return click.Command(
                 cmd_name, params=params, callback=command.callback, help=definition.description
             )
@@ -223,7 +228,8 @@ def new_command(state, path, size, frames, duration_ms, name, palette, backgroun
 @click.pass_obj
 def info_command(state, include):
     """Describe project structure and stable layer IDs."""
-    _run(state, "get_info", {"include": include} if include is not None else {})
+    merged = list(dict.fromkeys(item for group in include for item in group)) if include else []
+    _run(state, "get_info", {"include": merged} if merged else {})
 
 
 @cli.command("render")
@@ -339,8 +345,8 @@ def validate_command(state, frames, rules, strict):
 def schema_command(state, kind, name, out):
     """Return generated JSON Schemas or write them to a directory."""
     from cybersprite.core.errors import invalid
-    from cybersprite.core.schemas import generate_schemas
     from cybersprite.ops import registry
+    from cybersprite.schemas import generate_schemas
 
     if (kind == "op") != (name is not None):
         raise invalid("Use schema op <name>; other schema kinds do not take a name.")
@@ -349,25 +355,6 @@ def schema_command(state, kind, name, out):
         if kind != "op"
         else {"op": json.dumps(registry().get(name).describe()["inputSchema"]).encode("utf-8")}
     )
-    if kind in {"sheet", "all"} and "sheet" not in generated:
-        from cybersprite.core.errors import CyberSpriteError
-
-        try:
-            callback = optional_function("cybersprite.formats.sheet", "sheet_schema", "M5")
-            generated["sheet"] = json.dumps(callback()).encode("utf-8")
-        except CyberSpriteError as error:
-            if kind == "sheet" or error.code != "E_UNSUPPORTED":
-                raise
-    if kind == "all":
-        generated.update(
-            {
-                f"op.{op.name}": json.dumps(
-                    op.describe()["inputSchema"], ensure_ascii=False, indent=2
-                ).encode("utf-8")
-                + b"\n"
-                for op in registry().all()
-            }
-        )
     names = list(generated) if kind == "all" else [kind]
     if out is None:
         _emit(state, "schema", {name: json.loads(generated[name]) for name in names})
@@ -691,7 +678,7 @@ def mcp_group():
 @click.option("--root", type=click.Path(path_type=Path), default=Path("."))
 @click.option("--allow-dir", multiple=True, type=click.Path(path_type=Path))
 @click.option("--transport", type=click.Choice(["stdio", "http"]), default="stdio")
-@click.option("--port", type=click.IntRange(1, 65535), default=8766)
+@click.option("--port", type=click.IntRange(1, 65535), default=8765)
 @click.option("--profile", type=click.Choice(["standard", "minimal"]), default="standard")
 @click.option("--enable-generation", is_flag=True)
 @click.option("--allow-plugin-op", multiple=True)
@@ -704,13 +691,14 @@ def mcp_serve(state, **options):
 
 
 @cli.command("gui")
+@click.option("--enable-generation", is_flag=True)
 @click.argument("path", type=click.Path(path_type=Path), required=False)
 @click.option("--port", type=click.IntRange(0, 65535), default=None)
 @click.option("--no-browser", is_flag=True, default=None)
 @click.option("--root", type=click.Path(path_type=Path, file_okay=False), default=None)
 @click.option("--allow-dir", multiple=True, type=click.Path(path_type=Path, file_okay=False))
 @click.pass_obj
-def gui_command(state, path, port, no_browser, root, allow_dir):
+def gui_command(state, path, port, no_browser, root, allow_dir, enable_generation):
     from cybersprite.config import load_config
 
     settings = load_config()
@@ -725,6 +713,7 @@ def gui_command(state, path, port, no_browser, root, allow_dir):
         no_browser=not settings.gui.open_browser if no_browser is None else no_browser,
         root=root,
         allow_dir=allow_dir,
+        enable_generation=enable_generation,
     )
 
 

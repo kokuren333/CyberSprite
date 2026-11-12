@@ -338,8 +338,12 @@ def place(ctx, args):
     if target.mode == "new_layer" or data["new_project"]:
         original = args.files[0] if isinstance(args.files, list) else args.files
         name = target.name or Path(original or data["source"].files[0].path).stem
-        layer = ImageLayer(id=p.id_counters.issue("layer"), name=name)
-        p.layers.append(layer)
+        if data["new_project"]:
+            layer = p.layers[0]
+            layer.name = name
+        else:
+            layer = ImageLayer(id=p.id_counters.issue("layer"), name=name)
+            p.layers.append(layer)
     else:
         if not target.layer:
             raise invalid("target.layer is required for target.mode=layer.")

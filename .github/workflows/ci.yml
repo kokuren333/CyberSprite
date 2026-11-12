@@ -28,6 +28,8 @@ jobs:
           src/cybersprite/core/references.py src/cybersprite/ops/args.py
           src/cybersprite/ops/descriptions.py
       - run: uv run pytest
+      - name: Independently decode every built-in raster export
+        run: uv run pytest -q -m independent_decoder
       - run: uv run python tools/gen_schemas.py --check
       - run: uv run python tools/check_licenses.py --include-dev --extra mcp --extra gui
       - run: uv pip install hatchling==1.27.0 && uv run --no-sync python tools/check_licenses.py --include-build

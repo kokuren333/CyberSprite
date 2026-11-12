@@ -1,0 +1,142 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "backend": {
+      "description": "Configured backend name: diffusers or command:<name>.",
+      "title": "Backend",
+      "type": "string"
+    },
+    "prompt": {
+      "description": "Image generation prompt, passed as one argument.",
+      "title": "Prompt",
+      "type": "string"
+    },
+    "negative_prompt": {
+      "default": "",
+      "description": "Content to avoid in generation.",
+      "title": "Negative Prompt",
+      "type": "string"
+    },
+    "width": {
+      "description": "Requested width in pixels.",
+      "maximum": 16384,
+      "minimum": 1,
+      "title": "Width",
+      "type": "integer"
+    },
+    "height": {
+      "description": "Requested height in pixels.",
+      "maximum": 16384,
+      "minimum": 1,
+      "title": "Height",
+      "type": "integer"
+    },
+    "seed": {
+      "anyOf": [
+        {
+          "maximum": 9223372036854775807,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Generation seed; omitted seeds are chosen and recorded by the backend.",
+      "title": "Seed"
+    },
+    "count": {
+      "default": 1,
+      "description": "Number of images, at most four.",
+      "maximum": 4,
+      "minimum": 1,
+      "title": "Count",
+      "type": "integer"
+    },
+    "model": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Configured model alias; arbitrary IDs are refused.",
+      "title": "Model"
+    },
+    "params": {
+      "additionalProperties": true,
+      "description": "Backend parameters from its schema.",
+      "title": "Params",
+      "type": "object"
+    },
+    "accept_model_license": {
+      "default": false,
+      "description": "Accept configured model and adapter terms.",
+      "title": "Accept Model License",
+      "type": "boolean"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "backend",
+    "prompt",
+    "width",
+    "height",
+    "project"
+  ],
+  "title": "generate_imageInput",
+  "type": "object"
+}

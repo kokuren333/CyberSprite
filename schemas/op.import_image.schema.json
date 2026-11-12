@@ -1,0 +1,912 @@
+{
+  "$defs": {
+    "BackgroundSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "default": "keep",
+          "description": "Keep background, flood a supplied key, or estimate a border-supported key.",
+          "enum": [
+            "keep",
+            "key",
+            "auto"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "color": {
+          "anyOf": [
+            {
+              "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$",
+              "type": "string"
+            },
+            {
+              "items": {
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "maxItems": 4,
+              "minItems": 3,
+              "type": "array"
+            }
+          ],
+          "default": "#000000",
+          "description": "Key RGB/RGBA array or #rrggbb/#rrggbbaa; required for key mode.",
+          "title": "Color"
+        },
+        "tolerance": {
+          "default": 0,
+          "description": "Per-channel distance allowed in key mode.",
+          "maximum": 255,
+          "minimum": 0,
+          "title": "Tolerance",
+          "type": "integer"
+        },
+        "auto_tolerance": {
+          "default": 2500,
+          "description": "Fixed-point Oklab distance for auto border support and connected removal.",
+          "maximum": 65535,
+          "minimum": 0,
+          "title": "Auto Tolerance",
+          "type": "integer"
+        }
+      },
+      "title": "BackgroundSettings",
+      "type": "object"
+    },
+    "CleanupSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "min_cluster": {
+          "default": 2,
+          "description": "Remove smaller same-index components; one disables cleanup.",
+          "minimum": 1,
+          "title": "Min Cluster",
+          "type": "integer"
+        },
+        "connectivity": {
+          "default": 8,
+          "description": "Neighborhood used to form same-index components.",
+          "enum": [
+            4,
+            8
+          ],
+          "title": "Connectivity",
+          "type": "integer"
+        },
+        "max_passes": {
+          "default": 2,
+          "description": "Maximum simultaneous cleanup passes.",
+          "minimum": 1,
+          "title": "Max Passes",
+          "type": "integer"
+        },
+        "protect": {
+          "description": "Palette indices preserved by cleanup, including isolated accents.",
+          "items": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Protect",
+          "type": "array"
+        }
+      },
+      "title": "CleanupSettings",
+      "type": "object"
+    },
+    "DitherSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "default": "none",
+          "description": "Optional ordered Bayer dithering; none preserves solid color regions.",
+          "enum": [
+            "none",
+            "bayer2",
+            "bayer4",
+            "bayer8"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "strength": {
+          "default": 255,
+          "description": "Ordered dither strength from zero to 255.",
+          "maximum": 255,
+          "minimum": 0,
+          "title": "Strength",
+          "type": "integer"
+        }
+      },
+      "title": "DitherSettings",
+      "type": "object"
+    },
+    "DownsampleSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "default": "auto",
+          "description": "Cell representative method; pixeloe requires a configured plugin.",
+          "enum": [
+            "auto",
+            "center",
+            "median",
+            "mode",
+            "kcentroid",
+            "pixeloe"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "alpha_threshold": {
+          "default": 128,
+          "description": "Minimum source alpha counted as opaque; a cell needs a majority.",
+          "maximum": 255,
+          "minimum": 0,
+          "title": "Alpha Threshold",
+          "type": "integer"
+        }
+      },
+      "title": "DownsampleSettings",
+      "type": "object"
+    },
+    "GateSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "grid_score": {
+          "anyOf": [
+            {
+              "items": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum cell purity [fail, warn], or null to skip this gate.",
+          "title": "Grid Score"
+        },
+        "fidelity": {
+          "anyOf": [
+            {
+              "items": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Maximum mean squared Oklab palette error [fail, warn], or null to skip.",
+          "title": "Fidelity"
+        }
+      },
+      "title": "GateSettings",
+      "type": "object"
+    },
+    "GridSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "default": "auto",
+          "description": "Detect a rational grid, specify integer cells, divide into target counts, or keep input pixels.",
+          "enum": [
+            "auto",
+            "fixed",
+            "target",
+            "none"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "min_cell": {
+          "default": 2,
+          "description": "Smallest auto pitch in input pixels.",
+          "minimum": 1,
+          "title": "Min Cell",
+          "type": "integer"
+        },
+        "max_cell": {
+          "default": 64,
+          "description": "Largest auto pitch in input pixels.",
+          "minimum": 1,
+          "title": "Max Cell",
+          "type": "integer"
+        },
+        "force_square": {
+          "default": true,
+          "description": "Choose a common pitch across both axes, allowing image-span rounding.",
+          "title": "Force Square",
+          "type": "boolean"
+        },
+        "harmonic_tolerance": {
+          "default": 850,
+          "description": "Legacy peak harmonic tolerance in thousandths; exact integer boundaries take priority.",
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Harmonic Tolerance",
+          "type": "integer"
+        },
+        "min_peak": {
+          "default": 1500,
+          "description": "Minimum normalized boundary alignment score for auto detection.",
+          "minimum": 1,
+          "title": "Min Peak",
+          "type": "integer"
+        },
+        "purity_tolerance": {
+          "default": 16,
+          "description": "Maximum per-channel deviation from cell median for grid purity.",
+          "maximum": 255,
+          "minimum": 0,
+          "title": "Purity Tolerance",
+          "type": "integer"
+        },
+        "cell_w": {
+          "default": 1,
+          "description": "Fixed grid cell width in integer input pixels; required in fixed mode.",
+          "minimum": 1,
+          "title": "Cell W",
+          "type": "integer"
+        },
+        "cell_h": {
+          "default": 1,
+          "description": "Fixed grid cell height in integer input pixels; required in fixed mode.",
+          "minimum": 1,
+          "title": "Cell H",
+          "type": "integer"
+        },
+        "offset_x": {
+          "default": 0,
+          "description": "Fixed grid horizontal phase, smaller than cell_w.",
+          "minimum": 0,
+          "title": "Offset X",
+          "type": "integer"
+        },
+        "offset_y": {
+          "default": 0,
+          "description": "Fixed grid vertical phase, smaller than cell_h.",
+          "minimum": 0,
+          "title": "Offset Y",
+          "type": "integer"
+        },
+        "target_w": {
+          "default": 1,
+          "description": "Required output column count in target mode.",
+          "minimum": 1,
+          "title": "Target W",
+          "type": "integer"
+        },
+        "target_h": {
+          "default": 1,
+          "description": "Required output row count in target mode.",
+          "minimum": 1,
+          "title": "Target H",
+          "type": "integer"
+        }
+      },
+      "title": "GridSettings",
+      "type": "object"
+    },
+    "OutlineSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "default": "keep",
+          "description": "Keep current pixels or add an outer outline.",
+          "enum": [
+            "keep",
+            "add"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "color": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$",
+              "type": "string"
+            },
+            {
+              "items": {
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "maxItems": 4,
+              "minItems": 3,
+              "type": "array"
+            }
+          ],
+          "default": 0,
+          "description": "Opaque palette index or RGB/RGBA/hex outline color; required for add mode.",
+          "title": "Color"
+        },
+        "connectivity": {
+          "default": 8,
+          "description": "Neighborhood used to expand the outline.",
+          "enum": [
+            4,
+            8
+          ],
+          "title": "Connectivity",
+          "type": "integer"
+        }
+      },
+      "title": "OutlineSettings",
+      "type": "object"
+    },
+    "PaletteSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "default": "extract",
+          "description": "Use project colors, supplied colors, perceptual extraction, or exact input colors.",
+          "enum": [
+            "project",
+            "fixed",
+            "extract",
+            "exact"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string",
+              "x-cybersprite-path": "palette"
+            },
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$",
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "maximum": 255,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "maxItems": 4,
+                    "minItems": 3,
+                    "type": "array"
+                  }
+                ]
+              },
+              "type": "array"
+            }
+          ],
+          "description": "Fixed palette preset/file name or RGB/RGBA/hex color list.",
+          "title": "Source"
+        },
+        "max_colors": {
+          "default": 32,
+          "description": "Maximum opaque extracted/exact colors, excluding transparency.",
+          "maximum": 255,
+          "minimum": 1,
+          "title": "Max Colors",
+          "type": "integer"
+        },
+        "refine_iterations": {
+          "default": 8,
+          "description": "Maximum deterministic integer k-means refinement passes.",
+          "minimum": 0,
+          "title": "Refine Iterations",
+          "type": "integer"
+        },
+        "min_color_pixels": {
+          "default": 0,
+          "description": "Merge colors used by fewer pixels; protected colors survive.",
+          "minimum": 0,
+          "title": "Min Color Pixels",
+          "type": "integer"
+        },
+        "merge_distance": {
+          "default": 1800,
+          "description": "Merge near-duplicate colors within this fixed-point Oklab distance before allocating slots; zero disables.",
+          "maximum": 65535,
+          "minimum": 0,
+          "title": "Merge Distance",
+          "type": "integer"
+        },
+        "salient_distance": {
+          "default": 7000,
+          "description": "Reserve 2-4 pixel accents separated from every other color by this Oklab distance; zero disables.",
+          "maximum": 65535,
+          "minimum": 0,
+          "title": "Salient Distance",
+          "type": "integer"
+        },
+        "protect": {
+          "description": "Reserve these opaque colors, supplied as RGB/RGBA arrays or hex strings; also protect their cleanup indices.",
+          "items": {
+            "anyOf": [
+              {
+                "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$",
+                "type": "string"
+              },
+              {
+                "items": {
+                  "maximum": 255,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "maxItems": 4,
+                "minItems": 3,
+                "type": "array"
+              }
+            ]
+          },
+          "title": "Protect",
+          "type": "array"
+        }
+      },
+      "title": "PaletteSettings",
+      "type": "object"
+    },
+    "PipelineSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "grid": {
+          "$ref": "#/$defs/GridSettings",
+          "description": "Grid detection, phase, rational cell counts, and purity."
+        },
+        "downsample": {
+          "$ref": "#/$defs/DownsampleSettings",
+          "description": "Cell sampling and alpha policy."
+        },
+        "background": {
+          "$ref": "#/$defs/BackgroundSettings",
+          "description": "Border-connected background removal."
+        },
+        "palette": {
+          "$ref": "#/$defs/PaletteSettings",
+          "description": "Palette locking, extraction, merging, and accent protection."
+        },
+        "cleanup": {
+          "$ref": "#/$defs/CleanupSettings",
+          "description": "Indexed component cleanup and protected indices."
+        },
+        "dither": {
+          "$ref": "#/$defs/DitherSettings",
+          "description": "Optional ordered dithering."
+        },
+        "outline": {
+          "$ref": "#/$defs/OutlineSettings",
+          "description": "Explicit outline decision."
+        },
+        "gates": {
+          "$ref": "#/$defs/GateSettings",
+          "description": "Calibrated gate threshold overrides."
+        }
+      },
+      "title": "PipelineSettings",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "license": {
+          "description": "Usage license identifier; use unknown when usage terms are unknown.",
+          "minLength": 1,
+          "title": "License",
+          "type": "string"
+        },
+        "kind": {
+          "default": "imported",
+          "description": "Source origin: imported or generated.",
+          "enum": [
+            "imported",
+            "generated"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "provider": {
+          "default": "file",
+          "description": "Input provider name, for example file.",
+          "title": "Provider",
+          "type": "string"
+        },
+        "prompt": {
+          "default": "",
+          "description": "Original generation prompt; empty for non-generated input.",
+          "title": "Prompt",
+          "type": "string"
+        },
+        "negative_prompt": {
+          "default": "",
+          "description": "Original negative generation prompt, if any.",
+          "title": "Negative Prompt",
+          "type": "string"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Generator model identifier and version, if any."
+        },
+        "url": {
+          "default": "",
+          "description": "Source attribution URL, if available.",
+          "title": "Url",
+          "type": "string"
+        },
+        "rights_note": {
+          "default": "",
+          "description": "Additional usage-rights or attribution notes.",
+          "title": "Rights Note",
+          "type": "string"
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Original generation seed, if known.",
+          "title": "Seed"
+        },
+        "params": {
+          "additionalProperties": true,
+          "description": "Original generation parameters retained as provenance.",
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "license"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "Sheet": {
+      "additionalProperties": false,
+      "properties": {
+        "cell_w": {
+          "description": "Sheet cell width in integer pixels.",
+          "minimum": 1,
+          "title": "Cell W",
+          "type": "integer"
+        },
+        "cell_h": {
+          "description": "Sheet cell height in integer pixels.",
+          "minimum": 1,
+          "title": "Cell H",
+          "type": "integer"
+        },
+        "offset_x": {
+          "default": 0,
+          "description": "Horizontal sheet margin before the first cell.",
+          "minimum": 0,
+          "title": "Offset X",
+          "type": "integer"
+        },
+        "offset_y": {
+          "default": 0,
+          "description": "Vertical sheet margin before the first cell.",
+          "minimum": 0,
+          "title": "Offset Y",
+          "type": "integer"
+        },
+        "spacing": {
+          "default": 0,
+          "description": "Integer gap between neighboring sheet items.",
+          "minimum": 0,
+          "title": "Spacing",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "cell_w",
+        "cell_h"
+      ],
+      "title": "Sheet",
+      "type": "object"
+    },
+    "SourceAdapter": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "license": {
+          "minLength": 1,
+          "title": "License",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "license"
+      ],
+      "title": "SourceAdapter",
+      "type": "object"
+    },
+    "SourceModel": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "license": {
+          "minLength": 1,
+          "title": "License",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        },
+        "adapters": {
+          "items": {
+            "$ref": "#/$defs/SourceAdapter"
+          },
+          "title": "Adapters",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "license",
+        "sha256",
+        "adapters"
+      ],
+      "title": "SourceModel",
+      "type": "object"
+    },
+    "Target": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "default": "new_layer",
+          "description": "Place in a new image layer or an explicitly referenced existing layer.",
+          "enum": [
+            "new_layer",
+            "layer"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "layer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Target layer ID, unique name, or group path.",
+          "title": "Layer"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Human-readable resource name, at most 255 characters.",
+          "title": "Name"
+        },
+        "frame": {
+          "default": 0,
+          "description": "Zero-based placement starting frame.",
+          "minimum": 0,
+          "title": "Frame",
+          "type": "integer"
+        },
+        "x": {
+          "default": 0,
+          "description": "Horizontal pixel coordinate from the canvas left edge.",
+          "title": "X",
+          "type": "integer"
+        },
+        "y": {
+          "default": 0,
+          "description": "Vertical pixel coordinate from the canvas top edge.",
+          "title": "Y",
+          "type": "integer"
+        },
+        "add_frames": {
+          "default": true,
+          "description": "Extend the timeline when imported frames exceed its current length.",
+          "title": "Add Frames",
+          "type": "boolean"
+        }
+      },
+      "title": "Target",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "files": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4096,
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "One input raster path or a list of paths; mutually exclusive with source.",
+      "title": "Files"
+    },
+    "sheet": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Sheet"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Split one static input into complete cells using integer sizes, offsets, and spacing."
+    },
+    "preset": {
+      "default": "ai",
+      "description": "Pipeline preset: ai, exact (lossless), upscaled, or photo.",
+      "enum": [
+        "ai",
+        "exact",
+        "upscaled",
+        "photo"
+      ],
+      "title": "Preset",
+      "type": "string"
+    },
+    "pipeline": {
+      "$ref": "#/$defs/PipelineSettings",
+      "description": "Documented section overrides; unspecified fields inherit preset values."
+    },
+    "target": {
+      "$ref": "#/$defs/Target",
+      "description": "Placement layer, zero-based starting frame, integer position, and frame-extension policy."
+    },
+    "provenance": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Provenance"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Input origin and usage terms; license is required for new files (use unknown when unknown)."
+    },
+    "on_gate_fail": {
+      "default": "reject",
+      "description": "Reject failed gates or explicitly accept and record overridden gates; capacity/freeze limits remain enforced.",
+      "enum": [
+        "reject",
+        "accept"
+      ],
+      "title": "On Gate Fail",
+      "type": "string"
+    },
+    "source": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Existing source ID to reconvert with its original provenance; mutually exclusive with files.",
+      "title": "Source"
+    },
+    "pipeline_only": {
+      "default": false,
+      "description": "Preview conversion only; requires dry_run=true and returns pipeline_accepted instead of would_commit. Placement and new-file provenance are not checked.",
+      "title": "Pipeline Only",
+      "type": "boolean"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "project"
+  ],
+  "title": "import_imageInput",
+  "type": "object"
+}

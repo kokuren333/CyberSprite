@@ -1,0 +1,78 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "from": {
+      "description": "Inclusive starting frame index.",
+      "title": "From",
+      "type": "integer"
+    },
+    "to": {
+      "description": "Inclusive ending frame index.",
+      "title": "To",
+      "type": "integer"
+    },
+    "before": {
+      "description": "Move the selected frame range before this zero-based index.",
+      "title": "Before",
+      "type": "integer"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "from",
+    "to",
+    "before",
+    "project"
+  ],
+  "title": "move_framesInput",
+  "type": "object"
+}

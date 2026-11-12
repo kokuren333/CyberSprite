@@ -258,6 +258,10 @@ OPERATIONS = {
 }
 
 OVERRIDES = {
+    (
+        "update_layer",
+        "background",
+    ): "Make this image layer an opaque canvas-sized bottom background when true.",
     ("add_tag", "color"): "Raw display color as #rrggbb; it need not belong to the palette.",
     ("update_tag", "color"): "Raw display color as #rrggbb; it need not belong to the palette.",
     (

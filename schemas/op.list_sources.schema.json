@@ -1,0 +1,15 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    }
+  },
+  "required": [
+    "project"
+  ],
+  "title": "list_sourcesInput",
+  "type": "object"
+}

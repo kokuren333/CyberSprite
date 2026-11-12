@@ -1,12 +1,11 @@
 """MCP presentation of registry contracts; operation implementations stay in ops."""
 
+import json
 from copy import deepcopy
 from dataclasses import replace
-from typing import Literal
 
 from pydantic import Field, create_model
 
-from cybersprite.core.models import Model
 from cybersprite.ops.args import TxOptions
 
 # SPEC 10 chapter order, including operations supplied by later milestones.
@@ -64,40 +63,79 @@ def with_path_metadata(op):
     return op
 
 
-class ErrorInfo(Model):
-    code: str
-    message: str
-    details: dict
-    hint: str
-    op_index: int | None = None
+def compact(schema):
+    """Keep validation keywords; omit repeated presentation-only annotations."""
+    if isinstance(schema, list):
+        return [compact(item) for item in schema]
+    if isinstance(schema, dict):
+        return {
+            key: (
+                {name: compact(child) for name, child in value.items()}
+                if key in {"properties", "$defs", "patternProperties"}
+                else value
+                if key in {"default", "const", "enum"}
+                else compact(value)
+            )
+            for key, value in schema.items()
+            if key not in {"title", "description"}
+        }
+    return schema
 
 
-class Failure(Model):
-    ok: Literal[False]
-    op: str
-    project: str
-    revision: dict[str, int]
-    error: ErrorInfo
+ENVELOPE_SCHEMA = {
+    "type": "object",
+    "required": ["ok", "op", "project", "revision"],
+    "oneOf": [
+        {"properties": {"ok": {"const": True}}, "required": ["result"]},
+        {"properties": {"ok": {"const": False}}, "required": ["error"]},
+    ],
+}
+
+
+def compact_input(schema):
+    """Advertise scalar constraints and small shapes; the Op parser stays authoritative.
+
+    Full nested contracts remain available through ops describe and schema artifacts.
+    Do not send external references that require clients to fetch a schema over a network.
+    """
+    definitions = compact(schema.get("$defs", {}))
+
+    def visit(node):
+        if isinstance(node, list):
+            return [visit(item) for item in node]
+        if not isinstance(node, dict):
+            return node
+        if "$ref" in node:
+            name = node["$ref"].split("/")[-1]
+            target = definitions[name]
+            if len(json.dumps(target)) <= 160 or name in {"Brush", "OpCall"}:
+                return visit(target)
+            return {"type": target.get("type", "object")}
+        result = {
+            key: value if key in {"default", "const", "enum"} else visit(value)
+            for key, value in node.items()
+            if key != "$defs" and not (key == "default" and value is None)
+        }
+        if "anyOf" in result and all(set(item) == {"type"} for item in result["anyOf"]):
+            result["type"] = list(dict.fromkeys(item["type"] for item in result.pop("anyOf")))
+        return result
+
+    return visit(compact(schema))
 
 
 def describe(op):
-    """Generate both envelope branches from the Op and shared pydantic models."""
+    """Project registry contracts into compact, offline-compatible MCP declarations."""
     value = op.describe()
     fields = {"project": (str, Field(..., json_schema_extra={"x-cybersprite-path": "project"}))}
     if op.kind in {"mutate", "ingest"}:
         fields.update(
             {name: (f.annotation, deepcopy(f)) for name, f in TxOptions.model_fields.items()}
         )
-    value["inputSchema"] = create_model(
-        op.name + "MCPInput", __base__=op.args, **fields
-    ).model_json_schema(by_alias=True)
-    success = value["outputSchema"]
-    success["properties"]["ok"] = {"const": True, "type": "boolean"}
-    # Inline PNG data lives only in MCP image blocks, not the JSON envelope.
-    for definition in success.get("$defs", {}).values():
-        definition.get("properties", {}).pop("images", None)
-    failure = Failure.model_json_schema()
-    defs = {**success.pop("$defs", {}), **failure.pop("$defs", {})}
-    # Root "type": "object" is required by older MCP protocol versions (e.g. 2025-06-18).
-    value["outputSchema"] = {"type": "object", "oneOf": [success, failure], "$defs": defs}
+    schema = create_model(op.name + "MCPInput", __base__=op.args, **fields).model_json_schema(
+        by_alias=True
+    )
+    value["argumentSchema"] = schema
+    value["inputSchema"] = compact_input(schema)
+    value["outputSchema"] = deepcopy(ENVELOPE_SCHEMA)
+    value["description"] = value["description"].split(" Coordinates are integer pixels")[0]
     return value

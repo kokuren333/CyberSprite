@@ -1,0 +1,64 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "from_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Earlier history revision; omission uses the previous revision.",
+      "title": "From Revision"
+    },
+    "to_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Later history revision; omission uses the current revision.",
+      "title": "To Revision"
+    },
+    "frames": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 4,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Frame selection: zero-based index, index list, all, range 0-3, or tag:name.",
+      "title": "Frames"
+    },
+    "inline": {
+      "default": true,
+      "description": "Include base64 PNG data for clients that display inline images.",
+      "title": "Inline",
+      "type": "boolean"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    }
+  },
+  "required": [
+    "project"
+  ],
+  "title": "diff_previewInput",
+  "type": "object"
+}

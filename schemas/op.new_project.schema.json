@@ -1,0 +1,160 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "width": {
+      "description": "Width in integer pixels.",
+      "minimum": 1,
+      "title": "Width",
+      "type": "integer"
+    },
+    "height": {
+      "description": "Height in integer pixels.",
+      "minimum": 1,
+      "title": "Height",
+      "type": "integer"
+    },
+    "palette": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      ],
+      "default": "cs-circuit-16",
+      "description": "Built-in palette name, palette file path, or ordered RGBA color list.",
+      "title": "Palette"
+    },
+    "transparent_index": {
+      "default": 0,
+      "description": "Palette index representing transparent pixels.",
+      "title": "Transparent Index",
+      "type": "integer"
+    },
+    "frames": {
+      "default": 1,
+      "description": "Initial frame count (at least one).",
+      "minimum": 1,
+      "title": "Frames",
+      "type": "integer"
+    },
+    "duration_ms": {
+      "default": 100,
+      "description": "Frame display duration in integer milliseconds (1-65535).",
+      "maximum": 65535,
+      "minimum": 1,
+      "title": "Duration Ms",
+      "type": "integer"
+    },
+    "name": {
+      "anyOf": [
+        {
+          "maxLength": 255,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Human-readable resource name, at most 255 characters.",
+      "title": "Name"
+    },
+    "layer_name": {
+      "default": "Layer 1",
+      "description": "Name of the initial image layer.",
+      "maxLength": 255,
+      "minLength": 1,
+      "title": "Layer Name",
+      "type": "string"
+    },
+    "background": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Background palette index or color; omission preserves transparency.",
+      "title": "Background"
+    },
+    "if_exists": {
+      "default": "error",
+      "description": "Policy when a matching resource already exists; see the allowed enum values.",
+      "enum": [
+        "error",
+        "open"
+      ],
+      "title": "If Exists",
+      "type": "string"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "width",
+    "height",
+    "project"
+  ],
+  "title": "new_projectInput",
+  "type": "object"
+}

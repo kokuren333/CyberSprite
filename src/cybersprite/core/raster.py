@@ -366,6 +366,7 @@ def flood_fill_mask(
             "E_OUT_OF_CANVAS",
             f"Seed ({x}, {y}) is outside canvas {w}x{h}.",
             f"Choose a seed with 0 <= x < {w} and 0 <= y < {h}.",
+            {"x": x, "y": y, "width": w, "height": h},
         )
     selected = np.zeros(image.shape, dtype=bool)
     target = image[y, x]

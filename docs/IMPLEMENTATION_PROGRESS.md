@@ -238,3 +238,12 @@
 - 最終 `uv run pytest -q --tb=short`: **1470 passed / 2 skipped（1006.07秒）**。skipはWindowsシンボリックリンク権限の既存2件。初回は1469 passed / 2 skipped / op.list RPCの3秒timeout 1件（2605.01秒）、個別再実行2件と最終全体は成功。Ruff check/format、schema drift、repository、core/opsのmypy38ファイルが成功。全80 Op定義は変更前とバイト一致し、ゴールデン更新なし。実CLIのops list/plugins list/schemaも成功。
 - 同一PC・各3回で変更前凍結srcと実装`9feb3cd`を比較。96×96・8層・45fの1px編集中央値 **12600.196 → 2452.570 ms**、256×256・32fの解析空の全体検証 **13033.595 → 2257.868 ms**。CLI端から端まで・全9fixture・解析再利用・1024²密/4096²疎の新規子プロセス測定と生値は[PERFORMANCE.md](PERFORMANCE.md)。目標達成・未達とキャッシュ条件を分けて記録し、同一フレームの旧値は補助扱いにした。
 - 判断 **I-1141〜I-1150**。仕様は§6.3、§10.4、§13.4、§13.8を更新した。新規依存・外部コード/素材参照・ビジュアル判断なし。初期試行の後に元srcを凍結して最終比較したため、全fixtureの変更前計測を実装着手前に終えたものではない。ディスク派生キャッシュとLinux実機は未実施。4096²疎画像のpeak working set増加を記録し、疎領域に限定する最適化は未対応。背景負荷は固定せず、空き物理メモリも記録した。main統合はオーケストレーターが行う。
+
+## R1-M: 残りの軽微指摘（2026-11-12）
+
+- `dc50e96` で R1-08/12/23/24/25/28/29/31/32 の指定範囲を修正した。MCP の共通封筒とコンパクト宣言、スキーマ注釈によるファイルパス変換、背景を保つ flatten と可視合成を保つ merge、警告・エラー、sheet/80 Op のスキーマと drift、CLI の反復 include と 8765、明示的なゴールデン更新、GUI の生成 opt-in、初回 import の L1 再利用を実装した。quality.py 内部は未編集。
+- 最終全体 `uv run pytest -q --tb=short` は **1735 passed / 5 skipped（1003.04秒）**。skipはWindowsのsymlink作成権限による既存5件。追加回帰・独立復号・シナリオ2は **72 passed**、MCP パス・契約・CLIは **112 passed / 1 skipped**、パス注釈の追試は **10 passed**、独立復号マーカーは **7 passed**。Ruff check/format、core/ops mypy 38ファイル、schema drift、repository検査は成功。
+- 同一環境で各3回のツール定義 bytes は standard **377768/377768/377768→99478/99478/99478**、minimal **76556/76556/76556→17247/17247/17247**（各中央値も同値）。ツール数は78/13のまま。速度の主張ではなく、レビューと同じJSON直列化でのサイズ測定である。
+- 実CLIで新規→背景消去→矩形→flatten→info→validate→PNG/GIF/APNG/シートPNGを書き出した。指摘0件、validation_ok/verified=true。Pillowで全フレームと最終ファイルを復号比較し、実シートPNGも開いて確認した。再現は `tools/r1_m_acceptance.py`。
+- ゴールデンは共通更新器を通した scenario2 の project.json 1件だけ。空レイヤーを除去しID/counterをL1/1へ変更、画像と画素ハッシュは不変。通常の25ケースは更新なし。判断 **I-1701〜I-1711**、仕様の局所変更と設計分岐は [R1_M_REPORT.md](R1_M_REPORT.md) に記録した。
+- 新規依存・外部参照・意匠変更はない。Linuxの実行、M0の未撮影GUI画面とI-005の棚卸し追記、R1-17/30の見た目、R1-22の台帳は未実施または指示どおり対象外。MCPの複雑な入れ子の詳細は一覧では省略し、完全な定義をCLI/schemaと実行時に保持する。main統合はオーケストレーターが行う。

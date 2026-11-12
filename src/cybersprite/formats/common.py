@@ -23,7 +23,13 @@ PLACEHOLDERS = {"name", "frame", "frame1", "layer", "tag", "tagframe", "slice"}
 
 
 def fail(code, message, **details):
-    raise CyberSpriteError(code, message, "Correct the indicated export option and retry.", details)
+    hint = (
+        "Run validate, fix the error-level issues, then retry; "
+        "use allow_invalid=true only for an intentional override."
+        if code == "E_VALIDATION_FAILED"
+        else "Correct the indicated export option and retry."
+    )
+    raise CyberSpriteError(code, message, hint, details)
 
 
 @contextmanager

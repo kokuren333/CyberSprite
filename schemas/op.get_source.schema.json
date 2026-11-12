@@ -1,0 +1,27 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "description": "Stored source ID, such as SRC1.",
+      "title": "Id",
+      "type": "string"
+    },
+    "include_report": {
+      "default": false,
+      "description": "Include the saved pipeline report in the source response.",
+      "title": "Include Report",
+      "type": "boolean"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "project"
+  ],
+  "title": "get_sourceInput",
+  "type": "object"
+}

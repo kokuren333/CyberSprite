@@ -1,0 +1,170 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "out": {
+      "description": "Output file path, relative to the surface root. export image supports {name}, {frame} (zero-based), {frame1} (one-based), {layer}, {tag}, {tagframe} (zero-based within tag), and {slice}; integer frame fields accept widths such as {frame:02}. Other export subcommands use literal paths.",
+      "title": "Out",
+      "type": "string"
+    },
+    "overwrite": {
+      "default": true,
+      "description": "Replace existing output files when true.",
+      "title": "Overwrite",
+      "type": "boolean"
+    },
+    "allow_invalid": {
+      "default": false,
+      "description": "Explicitly export even when validation has errors, recording a warning.",
+      "title": "Allow Invalid",
+      "type": "boolean"
+    },
+    "format": {
+      "anyOf": [
+        {
+          "enum": [
+            "gif",
+            "apng"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Output format; omit to infer it from the output filename extension.",
+      "title": "Format"
+    },
+    "tag": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Tag ID or unique name selecting the frame range.",
+      "title": "Tag"
+    },
+    "frames": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "items": {
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Frame selection: zero-based index/list, all, range 0-3, or tag:name; omission uses all frames.",
+      "title": "Frames"
+    },
+    "layers": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Layer references to include; omission uses the operation default selection.",
+      "title": "Layers"
+    },
+    "scale": {
+      "default": 1,
+      "description": "Integer nearest-neighbor scale; auto fits previews within their size limit.",
+      "maximum": 64,
+      "minimum": 1,
+      "title": "Scale",
+      "type": "integer"
+    },
+    "loop": {
+      "default": 0,
+      "description": "Animation loop count; zero loops forever.",
+      "maximum": 65535,
+      "minimum": 0,
+      "title": "Loop",
+      "type": "integer"
+    },
+    "color_mode": {
+      "anyOf": [
+        {
+          "enum": [
+            "indexed",
+            "rgba"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Write palette-indexed or full RGBA output.",
+      "title": "Color Mode"
+    },
+    "flatten": {
+      "default": "strict",
+      "description": "Require exact palette closure (strict) or explicitly map to nearest palette colors.",
+      "enum": [
+        "strict",
+        "nearest"
+      ],
+      "title": "Flatten",
+      "type": "string"
+    },
+    "background": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Background palette index or color; omission preserves transparency.",
+      "title": "Background"
+    },
+    "compression": {
+      "default": "zlib",
+      "description": "PNG compression: deterministic stored blocks or environment-dependent zlib bytes.",
+      "enum": [
+        "stored",
+        "zlib"
+      ],
+      "title": "Compression",
+      "type": "string"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    }
+  },
+  "required": [
+    "out",
+    "project"
+  ],
+  "title": "export_animationInput",
+  "type": "object"
+}

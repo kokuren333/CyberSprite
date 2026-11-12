@@ -1,0 +1,168 @@
+{
+  "$defs": {
+    "Onion": {
+      "additionalProperties": false,
+      "properties": {
+        "prev": {
+          "default": 0,
+          "maximum": 8,
+          "minimum": 0,
+          "title": "Prev",
+          "type": "integer"
+        },
+        "next": {
+          "default": 0,
+          "maximum": 8,
+          "minimum": 0,
+          "title": "Next",
+          "type": "integer"
+        },
+        "loop_tag": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Tag ID or unique name to wrap onion frames within.",
+          "title": "Loop Tag"
+        }
+      },
+      "title": "Onion",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "frames": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "items": {
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "description": "Frame selection: zero-based index, index list, all, range 0-3, or tag:name.",
+      "title": "Frames"
+    },
+    "tileset": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Tileset ID or unique name; render its labeled tile grid.",
+      "title": "Tileset"
+    },
+    "layout": {
+      "default": "frames",
+      "description": "Separate images (at most 8), one strip, or one frame grid.",
+      "enum": [
+        "frames",
+        "strip",
+        "grid"
+      ],
+      "title": "Layout",
+      "type": "string"
+    },
+    "layers": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Layer references to include; omission uses the operation default selection.",
+      "title": "Layers"
+    },
+    "scale": {
+      "anyOf": [
+        {
+          "maximum": 64,
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "const": "auto",
+          "type": "string"
+        }
+      ],
+      "default": "auto",
+      "description": "Integer nearest-neighbor scale; auto fits previews within their size limit.",
+      "title": "Scale"
+    },
+    "grid": {
+      "default": false,
+      "description": "Overlay the stored integer document grid.",
+      "title": "Grid",
+      "type": "boolean"
+    },
+    "rulers": {
+      "default": false,
+      "description": "Add integer coordinate rulers to the diagnostic preview.",
+      "title": "Rulers",
+      "type": "boolean"
+    },
+    "onion": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Onion"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Number of previous and next frames to include as onion skins (0-8 each)."
+    },
+    "background": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "default": "checker",
+      "description": "Checker, palette index/exact color, or raw #rrggbb decoration.",
+      "title": "Background"
+    },
+    "inline": {
+      "default": true,
+      "description": "Include base64 PNG data for clients that display inline images.",
+      "title": "Inline",
+      "type": "boolean"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    }
+  },
+  "required": [
+    "project"
+  ],
+  "title": "render_previewInput",
+  "type": "object"
+}

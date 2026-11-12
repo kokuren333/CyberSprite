@@ -1,0 +1,38 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "include": {
+      "default": [
+        "summary"
+      ],
+      "description": "Project information sections to return.",
+      "items": {
+        "enum": [
+          "summary",
+          "layers",
+          "frames",
+          "tags",
+          "slices",
+          "tilesets",
+          "palette",
+          "sources",
+          "validation",
+          "history"
+        ],
+        "type": "string"
+      },
+      "title": "Include",
+      "type": "array"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    }
+  },
+  "required": [
+    "project"
+  ],
+  "title": "get_infoInput",
+  "type": "object"
+}

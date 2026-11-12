@@ -1,0 +1,50 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "frames": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "items": {
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "default": "all",
+      "description": "Frame selection: zero-based index, index list, all, range 0-3, or tag:name.",
+      "title": "Frames"
+    },
+    "rules": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Quality rule IDs to include; omission evaluates all configured rules.",
+      "title": "Rules"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    }
+  },
+  "required": [
+    "project"
+  ],
+  "title": "validateInput",
+  "type": "object"
+}

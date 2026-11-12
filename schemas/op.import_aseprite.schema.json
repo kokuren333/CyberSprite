@@ -1,0 +1,103 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "file": {
+      "description": "Input .aseprite or .ase file path.",
+      "title": "File",
+      "type": "string"
+    },
+    "quantize": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Explicit palette quantization options required for input that cannot fit exact indexed colors.",
+      "properties": {
+        "source": {
+          "anyOf": [
+            {
+              "type": "string",
+              "x-cybersprite-path": "palette"
+            },
+            {
+              "type": "array"
+            }
+          ]
+        }
+      },
+      "title": "Quantize"
+    },
+    "if_exists": {
+      "default": "error",
+      "description": "Policy when a matching resource already exists; see the allowed enum values.",
+      "enum": [
+        "error",
+        "open"
+      ],
+      "title": "If Exists",
+      "type": "string"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "file",
+    "project"
+  ],
+  "title": "import_asepriteInput",
+  "type": "object"
+}

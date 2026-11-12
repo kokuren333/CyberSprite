@@ -1,0 +1,488 @@
+{
+  "$defs": {
+    "CompatibleFrame": {
+      "additionalProperties": false,
+      "properties": {
+        "frame": {
+          "$ref": "#/$defs/Rect"
+        },
+        "rotated": {
+          "const": false,
+          "title": "Rotated",
+          "type": "boolean"
+        },
+        "trimmed": {
+          "title": "Trimmed",
+          "type": "boolean"
+        },
+        "spriteSourceSize": {
+          "$ref": "#/$defs/Rect"
+        },
+        "sourceSize": {
+          "$ref": "#/$defs/Size"
+        },
+        "duration": {
+          "minimum": 1,
+          "title": "Duration",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "frame",
+        "rotated",
+        "trimmed",
+        "spriteSourceSize",
+        "sourceSize",
+        "duration"
+      ],
+      "title": "CompatibleFrame",
+      "type": "object"
+    },
+    "CompatibleMeta": {
+      "additionalProperties": false,
+      "properties": {
+        "app": {
+          "const": "CyberSprite",
+          "title": "App",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        },
+        "image": {
+          "format": "path",
+          "title": "Image",
+          "type": "string"
+        },
+        "format": {
+          "enum": [
+            "I8",
+            "RGBA8888"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "size": {
+          "$ref": "#/$defs/Size"
+        },
+        "scale": {
+          "title": "Scale",
+          "type": "string"
+        },
+        "frameTags": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Frametags",
+          "type": "array"
+        },
+        "layers": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Layers",
+          "type": "array"
+        },
+        "slices": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Slices",
+          "type": "array"
+        }
+      },
+      "required": [
+        "app",
+        "version",
+        "image",
+        "format",
+        "size",
+        "scale",
+        "frameTags",
+        "layers",
+        "slices"
+      ],
+      "title": "CompatibleMeta",
+      "type": "object"
+    },
+    "CompatibleSheet": {
+      "additionalProperties": false,
+      "properties": {
+        "frames": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "$ref": "#/$defs/CompatibleFrame"
+              },
+              "type": "object"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/NamedFrame"
+              },
+              "type": "array"
+            }
+          ],
+          "title": "Frames"
+        },
+        "meta": {
+          "$ref": "#/$defs/CompatibleMeta"
+        }
+      },
+      "required": [
+        "frames",
+        "meta"
+      ],
+      "title": "CompatibleSheet",
+      "type": "object"
+    },
+    "NamedFrame": {
+      "additionalProperties": false,
+      "properties": {
+        "frame": {
+          "$ref": "#/$defs/Rect"
+        },
+        "rotated": {
+          "const": false,
+          "title": "Rotated",
+          "type": "boolean"
+        },
+        "trimmed": {
+          "title": "Trimmed",
+          "type": "boolean"
+        },
+        "spriteSourceSize": {
+          "$ref": "#/$defs/Rect"
+        },
+        "sourceSize": {
+          "$ref": "#/$defs/Size"
+        },
+        "duration": {
+          "minimum": 1,
+          "title": "Duration",
+          "type": "integer"
+        },
+        "filename": {
+          "title": "Filename",
+          "type": "string"
+        }
+      },
+      "required": [
+        "frame",
+        "rotated",
+        "trimmed",
+        "spriteSourceSize",
+        "sourceSize",
+        "duration",
+        "filename"
+      ],
+      "title": "NamedFrame",
+      "type": "object"
+    },
+    "Rect": {
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "title": "X",
+          "type": "integer"
+        },
+        "y": {
+          "title": "Y",
+          "type": "integer"
+        },
+        "w": {
+          "minimum": 0,
+          "title": "W",
+          "type": "integer"
+        },
+        "h": {
+          "minimum": 0,
+          "title": "H",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h"
+      ],
+      "title": "Rect",
+      "type": "object"
+    },
+    "SheetData": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "const": "cybersprite-sheet",
+          "title": "Format",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "image": {
+          "format": "path",
+          "title": "Image",
+          "type": "string"
+        },
+        "size": {
+          "$ref": "#/$defs/Size"
+        },
+        "scale": {
+          "minimum": 1,
+          "title": "Scale",
+          "type": "integer"
+        },
+        "color_mode": {
+          "enum": [
+            "indexed",
+            "rgba"
+          ],
+          "title": "Color Mode",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/SheetSource"
+        },
+        "palette": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Palette",
+          "type": "array"
+        },
+        "transparent_index": {
+          "title": "Transparent Index",
+          "type": "integer"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/SheetItem"
+          },
+          "title": "Items",
+          "type": "array"
+        },
+        "tags": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Tags",
+          "type": "array"
+        },
+        "layers": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Layers",
+          "type": "array"
+        },
+        "slices": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Slices",
+          "type": "array"
+        }
+      },
+      "required": [
+        "format",
+        "schema_version",
+        "image",
+        "size",
+        "scale",
+        "color_mode",
+        "source",
+        "palette",
+        "transparent_index",
+        "items",
+        "tags",
+        "layers",
+        "slices"
+      ],
+      "title": "SheetData",
+      "type": "object"
+    },
+    "SheetItem": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "frame": {
+          "title": "Frame",
+          "type": "integer"
+        },
+        "layer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Layer"
+        },
+        "layer_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Layer Id"
+        },
+        "tag": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tag"
+        },
+        "tag_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tag Id"
+        },
+        "slice": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Slice"
+        },
+        "slice_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Slice Id"
+        },
+        "rect": {
+          "$ref": "#/$defs/Rect"
+        },
+        "trimmed": {
+          "title": "Trimmed",
+          "type": "boolean"
+        },
+        "source_rect": {
+          "$ref": "#/$defs/Rect"
+        },
+        "source_size": {
+          "$ref": "#/$defs/Size"
+        },
+        "duration_ms": {
+          "minimum": 1,
+          "title": "Duration Ms",
+          "type": "integer"
+        },
+        "pixel_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Pixel Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "frame",
+        "layer",
+        "layer_id",
+        "tag",
+        "tag_id",
+        "slice",
+        "slice_id",
+        "rect",
+        "trimmed",
+        "source_rect",
+        "source_size",
+        "duration_ms",
+        "pixel_sha256"
+      ],
+      "title": "SheetItem",
+      "type": "object"
+    },
+    "SheetSource": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "revision": {
+          "title": "Revision",
+          "type": "integer"
+        },
+        "canvas": {
+          "$ref": "#/$defs/Size"
+        }
+      },
+      "required": [
+        "name",
+        "revision",
+        "canvas"
+      ],
+      "title": "SheetSource",
+      "type": "object"
+    },
+    "Size": {
+      "additionalProperties": false,
+      "properties": {
+        "w": {
+          "minimum": 1,
+          "title": "W",
+          "type": "integer"
+        },
+        "h": {
+          "minimum": 1,
+          "title": "H",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "w",
+        "h"
+      ],
+      "title": "Size",
+      "type": "object"
+    }
+  },
+  "anyOf": [
+    {
+      "$ref": "#/$defs/SheetData"
+    },
+    {
+      "$ref": "#/$defs/CompatibleSheet"
+    }
+  ]
+}

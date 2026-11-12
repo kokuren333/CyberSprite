@@ -1,0 +1,23 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "limit": {
+      "default": 20,
+      "description": "Maximum number of recent history entries to return (1-1000).",
+      "maximum": 1000,
+      "minimum": 1,
+      "title": "Limit",
+      "type": "integer"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    }
+  },
+  "required": [
+    "project"
+  ],
+  "title": "get_historyInput",
+  "type": "object"
+}

@@ -1,0 +1,282 @@
+{
+  "$defs": {
+    "AllRegion": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "all",
+          "default": "all",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "title": "AllRegion",
+      "type": "object"
+    },
+    "ColorRegion": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "color",
+          "title": "Type",
+          "type": "string"
+        },
+        "color": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "title": "Color"
+        }
+      },
+      "required": [
+        "type",
+        "color"
+      ],
+      "title": "ColorRegion",
+      "type": "object"
+    },
+    "MaskRegion": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "mask",
+          "title": "Type",
+          "type": "string"
+        },
+        "x": {
+          "title": "X",
+          "type": "integer"
+        },
+        "y": {
+          "title": "Y",
+          "type": "integer"
+        },
+        "rows": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rows",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "x",
+        "y",
+        "rows"
+      ],
+      "title": "MaskRegion",
+      "type": "object"
+    },
+    "RectRegion": {
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "title": "X",
+          "type": "integer"
+        },
+        "y": {
+          "title": "Y",
+          "type": "integer"
+        },
+        "w": {
+          "minimum": 0,
+          "title": "W",
+          "type": "integer"
+        },
+        "h": {
+          "minimum": 0,
+          "title": "H",
+          "type": "integer"
+        },
+        "type": {
+          "const": "rect",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h",
+        "type"
+      ],
+      "title": "RectRegion",
+      "type": "object"
+    },
+    "WandRegion": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "wand",
+          "title": "Type",
+          "type": "string"
+        },
+        "x": {
+          "title": "X",
+          "type": "integer"
+        },
+        "y": {
+          "title": "Y",
+          "type": "integer"
+        },
+        "connectivity": {
+          "default": 4,
+          "enum": [
+            4,
+            8
+          ],
+          "title": "Connectivity",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "x",
+        "y"
+      ],
+      "title": "WandRegion",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "layer": {
+      "description": "Target layer ID, unique name, or group path.",
+      "title": "Layer",
+      "type": "string"
+    },
+    "frame": {
+      "description": "Zero-based frame index.",
+      "title": "Frame",
+      "type": "integer"
+    },
+    "color": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "description": "Palette index or an exact palette color; editing never approximates colors.",
+      "title": "Color"
+    },
+    "placement": {
+      "default": "outside",
+      "description": "Put the outline outside or inside the existing opaque silhouette.",
+      "enum": [
+        "outside",
+        "inside"
+      ],
+      "title": "Placement",
+      "type": "string"
+    },
+    "connectivity": {
+      "default": 4,
+      "description": "Neighbor connectivity: 4 uses edges, 8 also includes diagonals.",
+      "enum": [
+        4,
+        8
+      ],
+      "title": "Connectivity",
+      "type": "integer"
+    },
+    "region": {
+      "description": "Explicit all, rectangle, mask, color, or wand selection in canvas coordinates.",
+      "discriminator": {
+        "mapping": {
+          "all": "#/$defs/AllRegion",
+          "color": "#/$defs/ColorRegion",
+          "mask": "#/$defs/MaskRegion",
+          "rect": "#/$defs/RectRegion",
+          "wand": "#/$defs/WandRegion"
+        },
+        "propertyName": "type"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/AllRegion"
+        },
+        {
+          "$ref": "#/$defs/RectRegion"
+        },
+        {
+          "$ref": "#/$defs/MaskRegion"
+        },
+        {
+          "$ref": "#/$defs/ColorRegion"
+        },
+        {
+          "$ref": "#/$defs/WandRegion"
+        }
+      ],
+      "title": "Region"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "layer",
+    "frame",
+    "color",
+    "project"
+  ],
+  "title": "outlineInput",
+  "type": "object"
+}

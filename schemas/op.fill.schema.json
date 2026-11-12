@@ -1,0 +1,117 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "layer": {
+      "description": "Target layer ID, unique name, or group path.",
+      "title": "Layer",
+      "type": "string"
+    },
+    "frame": {
+      "description": "Zero-based frame index.",
+      "title": "Frame",
+      "type": "integer"
+    },
+    "x": {
+      "description": "Horizontal pixel coordinate from the canvas left edge.",
+      "title": "X",
+      "type": "integer"
+    },
+    "y": {
+      "description": "Vertical pixel coordinate from the canvas top edge.",
+      "title": "Y",
+      "type": "integer"
+    },
+    "color": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "description": "Palette index or an exact palette color; editing never approximates colors.",
+      "title": "Color"
+    },
+    "connectivity": {
+      "default": 4,
+      "description": "Neighbor connectivity: 4 uses edges, 8 also includes diagonals.",
+      "enum": [
+        4,
+        8
+      ],
+      "title": "Connectivity",
+      "type": "integer"
+    },
+    "sample": {
+      "default": "layer",
+      "description": "Read flood-fill boundaries from this layer or the rendered composite.",
+      "enum": [
+        "layer",
+        "composite"
+      ],
+      "title": "Sample",
+      "type": "string"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "layer",
+    "frame",
+    "x",
+    "y",
+    "color",
+    "project"
+  ],
+  "title": "fillInput",
+  "type": "object"
+}

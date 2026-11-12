@@ -194,7 +194,8 @@ def test_sheet_data_and_mcp_output_schema(tmp_path):
     p = new_project(width=2, height=2)
     with export_policy(tmp_path):
         result = export_sheet(p, SheetArgs(out="sheet.png", data_out="sheet.json"))
-    schema = describe(registry().get("export_sheet"))["outputSchema"]
+    contract = describe(registry().get("export_sheet"))
+    schema = contract["outputSchema"]
     envelope = {
         "ok": True,
         "op": "export_sheet",
@@ -204,10 +205,14 @@ def test_sheet_data_and_mcp_output_schema(tmp_path):
     }
     validator = jsonschema.Draft202012Validator(schema)
     validator.validate(envelope)
+    # The compact MCP declaration validates the envelope; the registry retains
+    # and enforces the complete result contract before returning any response.
+    result_validator = jsonschema.Draft202012Validator(contract["resultSchema"])
+    result_validator.validate(result)
     assert set(result["files"][1]) == {"kind", "path", "bytes", "sha256"}
     result["files"][1]["width"] = 0
     with pytest.raises(jsonschema.ValidationError):
-        validator.validate(envelope)
+        result_validator.validate(result)
 
 
 def test_cli_preview_specifiers_layout_and_onion_shorthand(animation, tmp_path):
