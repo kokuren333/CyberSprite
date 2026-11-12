@@ -7,6 +7,7 @@
 - パイプラインは決定的である。関門に落ちたら、**段階画像を見て**設定を変え、同じソースでやり直す。関門を黙って無効にしない。
 - 関門に通っても、結果が正しいとは限らない。結果の大きさと段階画像を必ず見る。
 - このパイプラインは失われた細部を作り出さない。取り込んだ後の手直しは前提である（§11.12）。
+- 原画を「見本」として残すだけなら、キャンバスに取り込まない。`source/` に `use: "design"` で登録する（`add_source`、M12 で追加）。原画の色がパレットに入らずに済む。工程は `skills/workflows/turnaround-parts.md`。
 
 仕様: 変換パイプライン `docs/SPEC.md` §11（プリセット §11.10、関門と段階画像 §11.8、配置 §11.11）、来歴 §5.10、生成 §12。生成と来歴の書き方の実例は `docs/GENERATION.md`。
 
@@ -72,7 +73,9 @@ csp -p slime.csprite import image in/slime.png --preset ai --pipeline '{"grid":{
   ```
 - どうしても関門を破って入れるなら `--on-gate-fail accept` を明示する。来歴の `gates_overridden` に残り、`Q-SRC-01` が警告し続ける。報告に理由を書く。
 - 複数フレーム: 同じ大きさのファイルを並べる（`files` に配列）、1 枚のシートなら `--sheet-cell 32x32`。全フレームで同じ格子を使う。
-- 生成した画像は、その道具から一度ファイルに保存してから渡す。CyberSprite 内蔵の生成（`gen run`）は `docs/GENERATION.md`。
+- 生成した画像は、その道具から一度ファイルに保存してから渡す。CyberSprite 内蔵の生成（`gen run`）は `docs/GENERATION.md`。Codex の imagegen に頼む手順は `skills/workflows/turnaround-parts.md` §3.2（生成物は `~/.codex/generated_images/` にも出るので、そこから写す）。
+- **生成を頼むときの背景は、題材の色から遠い単色にする。** 青い背景で生成した青いキャラクターは、背景抜き（`background.mode: "key"`）で体まで抜けた。題材が青ならマゼンタ、のように選び、その色を `background.color` に渡す。
+- 生成への指示は肯定形で書く（「〜を描かない」は、かえって描かれることがある）。
 
 ### 2.5 取り込んだ後
 
@@ -98,3 +101,6 @@ csp -p slime.csprite preview --frames all --layout strip --out after-import.png
 - [ ] 試しの `import_image` を繰り返してソースとレイヤーを増やしていないか。設定探しは `convert` で行う。
 - [ ] 取り込み先のキャンバスの大きさは意図どおりか（先に `new`）。
 - [ ] 取り込んだアニメーションを、フレームを並べて見比べ、直したか。
+- [ ] 背景抜きで、題材の一部（背景と近い色）まで抜けていないか。生成の背景色は題材から遠い色だったか。
+- [ ] 見本として見たいだけの原画を、キャンバスに取り込んでいないか。
+- [ ] 参照（他人の絵）を取り込んでいないか。参照は測るだけ（`skills/workflows/references.md`）。
