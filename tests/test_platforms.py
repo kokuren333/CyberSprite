@@ -97,6 +97,8 @@ def test_plugin_precedence(monkeypatch):
         {"/system/~2": 1},
         {"/system/tile/w": 0},
         {"/system/tile/w": 257},
+        {"/system/object/sizes/-1/0": 16},
+        {"/system/object/sizes/00/0": 16},
         {"/system/color/bits/r": 5.0},
     ],
 )

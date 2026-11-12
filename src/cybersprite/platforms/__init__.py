@@ -102,6 +102,8 @@ def pointers(data, overrides):
         target = result
         try:
             for part in parts[:-1]:
+                if isinstance(target, list) and not re.fullmatch(r"0|[1-9][0-9]*", part):
+                    raise KeyError(pointer)
                 target = target[int(part)] if isinstance(target, list) else target[part]
             key = int(parts[-1]) if isinstance(target, list) else parts[-1]
             if isinstance(target, list) and (str(key) != parts[-1] or key < 0):
