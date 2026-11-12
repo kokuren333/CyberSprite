@@ -18,6 +18,7 @@ class PipelineStep:
     method: str
     run: Callable
     level_a: bool = False
+    run_frames: Callable | None = None
     plugin_api = 1
 
 

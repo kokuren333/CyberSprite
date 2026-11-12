@@ -1,0 +1,480 @@
+{
+  "name": "shared-axes",
+  "grayscale_frames": [
+    [
+      [
+        0,
+        0,
+        255,
+        255,
+        0,
+        0,
+        255,
+        255
+      ],
+      [
+        0,
+        0,
+        255,
+        255,
+        0,
+        0,
+        255,
+        255
+      ],
+      [
+        0,
+        0,
+        255,
+        255,
+        0,
+        0,
+        255,
+        255
+      ],
+      [
+        0,
+        0,
+        255,
+        255,
+        0,
+        0,
+        255,
+        255
+      ],
+      [
+        0,
+        0,
+        255,
+        255,
+        0,
+        0,
+        255,
+        255
+      ],
+      [
+        0,
+        0,
+        255,
+        255,
+        0,
+        0,
+        255,
+        255
+      ],
+      [
+        0,
+        0,
+        255,
+        255,
+        0,
+        0,
+        255,
+        255
+      ],
+      [
+        0,
+        0,
+        255,
+        255,
+        0,
+        0,
+        255,
+        255
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255
+      ],
+      [
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255
+      ],
+      [
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255
+      ]
+    ]
+  ],
+  "alpha": 255,
+  "settings": {
+    "max_cell": 4
+  },
+  "signals": {
+    "0": [
+      [
+        0,
+        0,
+        6120,
+        0,
+        6120,
+        0,
+        6120,
+        0
+      ],
+      [
+        0,
+        0,
+        6120,
+        0,
+        6120,
+        0,
+        6120,
+        0
+      ],
+      [
+        0,
+        0,
+        6120,
+        0,
+        6120,
+        0,
+        6120,
+        0
+      ]
+    ],
+    "1": [
+      [
+        0,
+        0,
+        6120,
+        0,
+        6120,
+        0,
+        6120,
+        0
+      ],
+      [
+        0,
+        0,
+        6120,
+        0,
+        6120,
+        0,
+        6120,
+        0
+      ],
+      [
+        0,
+        0,
+        6120,
+        0,
+        6120,
+        0,
+        6120,
+        0
+      ]
+    ]
+  },
+  "expected": {
+    "mode": "auto",
+    "detected": true,
+    "x": {
+      "family": "B",
+      "numerator": 2,
+      "denominator": 1,
+      "cell": 2,
+      "offset": 0,
+      "boundaries": [
+        2,
+        4,
+        6
+      ],
+      "peak": 2333,
+      "score": 2333,
+      "alignment": 1000,
+      "coherence": 1000
+    },
+    "y": {
+      "family": "B",
+      "numerator": 2,
+      "denominator": 1,
+      "cell": 2,
+      "offset": 0,
+      "boundaries": [
+        2,
+        4,
+        6
+      ],
+      "peak": 2333,
+      "score": 2333,
+      "alignment": 1000,
+      "coherence": 1000
+    },
+    "cell_w": 2,
+    "cell_h": 2,
+    "offset_x": 0,
+    "offset_y": 0,
+    "x_cells": [
+      [
+        0,
+        2
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        4,
+        6
+      ],
+      [
+        6,
+        8
+      ]
+    ],
+    "y_cells": [
+      [
+        0,
+        2
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        4,
+        6
+      ],
+      [
+        6,
+        8
+      ]
+    ],
+    "columns": 4,
+    "rows": 4,
+    "peak": 2333,
+    "candidates": {
+      "x": [
+        {
+          "family": "A",
+          "numerator": 8,
+          "denominator": 4,
+          "cell": 2,
+          "offset": 0,
+          "boundaries": [
+            2,
+            4,
+            6
+          ],
+          "peak": 2333,
+          "score": 2333,
+          "alignment": 1000,
+          "coherence": 1000
+        },
+        {
+          "family": "B",
+          "numerator": 2,
+          "denominator": 1,
+          "cell": 2,
+          "offset": 0,
+          "boundaries": [
+            2,
+            4,
+            6
+          ],
+          "peak": 2333,
+          "score": 2333,
+          "alignment": 1000,
+          "coherence": 1000
+        },
+        {
+          "family": "A",
+          "numerator": 8,
+          "denominator": 2,
+          "cell": 4,
+          "offset": 0,
+          "boundaries": [
+            4
+          ],
+          "peak": 2333,
+          "score": 2333,
+          "alignment": 1000,
+          "coherence": 1000
+        },
+        {
+          "family": "B",
+          "numerator": 4,
+          "denominator": 1,
+          "cell": 4,
+          "offset": 0,
+          "boundaries": [
+            4
+          ],
+          "peak": 2333,
+          "score": 2333,
+          "alignment": 1000,
+          "coherence": 1000
+        },
+        {
+          "family": "B",
+          "numerator": 4,
+          "denominator": 1,
+          "cell": 4,
+          "offset": 2,
+          "boundaries": [
+            2,
+            6
+          ],
+          "peak": 2333,
+          "score": 2333,
+          "alignment": 1000,
+          "coherence": 1000
+        }
+      ],
+      "y": [
+        {
+          "family": "A",
+          "numerator": 8,
+          "denominator": 4,
+          "cell": 2,
+          "offset": 0,
+          "boundaries": [
+            2,
+            4,
+            6
+          ],
+          "peak": 2333,
+          "score": 2333,
+          "alignment": 1000,
+          "coherence": 1000
+        },
+        {
+          "family": "B",
+          "numerator": 2,
+          "denominator": 1,
+          "cell": 2,
+          "offset": 0,
+          "boundaries": [
+            2,
+            4,
+            6
+          ],
+          "peak": 2333,
+          "score": 2333,
+          "alignment": 1000,
+          "coherence": 1000
+        },
+        {
+          "family": "A",
+          "numerator": 8,
+          "denominator": 2,
+          "cell": 4,
+          "offset": 0,
+          "boundaries": [
+            4
+          ],
+          "peak": 2333,
+          "score": 2333,
+          "alignment": 1000,
+          "coherence": 1000
+        },
+        {
+          "family": "B",
+          "numerator": 4,
+          "denominator": 1,
+          "cell": 4,
+          "offset": 0,
+          "boundaries": [
+            4
+          ],
+          "peak": 2333,
+          "score": 2333,
+          "alignment": 1000,
+          "coherence": 1000
+        },
+        {
+          "family": "B",
+          "numerator": 4,
+          "denominator": 1,
+          "cell": 4,
+          "offset": 2,
+          "boundaries": [
+            2,
+            6
+          ],
+          "peak": 2333,
+          "score": 2333,
+          "alignment": 1000,
+          "coherence": 1000
+        }
+      ]
+    },
+    "alignment": 1000,
+    "normalized_score": 2333,
+    "ambiguous": false,
+    "grid_score": 1000,
+    "matched_pixels": 128,
+    "interior_pixels": 128
+  }
+}

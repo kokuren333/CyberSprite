@@ -1,6 +1,8 @@
 """Adapter contracts; real upstream tests explicitly skip when not user-installed."""
 
 import importlib
+import logging
+import sys
 from types import SimpleNamespace
 
 import numpy as np
@@ -8,6 +10,45 @@ import pytest
 
 from cybersprite.core.errors import CyberSpriteError
 from cybersprite.pipeline.external import _common, pixel_art_fixer, pixeloe, proper_pixel_art
+
+
+def test_protocol_logger_is_muted_and_restored_after_failure():
+    from io import StringIO
+
+    stream = StringIO()
+    logger = logging.getLogger("cybersprite-test-upstream")
+    handler = logging.StreamHandler(stream)
+    logger.addHandler(handler)
+    try:
+        with pytest.raises(RuntimeError, match="upstream failure"):
+            with _common.muted_logger(logger.name):
+                logger.warning("Must not leak into protocol stdout")
+                raise RuntimeError("upstream failure")
+        assert not logger.disabled and stream.getvalue() == ""
+        logger.warning("Restored")
+        assert stream.getvalue() == "Restored\n"
+    finally:
+        logger.removeHandler(handler)
+
+
+def test_cpu_optional_import_filter_is_thread_local_and_restored():
+    from concurrent.futures import ThreadPoolExecutor
+
+    before = list(sys.meta_path)
+    with pytest.raises(RuntimeError, match="import failed"):
+        with _common.without_optional_namespace("cybersprite_fake_optional"):
+            finder = sys.meta_path[0]
+            with pytest.raises(ModuleNotFoundError) as error:
+                finder.find_spec("cybersprite_fake_optional.backend")
+            assert error.value.name == "cybersprite_fake_optional.backend"
+            assert finder.find_spec("other_package") is None
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                assert (
+                    pool.submit(finder.find_spec, "cybersprite_fake_optional.backend").result()
+                    is None
+                )
+            raise RuntimeError("import failed")
+    assert sys.meta_path == before
 
 
 @pytest.fixture
@@ -125,9 +166,13 @@ def test_real_user_runtime(name, image):
     available, reason = adapter.available()
     if not available:
         pytest.skip(reason)
+    # Fixer's autocorrelation requires a span larger than this tiny mock fixture.
+    image = image.repeat(8, 0).repeat(8, 1)
     params = {"target_w": 4, "target_h": 4} if name == "pixeloe" else {}
     first, metrics = adapter.run(image, params)
     second, _ = adapter.run(image, params)
     assert np.array_equal(first, second)
     assert first.dtype == np.uint8 and first.shape[2] == 4
     assert metrics["level_a"] is False
+    if name == "pixeloe":
+        assert metrics["oracle_size"] is False

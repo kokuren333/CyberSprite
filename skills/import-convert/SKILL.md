@@ -28,7 +28,7 @@
 
 ### 2.2 まず `convert` で試す（プロジェクトは変わらない）
 
-`import_image` は予行（`--dry-run`）を受け付けない。設定を探るときは `convert` を使う。
+`import_image --dry-run` は変換・配置・構造を予行できる（来歴も必要）。設定だけを探るときは、プロジェクトやsourceを保存しない `convert` を使う。
 
 ```powershell
 csp pipeline detect-grid in/slime.png                       # 検出した格子（cell_w、offset、columns×rows、候補）
@@ -58,6 +58,16 @@ csp convert in/slime.png work/try1.png --preset ai --stages work/stages1
 | 既存プロジェクトに入れたら「No opaque palette color」 | — | 既存プロジェクトでは `palette.mode` が `project`（今のパレットに合わせる）。新しく色を取るなら `{"palette":{"mode":"extract"}}` |
 
 `--dither none|bayer2|bayer4|bayer8` も使える。設定を変えたら、同じ入力で `convert` をやり直し、段階画像を見比べる。
+
+任意の外部復元方式は `reconstruct.method` で選ぶ。利用者の `config.toml` の `[plugins].enabled` に `reconstruct.pixel_art_fixer`、`reconstruct.proper_pixel_art`、`reconstruct.pixeloe` の使う登録名を入れる。外部ライブラリは別途導入が必要で、CyberSpriteは依存を宣言・同梱しない。未導入時の `E_PLUGIN.hint` に導入方法と依存のライセンス注意がある。CLIとMCPの `import_image.pipeline` でも同じJSONを使う。
+
+```powershell
+csp convert in/slime.png work/fixer.png --preset ai --pipeline '{"reconstruct":{"method":"pixel_art_fixer","params":{}}}' --stages work/fixer-stages
+csp convert in/slime.png work/proper.png --preset ai --pipeline '{"reconstruct":{"method":"proper_pixel_art","params":{}}}' --stages work/proper-stages
+csp convert in/slime.png work/pixeloe.png --preset ai --pipeline '{"reconstruct":{"method":"pixeloe","params":{"target_w":32,"target_h":32}}}' --stages work/pixeloe-stages
+```
+
+Fixerは `stage2` の各フレームの指標にdetectの `grid: {step_x,step_y,cols,rows,consensus}` を返す。proper-pixel-artは全フレームから共通meshを選び、後段で共有パレットを一度だけ量子化する。PixelOEはCPUで指定寸法へ復元する。全方式とも `level_a: false`（同一環境の再現性）で、方式・上流版・引数を報告とsourceに残す。`reconstruct` の関門は復元後の画像を検査し、入力格子の正しさを保証しない。段階画像と寸法を確認する。
 
 ### 2.4 取り込む
 

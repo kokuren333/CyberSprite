@@ -1,0 +1,442 @@
+{
+  "name": "rational-span",
+  "grayscale_frames": [
+    [
+      [
+        0,
+        0,
+        0,
+        255,
+        255,
+        0,
+        0,
+        0,
+        255,
+        255
+      ],
+      [
+        0,
+        0,
+        0,
+        255,
+        255,
+        0,
+        0,
+        0,
+        255,
+        255
+      ],
+      [
+        0,
+        0,
+        0,
+        255,
+        255,
+        0,
+        0,
+        0,
+        255,
+        255
+      ],
+      [
+        0,
+        0,
+        0,
+        255,
+        255,
+        0,
+        0,
+        0,
+        255,
+        255
+      ],
+      [
+        0,
+        0,
+        0,
+        255,
+        255,
+        0,
+        0,
+        0,
+        255,
+        255
+      ],
+      [
+        255,
+        255,
+        255,
+        0,
+        0,
+        255,
+        255,
+        255,
+        0,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0,
+        0,
+        255,
+        255,
+        255,
+        0,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0,
+        0,
+        255,
+        255,
+        255,
+        0,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0,
+        0,
+        255,
+        255,
+        255,
+        0,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0,
+        0,
+        255,
+        255,
+        255,
+        0,
+        0
+      ]
+    ]
+  ],
+  "alpha": 255,
+  "settings": {
+    "force_square": false,
+    "max_cell": 5
+  },
+  "signals": {
+    "0": [
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        7650,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        7650,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        7650,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "1": [
+      [
+        0,
+        0,
+        0,
+        7650,
+        0,
+        7650,
+        0,
+        0,
+        7650,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        7650,
+        0,
+        7650,
+        0,
+        0,
+        7650,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        7650,
+        0,
+        7650,
+        0,
+        0,
+        7650,
+        0
+      ]
+    ]
+  },
+  "expected": {
+    "mode": "auto",
+    "detected": true,
+    "x": {
+      "family": "A",
+      "numerator": 10,
+      "denominator": 4,
+      "cell": 3,
+      "offset": 0,
+      "boundaries": [
+        3,
+        5,
+        8
+      ],
+      "peak": 3000,
+      "score": 3000,
+      "alignment": 1000,
+      "coherence": 1000
+    },
+    "y": {
+      "family": "A",
+      "numerator": 10,
+      "denominator": 2,
+      "cell": 5,
+      "offset": 0,
+      "boundaries": [
+        5
+      ],
+      "peak": 9000,
+      "score": 9000,
+      "alignment": 1000,
+      "coherence": 1000
+    },
+    "cell_w": 3,
+    "cell_h": 5,
+    "offset_x": 0,
+    "offset_y": 0,
+    "x_cells": [
+      [
+        0,
+        3
+      ],
+      [
+        3,
+        5
+      ],
+      [
+        5,
+        8
+      ],
+      [
+        8,
+        10
+      ]
+    ],
+    "y_cells": [
+      [
+        0,
+        5
+      ],
+      [
+        5,
+        10
+      ]
+    ],
+    "columns": 4,
+    "rows": 2,
+    "peak": 3000,
+    "candidates": {
+      "x": [
+        {
+          "family": "A",
+          "numerator": 10,
+          "denominator": 4,
+          "cell": 3,
+          "offset": 0,
+          "boundaries": [
+            3,
+            5,
+            8
+          ],
+          "peak": 3000,
+          "score": 3000,
+          "alignment": 1000,
+          "coherence": 1000
+        },
+        {
+          "family": "A",
+          "numerator": 10,
+          "denominator": 2,
+          "cell": 5,
+          "offset": 0,
+          "boundaries": [
+            5
+          ],
+          "peak": 3000,
+          "score": 3000,
+          "alignment": 1000,
+          "coherence": 1000
+        },
+        {
+          "family": "B",
+          "numerator": 5,
+          "denominator": 1,
+          "cell": 5,
+          "offset": 0,
+          "boundaries": [
+            5
+          ],
+          "peak": 3000,
+          "score": 3000,
+          "alignment": 1000,
+          "coherence": 1000
+        },
+        {
+          "family": "B",
+          "numerator": 5,
+          "denominator": 1,
+          "cell": 5,
+          "offset": 3,
+          "boundaries": [
+            3,
+            8
+          ],
+          "peak": 3000,
+          "score": 3000,
+          "alignment": 1000,
+          "coherence": 1000
+        },
+        {
+          "family": "B",
+          "numerator": 3,
+          "denominator": 1,
+          "cell": 3,
+          "offset": 2,
+          "boundaries": [
+            2,
+            5,
+            8
+          ],
+          "peak": 2000,
+          "score": 2000,
+          "alignment": 1000,
+          "coherence": 1000
+        }
+      ],
+      "y": [
+        {
+          "family": "A",
+          "numerator": 10,
+          "denominator": 2,
+          "cell": 5,
+          "offset": 0,
+          "boundaries": [
+            5
+          ],
+          "peak": 9000,
+          "score": 9000,
+          "alignment": 1000,
+          "coherence": 1000
+        },
+        {
+          "family": "B",
+          "numerator": 5,
+          "denominator": 1,
+          "cell": 5,
+          "offset": 0,
+          "boundaries": [
+            5
+          ],
+          "peak": 9000,
+          "score": 9000,
+          "alignment": 1000,
+          "coherence": 1000
+        },
+        {
+          "family": "A",
+          "numerator": 10,
+          "denominator": 4,
+          "cell": 3,
+          "offset": 0,
+          "boundaries": [
+            3,
+            5,
+            8
+          ],
+          "peak": 3000,
+          "score": 3000,
+          "alignment": 1000,
+          "coherence": 1000
+        },
+        {
+          "family": "B",
+          "numerator": 3,
+          "denominator": 1,
+          "cell": 3,
+          "offset": 2,
+          "boundaries": [
+            2,
+            5,
+            8
+          ],
+          "peak": 3000,
+          "score": 3000,
+          "alignment": 1000,
+          "coherence": 1000
+        },
+        {
+          "family": "B",
+          "numerator": 4,
+          "denominator": 1,
+          "cell": 4,
+          "offset": 1,
+          "boundaries": [
+            1,
+            5,
+            9
+          ],
+          "peak": 3000,
+          "score": 3000,
+          "alignment": 1000,
+          "coherence": 1000
+        }
+      ]
+    },
+    "alignment": 1000,
+    "normalized_score": 3000,
+    "ambiguous": false,
+    "grid_score": 1000,
+    "matched_pixels": 60,
+    "interior_pixels": 60
+  }
+}

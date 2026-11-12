@@ -13,7 +13,7 @@
 
 利用者の `config.toml` に `[plugins] enabled = ["downsample.example"]` を書く。`disabled` に同じ名前があれば拒否が優先する。同梱する optional extra のアダプタも本体の entry point に登録し、依存の import は factory 内まで遅らせる。
 
-entry point の対象はオブジェクト、または引数なし factory とする。**factory 自身**（クラスならクラス属性）に整数 `plugin_api = 1` を付ける。戻り値だけへの宣言では呼出前の互換検査ができない。読込・登録・実行の失敗は `E_PLUGIN`。factory は副作用を残さないように実装する。ローダーが戻すのは内部登録だけであり、第三者コードの任意の外部副作用は取り消せない。
+entry point の対象はオブジェクト、または引数なし factory とする。**factory 自身**（クラスならクラス属性）に整数 `plugin_api = 1` を付ける。戻り値だけへの宣言では呼出前の互換検査ができない。読込・登録・実行の未分類例外は `E_PLUGIN`。明示した `CyberSpriteError` はコードとhintを保持する（例: 引数不正の `E_INVALID_ARGS`、未導入の導入案内つき `E_PLUGIN`）。factory は副作用を残さないように実装する。ローダーが戻すのは内部登録だけであり、第三者コードの任意の外部副作用は取り消せない。
 
 一覧は distribution の名前・版・`License-Expression` → `License` → license classifier の順の表示を使い、コードを実行しない。任意の配布メタデータ `CyberSprite-Plugin-API: 1` は事前の互換判定に使える。未記載は未検査であり、実行時の検査は省略しない。distribution は導入後に固定し、変更したらプロセスを再起動する。
 
@@ -46,6 +46,8 @@ make_step.plugin_api = 1
 RGBA は `numpy.uint8[H,W,4]`。`IndexedImage` は `pixels: numpy.uint8[H,W]` と、整数 RGBA タプルの `palette`。配列の暗黙のキャスト・色の近似はしない。量子化方式は既存 `palette` 節の `method` で選ぶ（`quantize` 節も同義）。量子化は既存パレットの接頭辞・透明番号を維持し、`mode="project"` では完全一致させる。
 
 metrics と params は JSON 化可能な値にする。プラグイン内部は浮動小数を使えるが、同じ環境と入力から同じ結果を返す必要がある。`level_a=True` は Windows/Linux などを跨いだ同一画素の宣言である。False では報告の determinism が `same-platform` となり `W_PLUGIN_DETERMINISM` が付く。登録名・distribution・版・引数・宣言は pipeline_report と source manifest の report に保存される。
+
+`PipelineStep` の任意フィールド `run_frames` は `(images, params) -> (images, metricsの列)`。定義した場合はフレームごとのrunに代えて全フレームを一度に渡す。返却数は入力と一致させ、通常と同じ型・寸法・パレット検査を通す。同梱の `reconstruct.proper_pixel_art` は共有meshのためこの契約を使う。同梱方式にも通常のenabled/disabled設定を適用する。
 
 ## その他の群
 

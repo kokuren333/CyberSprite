@@ -333,3 +333,11 @@
 - 最終Python全体試験は **2071 passed / 9 skipped（464.43秒）**、終了コード0。skipはWindowsのsymlink権限5、未導入の任意コンバータ3、明示GPU1。初回全体2件の失敗は公開パス注釈とREADME件数の修正で解消した。Ruff/format、core/ops mypy50ファイル、strict7ファイル、schema drift、repository、依存42件が成功。GUIは698 tests、100コントラスト対、build、Playwright5件、JS台帳46件が成功。
 - 判断I-1901〜I-1906。SPECの重複§3.6、MCP一覧、用途、platform規則一覧を局所整理し、生成schema32件を更新した。既存golden11応答はvalidationだけ、新規m11の2ケースを保持。統合時の更新器はm11各tx0.jsonのE2点差分・既存指摘更新だけに使い、全差分を確認した。
 - 実CLI17呼出しでNDS/DMG、mask.only_on、outline再実行no_op、guide/review、PNG、gb-2bppの復号照合が成功。最終commit後はbuild/r1-int-smoke-final/へ同じ17呼出しを再実行し、実ファイルを開いて確認する。新規依存・外部参照・美的判断なし。Linux/CI実行・実GPU/実ComfyUI再確認・D2は未実施。最終報告はdocs/R1_INT_REPORT.md。
+## R1-D2: 任意ピクセル化方式の接続と全候補比較（2026-11-12）
+
+- Fixer・proper-pixel-art・PixelOEを同梱任意entry pointとして共通pipeline registryへ接続した。CLI/MCPの選択、未導入時の具体的hint、実効paramsと版の来歴、PPAの共通grid・共有palette、Fixer検出JSONを確認した。CPU PixelOEの任意GPU初期化によるstdout混入も解消した。製品依存の追加は0件。
+- 最終全体試験は **1680 passed / 11 skipped（374.22秒）**。skipは未導入外部方式6件とWindows symlink権限5件。別環境の実アダプター試験は **20 passed（26.29秒）**。Ruff check/format、core/ops mypy42ファイル、schema、repository、gridベクタ7件、別環境pip checkは成功。実CLI convert/importと実MCP Clientの3方式でvalidate・export・Pillow復号を通し、6プロジェクトでvalidation_ok/verified=trueを確認した。
+- D1の646件は323入力×2方式であり、今回は同じ323入力×5方式=1615件。成功1612件は各3回の画素hashが一致、PPAの3エラーも各3回再現した。寸法一致率はbuiltin 96.9%、Fixer 85.8%、PPA（D1初期倍率1）50.5%、Xprite 99.4%。PixelOEはoracle寸法であり検出率と比較しない。中央値は順に168.9464 / 409.9879 / 122.4914 / 512.2485 ms、PixelOE 134.4578 ms。速度改善は主張しない。生成診断60件を含め最終PNG1672件を独立復号した。
+- 関門は前後とも(e)10/12拒否=83.3%、(d)8/13合格。alignment下限308では(e)12/12になるが(d)2/13へ悪化する。小格子・残差の候補も正例を追加拒否し、独立した8×8格子の反例でも失敗したため既定・閾値を維持した。95%条件未達をSPECへ明記した。
+- 判断 **I-1331〜I-1346**。SPEC §11の再実装可能な定義・確定値表と§15のbatch契約を補足した。新規gridベクタ7件を手計算で検査。統合由来のDMG/NDS golden応答JSON2件だけを唯一の更新器で更新し、全diffを確認した。正本・PNG・画素は不変。
+- 不足は95%分類条件、PPA上流既定倍率2の別較正、実アニメーション/写真の意匠判断、GPU、Linux、全同梱バイナリ配布監査。台帳・来歴ログ・main統合はオーケストレーターへ引き継ぐ。詳細は [R1_D2_IMPLEMENTATION_REPORT.md](R1_D2_IMPLEMENTATION_REPORT.md)、[PIXELIZE_BENCH.md](PIXELIZE_BENCH.md)。

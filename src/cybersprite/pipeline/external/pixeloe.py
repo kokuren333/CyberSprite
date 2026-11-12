@@ -1,4 +1,4 @@
-"""PixelOE 1.0.0 torch adapter; CPU only, oracle target size, quantization off."""
+"""PixelOE 1.0.0 torch adapter; CPU only, explicit target size, quantization off."""
 
 from . import _common as common
 
@@ -9,7 +9,8 @@ INSTALL = (
 
 
 def available():
-    return common.available("pixeloe.torch.pixelize", INSTALL)
+    with common.without_optional_namespace("pixeloe.slang"):
+        return common.available("pixeloe.torch.pixelize", INSTALL)
 
 
 def describe():
@@ -17,17 +18,25 @@ def describe():
 
 
 def run(rgba, params):
-    frames, _ = common.inputs(rgba, params, ("target_w", "target_h", "pixel_size", "thickness"))
+    frames, _ = common.inputs(
+        rgba, params, ("target_w", "target_h", "pixel_size", "thickness", "oracle_size")
+    )
+    oracle = params.get("oracle_size", False)
+    if type(oracle) is not bool:
+        raise common.invalid(
+            "PixelOE oracle_size must be a boolean; use true only for known truth."
+        )
     width = common.positive(params, "target_w", maximum=frames[0].shape[1])
     height = common.positive(params, "target_h", maximum=frames[0].shape[0])
     size = common.positive(params, "pixel_size", 4, maximum=16)
     thickness = params.get("thickness", 2)
     if type(thickness) is not int or not 0 <= thickness <= 8:
         raise common.invalid("PixelOE thickness must be an integer from 0 to 8.")
-    module = common.load("pixeloe.torch.pixelize", INSTALL)
+    with common.without_optional_namespace("pixeloe.slang"):
+        module = common.load("pixeloe.torch.pixelize", INSTALL)
     torch = common.load("torch", INSTALL)
     functional = common.load("torch.nn.functional", INSTALL)
-    with common.LOCK:
+    with common.LOCK, common.muted_logger("PixelOE"):
         threads = torch.get_num_threads()
         deterministic = torch.are_deterministic_algorithms_enabled()
         warn_only = torch.is_deterministic_algorithms_warn_only_enabled()
@@ -61,9 +70,21 @@ def run(rgba, params):
     return common.output(result), {
         **describe(),
         "device": "cpu",
+        "torch_version": str(torch.__version__),
         "torch_threads": 1,
         "seed": 0,
-        "oracle_size": True,
+        "params": {
+            "target_w": width,
+            "target_h": height,
+            "pixel_size": size,
+            "thickness": thickness,
+            "oracle_size": oracle,
+            "backend": "torch",
+            "do_quant": False,
+            "do_color_match": False,
+            "no_post_upscale": True,
+        },
+        "oracle_size": oracle,
         "target_size": [width, height],
         "quantized": False,
         "pre_resize": "nearest to target_size * pixel_size",

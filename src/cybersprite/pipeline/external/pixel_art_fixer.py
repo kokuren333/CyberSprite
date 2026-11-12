@@ -52,6 +52,7 @@ def run(rgba, params):
         "opencv_threads": 1,
         "thread_policy": "OpenCV single thread; NumPy/SciPy backend threads are user controlled",
         "seed": 0,
+        "params": {},
         "grid": {key: detected[key] for key in required},
         "quantized": False,
     }

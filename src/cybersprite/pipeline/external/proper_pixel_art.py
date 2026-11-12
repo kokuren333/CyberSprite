@@ -54,6 +54,12 @@ def run(rgba, params):
         "opencv_threads": 1,
         "thread_policy": "OpenCV single thread; NumPy/SciPy backend threads are user controlled",
         "seed": 0,
+        "params": {
+            "pixel_width": width,
+            "initial_upscale_factor": 1,
+            "color_method": "dominant",
+            "merge_distance": 0,
+        },
         "quantized": False,
         "grid_policy": "modal frame mesh; first frame breaks ties",
         "selected_frame": chosen,

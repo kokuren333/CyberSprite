@@ -1,0 +1,157 @@
+{
+  "records": [
+    {
+      "source": "glyphs_52x14.png",
+      "recipe": "nearest-x3",
+      "method": "proper_pixel_art",
+      "attempts": [
+        {
+          "ms": 960.4907,
+          "error": "CyberSpriteError: External pixelizer returned invalid RGBA pixels.",
+          "returned_arrays": [
+            {
+              "shape": [
+                0,
+                63,
+                4
+              ],
+              "dtype": "uint8"
+            }
+          ]
+        },
+        {
+          "ms": 19.949,
+          "error": "CyberSpriteError: External pixelizer returned invalid RGBA pixels.",
+          "returned_arrays": [
+            {
+              "shape": [
+                0,
+                63,
+                4
+              ],
+              "dtype": "uint8"
+            }
+          ]
+        },
+        {
+          "ms": 18.9398,
+          "error": "CyberSpriteError: External pixelizer returned invalid RGBA pixels.",
+          "returned_arrays": [
+            {
+              "shape": [
+                0,
+                63,
+                4
+              ],
+              "dtype": "uint8"
+            }
+          ]
+        }
+      ],
+      "error_median_ms": 19.949,
+      "not_a_gate_rejection": true
+    },
+    {
+      "source": "glyphs_52x14.png",
+      "recipe": "nearest-x4",
+      "method": "proper_pixel_art",
+      "attempts": [
+        {
+          "ms": 29.002,
+          "error": "CyberSpriteError: External pixelizer returned invalid RGBA pixels.",
+          "returned_arrays": [
+            {
+              "shape": [
+                0,
+                62,
+                4
+              ],
+              "dtype": "uint8"
+            }
+          ]
+        },
+        {
+          "ms": 24.8759,
+          "error": "CyberSpriteError: External pixelizer returned invalid RGBA pixels.",
+          "returned_arrays": [
+            {
+              "shape": [
+                0,
+                62,
+                4
+              ],
+              "dtype": "uint8"
+            }
+          ]
+        },
+        {
+          "ms": 22.3054,
+          "error": "CyberSpriteError: External pixelizer returned invalid RGBA pixels.",
+          "returned_arrays": [
+            {
+              "shape": [
+                0,
+                62,
+                4
+              ],
+              "dtype": "uint8"
+            }
+          ]
+        }
+      ],
+      "error_median_ms": 24.8759,
+      "not_a_gate_rejection": true
+    },
+    {
+      "source": "glyphs_52x14.png",
+      "recipe": "nearest-x5",
+      "method": "proper_pixel_art",
+      "attempts": [
+        {
+          "ms": 27.8988,
+          "error": "CyberSpriteError: External pixelizer returned invalid RGBA pixels.",
+          "returned_arrays": [
+            {
+              "shape": [
+                0,
+                65,
+                4
+              ],
+              "dtype": "uint8"
+            }
+          ]
+        },
+        {
+          "ms": 24.843,
+          "error": "CyberSpriteError: External pixelizer returned invalid RGBA pixels.",
+          "returned_arrays": [
+            {
+              "shape": [
+                0,
+                65,
+                4
+              ],
+              "dtype": "uint8"
+            }
+          ]
+        },
+        {
+          "ms": 25.1945,
+          "error": "CyberSpriteError: External pixelizer returned invalid RGBA pixels.",
+          "returned_arrays": [
+            {
+              "shape": [
+                0,
+                65,
+                4
+              ],
+              "dtype": "uint8"
+            }
+          ]
+        }
+      ],
+      "error_median_ms": 25.1945,
+      "not_a_gate_rejection": true
+    }
+  ]
+}

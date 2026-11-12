@@ -22,6 +22,11 @@ dependencies = [
 cybersprite = "cybersprite.cli:main"
 csp = "cybersprite.cli:main"
 
+[project.entry-points."cybersprite.pipeline_steps"]
+"reconstruct.pixel_art_fixer" = "cybersprite.pipeline.external.steps:fixer"
+"reconstruct.proper_pixel_art" = "cybersprite.pipeline.external.steps:proper"
+"reconstruct.pixeloe" = "cybersprite.pipeline.external.steps:pixeloe"
+
 [project.optional-dependencies]
 mcp = ["mcp==2.3.0"]
 gui = ["starlette==1.10.0", "uvicorn==0.54.0", "websockets==16.0", "jsonschema==4.26.0"]
