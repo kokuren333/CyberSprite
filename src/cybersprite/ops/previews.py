@@ -8,6 +8,7 @@ import numpy as np
 
 from cybersprite.core import history
 from cybersprite.core.errors import CyberSpriteError, invalid
+from cybersprite.core.execution import check_deadline, defer_retention
 from cybersprite.core.previews import checker, composite_preview, preview_array, tileset_preview
 from cybersprite.core.quality import bbox
 from cybersprite.core.render import render, render_indexed
@@ -19,6 +20,7 @@ from .common import frame_index
 def previews(
     p, fs, root, *, dry=False, inline=False, retain=True, layout="frames", tileset=None, **options
 ):
+    check_deadline()
     if tileset is not None:
         from .tiles import resolve_tileset
 
@@ -36,7 +38,7 @@ def previews(
         raw = encode_png(data)
         history.atomic_write(path, raw)
         if not dry and retain:
-            history.retain_previews(root)
+            defer_retention(history.retain_previews, root)
         result = {
             "paths": [path.relative_to(root).as_posix()],
             "scale": scale,
@@ -70,6 +72,7 @@ def previews(
     scale = 1
     width = height = 0
     for frame in fs if layout == "frames" else [None]:
+        check_deadline()
         if frame is None:
             data, scale = composite_preview(p, fs, layout=layout, **options)
         else:
@@ -83,7 +86,7 @@ def previews(
             images.append(base64.b64encode(data_bytes).decode("ascii"))
         height, width = data.shape[:2]
     if not dry and retain:
-        history.retain_previews(root)
+        defer_retention(history.retain_previews, root)
     result = {"paths": paths, "scale": scale, "width": width, "height": height}
     if images:
         result["images"] = images

@@ -12,6 +12,7 @@ from pydantic import Field
 from cybersprite.core import history, sources
 from cybersprite.core.canonical import load_project, metadata_bytes, project_path
 from cybersprite.core.errors import CyberSpriteError, invalid
+from cybersprite.core.execution import committed_bytes
 from cybersprite.core.journal_clock import now
 from cybersprite.core.models import (
     Frame,
@@ -193,7 +194,7 @@ def source_query(ctx, args, name):
         import json
 
         try:
-            value["report"] = json.loads(path.read_bytes())
+            value["report"] = json.loads(committed_bytes(path, ctx.root))
         except (OSError, ValueError) as error:
             raise CyberSpriteError(
                 "E_IO",
@@ -314,8 +315,17 @@ def _import_top(registry, path, args, tx, actor):
     root = project_path(path).parent
     if args.pipeline_only and not tx.dry_run:
         raise invalid("pipeline_only requires dry_run=true; omit it to commit placement.")
-    with nullcontext() if tx.dry_run else history.ProjectLock(root, actor) as lock:
+    with nullcontext() if tx.dry_run else history.project_lock(root, actor) as lock:
         existing = load_project(root) if project_path(root).exists() else None
+        replayed = (
+            history.replay(root, tx.idempotency_key)
+            if tx.idempotency_key and not args.pipeline_only
+            else None
+        )
+        if replayed is not None:
+            if tx.dry_run:
+                replayed.update(dry_run=True, would_commit=False, checked=["idempotency"])
+            return replayed
         if tx.expect_revision is not None and tx.expect_revision != (
             existing.revision if existing else 0
         ):
@@ -324,14 +334,6 @@ def _import_top(registry, path, args, tx, actor):
                 "Import revision does not match the current project.",
                 current_revision=existing.revision if existing else 0,
             )
-        if tx.idempotency_key and not args.pipeline_only:
-            for entry in reversed(history.read_journal(root)[-1000:]):
-                if entry.get("idempotency_key") == tx.idempotency_key and entry.get("result"):
-                    result = deepcopy(entry["result"])
-                    result["replayed"] = True
-                    if tx.dry_run:
-                        result.update(dry_run=True, would_commit=False, checked=["idempotency"])
-                    return result
         manifest = sources.read_manifest(root)
         previous_manifest = deepcopy(manifest)
         source, images, durations, warnings = _capture(root, args, manifest, dry_run=tx.dry_run)

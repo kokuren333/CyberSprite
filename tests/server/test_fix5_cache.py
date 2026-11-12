@@ -1,6 +1,8 @@
 """Parsed GUI models are reusable only while the actual canonical bytes agree."""
 
 import base64
+import contextvars
+import importlib
 import os
 from types import SimpleNamespace
 
@@ -75,3 +77,39 @@ def test_gui_cache_preserves_missing_project_error(tmp_path):
     with pytest.raises(CyberSpriteError) as error:
         service.read_project(tmp_path / "missing.csprite")
     assert error.value.code == "E_PROJECT_NOT_FOUND"
+
+
+@pytest.mark.parametrize("fail", [False, True])
+def test_gui_reads_committed_bytes_and_notices_save_completion(tmp_path, monkeypatch, fail):
+    project = tmp_path / "committed.csprite"
+    execute("new_project", project, {"width": 4, "height": 4})
+    service = Service(tmp_path)
+    assert service.scan(project) == []
+    module = importlib.import_module("cybersprite.ops.previews")
+    original = module.previews
+    observed = []
+
+    def during_save(*args, **kwargs):
+        value = original(*args, **kwargs)
+        # A fresh context models a GUI reader in a different request/thread.
+        reader = contextvars.Context()
+        observed.append(reader.run(service.read_project, project).revision)
+        assert reader.run(service.scan, project) == []
+        if fail:
+            raise RuntimeError("Injected post-save failure")
+        return value
+
+    monkeypatch.setattr(module, "previews", during_save)
+    args = {"layer": "L1", "frame": 0, "x": 1, "y": 1, "color": 1}
+    if fail:
+        with pytest.raises(RuntimeError, match="post-save failure"):
+            execute("set_pixel", project, args)
+        assert service.scan(project) == []
+        assert service.read_project(project).revision == 0
+    else:
+        execute("set_pixel", project, args)
+        events = service.scan(project)
+        assert len(events) == 1 and events[0]["revision"] == 1
+        assert events[0]["actor"] == "cli"
+        assert service.read_project(project).revision == 1
+    assert observed == [0]

@@ -44,15 +44,27 @@ class PathPolicy:
             ) from error
 
     def check_project(self, project, check=lambda: None):
-        """Check derived history/source paths too, without following directory links."""
+        """Check fixed roots; each actual save is confined by its save context."""
         root = project.parent if project.name == "project.json" else project
-        self.resolve(root / "project.json")
-        if root.is_dir():
-            for folder, dirs, files in os.walk(root, followlinks=False):
-                check()
-                for name in sorted(dirs + files):
-                    check()
-                    self.resolve(Path(folder) / name)
+        for name in (
+            "project.json",
+            ".cybersprite",
+            ".cybersprite/lock",
+            ".cybersprite/history",
+            ".cybersprite/history/pending.json",
+            ".cybersprite/history/state.json",
+            ".cybersprite/history/idempotency.json",
+            ".cybersprite/history/journal.jsonl",
+            ".cybersprite/history/snapshots",
+            ".cybersprite/history/replays",
+            ".cybersprite/history/sources",
+            ".cybersprite/previews",
+            ".cybersprite/previews/dry",
+            "source",
+            "source/manifest.json",
+        ):
+            check()
+            self.resolve(root / name)
 
     def arguments(self, value, schema, definitions=None):
         definitions = definitions or schema.get("$defs", {})

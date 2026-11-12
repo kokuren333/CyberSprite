@@ -19,6 +19,7 @@ from .canonical import (
     project_path,
 )
 from .errors import CyberSpriteError, invalid
+from .execution import check_deadline, defer_retention, save_context
 from .journal_clock import now
 from .models import GroupLayer, ImageCel, TileCel, TilemapLayer
 from .normalize import normalize_cels
@@ -126,7 +127,7 @@ def changes(before, after, ctx):
     }
 
 
-def _entry(p, kind, actor, ops, changed, validation, label=None, key=None, result=None):
+def _entry(p, kind, actor, ops, changed, validation, label=None, key=None):
     return history.compact_entry(
         {
             "revision": p.revision,
@@ -138,7 +139,6 @@ def _entry(p, kind, actor, ops, changed, validation, label=None, key=None, resul
             "ops": ops,
             "changed": changed,
             "validation_ok": validation,
-            "result": result,
         }
     )
 
@@ -160,27 +160,32 @@ def baseline(root, p, state, entries, actor, raw):
     return state, entries, writes
 
 
-def synchronize(root, p, *, actor=None):
-    """Queries detect external edits too, without rewriting the project."""
+def synchronize(root, p, *, actor=None, write=False):
+    """Read-only calls never acquire the writer lock or persist an external baseline."""
+    if not write:
+        return p
     root = Path(root)
     actor = os.environ.get("CYBERSPRITE_ACTOR", "cli") if actor is None else actor
-    with history.ProjectLock(root, actor):
+    with history.project_lock(root, actor) as lock, save_context(root, lock=lock):
         current = load_project(root)
         if current != p:
             return current
         raw = project_path(root).read_bytes()
-        state, entries, writes = baseline(
-            root, p, history.read_state(root), history.read_journal(root), actor, raw
-        )
+        state, entries, writes = baseline(root, p, history.read_state(root), [], actor, raw)
         if writes:
-            writes.extend(
-                [
-                    (history.paths(root) / "journal.jsonl", history.journal_bytes(entries)),
-                    (history.paths(root) / "state.json", json_bytes(state)),
-                ]
-            )
             history.save_files(writes)
+            history.commit_journal(root, entries)
+            _save_history_state(root, state, p.revision)
     return p
+
+
+def _save_history_state(root, state, revision):
+    state["journal_position"] = {
+        "revision": revision,
+        "segment": "journal.jsonl",
+        "bytes": (history.paths(root) / "journal.jsonl").stat().st_size,
+    }
+    history.atomic_write(history.paths(root) / "state.json", json_bytes(state))
 
 
 def transact(
@@ -202,11 +207,20 @@ def transact(
     actor = os.environ.get("CYBERSPRITE_ACTOR", "cli") if actor is None else actor
     active_lock = held_lock
     if active_lock is None and not options.dry_run:
-        active_lock = history.ProjectLock(root, actor)
+        active_lock = history.project_lock(root, actor)
     lock = nullcontext() if options.dry_run or held_lock is not None else active_lock
-    with lock:
+    with (
+        lock as acquired,
+        save_context(root, lock=held_lock or acquired, durable=not options.dry_run),
+    ):
+        if held_lock is None and acquired is not None:
+            active_lock = acquired
+        check_deadline()
         before = load_project(target) if initial_project is None else initial_project
         raw = target.read_bytes() if initial_project is None else dumps_project(before)
+        replayed = history.replay(root, options.idempotency_key)
+        if replayed is not None:
+            return replayed
         if options.expect_revision is not None and options.expect_revision != before.revision:
             raise CyberSpriteError(
                 "E_REVISION_CONFLICT",
@@ -214,13 +228,7 @@ def transact(
                 "Read get_info and rebase the operation on the current revision.",
                 {"expected_revision": options.expect_revision, "current_revision": before.revision},
             )
-        entries = history.read_journal(root)
-        if options.idempotency_key:
-            for entry in reversed(entries[-1000:]):
-                if entry.get("idempotency_key") == options.idempotency_key and entry.get("result"):
-                    result = deepcopy(entry["result"])
-                    result["replayed"] = True
-                    return result
+        entries: list[dict] = []
         state = history.read_state(root)
         state, entries, writes = baseline(root, before, state, entries, actor, raw)
         after = _transaction_copy(before)
@@ -251,6 +259,7 @@ def transact(
                 raise invalid("A transaction must contain 1..1000 mutate operations.")
             for index, call in enumerate(calls):
                 try:
+                    check_deadline()
                     definition = registry.get(call["op"])
                     ingest = (
                         definition.kind == "ingest"
@@ -268,6 +277,7 @@ def transact(
                             op=call["op"],
                         )
                     result = definition.apply(ctx, definition.parse(call["args"]))
+                    check_deadline()
                     results.append(
                         definition.result.model_validate(result).model_dump(by_alias=True)
                     )
@@ -319,6 +329,7 @@ def transact(
             "preview": {"paths": [], "scale": 1, "omitted_frames": []},
             "warnings": ctx.warnings,
         }
+        check_deadline()
         if options.dry_run:
             result["would_commit"] = not no_op
             if previewer and options.preview != "none":
@@ -327,19 +338,16 @@ def transact(
         assert active_lock is not None
         active_lock.require_owned()
         if no_op:
-            # Baseline/external bookkeeping is staged until all operations succeed.
             if writes:
-                writes.extend(
-                    [
-                        (history.paths(root) / "journal.jsonl", history.journal_bytes(entries)),
-                        (history.paths(root) / "state.json", json_bytes(state)),
-                    ]
-                )
                 history.save_files(writes)
+                history.commit_journal(root, entries)
+                _save_history_state(root, state, before.revision)
             return result
         if kind == "tx":
             state["undo_stack"].append(before.revision)
             state["redo_stack"] = []
+        state["undo_stack"] = state["undo_stack"][-history.SNAPSHOT_COUNT :]
+        state["redo_stack"] = state["redo_stack"][-history.SNAPSHOT_COUNT :]
         data = _dumps_validated_project(after)
         state["last_saved_sha256"] = sha256(data).hexdigest()
         entry = _entry(
@@ -351,8 +359,9 @@ def transact(
             next_report["ok"],
             label,
             options.idempotency_key,
-            result,
         )
+        if restored is not None:
+            entry["restored_revision"] = restored
         entries.append(entry)
         writes.extend(
             [
@@ -360,40 +369,25 @@ def transact(
                     history.snapshot_path(root, after.revision),
                     history.snapshot_bytes(after, canonical=data),
                 ),
-                (history.paths(root) / "journal.jsonl", history.journal_bytes(entries)),
-                (history.paths(root) / "state.json", json_bytes(state)),
                 (target, data),
             ]
         )
         writes.extend(ctx.side_writes)
-        backups = history.save_files(writes)
-        preview_folder = root / ".cybersprite/previews"
-        pattern = f"r{after.revision:06d}_f*.png"
-        previous_previews = {path: path.read_bytes() for path in preview_folder.glob(pattern)}
+        history.save_files(writes)
+        check_deadline()
         if previewer and options.preview != "none":
             try:
                 result["preview"] = previewer(after, changed, root, options.preview, False)
             except (OSError, CyberSpriteError) as error:
                 result["warnings"].append({"code": "W_PREVIEW_UNAVAILABLE", "message": str(error)})
-        # Save the exact returned envelope for idempotent replay, including preview paths.
-        entries[-1]["result"] = result
-        try:
-            history.atomic_write(
-                history.paths(root) / "journal.jsonl", history.journal_bytes(entries)
-            )
-        except CyberSpriteError:
-            history.restore_files(backups)
-            for path in preview_folder.glob(pattern):
-                if path in previous_previews:
-                    history.atomic_write(path, previous_previews[path])
-                else:
-                    path.unlink(missing_ok=True)
-            raise
-        try:
-            history.retain(root)
-            sources.retain_history(root)
-            history.retain_previews(root)
-        except (OSError, CyberSpriteError):
-            # Derived retention must not turn an authoritative commit into a reported failure.
-            pass
+        check_deadline()
+        history.commit_journal(root, entries, result)
+        _save_history_state(root, state, after.revision)
+        for function in (
+            history.retain,
+            sources.retain_history,
+            history.retain_previews,
+            history.retain_journal,
+        ):
+            defer_retention(function, root)
         return result

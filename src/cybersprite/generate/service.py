@@ -64,7 +64,7 @@ def generate_top(project, request, tx, actor):
         )
     reject_tool_configuration(request.params)
     root = project_path(project).parent.resolve()
-    with history.ProjectLock(root, actor):
+    with history.project_lock(root, actor):
         try:
             return _generate(root, request, tx, actor)
         except OSError as error:

@@ -46,6 +46,7 @@ class MCPService:
     ):
         if profile not in {"standard", "minimal"}:
             raise ValueError("profile must be standard or minimal")
+        _sdk()  # Initialize protocol models before starting any request deadline.
         self.policy = PathPolicy(root or Path.cwd(), allow_dir)
         self.registry = registry or ops.registry()
         self.profile, self.read_only = profile, read_only
@@ -91,7 +92,7 @@ class MCPService:
         ]
 
     def _arguments(self, op, values):
-        schema = describe(op)["inputSchema"]
+        schema = self.contracts[op.name]["inputSchema"]
         allowed = set(schema["properties"])
         if not isinstance(values, dict) or set(values) - allowed:
             raise invalid("Tool arguments must be an object containing only declared fields.")
@@ -152,7 +153,14 @@ class MCPService:
             project_path = self.policy.resolve(project)
             project = self.policy.relative(project_path)
             root = project_path.parent if project_path.name == "project.json" else project_path
-            scope = Execution(self.policy, root, actor, TIMEOUTS.get(name, 60))
+            scope = Execution(
+                self.policy,
+                root,
+                actor,
+                TIMEOUTS.get(name, 60),
+                writable=self.exposed[name].kind != "query"
+                and not (isinstance(arguments, dict) and arguments.get("dry_run") is True),
+            )
             self.policy.check_project(project_path, scope.check)
 
             def execute():
@@ -235,7 +243,7 @@ def create_server(**options):
         import anyio
 
         # Never abandon a mutating worker: finish rollback before replying or
-        # propagating cancellation. The worker checks its deadline at Python steps.
+        # propagating cancellation. The worker checks deadlines at core boundaries.
         async with anyio.create_task_group() as group:
 
             async def progress():

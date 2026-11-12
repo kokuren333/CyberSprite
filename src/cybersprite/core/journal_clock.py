@@ -1,6 +1,7 @@
 """Wall clock is confined to journal/lock metadata; never used for project content."""
 
 import os
+import sys
 from datetime import UTC, datetime
 from time import monotonic_ns, time_ns
 
@@ -26,3 +27,18 @@ def elapsed_clock():
 
 def filesystem_clock():
     return time_ns()
+
+
+def wait_poll():
+    """Yield for 25 integer milliseconds without floating-point core arithmetic."""
+    if sys.platform == "win32":
+        import ctypes
+
+        sleep = ctypes.windll.kernel32.Sleep
+        sleep.argtypes = [ctypes.c_uint32]
+        sleep.restype = None
+        sleep(25)
+    else:
+        import select
+
+        select.poll().poll(25)

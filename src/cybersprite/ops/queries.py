@@ -12,6 +12,7 @@ from cybersprite.core.projects import new_project
 from cybersprite.core.quality import report
 from cybersprite.core.references import cel_at, cel_owner, walk_layers
 from cybersprite.core.render import render_indexed
+from cybersprite.core.sources import read_manifest
 from cybersprite.formats.palette_files import raw_color, read_palette_with_names
 
 from .common import SYMBOLS, array, fail, frame_index, frames, groups, image_layer
@@ -30,7 +31,9 @@ def summary(p, root):
         "transparent_index": p.palette.transparent_index,
         "revision": p.revision,
         "tags": [tag.name for tag in p.tags],
-        "validation_ok": report(p, root=root)["ok"],
+        "validation_ok": report(
+            p, root=root, source_manifest=read_manifest(root) if root is not None else None
+        )["ok"],
     }
 
 
@@ -112,7 +115,7 @@ def query(ctx, a, name):
             elif section == "palette":
                 result[section] = p.palette.model_dump()
             elif section == "validation":
-                result[section] = report(p, root=root)
+                result[section] = report(p, root=root, source_manifest=read_manifest(root))
             elif section == "history":
                 result[section] = history.history_result(root)
             elif section == "sources":
@@ -144,7 +147,13 @@ def query(ctx, a, name):
             ],
         }
     if name == "validate":
-        return report(p, root=root, selected_frames=frames(p, a.frames), rules=a.rules)
+        return report(
+            p,
+            root=root,
+            selected_frames=frames(p, a.frames),
+            rules=a.rules,
+            source_manifest=read_manifest(root),
+        )
     if name == "get_history":
         return history.history_result(root, a.limit)
     if name == "render_preview":

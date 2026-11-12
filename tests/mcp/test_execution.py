@@ -1,6 +1,6 @@
 """Deadline and serialization failures cannot leave committed project changes."""
 
-import time
+from pathlib import Path
 
 import pytest
 
@@ -22,13 +22,15 @@ def test_timeout_rolls_back_all_core_writes(tmp_path, monkeypatch, phase):
     service.call("new_project", {"project": "p", "width": 4, "height": 4})
     before = snapshot(tmp_path / "p")
     original = ops.execute
+    clock = [0]
+    monkeypatch.setattr(execution, "monotonic_ns", lambda: clock[0])
 
     def slow(*args, **kwargs):
         if phase == "before":
-            time.sleep(0.06)
+            clock[0] = 60_000_000_000
         result = original(*args, **kwargs)
         if phase == "after":
-            time.sleep(0.06)
+            clock[0] = 60_000_000_000
         return result
 
     if phase == "preview":
@@ -38,12 +40,12 @@ def test_timeout_rolls_back_all_core_writes(tmp_path, monkeypatch, phase):
 
         def slow_preview(*args, **kwargs):
             result = original_preview(*args, **kwargs)
-            time.sleep(0.06)
+            clock[0] = 60_000_000_000
             return result
 
         monkeypatch.setattr(previews, "previews", slow_preview)
     monkeypatch.setattr(ops, "execute", slow)
-    monkeypatch.setitem(server.TIMEOUTS, "set_pixel", 0.05)
+    monkeypatch.setitem(server.TIMEOUTS, "set_pixel", 1)
     result = service.call(
         "set_pixel", {"project": "p", "layer": "L1", "frame": 0, "x": 0, "y": 0, "color": 1}
     )
@@ -76,7 +78,7 @@ def test_text_limit_is_utf8_bytes_and_rolls_back(tmp_path, monkeypatch):
     assert snapshot(tmp_path / "p") == before
 
 
-def test_core_cli_execution_still_works_after_hooks(tmp_path):
+def test_core_cli_execution_still_works_after_mcp_request(tmp_path):
     service = MCPService(root=tmp_path)
     service.call("new_project", {"project": "p", "width": 2, "height": 2})
     value = ops.execute(
@@ -88,3 +90,67 @@ def test_core_cli_execution_still_works_after_hooks(tmp_path):
     assert value["ok"]
     assert not (tmp_path / "p/.cybersprite/lock").exists()
     assert history.read_state(tmp_path / "p")["undo_stack"] == [0]
+
+
+def test_queries_do_not_lock_or_install_runtime_hooks(tmp_path, monkeypatch):
+    import sys
+
+    service = MCPService(root=tmp_path)
+    assert not service.call("new_project", {"project": "p", "width": 2, "height": 2}).is_error
+    writer = history.atomic_write
+    trace = sys.gettrace()
+
+    def forbidden(*args):
+        pytest.fail("MCP query acquired a write lock")
+
+    with history.ProjectLock(tmp_path / "p", "other"):
+        monkeypatch.setattr(history, "ProjectLock", forbidden)
+        assert not service.call("validate", {"project": "p"}).is_error
+    assert history.atomic_write is writer
+    assert sys.gettrace() is trace
+
+
+@pytest.mark.parametrize("expire", [False, True])
+def test_pending_removal_retries_sharing_violation_and_preserves_timeout(
+    tmp_path, monkeypatch, expire
+):
+    service = MCPService(root=tmp_path)
+    assert not service.call("new_project", {"project": "p", "width": 4, "height": 4}).is_error
+    root = tmp_path / "p"
+    before = snapshot(root)
+    pending = history.paths(root) / "pending.json"
+    clock = [0]
+    monkeypatch.setattr(execution, "monotonic_ns", lambda: clock[0])
+    monkeypatch.setitem(server.TIMEOUTS, "set_pixel", 1)
+    original = Path.unlink
+    injected = []
+
+    def busy(path, *args, **kwargs):
+        if path == pending and path.exists() and not injected:
+            injected.append(True)
+            if expire:
+                clock[0] = 2_000_000_000
+            raise PermissionError("Injected Windows sharing violation")
+        return original(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "unlink", busy)
+    result = service.call(
+        "set_pixel",
+        {
+            "project": "p",
+            "layer": "L1",
+            "frame": 0,
+            "x": 0,
+            "y": 0,
+            "color": 1,
+            "preview": "none",
+        },
+    )
+    assert injected and not pending.exists()
+    if expire:
+        assert result.structured_content["error"]["code"] == "E_TIMEOUT"
+        assert snapshot(root) == before
+    else:
+        assert result.structured_content["ok"]
+        assert result.structured_content["revision"]["after"] == 1
+    assert execution._active.get() is None

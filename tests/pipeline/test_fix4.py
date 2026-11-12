@@ -213,6 +213,12 @@ def test_legacy_undo_marks_unavailable_metrics_and_redo_restores(tmp_path):
     source = sources.read_manifest(tmp_path).sources[0]
     assert [p.revision for p in source.placements] == [1, 2]
     assert source.pipeline.report["grid_score"] == 1000
+    # Reconstruct a target that was itself created by a compact undo record.
+    for path in (tmp_path / ".cybersprite/history/sources").glob("*.json"):
+        path.unlink()
+    execute("undo", tmp_path, preview="none")
+    source = sources.read_manifest(tmp_path).sources[0]
+    assert [p.revision for p in source.placements] == [1]
 
 
 def test_wrong_coarse_grid_cannot_pass_without_diagnostics(tmp_path):
