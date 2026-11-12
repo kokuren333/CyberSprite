@@ -9,8 +9,11 @@ ROOT = Path(__file__).resolve().parents[2]
 def test_calibrated_defaults_follow_recorded_measurements():
     measured = json.loads((ROOT / "tests/pipeline/calibration_metrics.json").read_bytes())
     defaults = json.loads((ROOT / "src/cybersprite/data/pipeline_defaults.json").read_bytes())
-    assert defaults["calibration"] == measured["calibration"]
-    assert defaults["calibration"]["pending"] == ["d"]
+    assert (
+        defaults["calibration"]["legacy_calibration_version"] == measured["calibration"]["version"]
+    )
+    assert defaults["calibration"]["legacy_metric_cases"] == measured["calibration"]["cases"]
+    assert defaults["calibration"]["pending"] == []
     rows = measured["records"]
     assert len(rows) == 547
     assert sum(r["grid_exact"] for r in rows if r["category"] == "c-auto") >= 62
@@ -42,3 +45,17 @@ def test_calibrated_defaults_follow_recorded_measurements():
             for r in rows
             if r["category"] in "abc"
         )
+
+
+def test_generated_corpus_integrity():
+    import hashlib
+
+    directory = ROOT / "tests/pipeline/corpus/generated"
+    manifest = json.loads((directory / "manifest.json").read_bytes())
+    assert manifest["independent_generations"] == len(manifest["images"]) == 16
+    assert sum(row["category"] == "d" for row in manifest["images"]) == 13
+    assert sum(path.stat().st_size for path in directory.iterdir() if path.is_file()) <= 12_000_000
+    for row in manifest["images"]:
+        assert hashlib.sha256((directory / row["file"]).read_bytes()).hexdigest() == row["sha256"]
+        assert not row["processing"]["resized"] and row["ground_truth"] is None
+        assert row["license"].startswith("unknown") and row["prompt"] and row["date"]

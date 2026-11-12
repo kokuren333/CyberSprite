@@ -1,12 +1,14 @@
 {
   "calibration": {
-    "version": 4,
-    "status": "original-corpus-pending-generated-d",
+    "version": 5,
+    "status": "r1-d1-auto-gates-requirements-unmet",
     "pillow": "13.0.0",
-    "cases": 547,
-    "pending": [
-      "d"
-    ]
+    "cases": 79,
+    "pending": [],
+    "legacy_metric_cases": 547,
+    "generated_ground_truth": false,
+    "legacy_calibration_version": 4,
+    "requirements_met": false
   },
   "common": {
     "grid": {
@@ -15,7 +17,8 @@
       "force_square": true,
       "harmonic_tolerance": 850,
       "min_peak": 1500,
-      "purity_tolerance": 16
+      "purity_tolerance": 16,
+      "candidate_agreement": 950
     },
     "downsample": {
       "method": "auto",
@@ -46,6 +49,20 @@
     },
     "outline": {
       "mode": "keep"
+    },
+    "gates": {
+      "grid_cell_count": [
+        12,
+        96
+      ],
+      "boundary_alignment": [
+        80,
+        250
+      ],
+      "snap_fidelity": [
+        3000,
+        500
+      ]
     }
   },
   "presets": {

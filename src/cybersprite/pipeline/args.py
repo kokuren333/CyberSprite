@@ -41,6 +41,10 @@ class GridSettings(Model):
     purity_tolerance: Byte = Field(
         16, description="Maximum per-channel deviation from cell median for grid purity."
     )
+    candidate_agreement: Annotated[int, Field(ge=0, le=1000)] = Field(
+        950,
+        description="Warn when a different runner-up pitch reaches this score ratio (per mille).",
+    )
     cell_w: Positive = Field(
         1, description="Fixed grid cell width in integer input pixels; required in fixed mode."
     )
@@ -156,6 +160,18 @@ class OutlineSettings(Model):
 
 
 class GateSettings(Model):
+    grid_cell_count: Annotated[list[Nonnegative], Field(min_length=2, max_length=2)] = Field(
+        default_factory=lambda: [12, 96],
+        description="Warn below this cell count when input span reaches [cells, input pixels].",
+    )
+    boundary_alignment: Annotated[list[Nonnegative], Field(min_length=2, max_length=2)] = Field(
+        default_factory=lambda: [80, 250],
+        description="Minimum auto boundary alignment [fail, warn].",
+    )
+    snap_fidelity: Annotated[list[Nonnegative], Field(min_length=2, max_length=2)] = Field(
+        default_factory=lambda: [3000, 500],
+        description="Maximum source-to-cell RGB mean squared error [auto fail, warn].",
+    )
     grid_score: Annotated[list[Nonnegative], Field(min_length=2, max_length=2)] | None = Field(
         None, description="Minimum cell purity [fail, warn], or null to skip this gate."
     )

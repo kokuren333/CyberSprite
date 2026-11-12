@@ -51,7 +51,8 @@ def run(rgba, params):
     return results[0] if single else results, {
         **describe(),
         "device": "cpu",
-        "threads": 1,
+        "opencv_threads": 1,
+        "thread_policy": "OpenCV single thread; NumPy/SciPy backend threads are user controlled",
         "seed": 0,
         "quantized": False,
         "grid_policy": "modal frame mesh; first frame breaks ties",

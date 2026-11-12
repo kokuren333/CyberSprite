@@ -61,7 +61,7 @@ def run(rgba, params):
     return common.output(result), {
         **describe(),
         "device": "cpu",
-        "threads": 1,
+        "torch_threads": 1,
         "seed": 0,
         "oracle_size": True,
         "target_size": [width, height],
