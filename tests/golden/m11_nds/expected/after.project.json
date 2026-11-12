@@ -6,7 +6,7 @@
   "platform": {
     "id": "nds/sprite-80",
     "title": "NDS-class sprite-80",
-    "preset_version": 1,
+    "preset_version": 2,
     "origin": "builtin",
     "overrides": [],
     "system": {
@@ -165,7 +165,10 @@
     "craft": {
       "basis": "authored",
       "corpus": null,
-      "ramp_steps": null,
+      "ramp_steps": [
+        1,
+        5
+      ],
       "outline": null,
       "dither": null,
       "light": null,

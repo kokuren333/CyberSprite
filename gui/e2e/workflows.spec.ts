@@ -47,6 +47,34 @@ test('new/open dialogs use operation schema and preserve project paths', async (
   await expect(page.locator('dialog')).not.toBeVisible();
   await expect(page.locator('.status-bar')).toContainText('4×5');
 });
+test('new project dialog lists platforms by system, fills defaults and shows the ID', async ({ page }) => {
+  await page.goto('/#playwright-fixture-token');
+  await expect(page.getByTestId('sprite-canvas')).toBeVisible();
+  await expect(page.getByTestId('platform-id')).toHaveCount(0);
+  await page.getByText('File', { exact: true }).click();
+  await page.getByRole('button', { name: 'New project', exact: true }).click();
+  const pick = page.getByLabel('Platform', { exact: true });
+  await expect(pick.locator('optgroup[label="nds"] option[value="nds/sprite-80"]')).toHaveText(/NDS-class sprite-80 · 80×80 fixed/);
+  expect(JSON.parse(await page.getByLabel('Arguments (JSON)').inputValue())).toMatchObject({ width: 32, height: 32, platform: null });
+  await pick.selectOption('dmg/sprite-16');
+  const args = JSON.parse(await page.getByLabel('Arguments (JSON)').inputValue());
+  expect(args).toMatchObject({ width: 16, height: 16, platform: 'dmg/sprite-16' });
+  expect(args).not.toHaveProperty('palette');
+  await expect(page.getByTestId('platform-summary')).toContainText('dmg / sprite');
+  const path = `.gui-check/platform-${Date.now()}.csprite`;
+  await page.getByLabel('Project path').fill(path);
+  await page.getByRole('button', { name: 'Apply', exact: true }).click();
+  await expect(page.locator('dialog')).not.toBeVisible();
+  await expect(page.getByTestId('platform-id')).toHaveText('dmg/sprite-16');
+  await expect(page.locator('.status-bar')).toContainText('16×16');
+  // A one-pixel cell is not a DMG object size: Q-PLT-05 must appear under the platform heading only.
+  execFileSync('uv', ['run', 'cybersprite', 'op', 'set_pixel', '-p', resolve(root, path), '--args', JSON.stringify({ layer: 'L1', frame: 0, x: 3, y: 3, color: 1 })], { cwd: root });
+  await expect(page.getByTestId('revision')).toHaveText('r1');
+  await page.locator('#tab-Validate').click();
+  await expect(page.locator('.vgroup-head')).toContainText('Platform checks');
+  await expect(page.locator('.platform-issues')).toContainText('Q-PLT-05');
+  await expect(page.locator('.validation-issues:not(.platform-issues)')).not.toContainText('Q-PLT-');
+});
 test('W4 tag direction, finite repeat, onion frames and duration edits use real data', async ({ page }) => {
   const { project } = JSON.parse(readFileSync(resolve(root, '.gui-check/session.json'), 'utf8'));
   const op = (name: string, args: object) => execFileSync('uv', ['run', 'cybersprite', 'op', name, '-p', project, '--args', JSON.stringify(args)], { cwd: root });

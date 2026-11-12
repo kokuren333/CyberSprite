@@ -1,6 +1,6 @@
 {
   "id": "dmg/background",
-  "preset_version": 1,
+  "preset_version": 2,
   "title": "DMG-class background",
   "extends": "dmg",
   "asset": {

@@ -7,6 +7,7 @@ from cybersprite.plugins import PluginManager
 from .backends import CommandBackend, DiffusersBackend
 from .comfyui import ComfyUIBackend
 from .contracts import Availability
+from .models import term_badges
 
 
 class BackendRegistry:
@@ -65,7 +66,11 @@ class BackendRegistry:
             else:
                 backend = self.builtins[name]
                 available = backend.availability()
-                models = [m.model_dump() for m in backend.list_models()]
+                # Same plain-text badges as `gen models`, so GUI listings never re-derive terms.
+                models = [
+                    {**m.model_dump(), "badges": term_badges(m.model_dump())}
+                    for m in backend.list_models()
+                ]
                 schema = backend.params_schema.model_json_schema()
             values.append(
                 dict(name=name, **available.model_dump(), models=models, params_schema=schema)

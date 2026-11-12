@@ -1,6 +1,6 @@
 {
   "id": "dmg",
-  "preset_version": 1,
+  "preset_version": 2,
   "title": "DMG-compatible display",
   "extends": "free",
   "system": {
@@ -57,6 +57,13 @@
       "h": 8
     },
     "palette": "gray-4"
+  },
+  "craft": {
+    "basis": "authored",
+    "ramp_steps": [
+      1,
+      3
+    ]
   },
   "notes": "gray-4 uses authored conventional shades, not a hardware RGB standard."
 }

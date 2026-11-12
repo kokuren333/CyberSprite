@@ -1,6 +1,6 @@
 {
   "id": "nds/sprite-96",
-  "preset_version": 1,
+  "preset_version": 2,
   "title": "NDS-class sprite-96",
   "extends": "nds",
   "asset": {

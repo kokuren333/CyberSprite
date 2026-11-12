@@ -6,8 +6,95 @@ import numpy as np
 
 from .color import rgb_to_oklab_fixed_numpy
 from .errors import CyberSpriteError, invalid
-from .previews import _label, checker, preview_rect
+from .previews import DIGITS, checker, preview_rect
 from .render import render
+
+# Decoration only (never exported). Original 3x5 capitals; rows are 3-bit masks like DIGITS.
+LETTERS = {
+    "A": (2, 5, 7, 5, 5),
+    "B": (6, 5, 6, 5, 6),
+    "C": (3, 4, 4, 4, 3),
+    "D": (6, 5, 5, 5, 6),
+    "E": (7, 4, 6, 4, 7),
+    "F": (7, 4, 6, 4, 4),
+    "G": (3, 4, 5, 5, 3),
+    "H": (5, 5, 7, 5, 5),
+    "I": (7, 2, 2, 2, 7),
+    "J": (1, 1, 1, 5, 2),
+    "K": (5, 5, 6, 5, 5),
+    "L": (4, 4, 4, 4, 7),
+    "M": (5, 7, 7, 5, 5),
+    "N": (6, 5, 5, 5, 5),
+    "O": (2, 5, 5, 5, 2),
+    "P": (6, 5, 6, 4, 4),
+    "Q": (2, 5, 5, 6, 3),
+    "R": (6, 5, 6, 5, 5),
+    "S": (3, 4, 2, 1, 6),
+    "T": (7, 2, 2, 2, 2),
+    "U": (5, 5, 5, 5, 7),
+    "V": (5, 5, 5, 5, 2),
+    "W": (5, 5, 7, 7, 5),
+    "X": (5, 5, 2, 5, 5),
+    "Y": (5, 5, 2, 2, 2),
+    "Z": (7, 1, 2, 4, 7),
+    "-": (0, 0, 7, 0, 0),
+    "_": (0, 0, 0, 0, 7),
+    "/": (1, 1, 2, 4, 4),
+    ".": (0, 0, 0, 0, 2),
+    "#": (5, 7, 5, 7, 5),
+    " ": (0, 0, 0, 0, 0),
+    **{str(i): rows for i, rows in enumerate(DIGITS)},
+}
+INK, FRAME, PAPER = (32, 32, 32, 255), (96, 96, 96, 255), (240, 240, 240, 255)
+MARGIN, GAP, LABEL = 6, 8, 9  # outer margin, space between panels, label band above a panel
+
+
+def label_text(text):
+    """Upper-case text restricted to the sheet font; other characters are dropped."""
+    return "".join(c for c in str(text).upper() if c in LETTERS)
+
+
+def _text(image, x, y, text, limit=None):
+    """Draw 3x5 glyphs at a 4 px pitch, clipped to `limit` pixels of width."""
+    h, w = image.shape[:2]
+    right = w if limit is None else min(w, x + limit)
+    for char in label_text(text):
+        if x + 3 > right:
+            break
+        for j, row in enumerate(LETTERS[char]):
+            for i in range(3):
+                if row & (1 << (2 - i)) and 0 <= y + j < h and 0 <= x + i < w:
+                    image[y + j, x + i] = INK
+        x += 4
+
+
+def _frame(image, x, y, w, h):
+    """One-pixel neutral frame just outside a panel's image area."""
+    image[y - 1, x - 1 : x + w + 1] = FRAME
+    image[y + h, x - 1 : x + w + 1] = FRAME
+    image[y : y + h, x - 1] = FRAME
+    image[y : y + h, x + w] = FRAME
+
+
+def _inset(kind):
+    return 1 if kind in ("zoom", "design", "silhouette", "luminance") else 0
+
+
+def caption(plan, tags):
+    kind, scale = plan["kind"], plan["scale"]
+    if kind == "actual":
+        background = plan["background"]
+        return "SCREEN 1X" + ("" if background == "checker" else f" {background}")
+    if kind == "zoom":
+        return f"ZOOM {scale}X"
+    if kind == "design":
+        return f"GUIDE {scale}X"
+    if kind == "silhouette":
+        return "SILHOUETTE"
+    if kind == "luminance":
+        return "LIGHTNESS"
+    name = tags.get(plan["tag"], "") if plan.get("tag") else ""
+    return "PLAY 1X" + (f" {label_text(name) or plan['tag']}" if plan.get("tag") else "")
 
 
 def playback_frames(p, selected):
@@ -101,7 +188,12 @@ def review_sheet(p, fs, *, design=None, guide=None, scale="auto", rect=None, lay
     for tag, order in strips:
         plans.append(
             dict(
-                kind="playback", w=len(order) * (w + 2) - 2, h=h + 7, scale=1, tag=tag, frames=order
+                kind="playback",
+                w=len(order) * (w + 2) - 2,
+                h=h + 7,
+                scale=1,
+                tag=tag,
+                frames=order,
             )
         )
     # Square-ish neutral rows; playback strips occupy their own rows.
@@ -126,22 +218,30 @@ def review_sheet(p, fs, *, design=None, guide=None, scale="auto", rect=None, lay
             row = []
     if row:
         rows.append(row)
-    height = 2
+    # Every panel gets a label band. Enlarged panels get a one-pixel frame outside their
+    # image area; actual-size panels carry it inside and playback strips have none.
+    height = MARGIN
     for row in rows:
-        xx = 2
+        xx = MARGIN
         for plan in row:
-            plan.update(x=xx, y=height + 7)
-            xx += plan["w"] + 2
-        width = max(width, xx)
-        height += max(plan["h"] for plan in row) + 11
+            inset = _inset(plan["kind"])
+            plan.update(x=xx + inset, y=height + LABEL + inset)
+            xx += plan["w"] + 2 * inset + GAP
+        width = max(width, xx - GAP + MARGIN)
+        height += LABEL + max(plan["h"] + 2 * _inset(plan["kind"]) for plan in row) + GAP
+    height += MARGIN - GAP
     if max(width, height) > 8192 or width * height > 16777216:
         _limit("Review sheet exceeds its pixel budget.", width=width, height=height)
-    output = np.full((height, width, 4), (240, 240, 240, 255), dtype=np.uint8)
+    output = np.full((height, width, 4), PAPER, dtype=np.uint8)
+    tags = {tag.id: tag.name for tag in p.tags}
     data = render(p, fs[0], {"layers": layers})[y0 : y0 + h, x0 : x0 + w]
     panels = []
     for number, plan in enumerate(plans, 1):
         x, y = plan["x"], plan["y"]
-        _label(output, x, y - 7, number)
+        inset = _inset(plan["kind"])
+        _text(
+            output, x - inset, y - inset - LABEL, f"{number} {caption(plan, tags)}", plan["w"] + GAP
+        )
         kind = plan["kind"]
         if kind == "actual":
             image = np.zeros((sh, sw, 4), dtype=np.uint8)
@@ -152,7 +252,7 @@ def review_sheet(p, fs, *, design=None, guide=None, scale="auto", rect=None, lay
         elif kind == "playback":
             for column, frame in enumerate(plan["frames"]):
                 start = x + column * (w + 2)
-                _label(output, start, y, frame)
+                _text(output, start, y, f"F{frame}", w + 2)
                 image = render(p, frame, {"layers": layers})[y0 : y0 + h, x0 : x0 + w]
                 output[y + 7 : y + 7 + h, start : start + w] = checker(image)
         else:
@@ -163,9 +263,11 @@ def review_sheet(p, fs, *, design=None, guide=None, scale="auto", rect=None, lay
                 image[:, :, 3] = np.where(data[:, :, 3] != 0, 255, 0)
             elif kind == "luminance":
                 image = luminance(data)
-            image = checker(image)
+            # A flat white ground keeps the silhouette's outer contour free of checker edges.
+            image = checker(image, "#ffffff" if kind == "silhouette" else "checker")
             output[y : y + plan["h"], x : x + plan["w"]] = np.repeat(
                 np.repeat(image, factor, axis=0), factor, axis=1
             )
+            _frame(output, x, y, plan["w"], plan["h"])
         panels.append({"number": number, **plan})
     return output, factor, panels
