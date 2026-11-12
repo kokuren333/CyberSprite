@@ -1,0 +1,25 @@
+{
+  "name": "key_16x8",
+  "category": "a",
+  "width": 16,
+  "height": 8,
+  "palette": [
+    "#00000000",
+    "#2b1a0eff",
+    "#e0a526ff",
+    "#ffe08aff",
+    "#9a5f12ff"
+  ],
+  "transparent_index": 0,
+  "opaque_colors": 4,
+  "tags": [
+    "icon",
+    "transparent",
+    "non-square",
+    "interior-hole",
+    "1px-features"
+  ],
+  "notes": "Key with a transparent hole inside the bow. Non-square (2:1). Teeth are 1 px wide.",
+  "license": "Apache-2.0",
+  "author": "CyberSprite project (original work)"
+}

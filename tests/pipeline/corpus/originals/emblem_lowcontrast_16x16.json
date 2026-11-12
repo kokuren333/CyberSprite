@@ -1,0 +1,22 @@
+{
+  "name": "emblem_lowcontrast_16x16",
+  "category": "a",
+  "width": 16,
+  "height": 16,
+  "palette": [
+    "#474f5aff",
+    "#4d5560ff",
+    "#535b66ff"
+  ],
+  "transparent_index": null,
+  "opaque_colors": 3,
+  "tags": [
+    "opaque",
+    "low-contrast",
+    "near-identical-colours",
+    "hard-grid"
+  ],
+  "notes": "Carved emblem in three greys that differ by 6 per channel. Hard case: neighbouring colours sit well inside purity_tolerance (16), and the edge signal is weak; exact palette mode must still keep all three.",
+  "license": "Apache-2.0",
+  "author": "CyberSprite project (original work)"
+}

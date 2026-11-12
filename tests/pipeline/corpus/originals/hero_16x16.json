@@ -1,0 +1,30 @@
+{
+  "name": "hero_16x16",
+  "category": "a",
+  "width": 16,
+  "height": 16,
+  "palette": [
+    "#00000000",
+    "#1d1a2bff",
+    "#f2c29bff",
+    "#c98a6aff",
+    "#6b3a2aff",
+    "#9c5a36ff",
+    "#3f7fd0ff",
+    "#2a4f8fff",
+    "#e3b440ff",
+    "#4a3226ff",
+    "#ffffffff",
+    "#5b5f73ff"
+  ],
+  "transparent_index": 0,
+  "opaque_colors": 11,
+  "tags": [
+    "character",
+    "transparent",
+    "single-pixel-detail"
+  ],
+  "notes": "Front-facing chibi character. Eye highlights are single white pixels surrounded by other colours.",
+  "license": "Apache-2.0",
+  "author": "CyberSprite project (original work)"
+}

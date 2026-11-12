@@ -1,0 +1,32 @@
+{
+  "name": "terrain_48x16",
+  "category": "a",
+  "width": 48,
+  "height": 16,
+  "palette": [
+    "#2f6b2eff",
+    "#4f9a3cff",
+    "#86c95aff",
+    "#c4e88aff",
+    "#34363fff",
+    "#5b5f6eff",
+    "#7d8294ff",
+    "#a9aebdff",
+    "#1f4f8fff",
+    "#2f73c0ff",
+    "#5aa6e8ff",
+    "#c8ecffff"
+  ],
+  "transparent_index": null,
+  "opaque_colors": 12,
+  "tags": [
+    "terrain",
+    "opaque",
+    "tileset",
+    "periodic-structure",
+    "single-pixel-detail"
+  ],
+  "notes": "Tile set chunk: grass, stone brick and water tiles (16x16 each, each wraps seamlessly). Opaque, large mostly-uniform regions, periodic mortar lines with an 8/4 px rhythm that can alias with the cell size.",
+  "license": "Apache-2.0",
+  "author": "CyberSprite project (original work)"
+}

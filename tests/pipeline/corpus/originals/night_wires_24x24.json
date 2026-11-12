@@ -1,0 +1,25 @@
+{
+  "name": "night_wires_24x24",
+  "category": "a",
+  "width": 24,
+  "height": 24,
+  "palette": [
+    "#121a2eff",
+    "#fff6d5ff",
+    "#5d6a8aff",
+    "#8a6a4aff",
+    "#3c4a70ff",
+    "#26304aff"
+  ],
+  "transparent_index": null,
+  "opaque_colors": 6,
+  "tags": [
+    "opaque",
+    "1px-lines",
+    "single-pixel-detail",
+    "isolated-pixels"
+  ],
+  "notes": "Night sky: 1 px pole, 1 px sagging wires, a 45-degree 1 px guy wire, isolated single-pixel stars and one isolated pixel in the ground. Cleanup with min_cluster >= 2 would destroy the stars.",
+  "license": "Apache-2.0",
+  "author": "CyberSprite project (original work)"
+}

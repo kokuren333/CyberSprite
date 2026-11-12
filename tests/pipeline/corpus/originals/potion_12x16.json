@@ -1,0 +1,28 @@
+{
+  "name": "potion_12x16",
+  "category": "a",
+  "width": 12,
+  "height": 16,
+  "palette": [
+    "#00000000",
+    "#231a33ff",
+    "#e8f4ffff",
+    "#9fb4ccff",
+    "#4fd17aff",
+    "#238a5aff",
+    "#b6f59aff",
+    "#b07a4aff",
+    "#6e4527ff"
+  ],
+  "transparent_index": 0,
+  "opaque_colors": 8,
+  "tags": [
+    "icon",
+    "transparent",
+    "non-square",
+    "1px-features"
+  ],
+  "notes": "Potion bottle, 3:4. Glass highlight is a 1 px vertical line.",
+  "license": "Apache-2.0",
+  "author": "CyberSprite project (original work)"
+}

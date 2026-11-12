@@ -1,0 +1,25 @@
+{
+  "name": "sparse_firefly_32x32",
+  "category": "a",
+  "width": 32,
+  "height": 32,
+  "palette": [
+    "#00000000",
+    "#2b2a20ff",
+    "#c9d6e8ff",
+    "#8fbf3aff",
+    "#e9ff6aff"
+  ],
+  "transparent_index": 0,
+  "opaque_colors": 4,
+  "tags": [
+    "transparent",
+    "sparse",
+    "few-edges",
+    "hard-grid",
+    "isolated-pixels"
+  ],
+  "notes": "A 5x5 firefly plus one stray glow pixel on a 32x32 transparent canvas (about 1% coverage). Hard case: very few edges; alpha edges dominate.",
+  "license": "Apache-2.0",
+  "author": "CyberSprite project (original work)"
+}

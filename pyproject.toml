@@ -49,3 +49,7 @@ pythonpath = ["."]
 python_version = "3.12"
 files = ["src/cybersprite"]
 check_untyped_defs = true
+
+[tool.ruff.lint.per-file-ignores]
+# Test-input artwork generators (authored by the design agent); style rules only.
+"tests/pipeline/corpus/**" = ["B905", "B007", "UP031", "E501"]

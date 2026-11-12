@@ -1,0 +1,23 @@
+{
+  "name": "heart_8x8",
+  "category": "a",
+  "width": 8,
+  "height": 8,
+  "palette": [
+    "#00000000",
+    "#3a1024ff",
+    "#d23a4fff",
+    "#ff9aa8ff",
+    "#8e1f3aff"
+  ],
+  "transparent_index": 0,
+  "opaque_colors": 4,
+  "tags": [
+    "icon",
+    "tiny",
+    "transparent"
+  ],
+  "notes": "8x8 heart icon. Smallest size in the set; at 2x the whole image is 16 px.",
+  "license": "Apache-2.0",
+  "author": "CyberSprite project (original work)"
+}

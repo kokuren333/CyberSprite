@@ -1,0 +1,21 @@
+{
+  "name": "onebit_cat_24x16",
+  "category": "a",
+  "width": 24,
+  "height": 16,
+  "palette": [
+    "#e8e4d8ff",
+    "#101418ff"
+  ],
+  "transparent_index": null,
+  "opaque_colors": 2,
+  "tags": [
+    "1-bit",
+    "opaque",
+    "high-contrast",
+    "single-pixel-detail"
+  ],
+  "notes": "1-bit (2 colours, opaque): sitting cat, crescent moon, isolated star pixels. Maximum contrast; eyes are 1 px holes.",
+  "license": "Apache-2.0",
+  "author": "CyberSprite project (original work)"
+}

@@ -1,0 +1,25 @@
+{
+  "name": "gem_10x10",
+  "category": "a",
+  "width": 10,
+  "height": 10,
+  "palette": [
+    "#00000000",
+    "#12283aff",
+    "#1f6f8bff",
+    "#34b3c9ff",
+    "#8ff0e4ff",
+    "#f4fffbff",
+    "#164a63ff"
+  ],
+  "transparent_index": 0,
+  "opaque_colors": 6,
+  "tags": [
+    "icon",
+    "transparent",
+    "diagonal-edges"
+  ],
+  "notes": "Faceted gem, cut facets give diagonal colour edges.",
+  "license": "Apache-2.0",
+  "author": "CyberSprite project (original work)"
+}

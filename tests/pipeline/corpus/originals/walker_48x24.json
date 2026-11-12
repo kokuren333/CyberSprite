@@ -1,0 +1,26 @@
+{
+  "name": "walker_48x24",
+  "category": "a",
+  "width": 48,
+  "height": 24,
+  "palette": [
+    "#00000000",
+    "#22203aff",
+    "#3d3a63ff",
+    "#7f7bc4ff",
+    "#ffd25aff"
+  ],
+  "transparent_index": 0,
+  "opaque_colors": 4,
+  "tags": [
+    "character",
+    "animation-strip",
+    "transparent",
+    "non-square",
+    "dark-low-contrast",
+    "single-pixel-detail"
+  ],
+  "notes": "Sprite strip: 3 walk-cycle poses (16x24 each) of a hooded silhouette. Mostly two dark, close colours; a 1 px rim light and a single glowing eye pixel. Frame B bobs up by 1 px.",
+  "license": "Apache-2.0",
+  "author": "CyberSprite project (original work)"
+}

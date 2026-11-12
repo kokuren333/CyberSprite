@@ -1,0 +1,23 @@
+{
+  "name": "flat_field_64x48",
+  "category": "a",
+  "width": 64,
+  "height": 48,
+  "palette": [
+    "#6a8cafff",
+    "#2a3040ff",
+    "#fff2b0ff"
+  ],
+  "transparent_index": null,
+  "opaque_colors": 3,
+  "tags": [
+    "opaque",
+    "flat",
+    "few-edges",
+    "hard-grid",
+    "single-pixel-detail"
+  ],
+  "notes": "Largest image: a single flat colour with a 3x2 bird and one isolated pixel. Hard case: almost no edges, so the grid signal comes from only a handful of boundaries.",
+  "license": "Apache-2.0",
+  "author": "CyberSprite project (original work)"
+}

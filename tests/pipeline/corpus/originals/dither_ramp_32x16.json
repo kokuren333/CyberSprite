@@ -1,0 +1,23 @@
+{
+  "name": "dither_ramp_32x16",
+  "category": "a",
+  "width": 32,
+  "height": 16,
+  "palette": [
+    "#1b1d3aff",
+    "#4a3f7aff",
+    "#b0607fff",
+    "#f2b26bff"
+  ],
+  "transparent_index": null,
+  "opaque_colors": 4,
+  "tags": [
+    "dither",
+    "opaque",
+    "checkerboard",
+    "hard-grid"
+  ],
+  "notes": "Ordered-dither ramp (integer Bayer 4x4) across 4 colours; contains pure checkerboard columns. Hard case: the 1 px period of the dither competes with the true cell period during grid detection.",
+  "license": "Apache-2.0",
+  "author": "CyberSprite project (original work)"
+}

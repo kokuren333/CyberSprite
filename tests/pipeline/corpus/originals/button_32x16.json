@@ -1,0 +1,26 @@
+{
+  "name": "button_32x16",
+  "category": "a",
+  "width": 32,
+  "height": 16,
+  "palette": [
+    "#00000000",
+    "#1a1c2cff",
+    "#f0e6c8ff",
+    "#c8b48aff",
+    "#8a7350ff",
+    "#3b2a1aff"
+  ],
+  "transparent_index": 0,
+  "opaque_colors": 5,
+  "tags": [
+    "ui",
+    "transparent",
+    "non-square",
+    "text",
+    "1px-features"
+  ],
+  "notes": "UI button: 1 px outline, bevel, 'OK' label, transparent corner pixels. Long straight edges, large flat face.",
+  "license": "Apache-2.0",
+  "author": "CyberSprite project (original work)"
+}

@@ -1,0 +1,23 @@
+{
+  "name": "glyphs_52x14",
+  "category": "a",
+  "width": 52,
+  "height": 14,
+  "palette": [
+    "#00000000",
+    "#f4e9d8ff",
+    "#5a4a6eff"
+  ],
+  "transparent_index": 0,
+  "opaque_colors": 2,
+  "tags": [
+    "text",
+    "transparent",
+    "non-square",
+    "1px-features",
+    "periodic-structure"
+  ],
+  "notes": "Two lines of text in an original 3x5 pixel font with a 1 px drop shadow. Many 1 px strokes and 1 px gaps at a regular 4 px pitch.",
+  "license": "Apache-2.0",
+  "author": "CyberSprite project (original work)"
+}

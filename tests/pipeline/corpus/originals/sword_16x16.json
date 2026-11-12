@@ -1,0 +1,29 @@
+{
+  "name": "sword_16x16",
+  "category": "a",
+  "width": 16,
+  "height": 16,
+  "palette": [
+    "#00000000",
+    "#1b1626ff",
+    "#8a5f8eff",
+    "#6f7f98ff",
+    "#b9c6d6ff",
+    "#f2f6ffff",
+    "#d9a23aff",
+    "#8a5a1cff",
+    "#5a3a5eff",
+    "#e04a5aff",
+    "#ffb0b0ff"
+  ],
+  "transparent_index": 0,
+  "opaque_colors": 10,
+  "tags": [
+    "icon",
+    "transparent",
+    "diagonal-edges"
+  ],
+  "notes": "Diagonal sword: long 45-degree staircase edges, 3-tone blade, crossguard on the opposite diagonal, 1 px pommel highlight.",
+  "license": "Apache-2.0",
+  "author": "CyberSprite project (original work)"
+}
