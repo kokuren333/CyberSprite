@@ -55,7 +55,7 @@ def _atomic_write(path, data):
             except PermissionError:
                 if attempt == 3:
                     raise
-                Event().wait(25 / 1000)
+                Event().wait(1)
     except OSError as error:
         raise io_error(error, path) from error
     finally:
