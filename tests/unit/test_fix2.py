@@ -250,6 +250,28 @@ def test_display_color_arg_descriptions(op):
     assert "#rrggbb" in description and "need not belong" in description
 
 
+@pytest.mark.parametrize("kind", ["tag", "slice"])
+def test_raw_rgb_display_colors_create_and_update(animation, kind):
+    args = {"name": "display", "color": "#123456"}
+    args.update(
+        {"from": 0, "to": 1}
+        if kind == "tag"
+        else {"keys": [{"frame": 0, "x": 0, "y": 0, "w": 1, "h": 1}]}
+    )
+    before = load_project(animation).palette
+    added = execute("add_" + kind, animation, args, preview="none")["result"]["id"]
+    suffix = "ff" if kind == "slice" else ""
+    items = getattr(load_project(animation), kind + "s")
+    assert items[-1].color == "#123456" + suffix
+    execute("update_" + kind, animation, {kind: added, "color": "#abcdef"}, preview="none")
+    project = load_project(animation)
+    assert getattr(project, kind + "s")[-1].color == "#abcdef" + suffix
+    assert project.palette == before
+    if kind == "slice":
+        execute("update_slice", animation, {"slice": added, "color": "#12345680"}, preview="none")
+        assert load_project(animation).slices[-1].color == "#12345680"
+
+
 def test_composite_retention(tmp_path):
     folder = tmp_path / ".cybersprite/previews"
     folder.mkdir(parents=True)

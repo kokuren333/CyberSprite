@@ -231,6 +231,10 @@ def resolve_slice(p, ref):
 def tag_slice_op(ctx, a, name):
     p = ctx.project
     kind = "tag" if name.endswith("tag") else "slice"
+    if kind == "slice" and getattr(a, "color", None) is not None:
+        rgba(a.color)
+        if len(a.color) == 7:
+            a = a.model_copy(update={"color": a.color + "ff"})
     items = p.tags if kind == "tag" else p.slices
     resolver = resolve_tag if kind == "tag" else resolve_slice
     if name.startswith("add_"):

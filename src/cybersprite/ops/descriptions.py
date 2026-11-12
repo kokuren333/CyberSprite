@@ -253,8 +253,14 @@ OPERATIONS = {
 OVERRIDES = {
     ("add_tag", "color"): "Raw display color as #rrggbb; it need not belong to the palette.",
     ("update_tag", "color"): "Raw display color as #rrggbb; it need not belong to the palette.",
-    ("add_slice", "color"): "Raw display color as #rrggbb; it need not belong to the palette.",
-    ("update_slice", "color"): "Raw display color as #rrggbb; it need not belong to the palette.",
+    (
+        "add_slice",
+        "color",
+    ): "Raw display color as #rrggbb or #rrggbbaa; it need not belong to the palette.",
+    (
+        "update_slice",
+        "color",
+    ): "Raw display color as #rrggbb or #rrggbbaa; it need not belong to the palette.",
     (
         "render_preview",
         "background",
