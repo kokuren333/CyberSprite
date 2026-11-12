@@ -54,7 +54,7 @@ class Generators(SettingsModel):
 
 
 class GuiSettings(SettingsModel):
-    port: Annotated[int, Field(ge=1, le=65535)] = 8765
+    port: Annotated[int, Field(ge=0, le=65535)] = 0
     open_browser: bool = True
     language: Literal["en", "ja"] = "ja"
 

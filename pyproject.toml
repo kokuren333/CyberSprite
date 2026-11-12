@@ -22,7 +22,7 @@ csp = "cybersprite.cli:main"
 
 [project.optional-dependencies]
 mcp = ["mcp==2.3.0"]
-gui = []
+gui = ["starlette==1.10.0", "uvicorn==0.54.0", "websockets==16.0", "jsonschema==4.26.0"]
 pixeloe = []
 diffusers = []
 
