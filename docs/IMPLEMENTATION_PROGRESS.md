@@ -297,3 +297,12 @@
 - 前後性能値は対象なし（新規経路であり、既存性能の改善を主張しない）。並行稼働中のWindowsでPython起動・ファイル読込に長い待ちを観測し、通常の偽サーバー試験は期限60秒、期限試験だけ1秒とした。製品既定の全体600秒/HTTP10秒は維持する。
 - 実ComfyUI・実GPU・Linuxは未実行。GPUと依存監査はR1-F2へ、GUIのバッジ表示と参照原画の見た目はOpusへ引き継ぐ。Diffusersの呼出し署名は維持。main統合はオーケストレーターが行う。
 - 受け入れ基準は全項目合格。設計分岐・検証の生値・未実施事項は [R1_F1_IMPLEMENTATION_REPORT.md](R1_F1_IMPLEMENTATION_REPORT.md) に記録した。
+
+## R1-F2: Diffusers依存監査とGPU生成検証（2026-11-12）
+
+- 外部CUDA環境の全33配布物の原文・nativeを監査し、NVIDIA DLL、CNRI、MPL、vendor LGPLが許可外のため選択肢(b)で空extraを維持した。主lock・許可例外・第三者台帳の追加なし。監査表・導入手順は `GENERATION.md`。
+- ローカルfp16 variant、生成中だけの決定性設定・例外時復元・3精度状態の保持・プロセス内ロック、混在ライセンス固定ベクタ、外部保存の監査/GPU計測ツール、既定skipのgpu試験を追加。
+- 対象回帰 **22 passed / 1 skipped / 10.38秒**、明示した実GPU試験 **1 passed / 329.72秒**。最終全体 `uv run pytest -q --tb=short` は **1427 passed / 3 skipped / 364.90秒**（GPU1件・既存Windows権限2件のskip）。Ruff check/format、core/ops mypy36ファイル、schema/repository、主環境依存42件は成功。
+- RTX 3080でSDXL+Pixel Art XL LoRAを実CLIから3回生成。seed42、1024×1024、30 steps、guidance7、deterministic=trueでPNGバイト一致。全体時間540.420334100003 / 446.6919937000057 / 337.9346435000043秒、中央値446.6919937000057秒、観測VRAMピークはいずれも13342MiB。起動・ハッシュ・ロード・保存込みであり、性能改善の前後比較ではない。直列化の並行性能比較は未測定。
+- SRC1はai全14関門pass、128×128/33パレットで配置。変更後プレビューと実書き出しPNGを表示し、validate ok/error0/warning0、validation_ok/verified=true、Pillowと独自デコーダのRGBA一致を確認した。追加GPU画像は孤立画素1件で拒否し、段階画像確認後も関門を変更しなかった。privateへ合格PNG・途中段階・拒否例を保存し、画像・重みはコミットしていない。
+- 初回1800秒タイムアウトとRAM圧迫も記録。判断 **I-1641〜I-1649**、SPEC §12.4局所追記、ゴールデン変更なし。実装 `d7d3a5f` / `799c69b`。Linux/他GPU/別版、CIコーパス化、美的評価は未実施。原文参照・台帳用行・残件は [R1_F2_REPORT.md](R1_F2_REPORT.md)。

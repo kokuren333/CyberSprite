@@ -2533,6 +2533,7 @@ class GenerationBackend(Protocol):
 - `gen models` は GPU ランタイムを起動せず登録一覧を示す。OpenRAIL 系は「commercial OK with use restrictions (not OSI)」、NC は「non-commercial only」、未知・独自条件は「needs review」と表示する。明示的な商用利用不可・不明は別途表示し、アダプタと参照先ベースの両方の条件をたどる。生成結果にも同じバッジ・説明を返す。登録は人間用 CLI と設定ファイルだけで行い、MCP に登録ツールを出さない。
 - 初回利用時、そのモデル（とアダプタ）のライセンス名を表示し、承諾（`cybersprite gen accept-license <名前>`、または `--accept-model-license`）が `models.json` に記録されていなければ `E_LICENSE_NOT_ACCEPTED`。
 - 推奨設定（ドット絵向けの解像度、ステップ数、アダプタ）は `skills/` に書く。仕様では固定しない（モデルの世代交代が速いため）。
+- ローカルディレクトリの fp16 safetensors variant を検出して読み込む。`params.deterministic`（既定 false）を明示した場合は生成中だけ PyTorch の決定的アルゴリズムを要求し、TF32 と cuDNN benchmark を無効にする。未対応演算は失敗とし、実行後に元の設定へ戻す。同一シードのバイト一致は同一GPU・同一スタックでの実測結果として記録し、環境間では保証しない。CUDA スタックの原文監査と手動GPU検証結果は `docs/GENERATION.md` に記録し、許可外の同梱物があれば空 extra を維持する。
 
 ### 12.5 `command` バックエンド
 

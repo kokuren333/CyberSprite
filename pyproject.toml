@@ -50,7 +50,10 @@ select = ["E", "F", "I", "UP", "B"]
 testpaths = ["tests"]
 addopts = "-ra"
 pythonpath = ["."]
-markers = ["independent_decoder: cross-check built-in raster exports with Pillow on every CI OS"]
+markers = [
+    "independent_decoder: cross-check built-in raster exports with Pillow on every CI OS",
+    "gpu: opt-in local CUDA generation; requires user-installed stack and accepted weights",
+]
 
 [tool.mypy]
 python_version = "3.12"

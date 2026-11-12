@@ -85,12 +85,12 @@ source_url = "確認したモデルカードのURLを記入"
 
 ```text
 uv run cybersprite gen accept-license local
-uv run cybersprite -p sample.csprite gen run --backend diffusers --model local --prompt "説明" --width 512 --height 512 --seed 42 --params '{"num_inference_steps":30,"guidance_scale":7}'
+uv run cybersprite -p sample.csprite gen run --backend diffusers --model local --prompt "説明" --width 512 --height 512 --seed 42
 ```
 
-`model` は設定の別名だけを受け付ける。バックエンドはローカルの pipeline ディレクトリを `AutoPipelineForText2Image.from_pretrained` で読み、単一ファイルは `StableDiffusionPipeline.from_single_file` で読む。単一ファイル方式は SD 系の対応形式に限る。いずれも `local_files_only=True` で、自動ダウンロードを要求しない。LoRA は別々に読み込んで有効化する。パラメータスキーマは `gen backends` の `params_schema` にあり、`num_inference_steps` と整数の `guidance_scale` に限定する。生成結果の PNG は CyberSprite 自前 writer を使う。
+`model` は設定の別名だけを受け付ける。バックエンドはローカルの pipeline ディレクトリを `AutoPipelineForText2Image.from_pretrained` で読み、単一ファイルは `StableDiffusionPipeline.from_single_file` で読む。単一ファイル方式は SD 系の対応形式に限る。いずれも `local_files_only=True` で、自動ダウンロードを要求しない。ディレクトリ内に fp16 safetensors があれば `variant="fp16", use_safetensors=True` を指定する。LoRA は別々に読み込んで有効化する。パラメータは `num_inference_steps`、整数の `guidance_scale`、真偽値の `deterministic`（既定 false）。最後の値は生成中だけ決定的アルゴリズムを要求し、cuDNN benchmark と TF32 を無効化する。未対応演算はエラーにし、元のフラグと環境変数は例外時も復元する。生成結果の PNG は CyberSprite 自前 writer を使う。
 
-**依存監査の保留:** M9 では既存の `diffusers = []` extra を予約のまま維持した。PyPI wheel の LICENSE 原文を確認した Diffusers 0.35.2 と Transformers 4.57.1 自体は Apache-2.0 だが、推移依存 regex 2025.9.18 の原文には CNRI Python 1.6 の記載もあり、今回の依存許可リストにない。したがって `uv sync --extra diffusers` だけでは GPU スタックは導入されない。オーケストレーターが依存全体の監査と許可方針を解決してから extra の依存を有効にする。Torch/Diffusers の巨大 wheel や重みはこの環境に導入していない。API 接続は偽パイプラインで検証している。
+**R1-F2 の監査結論: 選択肢 (b)。** `diffusers = []` は空の予約名のまま維持する（I-1641）。`uv sync --extra diffusers` は GPU スタックを導入しない。利用者が下記の別環境へ自分で導入し、その Python から CyberSprite を起動する。`pyproject.toml` の生成依存と `uv.lock` は変更せず、許可リストへの例外も追加しない。Windows CUDA wheel の実体に許可外の NVIDIA ランタイムがあるため、regex だけを交換しても配布用 extra の監査合格にはならない。
 
 GPU スタック未導入、CUDA GPU なし、モデル実体なし、ライセンス未承諾は `gen backends` の理由として返す。通常の描画・変換・書き出しに生成用の依存や GPU は必要ない。
 
@@ -156,6 +156,140 @@ uv run cybersprite -p sample.csprite import image --source SRC1 --preset ai
 
 実 ComfyUI / GPU 生成は未検証。このワークストリームは自作の偽 HTTP サーバーによる API 契約・来歴・拒否条件を検証する。実 GPU 確認は R1-F2、実 ComfyUI の追加確認はオーケストレーターへ引き継ぐ。
 
+### R1-F2: 実体の依存監査（2026-11-12）
+
+監査環境はリポジトリ外の `<外部環境>/_genenv`、CPython 3.12.10 / Windows 11。Torch は [PyTorch 公式 CUDA 12.8 index](https://download.pytorch.org/whl/cu128) の Windows cp312 wheel。`nvidia-smi` は RTX 3080 / 20480 MiB、driver 610.88 / CUDA UMD 13.3。CUDA 12.8 のFP16行列演算と下記の実SDXL生成を確認した。これは今回固定した監査・試行用スタックであり、最新版の推奨を意味しない。
+
+`tools/audit_generation_stack.py` は `tools/check_licenses.py` と同じ依存閉包・SPDX判定で全33配布物を列挙し、各 dist-info の LICENSE/LICENCE/COPYING 原文、SHA-256、同梱ネイティブファイル一覧を JSON に保存する。以下はその原文と同梱物を読んだ結果。「可」は確認したライセンスが許可リストに合う意味で、スタック全体の配布許可を意味しない。機械判定だけで native notices の確認を置換しない。
+
+| 配布物 | 版 | 原文からの分類 | 結果・確認箇所 |
+|---|---|---|---|
+| accelerate | 1.11.0 | Apache-2.0 | 可、dist-info/LICENSE |
+| certifi | 2026.10.23 | MPL-2.0 | 不可、dist-info/licenses/LICENSE の Mozilla 証明書束 |
+| charset-normalizer | 3.5.2 | MIT | 可、dist-info/licenses/LICENSE |
+| colorama | 0.4.6 | BSD-3-Clause | 可、dist-info/licenses/LICENSE.txt |
+| diffusers | 0.35.2 | Apache-2.0 | 可、dist-info/LICENSE |
+| filelock | 4.2.4 | MIT | 可、dist-info/licenses/LICENSE |
+| fsspec | 2026.9.0 | BSD-3-Clause | 可、dist-info/licenses/LICENSE |
+| huggingface-hub | 0.36.0 | Apache-2.0 | 可、dist-info/LICENSE |
+| idna | 3.20 | BSD-3-Clause | 可、dist-info/licenses/LICENSE.md |
+| importlib-metadata | 10.2.0 | Apache-2.0 | 可、dist-info/licenses/LICENSE |
+| Jinja2 | 3.1.6 | BSD-3-Clause | 可、dist-info/licenses/LICENSE.txt |
+| lazy-importer | 0.1.0 | Apache-2.0 | 可、dist-info/licenses/LICENSE |
+| MarkupSafe | 3.0.3 | BSD-3-Clause | 可、dist-info/licenses/LICENSE.txt |
+| mpmath | 1.3.0 | BSD-3-Clause | 可、dist-info/LICENSE |
+| networkx | 3.7 | BSD-3-Clause | 可、dist-info/licenses/LICENSE.txt |
+| numpy | 2.3.4 | BSD-3-Clause、本体以外の通知を含む | 既存必須依存と同じ版。dist-info/LICENSE.txt を確認。今回の追加依存ではない |
+| packaging | 26.3 | Apache-2.0 OR BSD-2-Clause | 可、LICENSE / LICENSE.APACHE / LICENSE.BSD |
+| peft | 0.17.1 | Apache-2.0 | 可、dist-info/licenses/LICENSE。LoRA の実行に必要 |
+| pillow | 13.0.0 | MIT-CMU（HPND） | 既存必須依存、dist-info/licenses/LICENSE |
+| psutil | 7.2.2 | BSD-3-Clause | 可、dist-info/LICENSE |
+| PyYAML | 6.0.3 | MIT | 可、dist-info/licenses/LICENSE |
+| regex | 2026.11.9 | Apache-2.0 AND CNRI-Python | 不可、LICENSE.txt 冒頭の CPython 派生部分。checker に混在通知の固定テストを追加 |
+| requests | 2.34.2 | Apache-2.0 | 可、dist-info/licenses/LICENSE |
+| safetensors | 0.6.2 | Apache-2.0 | 可、dist-info/licenses/LICENSE |
+| setuptools | 78.1.0 | MIT、同梱物に LGPL-3.0 | 不可、19件の原文に vendor の LGPL が含まれる。torch の Windows 実行時依存なので build-only 扱いにしない |
+| sympy | 1.14.0 | BSD-3-Clause | 可、dist-info/licenses/LICENSE |
+| tokenizers | 0.22.2 | Apache-2.0（メタデータ） | wheel に LICENSE 原文なし。公式 v0.22.2 タグの LICENSE は Apache-2.0 と確認したが、wheel 原文確認済みとは扱わない |
+| torch | 2.8.0+cu128 | 本体 BSD-3-Clause、native に NVIDIA EULA | 不可、dist-info/LICENSE と実際の torch/lib/*.dll。集合通知に LGPL-2.1/3.0 本文もあるが、通知の存在だけで全成分のリンクを断定しない |
+| tqdm | 4.70.1 | MIT AND MPL-2.0 | 不可、LICENCE の files:* 例外。checker へ混在通知の固定テストを追加 |
+| transformers | 4.57.1 | Apache-2.0 | 可、dist-info/licenses/LICENSE |
+| typing-extensions | 4.16.0 | PSF-2.0 | 可、dist-info/licenses/LICENSE |
+| urllib3 | 2.8.0 | MIT | 可、dist-info/licenses/LICENSE.txt |
+| zipp | 4.1.2 | MIT | 可、dist-info/licenses/LICENSE |
+
+Torch wheel は `cudart64_12.dll`、`cublas64_12.dll`、`cublasLt64_12.dll`、`cudnn64_9.dll` と cuDNN 分割DLL、`cufft64_11.dll`、`curand64_10.dll`、`cusolver64_11.dll`、`cusparse64_12.dll`、`nvrtc64_120_0.dll` 等を実際に含む。BSD の package classifier をこれらの許可根拠にしない。[CUDA EULA](https://docs.nvidia.com/cuda/eula/index.html) と [cuDNN EULA](https://docs.nvidia.com/deeplearning/cudnn/backend/latest/reference/eula.html) は今回の許可リストにない。`triton` はこの Windows 閉包には入らなかった。Linux wheel や別版の監査結果へ一般化しない。全33配布物の原文とファイル名は監査 JSON に保持し、第三者台帳はオーケストレーターへ報告して更新を依頼する。
+
+tokenizers の補足原文は [公式 v0.22.2 LICENSE](https://github.com/huggingface/tokenizers/blob/v0.22.2/LICENSE)。モデルについては下記の特定 revision のカードと LICENSE を別に確認した。コードの許可リスト判定を重みに適用したり、重みの条件をコード依存の例外へ流用したりしない。
+
+### 利用者が別環境へ導入する手順
+
+次は今回の検証用の版を再現する PowerShell 例。ネットワークと十分な空き領域が必要。まず LICENSE とモデル条件を自分で確認する。外部環境のパッケージは CyberSprite の配布依存ではない。
+
+```powershell
+uv venv --python 3.12 C:/work/cybersprite-genenv
+$genPython = "C:/work/cybersprite-genenv/Scripts/python.exe"
+uv pip install --python $genPython torch==2.8.0+cu128 --index-url https://download.pytorch.org/whl/cu128
+uv pip install --python $genPython torch==2.8.0+cu128 diffusers==0.35.2 transformers==4.57.1 accelerate==1.11.0 safetensors==0.6.2 huggingface_hub==0.36.0 peft==0.17.1 --extra-index-url https://download.pytorch.org/whl/cu128 --index-strategy unsafe-best-match
+# CyberSprite リポジトリを開発用に接続する場合。通常は入手済み wheel を指定してもよい。
+uv pip install --python $genPython -e .
+& $genPython -m cybersprite gen backends
+```
+
+2行目以降も同じ `$genPython` を使う。通常の `uv run` はリポジトリの `.venv` に戻るため、外部スタックを見つけられない。将来の推移依存の更新まで再現するには、監査 JSON の全版と `uv pip freeze --python $genPython` の記録を使う。主 lock に外部スタックを混ぜない。
+
+取得は利用者の操作として HF キャッシュに保存する。今回の SDXL は `462165984030d82259a11f4367a4eed129e94a7b` の `model_index.json`、scheduler、2 tokenizer、2 text encoder、UNet、VAE の config と fp16 safetensors だけを使用した。Pixel Art XL は `8bf4a4d9ea283e00a51fafda8e0539f8248ea037` の `pixel-art-xl.safetensors`。`snapshot_download` の `revision` と `allow_patterns` を固定すれば不要な fp32/ONNX 重みを避けられる。配置先は `~/.cache/huggingface/hub` など、リポジトリ外とする。
+
+設定例の `local_path` にそれぞれの実体パスを入れ、ベースのライセンスを `CreativeML Open RAIL++-M (2023-07-26)`、LoRA を `CreativeML Open RAIL-M (2022-08-22)` と別々に記録する。SDXL は [固定 revision の LICENSE.md](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/blob/462165984030d82259a11f4367a4eed129e94a7b/LICENSE.md)、LoRA は [固定 revision のカード](https://huggingface.co/nerijs/pixel-art-xl/blob/8bf4a4d9ea283e00a51fafda8e0539f8248ea037/README.md) の宣言と [OpenRAIL-M 原文](https://huggingface.co/spaces/CompVis/stable-diffusion-license/blob/main/license.txt) を確認した。LoRA リポジトリに独立した LICENSE ファイルはない。
+
+```toml
+[generators.diffusers.models.sdxl-pixel]
+id = "stabilityai/stable-diffusion-xl-base-1.0"
+local_path = "C:/models/sdxl-fp16"
+license = "CreativeML Open RAIL++-M (2023-07-26)"
+source_url = "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/tree/462165984030d82259a11f4367a4eed129e94a7b"
+[[generators.diffusers.models.sdxl-pixel.adapters]]
+id = "nerijs/pixel-art-xl"
+local_path = "C:/models/pixel-art-xl.safetensors"
+license = "CreativeML Open RAIL-M (2022-08-22)"
+source_url = "https://huggingface.co/nerijs/pixel-art-xl/tree/8bf4a4d9ea283e00a51fafda8e0539f8248ea037"
+```
+
+要求をUTF-8の `C:/work/generation-request.json` に保存する。Windows PowerShell 5.1でインラインJSONの引用符が落ちることを確認したため、ここでは `gen run` と同じ登録Opを要求ファイルから呼ぶ。
+
+```json
+{
+  "backend": "diffusers",
+  "model": "sdxl-pixel",
+  "prompt": "pixel art, a small wooden chest, simple, flat colors, plain white background",
+  "negative_prompt": "3d render, realistic, text, watermark",
+  "width": 1024,
+  "height": 1024,
+  "seed": 42,
+  "params": {"num_inference_steps": 30, "guidance_scale": 7, "deterministic": true}
+}
+```
+
+```powershell
+& $genPython -m cybersprite gen accept-license sdxl-pixel
+& $genPython -m cybersprite -p C:/work/check.csprite op generate_image --args-file C:/work/generation-request.json
+& $genPython -m cybersprite -p C:/work/check.csprite import image --source SRC1 --preset ai
+& $genPython -m cybersprite -p C:/work/check.csprite validate
+```
+
+関門に落ちたら保存された段階画像と報告を先に見る。`preset ai` への入力が実生成画像であることは、関門の合格や美的な完成を保証しない。`deterministic=true` でも他の GPU・Torch/CUDA版・モデル・スケジューラで同じバイトになる保証はない。
+
+GPU試験は既定でスキップする。承諾済みの設定とリポジトリ外の保存先を用意し、`CYBERSPRITE_RUN_GPU=1`、`CYBERSPRITE_GPU_CHECK_DIR`、必要なら `CYBERSPRITE_GPU_MODEL` を設定して外部環境の `python -m pytest tests/generate/test_gpu.py -q` を実行する。試験自身はダウンロードもライセンス承諾もしない。`python -m tools.verify_generation_gpu --out <リポジトリ外> --runs 3 --import-source` は実CLI子プロセスの時間、200 ms間隔の nvidia-smi ボード使用量、原PNGのハッシュ、取り込み応答を保存する。時間にはPython起動・モデルの実体ハッシュ・読込・推論・PNG保存を含み、純粋な推論時間とは区別する。Torchフラグはプロセス全体の状態なので、同一プロセスのDiffusers実行をロックして復元の競合を防ぐ。
+
+### 実GPU検証の結果と測定範囲
+
+2026-11-12、RTX 3080 / 20480 MiB、driver 610.88、上表の外部環境で、実CLI `gen accept-license sdxl-pixel` が成功した。SDXLのディレクトリ識別SHA-256は `686a5b6be3d889b77314461d3c4e457189d01dc0fd5fc86e8cb37d542b97bcf7`、LoRAファイルは `4234637cb80c998f41e348e6a6cb6bc20d8d038b2b0f256b6129b3b5e353eef7`。それぞれ別の承諾として `models.json` に保存された。
+
+実CLI `cybersprite gen run` を3回、新規のsourceとして実行した。上記要求のseed=42、1024×1024、30 steps、guidance=7、`deterministic=true`、SDXL fp16とPixel Art XL LoRAを使用した。idempotency keyは使わず毎回推論した。
+
+| 回 | CLI全体の時間（秒） | 観測VRAMピーク（MiB、200 ms間隔） |
+|---|---:|---:|
+| 1 | 540.420334100003 | 13342 |
+| 2 | 446.6919937000057 | 13342 |
+| 3 | 337.9346435000043 | 13342 |
+| 中央値 | 446.6919937000057 | 13342 |
+
+3枚とも原PNGのSHA-256が `1a7c4e608d08eaae66f1502d4a4a70261ef51552d76a6c43032fefe179cfa395` で一致した。これはこの機械・このモデルと版・この要求の再現確認であり、他GPUや別版の保証ではない。Torch決定的アルゴリズムは厳密モード、cuDNN benchmark/TF32は無効、行列演算精度highest、CUBLAS_WORKSPACE_CONFIG=:4096:8とし、終了時に元へ戻す。
+
+時間はPython起動、承諾照合等のモデル実体ハッシュ、ロード、推論、PNG保存を含む。診断用スタックでは実体ハッシュ読込待ちも観測した（モデルとLoRAの組を1要求あたり4回ハッシュする現在の経路）。純粋な推論時間や速度改善の測定ではない。回ごとの減少はキャッシュ・同時負荷の差を分離しておらず、最適化の効果とは扱わない。VRAM値はボード全体の標本最大で、Torch allocatorの厳密なピークではない。同一プロセスの直列化について、変更前後3回ずつの並行性能比較は未実施。
+
+SRC1の実CLI `import image --source SRC1 --preset ai` は変更なしの全14関門を通過し、revision 0→1でL2/frame 0へ配置した。論理128×128、パレット33（透明予約を含む）、使用32色。grid_score=996、grid_cell_count=128、boundary_alignment=767、snap_fidelity=81、off_palette=0、orphans=0、fidelity=8486958で、設定の上書き・関門無効化はない。生成だけではproject.jsonが作成されないことも確認した。
+
+変更後の唯一のフレーム0のプレビューを確認し、独立 `validate` は `ok=true`、error=0、warning=0。infoのQ-LYR-03は自動作成された空のL1に対する通知で、そのまま残した。実CLIのPNG書き出しは `validation_ok=true` / `verified=true`。最終ファイルは128×128、indexed P、16704 bytes、SHA-256 `0045bc88751cf4ecbb587f5ea22b4ca8fa96542e2277a00f4115f4cd98871e45`、画素SHA-256 `b6ea18d4c632927ace3a776d47cdd08b39df5fc2990809d1bf72217113489d94`。Pillow 13.0.0と独自PNGデコーダのRGBA配列が一致し、書き出したファイルそのものも表示して確認した。美的評価は行っていない。
+
+明示有効化した `tests/generate/test_gpu.py` も実CLIで **1 passed / 329.72秒**。同じseedと正promptだがnegative_promptなしの別画像で、生成子プロセスは328.83690509999724秒だった。この追加画像のai取り込みはorphans=1の関門で拒否（他13関門はpass）となった。stage5を表示して確認し、関門を変更せず、未配置の拒否例として保存した。LoRA読込時の2つのtext encoder通知は、このLoRAの2166 tensor keyがすべてlora_unet_でtext encoderを含まないことと一致する。通知を隠す変更はしていない。
+
+初回はホストRAM16GB、空き約13〜270MiBの状況で1800秒タイムアウトし、画像が得られなかった。これは失敗期限であり生成時間ではない。後のTorch単体プローブはimport 63.6655秒、CUDA 12.8のFP16行列演算に成功した。再試行では上記の実画像を得たが、初回停止の原因をRAMだけとは断定しない。他アプリを強制終了する操作は行っていない。
+
+記録は `<repo>/_private/gen-check/` に保持した。`dependency-audit.json`、`generation-freeze.txt`、`failed-attempt.json`、`torch-probe.json`、`local-weight-inventory.txt`、`settings/config.toml`、`settings/models.json`、`retry/summary.json`、CLI標準出力/エラーログ、`export-proof.json` が証跡。`retry/sdxl-pixel.csprite/source/` に原画像と全段階、`gpu-test/` に追加試験を保存した。`examples/chest-seed42.png` は合格した最終PNG、`chest-seed42-stage2.png` はその途中段階、`chest-no-negative-rejected-stage5.png` は追加画像の拒否例。最後の2つを合格済み成果物と混同しない。
+
+初回探索ではNoobAI XL、animagine XL派生、音声用Qwen/HTDemucs、ComfyUIの各種重みがあったが、指定SDXL baseとPixel Art XLはなかった。パス一覧のみを保存し、指定の公式モデルをHFキャッシュへ取得した。後追いの一覧には今回の取得物と試験ダミーも含む。重み・生成画像はリポジトリにもコミットにも入れていない。他製品のコード・素材は開いていない。
+
 ## エージェント自身の画像生成ツール
 
 エージェントが自分のツールで生成した画像は、そのツールからファイルとして保存し、`import_image` に来歴を付けて渡す。CyberSprite が別製品の画像生成 API を代行して呼ぶ経路ではない。
@@ -197,11 +331,11 @@ uv run cybersprite -p sample.csprite op import_image --args-file import.json
 
 ## オーケストレーターへの未確認事項
 
-この実装では L-10 / L-12 の調査を行っていない。既定のモデル推奨例は置かない。
+M9では L-10 / L-12 の調査を行っていなかった。R1-F2では上記のSDXL baseとPixel Art XLの特定revisionのカード・利用条件を確認した。他モデル・refiner・L-12は未確認であり、一般のモデル推奨一覧は置かない。
 
-- L-10: SD1.5、SDXL base と使用する refiner、FLUX.1 [schnell]、Pixel Art XL の各モデルカード・同梱 LICENSE・利用条件の版。Pixel Art XL はアダプタ自体と、その指定ベースモデルを別々に確認する。
+- L-10: SD1.5、使用するSDXL refiner、FLUX.1 [schnell]等の各モデルカード・同梱LICENSE・利用条件の版。上記2モデルでも別revisionへ変える場合は再確認する。
 - L-10: PixArt-alpha と PixArt-Sigma の実際に採用するチェックポイントのモデルカードと LICENSE。系列名で同一条件だと決めない。
 - L-10: 上記に追加するすべての LoRA と、そのカードが指定するベースモデル。ダウンロード元、正確な revision、実体ハッシュ、商用利用・再配布・利用制限を記録する。
-- モデルカードの確認先候補（未閲覧。正式な配布元・対象 revision の確認から行う）: `stable-diffusion-v1-5/stable-diffusion-v1-5`、`stabilityai/stable-diffusion-xl-base-1.0`、`stabilityai/stable-diffusion-xl-refiner-1.0`、`black-forest-labs/FLUX.1-schnell`、`nerijs/pixel-art-xl`、`PixArt-alpha/PixArt-XL-2-1024-MS`、`PixArt-alpha/PixArt-Sigma-XL-2-1024-MS`。
+- モデルカードの確認先候補（未閲覧。正式な配布元・対象 revision の確認から行う）: `stable-diffusion-v1-5/stable-diffusion-v1-5`、`stabilityai/stable-diffusion-xl-refiner-1.0`、`black-forest-labs/FLUX.1-schnell`、`PixArt-alpha/PixArt-XL-2-1024-MS`、`PixArt-alpha/PixArt-Sigma-XL-2-1024-MS`。
 - L-12: OpenAI の個人向け利用規約と、適用される法人向け契約・サービス条件の現行版、画像出力の帰属と制限。Codex の当該実行環境で使える画像生成ツールの仕様、モデル情報の公開範囲、保存先、来歴として取得できる情報も確認する。
-- L-09: regex の CNRI Python 1.6 表記と許可方針の整合、Torch の実際に採用する wheel とバンドルされたライセンス、Diffusers/Transformers/LoRA 用の推移依存全体の原文監査。台帳の更新後に extra を有効にする。
+- L-09: R1-F2のWindows CUDAスタック監査は不合格と確定し、空extraを維持する。将来、別版・別構成を配布依存へ採用するなら、再度実体を監査して別の判断を記録する。今回の利用者導入を配布用extraの承認と解釈しない。
