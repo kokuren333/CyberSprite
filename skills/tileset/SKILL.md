@@ -58,7 +58,7 @@ csp -p meadow.csprite preview --frame 0 --grid --scale 4 --out map_grid.png   # 
 ```
 
 - 全体と拡大の両方を見る。中央タイルの 2×2、縁の上下・左右のペア、外角と内角の 4 向き、`d` / `xd` の縦の並びを、一時レイヤーや空き地に並べて見ると速い（見終えたら消す）。
-- タイルセットそのものを 1 枚で見るプレビューは**未提供**（予定）。当面は `export tileset` で書き出した画像を開いて見る（§2.6）。
+- タイルセットそのものは `render_preview` の `tileset` 引数で 1 枚に並べて見られる（番号つき。例: `csp -p map.csprite op render_preview tileset=TS1`）。`set_tile_pixels` などタイルの Op の結果のプレビューにも、編集したタイルが出る。
 
 ### 2.5 タイルを直す
 
@@ -78,8 +78,8 @@ csp -p meadow.csprite op get_tiles layer=ground frame=0
 ```
 
 - 同じ絵は 1 枚に統合され、`match_flips` を許すと反転した同じ絵も統合される。
-- **既知の問題（修正作業中）:** 現状では、レイヤーの上端や左端に透明な行・列があると、詰めた後のセルの位置が格子の原点になり、タイルが 1px などずれる（`info --include layers` でセルの `x`, `y` がタイルの倍数でなくなる）。変換の前にレイヤーの絵がタイル格子の (0, 0) から始まることを確かめ、変換後にセルの位置とプレビューを確かめる。ずれたら `undo` する。
-- 不要なタイルは `delete_tiles`（使用中なら `on_used: "clear"` を明示）、並べ替えは `move_tiles`。タイルセットそのものを消す Op は**まだない**（追加予定。現状は `undo` でしか消せない）。
+- `tileset_from_layer` は `canvas.grid` の原点（または引数 `origin_x` / `origin_y`）を格子の原点にしてタイルを切る。レイヤーの上端や左端が透明でもずれない。格子を変えたいときだけ `origin_x` / `origin_y` を明示し、変換後にプレビューで確かめる。
+- 不要なタイルは `delete_tiles`（使用中なら `on_used: "clear"` を明示）、並べ替えは `move_tiles`。タイルセットそのものは `delete_tileset` で消す（使っているタイルマップレイヤーがあれば `E_IN_USE` になり、そのレイヤーの一覧が返る。先にレイヤーを消すか付け替える）。
 
 ### 2.7 書き出す
 
@@ -96,7 +96,7 @@ csp -p meadow.csprite export aseprite --out export/meadow.aseprite
 - [ ] 反転の順を取り違えていないか（タイルは d → x → y、`transform_region` は反転 → 回転）。迷ったら小さなマップに 4 向きを並べて見る。
 - [ ] 正方形でないタイルに `d` を付けていないか（転置されず、`Q-TIL-02` が警告する）。
 - [ ] タイル 1 枚の修正が、意図した全箇所に波及したか（`pixels_changed` と `diff`）。
-- [ ] `tileset_from_layer` の後、セルの位置がずれていないか（上記の既知の問題）。
+- [ ] `tileset_from_layer` の格子の原点が意図どおりか（`origin_x` / `origin_y` を明示したときは特に）。
 - [ ] 試しに作ったタイルセットが残っていないか（`.aseprite` にも残る。`info --include tilesets`）。
 - [ ] `Q-TIL-01`（未使用・同じ絵のタイル）を読んだか。残すなら理由を報告に書く。
 - [ ] 継ぎ目を、拡大と等倍の両方で、並べて見たか。
