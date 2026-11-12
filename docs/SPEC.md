@@ -2199,10 +2199,16 @@ args = ["-m", "C:/models/model.gguf", "-p", "{prompt}", "-n", "{negative_prompt}
         "-W", "{width}", "-H", "{height}", "-s", "{seed}", "-o", "{out}"]
 license = "user-supplied model; see model card"
 timeout_seconds = 600
+
+[generators.command.sdcpp.model]
+id = "user/local-model"
+local_path = "C:/models/model.gguf"
+license = "model card license name"
 ```
 
 - 引数は 1 要素ずつ置き換え、シェルを介さずに実行する。置き換えられるのは `{prompt}` `{negative_prompt}` `{width}` `{height}` `{seed}` `{out}` `{count}` だけである。
 - 定義できるのは設定ファイルだけであり、MCP や CLI の引数からは定義も変更もできない（§9.6）。
+- モデルの識別・承諾・ハッシュ検証のため、`[generators.command.<名前>.model]` に `id`、`local_path`、`license` を登録する。アダプタは `model.adapters` に別々に登録する。モデル実体が未登録なら一覧で利用不可の理由を返す。
 
 ### 12.6 来歴に必ず残すもの
 

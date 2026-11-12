@@ -118,6 +118,7 @@ class Op:
         if self.kind in ("mutate", "ingest") and self.name not in (
             "new_project",
             "import_aseprite",
+            "generate_image",
         ):
             output_fields.update(
                 {

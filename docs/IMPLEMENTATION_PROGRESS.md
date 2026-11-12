@@ -127,3 +127,16 @@ main のテスト（2026-11-12 11:00、Windows / Python 3.12）: Python 1160 pas
 - MCPシナリオ3は実Clientのin-process/stdio両方で成功し、正本と実出力PNGのハッシュを固定した。CLIは14呼出しで作成→8反転配置→リンク→共有修正→検証→PNG/tileset/.aseprite出力と実ファイル再復号を完走した。全exportでvalidation_ok/verified=true、警告0、プレビューと実出力PNGを開いて確認した。最終コミット後の再実行先は `build/m7-review-final/`。
 - e2e-02 #2/#3/#6 を修正。判断I-501〜I-511。仕様の補足はmatch_flipsのv1変換利用、add_tileset.if_exists、move_tiles、changed.framesのRGBA差限定。追加依存・外部参照・意匠判断なし。P-01の反転順は仕様に一致済みなのでKNOWN_ISSUESの追記は不要。
 - LinuxはI-007のとおりCI待ち。mainへの統合とオーケストレーターによる独立実機確認は未実施。詳細は [M7_IMPLEMENTATION_REPORT.md](M7_IMPLEMENTATION_REPORT.md)。
+## M9 生成バックエンド（2026-11-12、Codex）
+
+実装と Windows での検証を完了。配布用 Diffusers extra の依存追加は I-708 の監査保留があるため、M9 全体を完了扱いにはしない。
+
+- `generate/` にバックエンド契約、設定と遅延プラグイン登録、command、Diffusers API 接続、モデルとアダプタの個別承諾、実体ハッシュ照合を実装した。`ops/generation.py` が list_generators/query と generate_image/ingest/G を登録し、全71 Op。
+- 生成は source の原画像と来歴だけを保存し、正本・リビジョンを変更しない。source の冪等性キーで再実行を抑止し、既存 import_image で配置する。設定の分離は CYBERSPRITE_CONFIG_DIR（I-702）。
+- `uv run --extra mcp --extra gui pytest -q`: **1180 passed、2 skipped**（298.94秒）。既存2件のスキップは Windows のシンボリックリンク作成権限。最終変更後の `uv run --extra mcp --extra gui pytest tests/generate -q`: **21 passed**（14.65秒）。
+- `uv run --extra mcp --extra gui ruff check .`、`tools/check_repository.py`、`tools/check_licenses.py`、`git diff --check` が成功。新しい依存は追加しておらず、第三者台帳は編集していない。
+- `uv build --wheel --out-dir .venv/m9-dist` の wheel 全105エントリを確認。重み拡張子・32 MiB 以上のファイルなし。追跡ファイルと package 配下の走査テストも追加した。
+- `.venv/m9-smoke/settings/config.toml` を設定先にして、実 CLI の gen backends、gen run（偽コマンド、承諾フラグ、seed=42、冪等性キー）、import image --source SRC1 --preset exact、validate、preview、export image を実行。検証デルタは errors=0/warnings=0、最終 validate も error=0/warning=0。初期空レイヤーと透明番号未使用の info 2件は試験の構成どおり。
+- 書き出し結果は validation_ok=true / verified=true。プレビューと最終PNGそのものを開いて確認し、復号した8×6の黒枠・白い内側の画素も検査した。最終PNG SHA-256 は `aca375c26bb02658ae0b4150357250b88a98cc242154c87f7f67e975dfbb503a`。試験出力は git 管理外の `.venv/m9-smoke/` に保持する。
+- 仕様変更は §12.5 の command.model 設定と例の追記のみ。判断 I-701〜I-709。エージェント側生成・利用方法・正確な L-10/L-12 の確認先候補・残る依存監査は `docs/GENERATION.md` に記載。
+- 未完: Diffusers extra の実依存追加と推移依存監査（regex の CNRI Python 1.6 表記が今回の許可リスト外）、GPU実機、Linux実行、L-10/L-12 のモデルカード・利用規約の確認。Torch/Diffusers の巨大wheel・重みは導入していない。ビジュアル判断を要する変更なし。M7 と gui/ は変更していない。

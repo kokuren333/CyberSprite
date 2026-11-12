@@ -182,6 +182,8 @@ def test_registry_coverage_and_contracts():
         "import_image",
         "list_sources",
         "get_source",
+        "list_generators",
+        "generate_image",
     }
     for op in registry().all():
         description = op.describe()

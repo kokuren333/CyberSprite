@@ -187,8 +187,6 @@ def test_registered_command_contracts_and_schema_extension(
     [
         (["mcp", "serve"], "cybersprite.mcp.server", "serve", "M4"),
         (["gui"], "cybersprite.server", "serve", "M8"),
-        (["gen", "backends"], "cybersprite.generate", "list_generators", "M9"),
-        (["gen", "run", "--prompt", "日本語"], "cybersprite.generate", "generate_image", "M9"),
         (["gen", "accept-license", "model"], "cybersprite.generate", "accept_license", "M9"),
         (["convert", "in.png", "out.png"], "cybersprite.pipeline.cli_api", "convert", "M6"),
         (
