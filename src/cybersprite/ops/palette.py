@@ -26,7 +26,7 @@ def pixel_objects(p):
 
 
 def usage(p):
-    result = Counter()
+    result: Counter[int] = Counter()
     for obj in pixel_objects(p):
         result.update(bytes.fromhex("".join(obj.pixels)))
     return result

@@ -1,6 +1,7 @@
 """Shared reference checks and indexed cel edits, with explicit link ownership."""
 
 from copy import deepcopy
+from typing import NoReturn
 
 import numpy as np
 
@@ -12,7 +13,7 @@ from cybersprite.core.references import cel_at, cel_owner, resolve_layer, resolv
 SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
-def fail(code, message, **details):
+def fail(code, message, **details) -> NoReturn:
     raise CyberSpriteError(
         code, message, "Correct the indicated target or argument and retry.", details
     )

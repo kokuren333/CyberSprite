@@ -11,7 +11,7 @@ from .errors import CyberSpriteError
 from .models import GroupLayer, ImageLayer, LinkCel, Sources
 from .pixels import rgba, tiles_from_rows
 from .references import cel_owner, walk_layers
-from .render import indexed_result, render
+from .render import frame_signature, indexed_result, render
 from .validation import check_structure
 
 DEFAULT_LEVELS = {
@@ -53,15 +53,18 @@ def bbox(mask):
 
 
 def clusters(image, ti):
-    seen = np.zeros(image.shape, dtype=bool)
+    # Python integers/bytearrays avoid a NumPy scalar operation per neighbour.
+    # Keep the original row seed order and breadth-first neighbour order.
+    values = image.tolist()
     h, w = image.shape
+    seen = [bytearray(w) for _ in range(h)]
     result = []
     for y in range(h):
         for x in range(w):
-            if seen[y, x] or image[y, x] == ti:
+            if seen[y][x] or values[y][x] == ti:
                 continue
-            value = image[y, x]
-            seen[y, x] = True
+            value = values[y][x]
+            seen[y][x] = 1
             queue = deque([(x, y)])
             points = []
             while queue:
@@ -73,10 +76,10 @@ def clusters(image, ti):
                         if (
                             0 <= nx < w
                             and 0 <= ny < h
-                            and not seen[ny, nx]
-                            and image[ny, nx] == value
+                            and not seen[ny][nx]
+                            and values[ny][nx] == value
                         ):
-                            seen[ny, nx] = True
+                            seen[ny][nx] = 1
                             queue.append((nx, ny))
             result.append(points)
     return result
@@ -219,17 +222,32 @@ def report(p, *, root=None, selected_frames=None, rules=None, source_manifest=No
         add("Q-PAL-04", "Used palette entries contain partial alpha.")
     colors_per_frame, orphans, opaque_counts, boxes = [], [], [], []
     small_total, nonclosed = 0, 0
+    previous_signature = None
+    cached = None
     for f in range(len(p.frames)):
-        try:
-            indexed = indexed_result(p, f)
-        except CyberSpriteError as error:
-            if error.code != "E_NOT_PALETTE_CLOSED":
-                raise
-            indexed = indexed_result(p, f, {"flatten": "nearest"})
+        signature = frame_signature(p, f)
+        if signature != previous_signature or cached is None:
+            closed = True
+            try:
+                indexed = indexed_result(p, f)
+            except CyberSpriteError as error:
+                if error.code != "E_NOT_PALETTE_CLOSED":
+                    raise
+                indexed = indexed_result(p, f, {"flatten": "nearest"})
+                closed = False
+            rgba_image = render(p, f)
+            transparent = p.palette.transparent_index
+            assert indexed.palette is not None
+            if rgba(indexed.palette[transparent])[3] != 0:
+                transparent = -1
+            components = clusters(indexed.pixels, transparent)
+            cached = indexed, rgba_image, components, closed
+            previous_signature = signature
+        indexed, rgba_image, components, closed = cached
+        if not closed:
             nonclosed += 1
             add("Q-LYR-01", "Frame is not palette closed.", fs=[f])
         image = indexed.pixels
-        rgba_image = render(p, f)
         color_count = len(np.unique(image))
         colors_per_frame.append(color_count)
         if (
@@ -238,11 +256,6 @@ def report(p, *, root=None, selected_frames=None, rules=None, source_manifest=No
         ):
             add("Q-PAL-05", "Frame exceeds the configured color count.", fs=[f])
         # Cluster metrics require an indexed frame; nearest is the explicit diagnostic fallback.
-        transparent = p.palette.transparent_index
-        assert indexed.palette is not None
-        if rgba(indexed.palette[transparent])[3] != 0:
-            transparent = -1
-        components = clusters(image, transparent)
         orphan_points = [part[0] for part in components if len(part) == 1]
         small = [part for part in components if len(part) < settings.min_cluster]
         orphans.append(len(orphan_points))

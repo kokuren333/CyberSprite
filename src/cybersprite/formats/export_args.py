@@ -2,7 +2,7 @@
 
 from typing import Annotated, Literal
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from cybersprite.core.models import Model, Rect
 
@@ -309,7 +309,7 @@ class ImportResult(Model):
     source: str | None
 
 
-EXPORT_ARGS = {
+EXPORT_ARGS: dict[str, type[BaseModel]] = {
     "export_image": ImageArgs,
     "export_sheet": SheetArgs,
     "export_animation": AnimationArgs,

@@ -104,8 +104,8 @@ def drawing(ctx, a, name):
                 if key in visited:
                     continue
                 visited.add(key)
-                image = canvas_pixels(p, layer, f)
-                mask = region(p, a.region, image) & (image == source)
+                frame_image = canvas_pixels(p, layer, f)
+                mask = region(p, a.region, frame_image) & (frame_image == source)
                 count += write_points(
                     ctx,
                     layer,

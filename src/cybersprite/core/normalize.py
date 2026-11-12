@@ -18,7 +18,7 @@ def normalize_cels(project: Project) -> Project:
     for layer, _ancestors in walk_layers(result.layers):
         if isinstance(layer, GroupLayer):
             continue
-        by_frame = {cel.frame: cel for cel in layer.cels}
+        by_frame: dict[int, Any] = {cel.frame: cel for cel in layer.cels}
         if len(by_frame) != len(layer.cels):
             raise CyberSpriteError(
                 "E_INVARIANT",
@@ -41,7 +41,7 @@ def normalize_cels(project: Project) -> Project:
                 seen.add(owner.frame)
                 owner = by_frame[owner.link]
             groups.setdefault(owner.frame, []).append(frame)
-        normalized = []
+        normalized: list[Any] = []
         for old_owner in sorted(groups):
             members = groups[old_owner]
             owner = deepcopy(by_frame[old_owner])

@@ -18,7 +18,7 @@ from .quality import bbox, report, validation_delta
 from .raster import RasterError
 from .references import walk_layers
 from .registry import OpContext
-from .render import render
+from .render import frame_signature, render
 from .validation import check_structure
 
 
@@ -30,6 +30,10 @@ def changes(before, after, ctx):
     )
     frame_changes = []
     for f in range(max(len(before.frames), len(after.frames))):
+        if f < min(len(before.frames), len(after.frames)) and frame_signature(
+            before, f
+        ) == frame_signature(after, f):
+            continue
         w = max(before.canvas.width, after.canvas.width)
         h = max(before.canvas.height, after.canvas.height)
         old = np.zeros((h, w, 4), dtype=np.uint8)

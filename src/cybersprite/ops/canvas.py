@@ -58,13 +58,13 @@ def crop_cels(p):
             continue
         ts = next(ts for ts in p.tilesets if ts.id == layer.tileset)
         lookup = {tuple(tile.pixels): i for i, tile in reversed(list(enumerate(ts.tiles)))}
-        for cel in layer.cels:
-            if isinstance(cel, LinkCel):
+        for tile_cel in layer.cels:
+            if isinstance(tile_cel, LinkCel):
                 continue
-            refs = tiles_from_rows(cel.tiles, cel.w, cel.h)
+            refs = tiles_from_rows(tile_cel.tiles, tile_cel.w, tile_cel.h)
             for row, entries in enumerate(refs):
                 for col, ref in enumerate(entries):
-                    x, y = cel.x + col * ts.tile_w, cel.y + row * ts.tile_h
+                    x, y = tile_cel.x + col * ts.tile_w, tile_cel.y + row * ts.tile_h
                     if ref.index == 0 or (
                         0 <= x
                         and 0 <= y
@@ -106,7 +106,7 @@ def crop_cels(p):
                         lookup[values] = len(ts.tiles)
                         ts.tiles.append(Tile(pixels=list(values)))
                     refs[row][col] = TileRef(lookup[values])
-            cel.tiles = tiles_to_rows(refs)
+            tile_cel.tiles = tiles_to_rows(refs)
 
 
 def shift(p, dx, dy):
@@ -194,8 +194,8 @@ def canvas_op(ctx, a, name):
         f = a.factor
         dimensions(oldw * f, oldh * f)
         p.canvas.width, p.canvas.height = oldw * f, oldh * f
-        for key in ("x", "y", "w", "h"):
-            setattr(p.canvas.grid, key, getattr(p.canvas.grid, key) * f)
+        for grid_attr in ("x", "y", "w", "h"):
+            setattr(p.canvas.grid, grid_attr, getattr(p.canvas.grid, grid_attr) * f)
         for layer, _ in walk_layers(p.layers):
             if isinstance(layer, ImageLayer):
                 for cel in layer.cels:
@@ -203,10 +203,10 @@ def canvas_op(ctx, a, name):
                         cel.pixels = pixels_to_rows(np.repeat(np.repeat(array(cel), f, 0), f, 1))
                         cel.x, cel.y, cel.w, cel.h = cel.x * f, cel.y * f, cel.w * f, cel.h * f
             elif isinstance(layer, TilemapLayer):
-                for cel in layer.cels:
-                    if not isinstance(cel, LinkCel):
-                        cel.x *= f
-                        cel.y *= f
+                for tile_cel in layer.cels:
+                    if not isinstance(tile_cel, LinkCel):
+                        tile_cel.x *= f
+                        tile_cel.y *= f
         for ts in p.tilesets:
             if ts.tile_w * f > 256 or ts.tile_h * f > 256:
                 fail("E_LIMIT_EXCEEDED", "Scaled tile exceeds 256 pixels per side.")

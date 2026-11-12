@@ -2,7 +2,7 @@
 
 from typing import Annotated, Any, Literal
 
-from pydantic import Field, create_model
+from pydantic import BaseModel, Field, create_model
 
 from cybersprite.core.models import (
     BlendMode,
@@ -79,7 +79,7 @@ class TxOptions(Model):
 
 class OpCall(Model):
     op: str
-    args: dict = Field(default_factory=dict)
+    args: dict[str, Any] = Field(default_factory=dict)
 
 
 class ValidationPatch(Model):
@@ -117,15 +117,15 @@ XY = {"x": (int, ...), "y": (int, ...)}
 WH = {"w": (Positive, ...), "h": (Positive, ...)}
 
 
-def contract(name: str, fields: dict[str, Any], *, draw=False):
+def contract(name: str, fields: dict[str, Any], *, draw: bool = False) -> type[Model]:
     values: dict[str, Any] = {**(COMMON_DRAW if draw else {}), **fields}
     return create_model(name, __base__=Model, **values)
 
 
-ARGS = {}
+ARGS: dict[str, type[BaseModel]] = {}
 
 
-def define(name, fields, draw=False):
+def define(name: str, fields: dict[str, Any], draw: bool = False) -> None:
     ARGS[name] = argument_model(
         name, contract("".join(s.title() for s in name.split("_")) + "Args", fields, draw=draw)
     )

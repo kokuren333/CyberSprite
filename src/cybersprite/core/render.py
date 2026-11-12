@@ -159,6 +159,44 @@ def _parts(project, draw):
                 yield cel.x + col * ts.tile_w, cel.y + row * ts.tile_h, pixels
 
 
+def frame_signature(project, frame):
+    """Exact immutable compositing inputs for local, bounded reuse only."""
+    draws, _ = _draws(project, frame, RenderOptions())
+    parts = []
+    for draw in draws:
+        cel, layer = draw.data, draw.layer
+        data = tuple(cel.pixels) if isinstance(layer, ImageLayer) else tuple(cel.tiles)
+        tileset = (
+            None
+            if isinstance(layer, ImageLayer)
+            else next(ts.model_dump_json() for ts in project.tilesets if ts.id == layer.tileset)
+        )
+        parts.append(
+            (
+                layer.id,
+                layer.type,
+                layer.blend_mode,
+                getattr(layer, "background", False),
+                draw.effective_opacity,
+                draw.order,
+                draw.z_index,
+                cel.x,
+                cel.y,
+                cel.w,
+                cel.h,
+                data,
+                tileset,
+            )
+        )
+    return (
+        project.canvas.width,
+        project.canvas.height,
+        tuple(project.palette.colors),
+        project.palette.transparent_index,
+        tuple(parts),
+    )
+
+
 def _clip(x, y, pixels, width, height):
     h, w = pixels.shape
     left, top, right, bottom = max(0, x), max(0, y), min(width, x + w), min(height, y + h)

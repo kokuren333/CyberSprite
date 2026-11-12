@@ -47,6 +47,8 @@ EXIT_CODES = {
 
 
 class CyberSpriteError(Exception):
+    op_index: int
+
     def __init__(
         self, code: str, message: str, hint: str, details: dict[str, Any] | None = None
     ) -> None:
