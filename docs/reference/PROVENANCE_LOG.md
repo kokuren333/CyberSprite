@@ -33,3 +33,4 @@
 | 2026-11-12 | オーケストレーター（Opus 5.5） | PyPI（`cybersprite`、`cyber-sprite`）、GitHub リポジトリ検索 | PyPI に同名なし。GitHub に同名の空に近いリポジトリが 2 件（説明なし、スター 0） | THIRD_PARTY §3、IMPLEMENTATION_PROGRESS |
 
 **Aseprite の実機（Steam 版）は、上流工程では参照していない。** 実装フェーズの M0（2026-11-12）で参照した（下の行）。
+| 2026-11-12 | オーケストレーター（Opus 5.5） | Aseprite 実機 v1.3.18.6（バッチモード） | P-11: CyberSprite が書いた `.aseprite` を開けること、描画結果が CyberSprite と全ピクセル一致すること | ASEPRITE_INVENTORY §2 |
