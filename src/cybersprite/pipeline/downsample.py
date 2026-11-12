@@ -4,8 +4,18 @@ from collections import Counter, deque
 
 import numpy as np
 
-from ._common import PipelineError, integer, interior, lower_median, neighbors, require, rgba_frames
+from ._common import (
+    PipelineError,
+    color_channels,
+    integer,
+    interior,
+    lower_median,
+    neighbors,
+    require,
+    rgba_frames,
+)
 from .grid import regular_cells
+from .oklab import rgb_to_oklab_fixed_numpy
 
 
 def _representative(pixels, center, method):
@@ -37,7 +47,7 @@ def _representative(pixels, center, method):
     return reps[group]
 
 
-def remove_background(image, mode="keep", *, color=None, tolerance=0):
+def remove_background(image, mode="keep", *, color=None, tolerance=0, auto_tolerance=2500):
     rgba_frames(image)
     require(mode in ("keep", "key", "auto"), "Unknown background mode.")
     integer(tolerance, "background tolerance", 0, 255)
@@ -49,16 +59,38 @@ def remove_background(image, mode="keep", *, color=None, tolerance=0):
         (x, y) for y in range(h) for x in range(w) if x == 0 or y == 0 or x == w - 1 or y == h - 1
     ]
     if mode == "auto":
+        integer(auto_tolerance, "background auto_tolerance", 0, 65535)
         counts = Counter(tuple(int(c) for c in image[y, x]) for x, y in border)
-        color = min(counts, key=lambda c: (-counts[c], c))
-        if counts[color] * 100 < len(border) * 60:
+        colors = sorted(counts)
+        labs = rgb_to_oklab_fixed_numpy(np.asarray([c[:3] for c in colors], dtype=np.int64))
+        supports = []
+        frequencies = np.asarray([counts[c] for c in colors], dtype=np.int64)
+        for lab in labs:
+            delta = labs - lab
+            supports.append(
+                int(
+                    frequencies[
+                        (delta * delta).sum(axis=1) <= auto_tolerance * auto_tolerance
+                    ].sum()
+                )
+            )
+        winner = min(range(len(colors)), key=lambda k: (-supports[k], colors[k]))
+        color = colors[winner]
+        if supports[winner] * 100 < len(border) * 60:
             warnings.append(
-                "No background color occupies at least 60% of the border; kept all pixels."
+                "No background color occupies at least 60% of the border within "
+                "Oklab tolerance; kept all pixels."
             )
             return result, {"mode": mode, "removed_pixels": 0, "warnings": warnings}
-    require(color is not None and len(color) in (3, 4), "Background key needs RGB or RGBA color.")
-    color = [integer(c, "background channel", 0, 255) for c in color]
-    match = np.all(np.abs(image[:, :, : len(color)].astype(np.int64) - color) <= tolerance, axis=2)
+        flat_labs = rgb_to_oklab_fixed_numpy(image[:, :, :3].reshape(-1, 3).astype(np.int64))
+        delta = flat_labs - labs[winner]
+        match = ((delta * delta).sum(axis=1) <= auto_tolerance * auto_tolerance).reshape(h, w)
+    else:
+        require(color is not None, "Background key needs an RGB or RGBA color.")
+        color = color_channels(color)
+        match = np.all(
+            np.abs(image[:, :, : len(color)].astype(np.int64) - color) <= tolerance, axis=2
+        )
     queue, seen = deque((x, y) for x, y in border if match[y, x]), set()
     removed = 0
     while queue:

@@ -4,7 +4,7 @@ from collections import Counter
 
 import numpy as np
 
-from ._common import PipelineError, integer, require, rgba_frames
+from ._common import PipelineError, color_channels, integer, require, rgba_frames
 from .oklab import dist2, load_table, rgb_to_oklab_fixed, rgb_to_oklab_fixed_numpy
 
 BAYER = {
@@ -33,18 +33,87 @@ def _centroid(group, labs, weights):
     )
 
 
-def extract_palette(images, *, max_colors=32, refine_iterations=8, min_color_pixels=0):
+def extract_palette(
+    images,
+    *,
+    max_colors=32,
+    refine_iterations=8,
+    min_color_pixels=0,
+    merge_distance=1800,
+    salient_distance=7000,
+    protect=None,
+):
     integer(max_colors, "max_colors", 1, 255)
     integer(refine_iterations, "refine_iterations", 0)
     integer(min_color_pixels, "min_color_pixels", 0)
     colors, weights = _histogram(images)
+    integer(merge_distance, "merge_distance", 0, 65535)
+    integer(salient_distance, "salient_distance", 0, 65535)
+    # Explicit colors reserve their nearest real input color; no invented RGB.
+    original_labs = [rgb_to_oklab_fixed(c) for c in colors]
+    reserved = set()
+    for color in protect or []:
+        channels = color_channels(color)
+        require(
+            len(channels) == 3 or channels[3] == 255, "Protected palette colors must be opaque."
+        )
+        require(bool(colors), "Cannot protect colors in a fully transparent input.")
+        lab = rgb_to_oklab_fixed(channels[:3])
+        reserved.add(
+            colors[min(range(len(colors)), key=lambda i: (dist2(lab, original_labs[i]), colors[i]))]
+        )
+    if merge_distance and colors:
+        representatives: list[tuple[int, ...]] = []
+        merged_weights: list[int] = []
+        representative_labs: list[tuple[int, ...]] = []
+        for i in sorted(
+            range(len(colors)), key=lambda i: (colors[i] not in reserved, -weights[i], colors[i])
+        ):
+            distances = [dist2(original_labs[i], lab) for lab in representative_labs]
+            near = [j for j, d in enumerate(distances) if d <= merge_distance * merge_distance]
+            if near and colors[i] not in reserved:
+                j = min(near, key=lambda j: (distances[j], representatives[j]))
+                merged_weights[j] += weights[i]
+            else:
+                representatives.append(colors[i])
+                representative_labs.append(original_labs[i])
+                merged_weights.append(weights[i])
+        order = sorted(range(len(representatives)), key=lambda i: representatives[i])
+        colors = [representatives[i] for i in order]
+        weights = [merged_weights[i] for i in order]
     labs = [rgb_to_oklab_fixed(c) for c in colors]
-    if len(colors) <= max_colors:
+    if salient_distance:
+        total = sum(weights)
+        for i, color in enumerate(colors):
+            if (
+                2 <= weights[i] <= 4
+                and weights[i] * 64 <= total
+                and all(
+                    dist2(labs[i], other) >= salient_distance * salient_distance
+                    for j, other in enumerate(labs)
+                    if j != i
+                )
+            ):
+                reserved.add(color)
+    require(
+        len(reserved) <= max_colors,
+        "Protected colors exceed max_colors.",
+        "Increase max_colors or reduce palette.protect / disable salient_distance.",
+    )
+    reserved_colors = sorted(reserved)
+    # Reserved slots never participate in median cut or k-means updates.
+    remaining = [i for i, color in enumerate(colors) if color not in reserved]
+    colors, weights = [colors[i] for i in remaining], [weights[i] for i in remaining]
+    labs = [rgb_to_oklab_fixed(c) for c in colors]
+    budget = max_colors - len(reserved_colors)
+    if budget == 0:
+        colors, weights, labs = [], [], []
+    if len(colors) <= budget:
         representatives = colors
     else:
         # Each entry carries creation order, independent of current list position.
         boxes, serial = [(0, list(range(len(colors))))], 1
-        while len(boxes) < max_colors:
+        while len(boxes) < budget:
             eligible = [b for b in boxes if len(b[1]) > 1]
             chosen = min(eligible, key=lambda b: (-sum(weights[i] for i in b[1]), b[0]))
             group = chosen[1]
@@ -82,14 +151,20 @@ def extract_palette(images, *, max_colors=32, refine_iterations=8, min_color_pix
             colors[min(g, key=lambda i: (dist2(labs[i], centroid), -weights[i], colors[i]))]
             for g, centroid in zip(groups, centroids, strict=True)
         ]
-    representatives = sorted(set(representatives), key=lambda c: (*rgb_to_oklab_fixed(c), *c))
+    representatives = sorted(
+        set(representatives + reserved_colors), key=lambda c: (*rgb_to_oklab_fixed(c), *c)
+    )
     # Recompute usage after each deterministic merge; at least one colour survives.
     while min_color_pixels and len(representatives) > 1:
         usage = [0] * len(representatives)
         rlabs = [rgb_to_oklab_fixed(c) for c in representatives]
         for lab, weight in zip(labs, weights, strict=True):
             usage[min(range(len(rlabs)), key=lambda k: dist2(lab, rlabs[k]))] += weight
-        rare = [k for k, count in enumerate(usage) if count < min_color_pixels]
+        rare = [
+            k
+            for k, count in enumerate(usage)
+            if count < min_color_pixels and representatives[k] not in reserved
+        ]
         if not rare:
             break
         # Removing the rarest colour merges its pixels into the nearest survivor
@@ -106,8 +181,7 @@ def _palette(source):
     )
     result = []
     for color in source:
-        require(len(color) in (3, 4), "Palette entries must be RGB or RGBA channel sequences.")
-        values = tuple(integer(c, "palette channel", 0, 255) for c in color)
+        values = color_channels(color)
         result.append(values if len(values) == 4 else (*values, 255))
     require(1 <= len(result) <= 256, "Palette must contain 1..256 entries.")
     return result
@@ -175,6 +249,9 @@ def quantize(
     max_colors=32,
     refine_iterations=8,
     min_color_pixels=0,
+    merge_distance=1800,
+    salient_distance=7000,
+    protect=None,
     project_palette=None,
     transparent_index=0,
     dither_type="none",
@@ -221,6 +298,9 @@ def quantize(
             max_colors=max_colors,
             refine_iterations=refine_iterations,
             min_color_pixels=min_color_pixels,
+            merge_distance=merge_distance,
+            salient_distance=salient_distance,
+            protect=protect,
         )
     # Quantize against source order first: fixed-source ties use source numbers.
     temporary = [(0, 0, 0, 0)] + extracted

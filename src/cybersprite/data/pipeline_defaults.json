@@ -1,9 +1,9 @@
 {
   "calibration": {
-    "version": 1,
+    "version": 4,
     "status": "original-corpus-pending-generated-d",
     "pillow": "13.0.0",
-    "cases": 471,
+    "cases": 547,
     "pending": [
       "d"
     ]
@@ -23,12 +23,16 @@
     },
     "background": {
       "mode": "keep",
-      "tolerance": 0
+      "tolerance": 0,
+      "auto_tolerance": 2500
     },
     "palette": {
       "max_colors": 32,
       "refine_iterations": 8,
-      "min_color_pixels": 0
+      "min_color_pixels": 0,
+      "merge_distance": 1800,
+      "salient_distance": 7000,
+      "protect": []
     },
     "cleanup": {
       "min_cluster": 2,

@@ -19,6 +19,32 @@ ROOT = Path(__file__).resolve().parents[1]
 CORPUS = ROOT / "tests/pipeline/corpus"
 
 
+def fractional_cases(quality=95):
+    for path in sorted((CORPUS / "originals").glob("*.png")):
+        truth = decode_raster(path)[0][0]
+        h, w = truth.shape[:2]
+        opaque = truth.copy()
+        opaque[opaque[:, :, 3] == 0] = (246, 244, 238, 255)
+        for numerator, denominator in ((7, 2), (537, 100), (79, 10), (1084, 100)):
+            size = (
+                (w * numerator + denominator // 2) // denominator,
+                (h * numerator + denominator // 2) // denominator,
+            )
+            image = Image.fromarray(opaque).resize(size, Image.Resampling.BICUBIC).convert("RGB")
+            stream = io.BytesIO()
+            image.save(
+                stream,
+                format="JPEG",
+                quality=quality,
+                subsampling=0,
+                optimize=False,
+                progressive=False,
+            )
+            with Image.open(io.BytesIO(stream.getvalue())) as decoded:
+                pixels = np.array(decoded.convert("RGBA"), dtype=np.uint8)
+            yield f"{path.stem}/s{numerator}-{denominator}-q{quality}", pixels, truth
+
+
 def measure(name, category, image, truth, grid_options, palette=None):
     grid = detect_grid(image, **grid_options)
     working = grid if grid["detected"] else detect_grid(image, mode="none")
@@ -39,7 +65,12 @@ def measure(name, category, image, truth, grid_options, palette=None):
         "fidelity": metrics["fidelity"],
         "detected": grid["detected"],
         "exact": truth is not None and np.array_equal(decoded, truth),
-        "grid": {k: grid[k] for k in ("mode", "cell_w", "cell_h", "offset_x", "offset_y")},
+        "grid": {
+            k: grid[k]
+            for k in ("mode", "cell_w", "cell_h", "offset_x", "offset_y", "columns", "rows")
+        },
+        "grid_exact": truth is not None
+        and (grid["columns"], grid["rows"]) == (truth.shape[1], truth.shape[0]),
     }
 
 
@@ -93,6 +124,15 @@ def records():
                 {"mode": "fixed", "cell_w": wrong, "cell_h": wrong},
                 palette,
             )
+    for name, image, truth in fractional_cases():
+        yield measure(name, "c-auto", image, truth, {"mode": "auto"})
+    for path in sorted((CORPUS / "slime").glob("variant*")):
+        image = decode_raster(path)[0][0]
+        truth = decode_raster(CORPUS / "slime/slime_clean_32.png")[0][0]
+        yield measure(path.stem, "slime", image, truth, {"mode": "auto"})
+    image = decode_raster(CORPUS / "slime/slime_generated_like.jpg")[0][0]
+    truth = decode_raster(CORPUS / "slime/slime_clean_32.png")[0][0]
+    yield measure("slime_generated_like", "slime", image, truth, {"mode": "auto"})
     for path in sorted((CORPUS / "non_pixel").glob("*.png")):
         image = decode_raster(path)[0][0]
         yield measure(path.stem, "e", image, None, {"mode": "fixed", "cell_w": 4, "cell_h": 4})
@@ -170,6 +210,7 @@ def calibrate():
     (ROOT / "tests/pipeline/calibration_metrics.json").write_text(
         json.dumps(measured, indent=2) + "\n", encoding="utf-8", newline="\n"
     )
+    auto_correct = sum(r["grid_exact"] for r in rows if r["category"] == "c-auto")
     lines = [
         f"# パイプライン較正（M6、版 {version}）",
         "",
@@ -180,7 +221,7 @@ def calibrate():
         "| 分類 | 件数 | 完全一致 | grid_score 範囲 | fidelity 範囲 |",
         "|---|---:|---:|---|---|",
     ]
-    for category in "abcef":
+    for category in ("a", "b", "c", "c-auto", "slime", "e", "f"):
         group = [r for r in rows if r["category"] == category]
         lines.append(
             f"| ({category}) | {len(group)} | {sum(r['exact'] for r in group)}/{len(group)} | "
@@ -197,7 +238,13 @@ def calibrate():
         "(c) は5/2・7/2倍の bilinear 補間。正解の列数・行数を target で指定した。",
         "(b)(c)(f) のパレットは正解の色。後始末は min_cluster=1、背景 keep、縮小 median。",
         "(e) は12枚を4×4セルで測定し32色抽出。(f) は倍率4の入力へセル幅5・7を故意に指定。",
-        "(d) は M9 の生成バックエンド待ち。較正の完了を主張せず、到着後に版を上げて再測定する。",
+        "(c)-auto は17原画×3.5・5.37・7.9・10.84倍。透明を近白背景に合成してbicubic、"
+        "JPEG q95/subsampling=0。正解格子は指定しない。",
+        f"(c)-auto の正確な列数・行数検出: {auto_correct}/68。"
+        "色の完全一致とは別の指標であり、JPEGで透明情報は失われる。",
+        "slime はe2e-05の原画・劣化入力・7変種をコピーした校正ケース。"
+        "実生成バックエンドの(d)を代用したとは扱わない。",
+        "(d) の実生成入力は未入手。較正の完了を主張せず、到着後に版を上げて再測定する。",
         "",
         "## しきい値の選択",
         "",

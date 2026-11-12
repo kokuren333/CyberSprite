@@ -171,6 +171,7 @@ def palette_op(ctx, a, name):
         i: positions[mapping.get(i, i)] if mapping.get(i, i) in positions else 0
         for i in range(len(pal.colors))
     }
+    removed = sorted(i for i in mapping if i not in positions and a.remove_unused)
     remap_pixels(p, mapping)
     oldnames = pal.names
     pal.colors = [pal.colors[i] for i in order]
@@ -179,6 +180,6 @@ def palette_op(ctx, a, name):
     }
     pal.transparent_index = mapping[pal.transparent_index]
     return {
-        "mapping": {str(i): mapping[i] for i in sorted(mapping)},
+        "mapping": {str(i): None if i in removed else mapping[i] for i in sorted(mapping)},
         "palette_size": len(pal.colors),
     }

@@ -27,6 +27,7 @@ from cybersprite.core.pixels import pixels_to_rows
 from cybersprite.core.projects import new_project
 from cybersprite.core.transactions import transact
 from cybersprite.pipeline._common import PipelineError
+from cybersprite.pipeline.args import PipelineSettings
 from cybersprite.pipeline.decode import decode_raster, split_sheet
 from cybersprite.pipeline.runner import color_strings, run_pipeline
 
@@ -99,26 +100,9 @@ class ImportArgs(Model):
     preset: Literal["ai", "exact", "upscaled", "photo"] = Field(
         "ai", description="Pipeline preset: ai, exact (lossless), upscaled, or photo."
     )
-    pipeline: dict = Field(
-        default_factory=dict,
-        json_schema_extra={
-            "properties": {
-                "palette": {
-                    "properties": {
-                        "source": {
-                            "anyOf": [
-                                {"type": "string", "x-cybersprite-path": "palette"},
-                                {"type": "array"},
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        description=(
-            "Pipeline section overrides: grid, downsample, background, palette, "
-            "cleanup, dither, outline, gates."
-        ),
+    pipeline: PipelineSettings = Field(
+        default_factory=PipelineSettings,
+        description="Documented section overrides; unspecified fields inherit preset values.",
     )
     target: Target = Field(
         default_factory=lambda: Target.model_validate({}),
@@ -151,7 +135,7 @@ class ImportArgs(Model):
 
 
 class ImportResult(Model):
-    source: str
+    source: str | None
     accepted: bool
     report_path: str
     stage_paths: list[str]
@@ -312,7 +296,49 @@ def import_top(registry, path, args, tx, actor):
 def _import_top(registry, path, args, tx, actor):
     root = project_path(path).parent
     if tx.dry_run:
-        raise invalid("import_image records originals and reports; dry_run is not supported.")
+        existing = load_project(root) if project_path(root).exists() else None
+        if tx.expect_revision is not None and tx.expect_revision != (
+            existing.revision if existing else 0
+        ):
+            fail("E_REVISION_CONFLICT", "Import revision does not match the current project.")
+        if (args.files is None) == (args.source is None):
+            raise invalid("Specify exactly one of files or source.")
+        if args.source:
+            manifest = sources.read_manifest(root)
+            # _capture does not write when reusing an existing source.
+            source, images, _, warnings = _capture(root, args, manifest)
+            source_id = source.id
+        else:
+            paths = [Path(p) for p in ([args.files] if isinstance(args.files, str) else args.files)]
+            images, _, warnings, _ = decode_files(paths, args.sheet)
+            source_id = "dry"
+        directory = root / ".cybersprite/previews/dry"
+        _, _, report = run_pipeline(
+            images,
+            directory,
+            source_id=source_id,
+            preset=args.preset,
+            overrides=args.pipeline.model_dump(exclude_unset=True),
+            project=existing,
+            position=(args.target.x, args.target.y),
+        )
+        return {
+            "ok": True,
+            "op": "import_image",
+            "project": root.as_posix(),
+            "dry_run": True,
+            "revision": existing.revision if existing else 0,
+            "would_commit": report["accepted"],
+            "result": {
+                "source": None,
+                "accepted": report["accepted"],
+                "report_path": ".cybersprite/previews/dry/pipeline_report.json",
+                "stage_paths": [f".cybersprite/previews/dry/{s}" for s in report["stage_paths"]],
+                "gates": report["gates"],
+                "placed": None,
+            },
+            "warnings": warnings + report.get("warnings", []),
+        }
     with history.ProjectLock(root, actor) as lock:
         existing = load_project(root) if project_path(root).exists() else None
         if tx.expect_revision is not None and tx.expect_revision != (
@@ -338,10 +364,11 @@ def _import_top(registry, path, args, tx, actor):
             directory,
             source_id=source.id,
             preset=args.preset,
-            overrides=args.pipeline,
+            overrides=args.pipeline.model_dump(exclude_unset=True),
             project=existing,
             position=(args.target.x, args.target.y),
         )
+        warnings.extend(report.get("warnings", []))
         failed = [g["name"] for g in report["gates"] if g["outcome"] == "fail"]
         requires_unfreeze = (
             existing is not None
@@ -365,6 +392,7 @@ def _import_top(registry, path, args, tx, actor):
             report={
                 "path": f"source/{source.id}/pipeline_report.json",
                 "grid_score": report["grid"]["grid_score"],
+                "warnings": report.get("warnings", []),
             },
             result_sha256=sha256((directory / "result.png").read_bytes()).hexdigest(),
             accepted=accepted,

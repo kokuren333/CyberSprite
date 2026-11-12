@@ -116,5 +116,5 @@ def _convert(input_path, output_path, **options):
         "stage_paths": stage_paths,
         "gates": report["gates"],
         "verified": accepted,
-        "warnings": decoded["warnings"],
+        "warnings": decoded["warnings"] + report.get("warnings", []),
     }

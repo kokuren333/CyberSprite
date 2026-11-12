@@ -183,7 +183,7 @@ def _result(name):
         "delete_frames": {"deleted": (list[int], ...), "removed_tags": (list[str], ...)},
         "move_frames": {"mapping": (dict[str, int], ...)},
         "add_palette_colors": {"indices": (list[int], ...)},
-        "remap_palette": {"mapping": (dict[str, int], ...), "palette_size": (int, ...)},
+        "remap_palette": {"mapping": (dict[str, int | None], ...), "palette_size": (int, ...)},
         "set_validation": {"validation": (dict, ...)},
         "undo": {"restored_revision": (int, ...)},
         "redo": {"restored_revision": (int, ...)},

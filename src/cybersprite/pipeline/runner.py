@@ -89,6 +89,18 @@ def _run(images, directory, source_id, preset, overrides, project, position):
     downs, down_report = downsample(
         images, working_grid, **settings["downsample"], background=settings["background"]
     )
+    # Measure error before background removal or palette quantization can hide a bad grid.
+    variance_sum = variance_pixels = 0
+    if grid["detected"] and grid["mode"] != "none":
+        for image in images:
+            for top, bottom in grid["y_cells"]:
+                for left, right in grid["x_cells"]:
+                    cell = image[top:bottom, left:right, :3].astype(np.int64)
+                    center = cell[cell.shape[0] // 2, cell.shape[1] // 2]
+                    delta = cell - center
+                    variance_sum += int((delta * delta).sum(dtype=np.int64))
+                    variance_pixels += cell.shape[0] * cell.shape[1] * 3
+    grid["snap_variance"] = variance_sum // max(1, variance_pixels)
     ti = project.palette.transparent_index if project else 0
     existing = [rgba(c) for c in project.palette.colors] if project else None
     pal_settings = dict(settings["palette"])
@@ -119,10 +131,23 @@ def _run(images, directory, source_id, preset, overrides, project, position):
             transparent_index=ti,
         )
         quant_report["diagnostic_fallback"] = capacity_failure
+    protected_indices = []
+    from ._common import color_channels
+    from .oklab import dist2, rgb_to_oklab_fixed
+
+    for color in pal_settings.get("protect", []):
+        lab = rgb_to_oklab_fixed(color_channels(color)[:3])
+        choices = [i for i, c in enumerate(palette) if i != ti and c[3] == 255]
+        if choices:
+            protected_indices.append(
+                min(choices, key=lambda i: (dist2(lab, rgb_to_oklab_fixed(palette[i][:3])), i))
+            )
+    cleanup_settings = dict(settings["cleanup"])
+    cleanup_settings["protect"] = sorted(set(cleanup_settings["protect"] + protected_indices))
     cleaned, clean_reports = [], []
     for frame in indices:
         frame, clean_report = cleanup_pixels(
-            frame, palette, transparent_index=ti, **settings["cleanup"]
+            frame, palette, transparent_index=ti, **cleanup_settings
         )
         cleaned.append(frame)
         clean_reports.append(clean_report)
@@ -177,7 +202,7 @@ def _run(images, directory, source_id, preset, overrides, project, position):
         palette_frozen=project.palette.frozen if project else False,
         palette_added=len(added),
         colors_per_frame_max=project.validation.colors_per_frame_max if project else None,
-        cleanup=settings["cleanup"],
+        cleanup=cleanup_settings,
         target_size=(settings["grid"]["target_w"], settings["grid"]["target_h"])
         if grid["mode"] == "target"
         else None,
@@ -244,6 +269,47 @@ def _run(images, directory, source_id, preset, overrides, project, position):
         result_frames=final,
         palette_added=color_strings(added),
     )
+    report["warnings"] = [
+        {
+            "code": "W_PIPELINE_GATE",
+            "gate": g["name"],
+            "message": f"Pipeline gate {g['name']} passed with warnings.",
+            "hint": "Inspect stage images and gate values; supply "
+            "fixed/target grid or adjust the relevant settings.",
+        }
+        for g in judged["gates"]
+        if g["outcome"] == "warn"
+    ]
+    report["warnings"].extend(
+        {
+            "code": "W_BACKGROUND_KEPT",
+            "message": message,
+            "hint": "Set background.color with mode=key, increase "
+            "auto_tolerance, or use keep intentionally.",
+        }
+        for background in down_report["background"]
+        for message in background["warnings"]
+    )
+    if (
+        project
+        and pal_settings["mode"] == "project"
+        and "mode" not in (overrides or {}).get("palette", {})
+    ):
+        from cybersprite.core.projects import DEFAULT_PALETTE
+
+        default = read_palette("cs-circuit-16")
+        if project.palette.colors in (default, DEFAULT_PALETTE):
+            report["warnings"].append(
+                {
+                    "code": "W_DEFAULT_PALETTE",
+                    "message": "Import implicitly maps colors to the unchanged "
+                    "default project palette.",
+                    "hint": (
+                        'Use pipeline.palette.mode="extract" or set the project '
+                        "palette before importing."
+                    ),
+                }
+            )
     report["configuration"] = origin
     report["stage_paths"] = stage_paths
     report["verified"] = True
