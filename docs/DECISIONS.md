@@ -211,3 +211,6 @@
 | 2026-11-12 | I-1208 | §15.3、R1-04、H-05 | v1 の export_plugin は単一ファイルとし、共通 preflight 後の一時 out に writer を呼び、decode(bytes) があれば全フレームのコア RGBA と照合、なければ理由つき verified=false とする | 未検証を成功検証と偽らず、失敗時に既存出力を保持し、将来の実機 exporter の接続点を用意する | Codex / R1-C |
 | 2026-11-12 | I-1209 | §15.1、§15.2、H-01 | platforms はメタデータ群だけ予約し、API 事前表示は任意の配布ヘッダー CyberSprite-Plugin-API を読む。未記載は unchecked とする | 機種解決は並行工程に委ね、コードを import しない一覧で未検査の互換性を断定しない | Codex / R1-C |
 | 2026-11-12 | I-1210 | §13.2、§15.2、R1-04 | validator の規則IDは組み込みIDも含めて一意とし、衝突時はE_PLUGINで登録を破棄する | 検証デルタの同一性と集約がrule IDに依存するため、既存規則をプラグインが上書き・混同しないようにする | Codex / R1-C |
+| 2026-11-12 | I-1211 | §4.2、§15.2 | 公開PluginManagerはpluginsに残し、metadata読込・許可データ型・設定場所の純粋な低層処理をcore/plugin_loader.pyとcore/plugin_settings.pyへ分離する。config.pyも同じ型・場所を共有し、相対importを解決して依存方向を監査する | coreから外側層への依存を作らず、単独RegistryでもCLI/MCPと同じ許可表・API検査を使うため。形式ライブラリは参照しない | Codex / R1-C |
+| 2026-11-12 | I-1212 | §6.1、§15.2、C-R1-05 | 設定許可の再検査は実際にentry pointから読み込んだ提供者だけに適用し、Pythonから明示登録したOpはprovider名だけで配布メタデータを要求しない | 全体試験のE_INVARIANT rollback回帰を修正する。手動登録も不変条件検査を通し、MCP公開許可とentry pointの設定許可は緩めない | Codex / R1-C |
+| 2026-11-12 | I-1213 | §10.1.2、§15.2、C-R1-05 | Opのentry point名builtinを予約し、metadataでincompatible表示・import前にE_PLUGINで拒否する | MCPの組み込みprovider判定を外部配布が装い、許可されていない同提供者Opを公開する経路を塞ぐ | Codex / R1-C |

@@ -49,6 +49,8 @@ metrics と params は JSON 化可能な値にする。プラグイン内部は�
 
 ## その他の群
 
+公開の設定付きローダーは `cybersprite.plugins.PluginManager`。core は独立した標準ライブラリ／pydantic の低層ローダーと許可データ型だけに依存し、形式・変換・拡張実装を import しない。Python API から手動登録した Op と entry point 由来の Op は区別し、後者の設定許可を検査する。両方とも同じトランザクション・不変条件を通る。
+
 - `ops`: factory は `core.registry.Op` の列を返す。entry point 名は提供者、Op 名は提供者名そのものまたは `<提供者>_<操作>`。CLI は名前で初回解決する。MCP は Op 名を `--allow-plugin-op` に列挙し、その名前に対応する最長の提供者接頭辞だけを読む。トランザクションは既存の共通経路を使う。
 - `generators`: factory は SPEC §12.3 のバックエンドを返し、その `name` は entry point 名に一致する。能力・モデル一覧だけでは import しない。
 - `validators`: オブジェクトまたは factory が `Validator(rule, default_severity, check)` かその列を返す。`rule="Q-<entry-point名>-nn"`、severity は error/warning/info/off。`check(document, frame_range)` は issue 辞書の列と metrics 辞書を返す。issue は `message` と任意の `where={frames,layer,bbox,points}`。コピーした文書を渡す。通常の severity 上書き、フィルタ、デルタに含まれる。

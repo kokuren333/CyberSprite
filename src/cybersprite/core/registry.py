@@ -183,7 +183,7 @@ class Registry:
                 {"candidates": get_close_matches(name, sorted(self._ops))},
             )
         op = self._ops[name]
-        if op.provider != "builtin" and self._plugin_manager is not None:
+        if op.provider in self._loaded_plugins and self._plugin_manager is not None:
             descriptor = self._plugin_manager.find("cybersprite.ops", op.provider)
             if not self._plugin_manager.enabled(descriptor):
                 raise CyberSpriteError(
@@ -205,9 +205,9 @@ class Registry:
         if not enabled:
             return
         # The shared loader uses standard-library metadata and the common error contract only.
-        from ..plugins import PluginManager, plugin_error
+        from .plugin_loader import PluginLoader, plugin_error
 
-        manager = manager or self._plugin_manager or PluginManager(groups=("cybersprite.ops",))
+        manager = manager or self._plugin_manager or PluginLoader(groups=("cybersprite.ops",))
         self._plugin_manager = manager
         descriptors = manager.descriptors("cybersprite.ops", enabled_only=False)
         selected = {d.name for d in descriptors} if names is None else set()

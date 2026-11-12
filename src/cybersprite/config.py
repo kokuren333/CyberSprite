@@ -1,8 +1,6 @@
 """Validated user-owned settings. Tool arguments never supply configuration."""
 
-import os
 import string
-import sys
 import tomllib
 from pathlib import Path
 from typing import Annotated, Literal
@@ -10,6 +8,8 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 from cybersprite.core.errors import invalid
+from cybersprite.core.plugin_settings import PluginSettings
+from cybersprite.core.plugin_settings import config_path as shared_config_path
 
 
 class SettingsModel(BaseModel):
@@ -60,11 +60,6 @@ class GuiSettings(SettingsModel):
     language: Literal["en", "ja"] = "ja"
 
 
-class PluginSettings(SettingsModel):
-    enabled: list[str] = Field(default_factory=list)
-    disabled: list[str] = Field(default_factory=list)
-
-
 class UserConfig(SettingsModel):
     generators: Generators = Field(default_factory=Generators)
     gui: GuiSettings = Field(default_factory=GuiSettings)
@@ -72,14 +67,7 @@ class UserConfig(SettingsModel):
 
 
 def config_path() -> Path:
-    override = os.environ.get("CYBERSPRITE_CONFIG_DIR")
-    if override:
-        return Path(override).expanduser().resolve() / "config.toml"
-    if sys.platform == "win32":
-        folder = Path(os.environ.get("APPDATA", str(Path.home() / "AppData/Roaming")))
-    else:
-        folder = Path(os.environ.get("XDG_CONFIG_HOME", str(Path.home() / ".config")))
-    return folder / "cybersprite/config.toml"
+    return shared_config_path()
 
 
 def load_config() -> UserConfig:

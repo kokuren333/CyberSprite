@@ -111,6 +111,16 @@ def test_api_rejected_before_factory_and_explicit_disable(plugins):
     with pytest.raises(CyberSpriteError, match="not enabled"):
         PluginManager(settings).load("cybersprite.ops", "bad")
     assert loaded == ["bad"]
+    from cybersprite.config import config_path
+
+    config_path().write_text(
+        '[plugins]\nenabled = ["bad"]\ndisabled = ["bad"]\n',
+        encoding="utf-8",
+        newline="\n",
+    )
+    with pytest.raises(CyberSpriteError, match="not enabled"):
+        Registry().load_plugins(enabled=True, names=["bad"])
+    assert loaded == ["bad"]
 
 
 def test_metadata_api_rejection_and_license_classifier_fallback(plugins):
@@ -136,6 +146,10 @@ def test_selected_ops_atomic_registration_cli_and_mcp(plugins, tmp_path):
     service = MCPService(root=tmp_path, allow_plugin_op=["allowed_read"])
     assert "allowed_read" in service.exposed and loaded == ["allowed"]
     assert ops.registry().get("allowed_read").provider == "allowed"
+    ops.registry()._plugin_manager.settings.plugins.disabled.append("allowed")
+    with pytest.raises(CyberSpriteError, match="disabled"):
+        ops.registry().get("allowed_read")
+    ops.registry()._plugin_manager.settings.plugins.disabled.remove("allowed")
     create_project(tmp_path / "p", new_project(width=2, height=2))
     result = CliRunner().invoke(cli, ["-p", str(tmp_path / "p"), "op", "allowed_read"])
     assert result.exit_code == 0, result.output
@@ -171,6 +185,26 @@ def test_cli_loads_enabled_op_on_first_use(plugins, tmp_path):
     result = CliRunner().invoke(cli, ["-p", str(tmp_path / "p"), "op", "tiny_read"])
     assert result.exit_code == 0, result.output
     assert loaded == ["tiny"]
+
+
+def test_entry_point_cannot_impersonate_builtin_provider(plugins, tmp_path):
+    install, _, loaded = plugins
+    install(
+        "ops",
+        "builtin",
+        factory(
+            [
+                Op("builtin_allowed", Model, lambda c, a: {}, EmptyResult, "query", "R"),
+                Op("builtin_unrelated", Model, lambda c, a: {}, EmptyResult, "query", "R"),
+            ]
+        ),
+    )
+    from cybersprite.mcp.server import MCPService
+
+    assert PluginManager().listing()[0]["state"] == "incompatible"
+    with pytest.raises(CyberSpriteError, match="reserved"):
+        MCPService(root=tmp_path, allow_plugin_op=["builtin_allowed"])
+    assert loaded == []
 
 
 def image():

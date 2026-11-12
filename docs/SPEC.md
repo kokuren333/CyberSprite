@@ -2641,6 +2641,9 @@ tests/golden/<ケース名>/
 
 #### 15.2.1 読み込みと実装契約（R1-C）
 
+- 公開の設定付き窓口は `cybersprite.plugins.PluginManager` とし、metadata 読込・許可データ型・設定場所の低層処理は標準ライブラリ／pydantic だけを使う `core/plugin_loader.py` / `core/plugin_settings.py` に置く。core から plugins・formats・pipeline 層を import しない。CLI/MCP と単独の Registry は同じ許可表を使う。
+- Python から明示的に `Registry.register()` した Op も通常のトランザクションと不変条件検査を通す。entry point の許可検査は実際にそこから読み込んだ提供者に適用し、`provider` 文字列だけで配布メタデータの存在を仮定しない。MCP の公開許可は引き続き別途検査する。
+- Op の entry point 名 `builtin` は組み込み専用として予約し、メタデータだけで incompatible と表示し、import 前に `E_PLUGIN` で拒否する。外部の提供者が MCP の組み込み判定を装う経路を作らない。
 - 共通 API は `cybersprite.plugins.PluginManager`。メタデータは群・登録名・配布名の昇順で列挙し、一覧では本体を import しない。配布メタデータの `CyberSprite-Plugin-API` があれば事前互換判定に使う。未記載は未検査と表示し、互換と断定しない。実行時は読み込んだ対象の `plugin_api == 1` を factory 呼出前に必ず検査し、不適合・例外は `E_PLUGIN`。登録は一括で検査し、失敗時はその登録を全て破棄する。
 - `[plugins].enabled` に登録名を列挙し、`disabled` は明示拒否（優先）とする。CLI は許可済み Op を初回利用時に解決する。Op 群は提供者を登録名とし、Op 名は `<登録名>_<操作>`（登録名そのものも可）。MCP の `--allow-plugin-op` は Op 名の許可であり、その名前の登録名または最長の提供者接頭辞だけを読む。他の Op 提供者は import しない。
 - パイプラインは組み込み方式を先に解決し、その他は登録名 `<ステップ>.<方式>`（方式名だけも可）を読む。ステップは `grid` / `downsample` / `quantize` / `cleanup` / `reconstruct`、実装は `step`、`method`、`level_a: bool`、`run(image, params) -> (image, metrics)` を持つ。方式固有の引数は各節の `params`。`quantize` は既存の `palette` 節で選択する（`quantize` 節も同義）。`reconstruct` は grid と downsample を置換し、量子化は後段で一度だけ行う。
