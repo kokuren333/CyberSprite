@@ -1,0 +1,319 @@
+{
+  "$defs": {
+    "Placement": {
+      "additionalProperties": false,
+      "properties": {
+        "revision": {
+          "minimum": 0,
+          "title": "Revision",
+          "type": "integer"
+        },
+        "layer": {
+          "pattern": "^L[1-9][0-9]*$",
+          "title": "Layer",
+          "type": "string"
+        },
+        "frames": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Frames",
+          "type": "array"
+        }
+      },
+      "required": [
+        "revision",
+        "layer",
+        "frames"
+      ],
+      "title": "Placement",
+      "type": "object"
+    },
+    "Source": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^SRC[1-9][0-9]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "generated",
+            "imported"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "files": {
+          "items": {
+            "$ref": "#/$defs/SourceFile"
+          },
+          "title": "Files",
+          "type": "array"
+        },
+        "provider": {
+          "title": "Provider",
+          "type": "string"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceModel"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "prompt": {
+          "title": "Prompt",
+          "type": "string"
+        },
+        "negative_prompt": {
+          "title": "Negative Prompt",
+          "type": "string"
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Seed"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        },
+        "license": {
+          "minLength": 1,
+          "title": "License",
+          "type": "string"
+        },
+        "rights_note": {
+          "title": "Rights Note",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "imported_at": {
+          "title": "Imported At",
+          "type": "string"
+        },
+        "pipeline": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourcePipeline"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "placements": {
+          "items": {
+            "$ref": "#/$defs/Placement"
+          },
+          "title": "Placements",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "files",
+        "provider",
+        "model",
+        "prompt",
+        "negative_prompt",
+        "seed",
+        "params",
+        "license",
+        "rights_note",
+        "url",
+        "created_at",
+        "imported_at",
+        "pipeline",
+        "placements"
+      ],
+      "title": "Source",
+      "type": "object"
+    },
+    "SourceAdapter": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "license": {
+          "minLength": 1,
+          "title": "License",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "license"
+      ],
+      "title": "SourceAdapter",
+      "type": "object"
+    },
+    "SourceFile": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "width": {
+          "minimum": 1,
+          "title": "Width",
+          "type": "integer"
+        },
+        "height": {
+          "minimum": 1,
+          "title": "Height",
+          "type": "integer"
+        },
+        "bytes": {
+          "minimum": 0,
+          "title": "Bytes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "width",
+        "height",
+        "bytes"
+      ],
+      "title": "SourceFile",
+      "type": "object"
+    },
+    "SourceModel": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "license": {
+          "minLength": 1,
+          "title": "License",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        },
+        "adapters": {
+          "items": {
+            "$ref": "#/$defs/SourceAdapter"
+          },
+          "title": "Adapters",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "license",
+        "sha256",
+        "adapters"
+      ],
+      "title": "SourceModel",
+      "type": "object"
+    },
+    "SourcePipeline": {
+      "additionalProperties": false,
+      "properties": {
+        "preset": {
+          "title": "Preset",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        },
+        "report": {
+          "additionalProperties": true,
+          "title": "Report",
+          "type": "object"
+        },
+        "result_sha256": {
+          "title": "Result Sha256",
+          "type": "string"
+        },
+        "accepted": {
+          "title": "Accepted",
+          "type": "boolean"
+        },
+        "gates_overridden": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Gates Overridden",
+          "type": "array"
+        }
+      },
+      "required": [
+        "preset",
+        "params",
+        "report",
+        "result_sha256",
+        "accepted",
+        "gates_overridden"
+      ],
+      "title": "SourcePipeline",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "cybersprite-sources",
+      "default": "cybersprite-sources",
+      "title": "Format",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "next_id": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Next Id",
+      "type": "integer"
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/Source"
+      },
+      "title": "Sources",
+      "type": "array"
+    }
+  },
+  "title": "Sources",
+  "type": "object"
+}
