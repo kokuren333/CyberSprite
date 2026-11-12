@@ -314,7 +314,10 @@ class Placement(Model):
 class Source(Model):
     id: Annotated[str, Field(pattern=r"^SRC[1-9][0-9]*$")]
     kind: Literal["generated", "imported"]
-    use: Literal["canvas", "design"] = "canvas"
+    use: Literal["canvas", "design", "reference"] = "canvas"
+    # Manual references (use="reference") only; omitted from manifests when null.
+    origin: Literal["manual"] | None = None
+    placed_by: Literal["human-gui", "human-cli", "agent"] | None = None
     files: list[SourceFile]
     provider: str
     model: SourceModel | None

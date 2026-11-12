@@ -101,7 +101,8 @@ def prepare(rule):
 
 
 @pytest.mark.parametrize(
-    "rule", sorted(set(DEFAULT_LEVELS) - {"Q-SRC-01", "Q-SRC-02", "Q-SRC-03", "Q-SRC-04"})
+    "rule",
+    sorted(set(DEFAULT_LEVELS) - {"Q-SRC-01", "Q-SRC-02", "Q-SRC-03", "Q-SRC-04", "Q-SRC-05"}),
 )
 def test_each_quality_rule_detects_and_does_not_detect(rule):
     p, clean = prepare(rule)
@@ -182,7 +183,10 @@ def test_source_quality_detection_and_no_placements(tmp_path, rule):
         manifest.sources[0].params["model_registry"]["commercial_use"] = "unknown"
     manifest.sources[0].placements = []
     path.write_bytes(json_bytes(manifest.model_dump()))
-    assert rule not in {i["rule"] for i in report(p, root=tmp_path)["issues"]}
+    unplaced = {i["rule"] for i in report(p, root=tmp_path)["issues"]}
+    assert rule not in unplaced
+    # R2-16: an unplaced registered source is still hash-checked (Q-SRC-05, warning).
+    assert ("Q-SRC-05" in unplaced) == (rule == "Q-SRC-03")
 
 
 def test_severity_order_points_limit_and_metrics():

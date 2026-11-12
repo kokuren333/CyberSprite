@@ -353,6 +353,20 @@ def registry():
                 description="Register design images with provenance, without canvas placement.",
             )
         )
+        from .references import RegisterReferenceArgs, RegisterReferenceResult
+
+        _registry.register(
+            Op(
+                "register_reference",
+                RegisterReferenceArgs,
+                _special,
+                RegisterReferenceResult,
+                "ingest",
+                "I",
+                description="Attach a hand-saved reference image for measuring only; "
+                "records hash, rights note and placed_by. Never placed on the canvas.",
+            )
+        )
         _registry.register(
             Op(
                 "import_image",
@@ -409,6 +423,12 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
         from .ingest import add_source_top
 
         value = add_source_top(project, parsed, tx, actor)
+        definition.result.model_validate(value["result"])
+        return value
+    if name == "register_reference":
+        from .references import register_reference_top
+
+        value = register_reference_top(project, parsed, tx, actor)
         definition.result.model_validate(value["result"])
         return value
     if name == "import_aseprite" and definition.kind == "ingest":

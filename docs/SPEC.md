@@ -398,6 +398,7 @@ CyberSprite は Aseprite の機能と操作体系を参照するが、**コー�
 - **並べて見るシート**: 参照を並べたレビューシートは、プロジェクトの `.cybersprite/previews/`（git の管理外）か `_private/` の中だけに置く。`e2e-tests/` や `examples/` に写さない。
 - **画像生成への入力**: 画像生成（imagegen など）に渡すのは、文章の指示と計測値だけにする。参照の画像、作品名、キャラクター名は渡さない。出力が元の絵に近づく危険を避けるため。発注者が別の方針を決めたら、それに従う（未決。`docs/REVIEW_1.md` §6 の 3）。
 - **入手**: 人がブラウザなどで見て保存したものを、必要な分だけライブラリに入れ、使い回す [I-2002]。一括のミラーはしない。資料サイトの利用規約に従い、自動の取得を断っているサイトから道具で取得しない。エージェントは資料サイトから自分で取得せず、足りないものは利用者に頼む。
+- **プロジェクトへの添付（手動の取り込み）** [I-2003]: 人またはエージェントが選んだ参照画像を、制作中のプロジェクトから見えるようにするには `register_reference`（§10.12）だけを使う。GUI（ソースのタブでファイルを選ぶかドロップ）、CLI（`source reference`）、MCP のどれも同じ Op を通る。画像の実体はプロジェクトの `.cybersprite/references/<ID>/`（git の管理外の派生データ）に置き、`source/manifest.json` には ID、SHA-256、寸法、`placed_by`、利用条件、権利メモだけを `use: "reference"`、`origin: "manual"` で記録する。`source/` に画素を入れないので、上の置き場所の規則と両立する。参照のソースは、キャンバスへの取り込み（`import_image` の `source`）と下絵に使えない。題名や URL は権利メモに書かない（プロジェクトは公開されうる）。
 - **記録**: 使うたびに `docs/reference/PROVENANCE_LOG.md` に 1 行書く。追跡する文書に載せてよいのは、点数、種類、統計値まで。作品の題名、ファイル名、URL、画像は載せない。
 
 
@@ -847,7 +848,7 @@ hero.csprite/
 
 ### 5.10 来歴マニフェスト（`source/manifest.json`）
 
-ソースの `use` は `"canvas"`（既定、従来データを含む）または `"design"`。設計原画は `add_source` で登録し、pipeline は null、placements は空のまま保持する。明示的に `import_image` で変換・配置すると canvas にする。
+ソースの `use` は `"canvas"`（既定、従来データを含む）、`"design"`、`"reference"` のどれか。設計原画は `add_source` で登録し、pipeline は null、placements は空のまま保持する。明示的に `import_image` で変換・配置すると canvas にする。手動の参照（§3.6）は `register_reference` で `use: "reference"` として登録し、ファイルは `source/` ではなく `.cybersprite/references/<ID>/reference_0000.<拡張子>` に置く（`files[].path` はプロジェクト相対のこのパス）。参照は canvas にならない。
 
 | キー | 型 | 説明 |
 |---|---|---|
@@ -862,6 +863,9 @@ hero.csprite/
 |---|---|---|
 | `id` | 文字列 `SRC<n>` | 識別子。ファイルは `source/SRC<n>/` に置く |
 | `kind` | `"generated"` / `"imported"` | 生成物か、既存画像の取り込みか |
+| `use` | `"canvas"` / `"design"` / `"reference"` | キャンバスの元、設計原画、計測用の参照（§3.6） |
+| `origin` | `"manual"`（参照だけ。ほかは省略） | 人またはエージェントが手で選んで添付した参照 |
+| `placed_by` | `"human-gui"` / `"human-cli"` / `"agent"`（参照だけ。ほかは省略） | 添付した利用面。GUI は常に `human-gui`、MCP は常に `agent`、CLI は既定 `human-cli` で `agent` を指定できる。呼び出し側が別の利用面を名乗ると `E_INVALID_ARGS` |
 | `files` | 配列 | `{path, sha256, width, height, bytes}`。元ファイルは書き換えない |
 | `provider` | 文字列 | `diffusers` / `codex-imagegen` / `command:<名前>` / `file` / `user` など |
 | `model` | オブジェクトまたは `null` | `{id, license, sha256, adapters: [{id, license}]}` |
@@ -899,6 +903,7 @@ hero.csprite/
 |---|---|---|---|
 | `source_width` / `source_height` / `source_area` | 8192 / 8192 / 67,108,864 | ラスターのヘッダ、.aseprite のキャンバス・セル・タイル画像（復号前） | `E_LIMIT_EXCEEDED` |
 | `source_frames` | 4096 | 復号前。複数ファイルは累積し、超過するファイルと残りを配列化しない | `E_LIMIT_EXCEEDED` |
+| `reference_bytes` | 5,242,880（5 MiB） | `register_reference` のファイルの大きさ（読む前に stat で検査）と、復号後の `data` の大きさ。`data` の base64 は 6,990,508 文字まで（GUI の 8 MiB の電文に収まる）。画素の上限は `source_*` と同じ | `E_LIMIT_EXCEEDED` |
 | `source_tiles` | 65,536（既存のセットあたり上限） | .aseprite のタイル件数を復号／オブジェクト構築前に検査 | `E_LIMIT_EXCEEDED` |
 | `decoded_bytes` | 268,435,456（256 MiB） | 同時保持するフレーム・セル・タイル画像の合計 `w×h×4` を復号前に予約 | `E_LIMIT_EXCEEDED` |
 | `drawing_vertices` | 65,536 | polygon / stroke の入力点列を走査する前 | `E_LIMIT_EXCEEDED` |
@@ -2235,6 +2240,8 @@ set_cel.linked は error/all/unlink（既定error）。リンク組のx/y/opacit
 
 `add_source`（ingest、N）は `files`（画像パスまたは配列）と `provenance`（import と同じ、license 必須、unknown 可）で原画像を source/ に登録し、`use: "design"` を記録する。キャンバス・パレット・revision・project.json は変えない。`result: {source, files}`。未作成の正本にも登録できる。dry_run は検査だけで保存しない。idempotency_key を先に照合して再送は保存済み応答を返し、未登録キーの場合だけ expect_revision を既存正本に照合する。source の登録を重複させない。
 
+`register_reference`（ingest、I）[I-2003] は、手で選んだ参照画像を 1 枚登録する（§3.6）。引数は `file`（ローカルの画像パス。CLI・MCP。パスの規則は入力ファイルと同じ）か `data`（base64。GUI のアップロード）のどちらか一方、`rights_note`（必須、1〜2000 文字）、`license`（既定 `unknown`）、`placed_by`（利用面が決める。§5.10）。PNG・GIF・JPEG・BMP・WebP を署名で判別し、復号の上限（§5.11）を検査してから、ファイルを `.cybersprite/references/<ID>/` に書き、`source/manifest.json` に 1 件足す。正本・パレット・revision は変えない。同じバイト列の参照がすでにあれば何も書かず、その ID を `duplicate: true` で返す（内容によって冪等）。`dry_run` は検査だけ。`result: {source, files, sha256, width, height, placed_by, duplicate}`。`list_sources` は参照について `origin`、`placed_by`、`rights_note`、`files` も返す。参照のソースを `import_image` の `source` に渡すと `E_INVALID_ARGS`。
+
 `import_image` は未作成のプロジェクトにも直接使える。受理時の自動作成と、初回取り込みの undo 後の再取り込みは §11.11 に従う。
 
 `dry_run` の配置検証は §6.2.2 に従う。`pipeline_only: true` は `dry_run: true` 専用で、GUI の変換プレビューに使える。この場合は来歴の保存と配置の検査を省略し、`checked: ["pipeline"]` と `pipeline_accepted` を返す。`would_commit` は返さない。通常の予行は来歴を要求し、配置まで検査した場合に `checked` へ `placement`、`structure` を加える。いずれも source と正本・履歴は保存せず、原画の一時コピー・段階画像・報告は予行用ディレクトリにだけ保存する。
@@ -2664,6 +2671,7 @@ license = "model card license name"
 | Q-SRC-02 | warning | 利用条件が `"unknown"` のソースが配置されている | |
 | Q-SRC-03 | error | 配置済みソースの元ファイルがない、またはハッシュが合わない | |
 | Q-SRC-04 | warning | 配置済みソースのモデル・アダプタ・参照先ベース（ComfyUI は登録ワークフロー）の `commercial_use` が `yes` でない。旧来歴で条件が不明なモデルも含む | |
+| Q-SRC-05 | warning | 配置していない登録済みソース（設計原画、手動の参照）のファイルがない、またはハッシュが合わない [I-2003、R2-16] | |
 
 プラグインは `Q-<提供者>-nn` の形で規則を足せる（§15）。
 
@@ -3629,6 +3637,7 @@ L = (M2i[0][0] × l' + M2i[0][1] × m' + M2i[0][2] × s' + 32768) >> 16      （
 | `W_PIPELINE_GATE` | 変換の関門が不合格になった（段階画像と gates を確認する） |
 | `W_SOURCE_HISTORY_UNAVAILABLE` | 古い履歴にソース指標がなく、復元できない値を明示した |
 | `Q-SRC-04` | 配置済み生成ソースのモデル・アダプタ・ベースまたはワークフローの商用利用条件が yes でない |
+| `Q-SRC-05` | 配置していない登録済みソース（設計原画、手動の参照）のファイルがない、またはハッシュが合わない |
 | `W_MODEL_TERMS` | モデル・ベース・アダプタ・ワークフローの利用条件バッジと商用利用条件を確認する必要がある |
 
 ---

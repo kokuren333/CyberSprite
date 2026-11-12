@@ -62,6 +62,7 @@ JSON-RPC 2.0 の名前付き引数を使う。通常要求、通知、バッチ�
 | `pipeline.preview` | import_image の引数、dry_run を強制。段階画像と関門は登録 Op の結果をそのまま表示 |
 | `import.commit`, `export.run` | import_image / export_* の薄い呼出し。export は `{op:export_image,...}` 等 |
 | `sources.list/get` | list_sources / get_source。未登録時は get_info の sources を利用 |
+| `op.apply`（`register_reference`） | ソースのタブの「参照画像を添付」。選ぶかドロップした画像を base64 の `data` で送り、権利メモ（必須）と利用条件を付ける。サーバは `placed_by: human-gui` を記録する。参照には下絵のボタンを出さず、「計測専用」と表示する。デモ版では無効 |
 | `prefs.get/set` | language(auto/ja/en)、zoom(1〜64)、grid/onion(bool)。サーバ存続中の表示設定だけ |
 
 `project.changed` は `{project,revision,actor,changed}`。250 ms ごとに mtime+size を見て、変化時だけ正本を読み、リビジョンを比較する。複数コミットを観測した場合はジャーナルの各行を通知する。`job.progress` は長い処理の開始0%と完了100%。処理内の段階別進捗は後続 Op がフックを提供してから拡張する。

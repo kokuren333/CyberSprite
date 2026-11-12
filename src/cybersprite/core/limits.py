@@ -14,6 +14,8 @@ DRAW_POINTS = 65_536
 OUTPUT_ITEMS = 65_536
 WORK_PER_OP = 1_048_576
 WORK_PER_TRANSACTION = 16_777_216
+# One manual reference image file (fits base64 in the GUI's 8 MiB message cap).
+REFERENCE_BYTES = 5 * 1024 * 1024
 
 
 def check_limit(name: str, requested: int, limit: int, hint: str) -> None:

@@ -205,6 +205,11 @@ def _capture(root, args, manifest, *, dry_run=False):
         if args.provenance is not None:
             raise invalid("Reusing source preserves its provenance; omit provenance.")
         source = sources.find_source(manifest, args.source)
+        if source.use == "reference":
+            raise invalid(
+                "Reference sources are for measuring only and cannot be imported to the canvas.",
+                source=source.id,
+            )
         paths = [sources.source_path(root, f.path) for f in source.files]
         for path, file in zip(paths, source.files, strict=True):
             if not path.is_file() or sha256(path.read_bytes()).hexdigest() != file.sha256:

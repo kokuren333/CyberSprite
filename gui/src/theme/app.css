@@ -284,6 +284,11 @@ input[type="checkbox"]:disabled { border-style: dashed; background: var(--cs-boa
 .sources-list { display: flex; flex-direction: column; }
 .source-entry { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 4px; border-bottom: 1px solid var(--ui-sep); }
 .empty-note { padding: 16px 4px; font-size: var(--fs-s); }
+.reference-attach { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; padding: 8px; border: 1px dashed var(--ui-sep); }
+.reference-attach.over { border-color: var(--ui-focus); border-style: solid; }
+.reference-attach .fld { display: flex; flex-direction: column; align-items: stretch; gap: 2px; }
+.reference-attach .lbl { white-space: normal; }
+.small-note { margin: 0; font-size: var(--fs-s); overflow-wrap: anywhere; }
 figure { display: flex; flex-direction: column; gap: 4px; }
 figcaption { font-size: var(--fs-s); overflow-wrap: anywhere; }
 

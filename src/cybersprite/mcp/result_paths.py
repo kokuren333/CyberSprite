@@ -18,8 +18,13 @@ def response_schema(op):
         properties["paths"] = PATHS
     if op.name == "import_image":
         properties.update(report_path=PATH, stage_paths=PATHS)
-    if op.name in {"generate_image", "add_source"}:
+    if op.name in {"generate_image", "add_source", "register_reference"}:
         properties["files"] = PATHS
+    if op.name == "list_sources":
+        properties["sources"] = {
+            "type": "array",
+            "items": {"type": "object", "properties": {"files": PATHS}},
+        }
     if op.name == "get_info":
         sources = Sources.model_json_schema(by_alias=True)
         definitions.update(sources.pop("$defs", {}))

@@ -1,6 +1,6 @@
 # MCP サーバ
 
-現状: M1〜M9を統合済み。`mcp==2.3.0` は optional extra として固定され、I-012 の既存承認方針に従うライセンス監査を通る。過去の依存採用保留は解消済み。標準プロファイルは78ツール（生成2 Opを有効にすると80）、minimal は仕様の13 Opを公開する。
+現状: M1〜M9を統合済み。`mcp==2.3.0` は optional extra として固定され、I-012 の既存承認方針に従うライセンス監査を通る。過去の依存採用保留は解消済み。標準プロファイルは88ツール（生成2 Opを有効にすると90）、minimal は仕様の13 Opを公開する（2026-11-12、`MCPService(...).tools()` で数えた。`--read-only` は11）。
 
 ツール一覧の入力宣言はスカラー制約と小さな入れ子を掲載し、大きな入れ子は型だけを示す。出力宣言は全 Op 共通の成功・失敗の封筒。実行時は省略前の登録スキーマで引数・パス・結果を検査する。完全な形は `csp ops describe <name>` と `csp schema op <name>` で取得でき、外部スキーマのダウンロードは不要。`tools/measure_mcp_contracts.py` でサイズを再測定できる。
 
@@ -62,7 +62,8 @@ uv run --extra mcp python tools/check_licenses.py --extra mcp
 
 
 import_image の `files`（単体文字列・配列）と `pipeline.palette.source` のファイル参照にも root/allow-dir 制限を適用する。
-拒否された入力は source に保持され、正本がまだなくても list_sources/get_source で確認できる。minimal では個別の cleanup_pixels は apply_ops 内から呼び出す。
+拒否された入力は source に保持され、正本がまだなくても list_sources/get_source で確認できる。
+`register_reference` は、利用者が保存した参照画像（`file`、root/allow-dir の制限つき）をプロジェクトに添付する。MCP からの登録は常に `placed_by: "agent"` で、別の利用面を名乗ると拒否される。画像は `.cybersprite/references/` に置かれ、`list_sources` の参照の項目に `files`（サーバ root 基準）、`placed_by`、`rights_note` が出る。GUI で人が添付した参照も同じ一覧に `human-gui` で出るので、エージェントはそれを開いて計測できる。参照は計測専用で、`import_image` の `source` には使えない（SPEC §3.6、§10.12）。minimal では個別の cleanup_pixels は apply_ops 内から呼び出す。
 書き出し先と返却される `result.files[].path` はともにサーバ root 基準。許可範囲外の出力はファイル作成前に拒否する。
 
 シナリオ2は既存の自作非ドット画像による代用で、生成コーパス(d)は未入手。JSONLは拒否→設定変更→合格→手直し→書出しを実際のSDK Client（in-process/stdio両方）で実行する。シナリオ3はタイル、5は自作.asepriteのimport→編集→export→読戻し同値性を検査する。1〜5にskip/xfailはない。

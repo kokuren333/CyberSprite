@@ -65,6 +65,38 @@ def source_path(root, relative):
     return target
 
 
+# Manual reference images are kept out of source/ (SPEC §3.6: projects may be
+# published) under the git-ignored derived-data directory; only their IDs,
+# hashes and rights notes enter source/manifest.json.
+REFERENCE_DIR = ".cybersprite/references"
+
+
+def stored_path(root, relative):
+    """Resolve a manifest file path: source/... originals or manual references."""
+    path = Path(relative)
+    if path.parts[:2] == tuple(Path(REFERENCE_DIR).parts):
+        base = Path(root).resolve() / REFERENCE_DIR
+        target = Path(root).resolve() / path
+        if path.is_absolute() or not target.resolve().is_relative_to(base):
+            raise CyberSpriteError(
+                "E_PATH_NOT_ALLOWED",
+                "Reference path escapes .cybersprite/references/.",
+                "Use the project-relative path recorded in source/manifest.json.",
+                {"path": str(relative)},
+            )
+        return target
+    return source_path(root, relative)
+
+
+def file_matches(root, file):
+    """True when a manifest file exists inside the project with its recorded SHA-256."""
+    try:
+        target = stored_path(root, file.path)
+        return target.is_file() and hashlib.sha256(target.read_bytes()).hexdigest() == file.sha256
+    except (OSError, CyberSpriteError):
+        return False
+
+
 def record_import(root, file, width, height, *, placements=()):
     """Called only by registered ingest Ops, under the new-project lock."""
     root, file = Path(root), Path(file)

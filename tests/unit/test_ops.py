@@ -181,6 +181,7 @@ def test_registry_coverage_and_contracts():
         "import_aseprite",
         "import_image",
         "add_source",
+        "register_reference",  # Registration, guards and hashes: test_publication_references.py.
         "list_sources",
         "get_source",
         "list_generators",

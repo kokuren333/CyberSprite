@@ -26,7 +26,8 @@ from .common import frame_index
 def guide_image(root, guide):
     from hashlib import sha256
 
-    from cybersprite.core.sources import find_source, read_manifest, source_path
+    from cybersprite.core.sources import find_source, read_manifest
+    from cybersprite.core.sources import stored_path as source_path
     from cybersprite.formats.design_sources import decode_design
 
     source = find_source(read_manifest(root), guide["source"])

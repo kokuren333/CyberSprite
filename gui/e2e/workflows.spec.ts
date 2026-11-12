@@ -136,3 +136,27 @@ test('W4 pingpong endpoints, finite stop and infinite seams match shared core ve
     }
   }
 });
+test('Sources tab attaches a hand-picked reference that the agent sees in list_sources', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', e => errors.push(e.message));
+  await page.goto('/#playwright-fixture-token');
+  await expect(page.getByTestId('sprite-canvas')).toBeVisible();
+  await page.getByRole('tab', { name: 'Sources' }).click();
+  const form = page.getByRole('form', { name: 'Attach a reference image' });
+  await expect(form.getByRole('button', { name: 'Attach' })).toBeDisabled();
+  // A 1×1 opaque PNG chosen through the file picker, as a person would.
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg==', 'base64');
+  await form.getByLabel('Image file').setInputFiles({ name: 'saved-from-browser.png', mimeType: 'image/png', buffer: png });
+  await form.getByLabel('Rights note').fill('third-party sprite, measure only');
+  await form.getByRole('button', { name: 'Attach' }).click();
+  await expect(page.locator('.sources-list')).toContainText('Reference');
+  const { project } = JSON.parse(readFileSync(resolve(root, '.gui-check/session.json'), 'utf8'));
+  const listed = JSON.parse(execFileSync('uv', ['run', 'cybersprite', '-p', project, 'source', 'list'], { cwd: root, encoding: 'utf8' }));
+  const reference = listed.result.sources.find((s: any) => s.use === 'reference');
+  expect(reference).toMatchObject({ origin: 'manual', placed_by: 'human-gui', rights_note: 'third-party sprite, measure only' });
+  expect(readFileSync(resolve(project, reference.files[0])).equals(png)).toBe(true);
+  await page.locator('.source-entry', { hasText: reference.id }).click();
+  await expect(page.getByText('Reference: measure only.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Source underlay' })).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

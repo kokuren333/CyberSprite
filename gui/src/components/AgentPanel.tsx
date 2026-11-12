@@ -4,6 +4,7 @@ import { fileUrl } from '../api/files';
 import { act, rpc, useEditor, view, refresh } from '../store';
 import { Icon, Notch, PanelHead, type IconName } from './chrome';
 import { displayLevel, isPlatformRule } from '../platforms';
+import { ReferenceAttach } from './ReferenceAttach';
 const isAgent = (actor: string) => actor.startsWith('agent');
 const clock = (time?: string) => time ? new Date(time).toTimeString().slice(0, 5) : '';
 const levelIcon: Record<string, IconName> = { error: 'error', warning: 'warning', info: 'info' };
@@ -79,9 +80,10 @@ export function AgentPanel() {
       </div>}
       {s.tab === 'Sources' && <div className="tab-body">
         <div className="row-actions"><button className="pad small" onClick={() => void act(async () => view({ sources: await rpc('sources.list') }))}>{t('refresh')}</button><button className="pad small" disabled={!s.underlay} onClick={() => view({ underlay: null })}>{t('clear')}</button></div>
-        {(() => { const list = (s.sources?.result?.sources ?? s.sources?.sources ?? s.project?.sources.sources ?? []); return list.length ? <ul className="sources-list">{list.map((entry: any) => <li key={entry.id}><button className="source-entry" onClick={() => void act(async () => setSource(await rpc('sources.get', { id: entry.id })))}><Icon name="sources" /><b className="mono">{entry.id}</b><span>{entry.provider}</span><span className="soft">{entry.license}</span></button></li>)}</ul> : <p className="empty-note soft">{t('noSources')}</p>; })()}
+        {(() => { const list = (s.sources?.result?.sources ?? s.sources?.sources ?? s.project?.sources.sources ?? []); return list.length ? <ul className="sources-list">{list.map((entry: any) => <li key={entry.id}><button className="source-entry" onClick={() => void act(async () => setSource(await rpc('sources.get', { id: entry.id })))}><Icon name="sources" /><b className="mono">{entry.id}</b><span>{entry.use === 'reference' ? t('reference') : entry.provider}</span><span className="soft">{entry.license}</span></button></li>)}</ul> : <p className="empty-note soft">{t('noSources')}</p>; })()}
         {source && <pre className="mono small-pre">{JSON.stringify(source, null, 2)}</pre>}
-        {(source?.result ?? source)?.files?.map((file: any) => <figure key={file.path}><img className="source-image checker" src={fileUrl(file.path)} alt={t('source')} /><figcaption className="mono soft">{file.path}</figcaption><button className="pad small" onClick={() => view({ underlay: file.path })}>{t('underlay')}</button></figure>)}
+        {(source?.result ?? source)?.files?.map((file: any) => <figure key={file.path}><img className="source-image checker" src={fileUrl(file.path)} alt={t('source')} /><figcaption className="mono soft">{file.path}</figcaption>{(source?.result ?? source)?.use === 'reference' ? <p className="soft small-note">{t('referenceMeasureOnly')}</p> : <button className="pad small" onClick={() => view({ underlay: file.path })}>{t('underlay')}</button>}</figure>)}
+        <ReferenceAttach />
       </div>}
     </section>
   </aside>;

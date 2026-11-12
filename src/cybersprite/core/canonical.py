@@ -12,7 +12,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from .errors import CyberSpriteError
-from .models import Palette, Project, SliceKey, UserData
+from .models import Palette, Project, SliceKey, Source, UserData
 from .validation import require_valid
 
 SCHEMA_VERSION = 1
@@ -30,6 +30,8 @@ def _ordered(value: Any, context: str = "") -> Any:
             if isinstance(value, Project) and name == "platform" and item is None:
                 continue
             if isinstance(value, Palette) and name == "ramps" and not item:
+                continue
+            if isinstance(value, Source) and name in ("origin", "placed_by") and item is None:
                 continue
             if name == "user_data" and (
                 item is None

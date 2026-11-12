@@ -215,7 +215,9 @@ def test_sheet_data_and_mcp_output_schema(tmp_path):
         result_validator.validate(result)
 
 
-def test_cli_preview_specifiers_layout_and_onion_shorthand(animation, tmp_path):
+def test_cli_preview_specifiers_layout_and_onion_shorthand(animation, tmp_path, monkeypatch):
+    # CLI outputs stay under the working directory, as for export (R2-01, I-2001).
+    monkeypatch.chdir(tmp_path)
     runner = CliRunner()
     out = tmp_path / "walk.png"
     result = runner.invoke(

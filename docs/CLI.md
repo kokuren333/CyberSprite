@@ -58,6 +58,7 @@ Op 対応コマンドのオプションは、登録済みの pydantic 引数モ�
 | `convert <入力> <出力>` | `import_image` と同じ変換オプション、`--stages <ディレクトリ>`（M6） |
 | `pipeline detect-grid <ファイル>` | 検出の診断（M6） |
 | `source list` / `source show <ID>` | `list_sources` / `get_source` の引数（M6） |
+| `source reference <画像>` | `register_reference`。`--rights-note <権利メモ>`（必須）、`--license`（既定 unknown）、`--placed-by human-cli\|agent`（既定 human-cli。エージェントが CLI で添付するときは agent）、`--dry-run`。手で保存した参照画像を `.cybersprite/references/` に置き、来歴に記録する（計測専用、5 MiB まで） |
 | `gen backends` / `gen run` | `list_generators` / `generate_image` の引数（M9） |
 | `gen accept-license <名前>` | モデルのライセンス承諾（M9） |
 | `ops list` / `ops describe <名前>` | 登録された Op の一覧 / 契約 |

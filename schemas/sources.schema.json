@@ -49,10 +49,41 @@
           "default": "canvas",
           "enum": [
             "canvas",
-            "design"
+            "design",
+            "reference"
           ],
           "title": "Use",
           "type": "string"
+        },
+        "origin": {
+          "anyOf": [
+            {
+              "const": "manual",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Origin"
+        },
+        "placed_by": {
+          "anyOf": [
+            {
+              "enum": [
+                "human-gui",
+                "human-cli",
+                "agent"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Placed By"
         },
         "files": {
           "items": {

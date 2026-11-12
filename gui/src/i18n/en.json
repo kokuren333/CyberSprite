@@ -158,5 +158,15 @@
   "demoRepo": "Repository",
   "demoConnected": "In-browser demo",
   "demoNotAvailable": "Needs the local CyberSprite server, so it is off in this demo. Clone the repository to use it.",
-  "panels": "Panels"
+  "panels": "Panels",
+  "attachReference": "Attach a reference image",
+  "referenceHint": "Pick or drop an image you saved yourself (for example from a browser). It is kept in this project's .cybersprite/references/ for measuring only, and the agent sees it in the source list.",
+  "referenceFile": "Image file",
+  "referenceTooLarge": "larger than 5 MiB; crop it first",
+  "referenceRights": "Rights note",
+  "referenceRightsPlaceholder": "e.g. third-party game sprite, measure only",
+  "referenceLicense": "License",
+  "attach": "Attach",
+  "reference": "Reference",
+  "referenceMeasureOnly": "Reference: measure only. Not for tracing or placing on the canvas."
 }

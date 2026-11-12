@@ -43,6 +43,7 @@ DEFAULT_LEVELS = {
     "Q-SRC-02": "warning",
     "Q-SRC-03": "error",
     "Q-SRC-04": "warning",
+    "Q-SRC-05": "warning",
 }
 
 # Derived frame LRU: array payloads plus a conservative per-entry metadata budget.
@@ -439,6 +440,16 @@ def report(
                 if pipeline and type(pipeline.report.get("grid_score")) is int:
                     sources["grid_scores"][source.id] = pipeline.report["grid_score"]
                 if not source.placements:
+                    # R2-16: registered but unplaced sources (design originals and
+                    # manual references) are still checked against their hashes.
+                    from .sources import file_matches
+
+                    if root is not None and not all(file_matches(root, f) for f in source.files):
+                        add(
+                            "Q-SRC-05",
+                            f"Registered {source.use} source {source.id} file is missing "
+                            "or has a changed SHA-256.",
+                        )
                     continue
                 fs = sorted({f for place in source.placements for f in place.frames})
                 if pipeline and (pipeline.gates_overridden or pipeline.report.get("warnings")):

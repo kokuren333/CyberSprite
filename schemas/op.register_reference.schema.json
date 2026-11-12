@@ -1,0 +1,122 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "file": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Local image file to register as a measuring reference (CLI and MCP). Give exactly one of file or data.",
+      "title": "File",
+      "x-cybersprite-path": "input"
+    },
+    "data": {
+      "anyOf": [
+        {
+          "maxLength": 6990508,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Base64 image bytes for uploads (the GUI's file picker). Give exactly one of file or data; at most 5 MiB decoded.",
+      "title": "Data"
+    },
+    "license": {
+      "default": "unknown",
+      "description": "Usage terms of the image; use unknown when unknown.",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "License",
+      "type": "string"
+    },
+    "rights_note": {
+      "description": "Who owns the image and how it may be used, for example 'third-party game sprite, measure only'. Do not write titles or URLs if the project may be published.",
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Rights Note",
+      "type": "string"
+    },
+    "placed_by": {
+      "anyOf": [
+        {
+          "enum": [
+            "human-gui",
+            "human-cli",
+            "agent"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Who chose this image. Set by the surface: GUI uploads are human-gui and MCP calls are agent; the CLI defaults to human-cli and accepts agent.",
+      "title": "Placed By"
+    },
+    "project": {
+      "description": "Project directory or project.json path.",
+      "title": "Project",
+      "type": "string"
+    },
+    "expect_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reject if the current revision differs.",
+      "title": "Expect Revision"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay a prior result for this transaction key.",
+      "title": "Idempotency Key"
+    },
+    "dry_run": {
+      "default": false,
+      "description": "Validate without committing project changes.",
+      "title": "Dry Run",
+      "type": "boolean"
+    },
+    "preview": {
+      "default": "path",
+      "description": "Return no preview, PNG paths, or inline PNG images.",
+      "enum": [
+        "none",
+        "path",
+        "inline"
+      ],
+      "title": "Preview",
+      "type": "string"
+    }
+  },
+  "required": [
+    "rights_note",
+    "project"
+  ],
+  "title": "register_referenceInput",
+  "type": "object"
+}

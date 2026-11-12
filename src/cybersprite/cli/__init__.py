@@ -633,9 +633,10 @@ cli.add_command(
 cli.add_command(
     RegistryGroup(
         "source",
-        help="Read source provenance.",
+        help="Register and read source provenance.",
         routes={
             "add": ("add_source", "M12", "files"),
+            "reference": ("register_reference", "publication-fix", "file"),
             "list": ("list_sources", "M6", None),
             "show": ("get_source", "M6", "id"),
         },

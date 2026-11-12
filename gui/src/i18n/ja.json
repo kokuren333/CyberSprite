@@ -158,5 +158,15 @@
   "demoRepo": "リポジトリ",
   "demoConnected": "ブラウザ内デモ",
   "demoNotAvailable": "ローカルの CyberSprite サーバが必要なため、このデモでは使えません。リポジトリをクローンしてお使いください。",
-  "panels": "パネル"
+  "panels": "パネル",
+  "attachReference": "参照画像を添付",
+  "referenceHint": "自分で保存した画像（ブラウザで見て保存したものなど）を選ぶか、ここにドロップします。このプロジェクトの .cybersprite/references/ に置かれ、計測だけに使います。エージェントもソースの一覧で見られます。",
+  "referenceFile": "画像ファイル",
+  "referenceTooLarge": "5 MiB を超えています。必要な部分を切り出してください",
+  "referenceRights": "権利メモ",
+  "referenceRightsPlaceholder": "例: 市販ゲームのスプライト。計測のみ",
+  "referenceLicense": "利用条件",
+  "attach": "添付",
+  "reference": "参照",
+  "referenceMeasureOnly": "参照画像は計測専用です。なぞったり、キャンバスに置いたりしません。"
 }

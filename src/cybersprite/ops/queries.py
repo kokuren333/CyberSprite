@@ -1,10 +1,12 @@
 """Read contracts and new-project construction; no existing project writes here."""
 
+import json
 from pathlib import Path
 
 import numpy as np
 
 from cybersprite.core import history, sources
+from cybersprite.core.canonical import metadata_bytes
 from cybersprite.core.errors import CyberSpriteError, invalid
 from cybersprite.core.execution import committed_bytes
 from cybersprite.core.models import GroupLayer, ImageCel, ImageLayer, LinkCel, Sources
@@ -61,16 +63,28 @@ def source_query(ctx, args, name):
                     "license": s.license,
                     "accepted": s.pipeline.accepted if s.pipeline else False,
                     "placements": [p.model_dump() for p in s.placements],
+                    # Manual references: what an agent needs to open and judge them.
+                    **(
+                        {
+                            "origin": s.origin,
+                            "placed_by": s.placed_by,
+                            "rights_note": s.rights_note,
+                            "files": [f.path for f in s.files],
+                        }
+                        if s.use == "reference"
+                        else {}
+                    ),
                 }
                 for s in manifest.sources
             ]
         }
     source = sources.find_source(manifest, args.id)
     value = source.model_dump()
+    for key in ("origin", "placed_by"):
+        if value[key] is None:
+            del value[key]
     if args.include_report and source.pipeline:
         path = sources.source_path(ctx.root, f"{source.id}/pipeline_report.json")
-        import json
-
         try:
             value["report"] = json.loads(committed_bytes(path, ctx.root))
         except (OSError, ValueError) as error:
@@ -206,8 +220,9 @@ def query(ctx, a, name):
                 result[section] = history.history_result(root)
             elif section == "sources":
                 path = root / "source/manifest.json"
+                # The canonical manifest form omits null manual-reference fields.
                 result[section] = (
-                    Sources.model_validate_json(path.read_bytes()).model_dump()
+                    json.loads(metadata_bytes(Sources.model_validate_json(path.read_bytes())))
                     if path.exists()
                     else {"sources": []}
                 )
