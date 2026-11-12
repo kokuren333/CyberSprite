@@ -1,0 +1,106 @@
+{
+  "transactions": [
+    {
+      "op": "set_pixel",
+      "args": {
+        "layer": "L1",
+        "frame": 0,
+        "x": 1,
+        "y": 1,
+        "color": 1
+      },
+      "options": {
+        "idempotency_key": "p1"
+      }
+    },
+    {
+      "op": "set_pixel",
+      "args": {
+        "layer": "L1",
+        "frame": 0,
+        "x": 1,
+        "y": 1,
+        "color": 1
+      }
+    },
+    {
+      "op": "set_pixel",
+      "args": {
+        "layer": "L1",
+        "frame": 0,
+        "x": 1,
+        "y": 1,
+        "color": 2
+      },
+      "options": {
+        "idempotency_key": "p1"
+      }
+    },
+    {
+      "op": "set_pixel",
+      "args": {
+        "layer": "L1",
+        "frame": 0,
+        "x": 1,
+        "y": 1,
+        "color": 2
+      },
+      "options": {
+        "dry_run": true
+      }
+    },
+    {
+      "op": "set_pixel",
+      "args": {
+        "layer": "L1",
+        "frame": 0,
+        "x": 1,
+        "y": 1,
+        "color": 1
+      },
+      "options": {
+        "expect_revision": 0
+      },
+      "error": "E_REVISION_CONFLICT"
+    },
+    {
+      "op": "apply_ops",
+      "args": {
+        "ops": [
+          {
+            "op": "set_pixel",
+            "args": {
+              "layer": "L1",
+              "frame": 0,
+              "x": 2,
+              "y": 1,
+              "color": 1
+            }
+          },
+          {
+            "op": "set_pixel",
+            "args": {
+              "layer": "L1",
+              "frame": 0,
+              "x": 1,
+              "y": 1,
+              "color": 255
+            }
+          }
+        ]
+      },
+      "error": "E_INDEX_OUT_OF_RANGE"
+    },
+    {
+      "op": "undo"
+    },
+    {
+      "op": "redo"
+    }
+  ],
+  "renders": [
+    {
+      "frame": 0
+    }
+  ]
+}

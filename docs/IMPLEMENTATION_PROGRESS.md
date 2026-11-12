@@ -5,8 +5,8 @@
 
 ## 現在地
 
-- 進行中: M1（コア基盤）— Codex 6.1 sol（effort 高）がブランチ `m1-core`（worktree `../CyberSprite-wt/m1`）で実装中。
-- 完了: M0（下記。GitHub リポジトリの作成は発注者の指示で対象外）。
+- レビュー待ち: M2（Op とトランザクション）— `m2-ops`、Windows の受け入れ検査を完了。オーケストレーターによる確認・main への統合待ち。
+- 完了: M0、M1、M2-R（ラスタ関数）。GitHub リポジトリの作成・push は発注者の指示で対象外。
 
 ## 体制とサブエージェントの起動方法
 
@@ -31,3 +31,12 @@
 ## 詰まり・注意
 
 - **Linux 環境がない**（WSL も Docker もない）。CI の設定は Windows / Linux の両方を書くが、Linux での実行は GitHub リポジトリ作成後になる（I-007）。それまで「両 OS で通る」という完了条件は Windows のみで判定し、ここに明記する。
+
+## M2: Op とトランザクション — Windows 検証完了（2026-11-12）
+
+- 59 個の登録済み Op、履歴と原子的保存、予行・再送・ロック、22 個の品質規則と検証デルタ、プレビュー／差分、CLI の共通入口を実装した。
+- `uv run pytest -q --tb=short`: **487 passed**。`uv run ruff check`、`uv run ruff format --check`、`uv run python tools/gen_schemas.py --check`、`uv run python tools/check_repository.py` は全て成功。
+- CLI で新規作成 → 矩形 → 塗りつぶし → 直線 → undo → redo → validate → preview → render を実行。revision 5、検証 error/warning 0、書出し `validation_ok` / `verified` とも true。プレビュー PNG と最終 PNG 自体を開いて確認した。
+- `frame_remapping`、`transactions`、`raster_ops` のゴールデンは専用更新ツールで生成し、正本・封筒・PNG を確認した。
+- 判断 I-201〜I-210。追加依存・外部参照なし。距離とパレット並べ替えの暫定実装は M6、cleanup は M6、PNG パレット読込は M5、タイルマップの全体変形とタイル置換は M7。機能用プレビューの色と定規は Opus の確認対象。
+- 詳細と CLI の実行内容は [M2_IMPLEMENTATION_REPORT.md](M2_IMPLEMENTATION_REPORT.md)。Linux は上記 I-007 のとおり未実行。

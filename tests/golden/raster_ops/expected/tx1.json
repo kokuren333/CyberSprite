@@ -1,0 +1,94 @@
+{
+  "ok": true,
+  "op": "ellipse",
+  "project": "golden.csprite",
+  "revision": {
+    "before": 1,
+    "after": 2
+  },
+  "no_op": false,
+  "replayed": false,
+  "dry_run": false,
+  "result": {
+    "pixels_written": 24
+  },
+  "changed": {
+    "data": true,
+    "frames": [
+      {
+        "frame": 0,
+        "pixels_changed": 24,
+        "bbox": {
+          "x": 3,
+          "y": 3,
+          "w": 9,
+          "h": 9
+        }
+      }
+    ],
+    "layers": [
+      "L1"
+    ],
+    "linked_frames": [],
+    "clipped_pixels": 0
+  },
+  "validation": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "new_issues": [],
+    "resolved_issues": [
+      {
+        "rule": "Q-PAL-02",
+        "level": "info",
+        "message": "Unused palette indices: [2].",
+        "where": {
+          "frames": [],
+          "layer": null,
+          "bbox": null,
+          "points": []
+        }
+      }
+    ],
+    "metrics_delta": {
+      "colors_per_frame": {
+        "before": {
+          "sum": 2,
+          "max": 2
+        },
+        "after": {
+          "sum": 3,
+          "max": 3
+        }
+      },
+      "colors_per_frame_max": {
+        "before": 2,
+        "after": 3
+      },
+      "colors_used": {
+        "before": 2,
+        "after": 3
+      },
+      "opaque_pixels": {
+        "before": {
+          "sum": 16,
+          "max": 16
+        },
+        "after": {
+          "sum": 37,
+          "max": 37
+        }
+      },
+      "unused_palette": {
+        "before": 1,
+        "after": 0
+      }
+    }
+  },
+  "preview": {
+    "paths": [],
+    "scale": 1,
+    "omitted_frames": []
+  },
+  "warnings": []
+}

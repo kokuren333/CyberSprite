@@ -1,0 +1,60 @@
+{
+  "ok": true,
+  "op": "polygon",
+  "project": "golden.csprite",
+  "revision": {
+    "before": 3,
+    "after": 4
+  },
+  "no_op": false,
+  "replayed": false,
+  "dry_run": false,
+  "result": {
+    "pixels_written": 23
+  },
+  "changed": {
+    "data": true,
+    "frames": [
+      {
+        "frame": 0,
+        "pixels_changed": 23,
+        "bbox": {
+          "x": 8,
+          "y": 1,
+          "w": 7,
+          "h": 8
+        }
+      }
+    ],
+    "layers": [
+      "L1"
+    ],
+    "linked_frames": [],
+    "clipped_pixels": 0
+  },
+  "validation": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "new_issues": [],
+    "resolved_issues": [],
+    "metrics_delta": {
+      "opaque_pixels": {
+        "before": {
+          "sum": 46,
+          "max": 46
+        },
+        "after": {
+          "sum": 66,
+          "max": 66
+        }
+      }
+    }
+  },
+  "preview": {
+    "paths": [],
+    "scale": 1,
+    "omitted_frames": []
+  },
+  "warnings": []
+}

@@ -1,0 +1,50 @@
+{
+  "transactions": [
+    {
+      "op": "add_frame",
+      "args": {
+        "at": 1,
+        "count": 2,
+        "cels": "link"
+      }
+    },
+    {
+      "op": "delete_frames",
+      "args": {
+        "frames": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "op": "move_frames",
+      "args": {
+        "from": 0,
+        "to": 1,
+        "before": 4
+      }
+    },
+    {
+      "op": "reverse_frames",
+      "args": {
+        "from": 0,
+        "to": 3
+      }
+    }
+  ],
+  "renders": [
+    {
+      "frame": 0
+    },
+    {
+      "frame": 1
+    },
+    {
+      "frame": 2
+    },
+    {
+      "frame": 3
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "raster_vectors": true,
+  "transactions": [
+    {
+      "op": "line",
+      "args": {
+        "layer": "L1",
+        "frame": 0,
+        "x0": 0,
+        "y0": 0,
+        "x1": 15,
+        "y1": 7,
+        "color": 1
+      }
+    },
+    {
+      "op": "ellipse",
+      "args": {
+        "layer": "L1",
+        "frame": 0,
+        "x": 3,
+        "y": 3,
+        "w": 9,
+        "h": 9,
+        "color": 2
+      }
+    },
+    {
+      "op": "stroke",
+      "args": {
+        "layer": "L1",
+        "frame": 0,
+        "points": [
+          [
+            1,
+            14
+          ],
+          [
+            5,
+            13
+          ],
+          [
+            9,
+            14
+          ]
+        ],
+        "pixel_perfect": true,
+        "color": 1
+      }
+    },
+    {
+      "op": "polygon",
+      "args": {
+        "layer": "L1",
+        "frame": 0,
+        "points": [
+          [
+            8,
+            1
+          ],
+          [
+            14,
+            4
+          ],
+          [
+            13,
+            8
+          ]
+        ],
+        "filled": true,
+        "color": 1
+      }
+    },
+    {
+      "op": "fill",
+      "args": {
+        "layer": "L1",
+        "frame": 0,
+        "x": 7,
+        "y": 7,
+        "color": 1
+      }
+    }
+  ],
+  "renders": [
+    {
+      "frame": 0
+    }
+  ]
+}

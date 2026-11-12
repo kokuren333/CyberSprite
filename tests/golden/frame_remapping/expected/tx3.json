@@ -1,0 +1,167 @@
+{
+  "ok": true,
+  "op": "reverse_frames",
+  "project": "golden.csprite",
+  "revision": {
+    "before": 3,
+    "after": 4
+  },
+  "no_op": false,
+  "replayed": false,
+  "dry_run": false,
+  "result": {},
+  "changed": {
+    "data": true,
+    "frames": [
+      {
+        "frame": 0,
+        "pixels_changed": 2,
+        "bbox": {
+          "x": 1,
+          "y": 1,
+          "w": 2,
+          "h": 1
+        }
+      },
+      {
+        "frame": 1,
+        "pixels_changed": 2,
+        "bbox": {
+          "x": 1,
+          "y": 1,
+          "w": 2,
+          "h": 1
+        }
+      },
+      {
+        "frame": 2,
+        "pixels_changed": 2,
+        "bbox": {
+          "x": 1,
+          "y": 1,
+          "w": 2,
+          "h": 1
+        }
+      },
+      {
+        "frame": 3,
+        "pixels_changed": 2,
+        "bbox": {
+          "x": 1,
+          "y": 1,
+          "w": 2,
+          "h": 1
+        }
+      }
+    ],
+    "layers": [
+      "L1"
+    ],
+    "linked_frames": [],
+    "clipped_pixels": 0
+  },
+  "validation": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "new_issues": [
+      {
+        "rule": "Q-PIX-02",
+        "level": "info",
+        "message": "Frame has clusters below min_cluster.",
+        "where": {
+          "frames": [
+            1
+          ],
+          "layer": null,
+          "bbox": null,
+          "points": [
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        }
+      },
+      {
+        "rule": "Q-PIX-02",
+        "level": "info",
+        "message": "Frame has clusters below min_cluster.",
+        "where": {
+          "frames": [
+            3
+          ],
+          "layer": null,
+          "bbox": null,
+          "points": [
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        }
+      }
+    ],
+    "resolved_issues": [
+      {
+        "rule": "Q-PIX-02",
+        "level": "info",
+        "message": "Frame has clusters below min_cluster.",
+        "where": {
+          "frames": [
+            0
+          ],
+          "layer": null,
+          "bbox": null,
+          "points": [
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        }
+      },
+      {
+        "rule": "Q-PIX-02",
+        "level": "info",
+        "message": "Frame has clusters below min_cluster.",
+        "where": {
+          "frames": [
+            2
+          ],
+          "layer": null,
+          "bbox": null,
+          "points": [
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        }
+      }
+    ],
+    "metrics_delta": {}
+  },
+  "preview": {
+    "paths": [],
+    "scale": 1,
+    "omitted_frames": []
+  },
+  "warnings": []
+}

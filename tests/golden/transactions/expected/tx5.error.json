@@ -1,0 +1,10 @@
+{
+  "code": "E_INDEX_OUT_OF_RANGE",
+  "message": "Palette index is out of range.",
+  "details": {
+    "index": 255,
+    "palette_size": 3
+  },
+  "hint": "Use an index from 0 through palette_size - 1.",
+  "op_index": 1
+}
