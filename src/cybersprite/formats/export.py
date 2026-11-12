@@ -387,7 +387,7 @@ def export_aseprite(p, a, root=None):
     raw = encode_aseprite(p)
 
     def verify(data):
-        other, _ = decode_aseprite(data, name=p.name)
+        other, _ = decode_aseprite(data, name=p.name, source_limits=False)
         # Common export verification is mandatory even when semantic comparison is disabled.
         return (not a.verify or equivalent(p, other)) and all(
             np.array_equal(render_result(p, f).pixels, render_result(other, f).pixels)

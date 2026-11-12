@@ -42,9 +42,11 @@ def output_bytes(width: int, height: int, count: int = 1) -> int:
 class DecodeBudget:
     frames: int = 0
     bytes: int = 0
+    source_limits: bool = True
 
     def reserve(self, width: int, height: int, frames: int = 1) -> None:
-        source_dimensions(width, height)
+        if self.source_limits:
+            source_dimensions(width, height)
         check_limit(
             "source_frames",
             self.frames + frames,
@@ -55,13 +57,14 @@ class DecodeBudget:
         self.frames += frames
 
     def reserve_pixels(self, width: int, height: int, count: int = 1) -> None:
-        source_dimensions(width, height)
+        if self.source_limits:
+            source_dimensions(width, height)
         requested = self.bytes + width * height * 4 * count
         check_limit(
-            "decoded_bytes",
+            "decoded_bytes" if self.source_limits else "output_bytes",
             requested,
-            DECODED_BYTES,
-            "Reduce source dimensions or import fewer frames/files at once.",
+            DECODED_BYTES if self.source_limits else OUTPUT_BYTES,
+            "Reduce raster dimensions or process fewer frames, cels, or tiles at once.",
         )
         self.bytes = requested
 

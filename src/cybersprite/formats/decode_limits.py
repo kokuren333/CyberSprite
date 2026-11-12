@@ -4,21 +4,23 @@ import re
 import struct
 import zlib
 
-from cybersprite.core.errors import CyberSpriteError
+from cybersprite.core.errors import CyberSpriteError, invalid
 from cybersprite.core.limits import (
     FRAME_COUNT,
     SOURCE_AREA,
     TILES_PER_SET,
     DecodeBudget,
     check_limit,
+    output_bytes,
     source_dimensions,
 )
 
 
-def _positive_dimensions(width, height):
+def _positive_dimensions(width, height, *, source_limits=True):
     if width < 1 or height < 1:
         raise ValueError("Raster width and height must be positive.")
-    source_dimensions(width, height)
+    if source_limits:
+        source_dimensions(width, height)
 
 
 def _tile_count(count):
@@ -28,6 +30,12 @@ def _tile_count(count):
         TILES_PER_SET,
         "Reduce the source tileset to at most 65536 tiles per set.",
     )
+
+
+def _tile_stride(bits):
+    if bits < 1:
+        raise ValueError("Tile references must contain at least one bit.")
+    return (bits + 7) // 8
 
 
 def pillow_bomb_error(error):
@@ -42,34 +50,94 @@ def pillow_bomb_error(error):
     )
 
 
-def native_limits(sprite):
+def native_limits(sprite, *, source_limits=True):
     """Also protect callers converting an already-decoded adapter object."""
     _positive_dimensions(sprite.width, sprite.height)
     check_limit("source_frames", len(sprite.frames), FRAME_COUNT, "Import at most 4096 frames.")
-    budget = DecodeBudget()
+    DecodeBudget(source_limits=source_limits).reserve(
+        sprite.width, sprite.height, len(sprite.frames)
+    )
+    budget = DecodeBudget(source_limits=source_limits)
+    owners = {}
+
+    def owner_at(frame, layer):
+        key, path, seen = (frame, layer), [], set()
+        while key not in owners:
+            if key in seen or not 0 <= key[0] < len(sprite.frames):
+                raise invalid("Aseprite contains a cyclic or invalid cel link.")
+            seen.add(key)
+            cel = sprite.frames[key[0]].cel(key[1])
+            if cel is None:
+                raise invalid("Aseprite link targets a missing cel.")
+            if cel.link is None:
+                owners[key] = cel
+                break
+            path.append(key)
+            key = (cel.link, layer)
+        owner = owners[key]
+        for visited in path:
+            owners[visited] = owner
+        return owner
+
     for tileset in sprite.tilesets:
         _tile_count(tileset.tile_count)
         if tileset.pixels is not None:
-            _positive_dimensions(tileset.tile_width, tileset.tile_height)
+            _positive_dimensions(
+                tileset.tile_width, tileset.tile_height, source_limits=source_limits
+            )
             budget.reserve_pixels(tileset.tile_width, tileset.tile_height, tileset.tile_count)
-    for frame in sprite.frames:
+    for index, frame in enumerate(sprite.frames):
         for cel in frame.cels:
+            cel = owner_at(index, cel.layer_index)
             if cel.pixels is not None:
-                _positive_dimensions(cel.pixels.width, cel.pixels.height)
+                _positive_dimensions(
+                    cel.pixels.width, cel.pixels.height, source_limits=source_limits
+                )
                 budget.reserve_pixels(cel.pixels.width, cel.pixels.height)
             if cel.tilemap is not None:
-                _positive_dimensions(cel.tilemap.width, cel.tilemap.height)
-                budget.reserve_pixels(cel.tilemap.width, cel.tilemap.height)
+                _positive_dimensions(
+                    cel.tilemap.width, cel.tilemap.height, source_limits=source_limits
+                )
+                factor = max(1, (_tile_stride(cel.tilemap.bits_per_tile) + 3) // 4)
+                budget.reserve_pixels(cel.tilemap.width, cel.tilemap.height, factor)
 
 
-def aseprite_limits(data):
+def project_output_limits(project):
+    """Check native export rasters before to_native materializes their arrays."""
+    from cybersprite.core.references import cel_owner, walk_layers
+
+    budget = DecodeBudget(source_limits=False)
+    check_limit(
+        "output_frames",
+        len(project.frames),
+        FRAME_COUNT,
+        "Export at most 4096 native frames at once.",
+    )
+    output_bytes(project.canvas.width, project.canvas.height, len(project.frames))
+    for layer, _ in walk_layers(project.layers):
+        for cel in getattr(layer, "cels", []):
+            owner = cel_owner(layer, cel)
+            if owner is None:
+                raise invalid("Native export cel has no direct data owner.")
+            _positive_dimensions(owner.w, owner.h, source_limits=False)
+            budget.reserve_pixels(owner.w, owner.h)
+    for tileset in project.tilesets:
+        _tile_count(len(tileset.tiles))
+        _positive_dimensions(tileset.tile_w, tileset.tile_h, source_limits=False)
+        budget.reserve_pixels(tileset.tile_w, tileset.tile_h, len(tileset.tiles))
+
+
+def aseprite_limits(data, *, source_limits=True):
     """Scan container/chunk headers; never ask the adapter to inflate unchecked rasters."""
     if len(data) < 128 or struct.unpack_from("<H", data, 4)[0] != 0xA5E0:
         return  # The adapter reports malformed signatures.
     count, width, height, depth = struct.unpack_from("<HHHH", data, 6)
+    if depth not in (8, 16, 32):
+        raise ValueError("Native color depth must be 8, 16, or 32 bits.")
     _positive_dimensions(width, height)
     check_limit("source_frames", count, FRAME_COUNT, "Import at most 4096 frames.")
-    budget = DecodeBudget()
+    DecodeBudget(source_limits=source_limits).reserve(width, height, count)
+    budget = DecodeBudget(source_limits=source_limits)
     streams = []
     offset = 128
     for _ in range(count):
@@ -87,19 +155,20 @@ def aseprite_limits(data):
                 cel_type = struct.unpack_from("<H", body, 7)[0]
                 if cel_type in (0, 2, 3):
                     w, h = struct.unpack_from("<HH", body, 16)
-                    _positive_dimensions(w, h)
+                    _positive_dimensions(w, h, source_limits=source_limits)
                     budget.reserve_pixels(w, h)
                     if cel_type == 2:
                         streams.append((body[20:], w * h * (depth // 8)))
                     elif cel_type == 3:
                         bits = struct.unpack_from("<H", body, 20)[0]
-                        if bits != 32:
-                            raise ValueError("Only 32-bit tile references are supported.")
-                        streams.append((body[48:], w * h * 4))
+                        stride = _tile_stride(bits)
+                        extra = max(0, (stride + 3) // 4 - 1)
+                        budget.reserve_pixels(w, h, extra)
+                        streams.append((body[48:], w * h * stride))
             elif kind == 0x2023:  # Embedded tiles are one compressed vertical strip.
                 _, flags, tiles, w, h = struct.unpack_from("<IIIHH", body)
                 _tile_count(tiles)
-                _positive_dimensions(w, h)
+                _positive_dimensions(w, h, source_limits=source_limits)
                 budget.reserve_pixels(w, h, tiles)
                 name_len = struct.unpack_from("<H", body, 32)[0]
                 start = 34 + name_len + (8 if flags & 1 else 0)

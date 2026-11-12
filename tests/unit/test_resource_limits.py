@@ -246,6 +246,112 @@ def test_native_tileset_count_before_conversion(monkeypatch):
     convert.assert_not_called()
 
 
+def test_native_export_verifies_wide_off_canvas_cel(tmp_path):
+    from cybersprite.core.models import ImageCel
+    from cybersprite.core.projects import create_project
+    from cybersprite.formats.common import export_policy
+
+    p = new_project(width=2, height=1)
+    p.layers[0].cels = [
+        ImageCel(frame=0, x=-8192, y=0, w=8193, h=1, pixels=["01" + "00" * 8191 + "01"])
+    ]
+    project = tmp_path / "wide.csprite"
+    create_project(project, p)
+    output = tmp_path / "wide.aseprite"
+    with export_policy(tmp_path):
+        result = ops.execute("export_aseprite", project, dict(out=str(output)))
+    assert result["result"]["validation_ok"] and result["result"]["verified"]
+    # Source imports keep their independent side limit; own export verification
+    # retains the bounded, otherwise legitimate out-of-canvas pixels.
+    exceeded(lambda: aseprite_io.decode_aseprite(output.read_bytes()), "source_width", 8193, 8192)
+    restored, _ = aseprite_io.decode_aseprite(output.read_bytes(), source_limits=False)
+    assert aseprite_io.equivalent(p, restored)
+
+
+def test_native_export_budget_before_array_materialization(monkeypatch):
+    from cybersprite.core.models import ImageCel
+
+    p = new_project(width=2, height=2)
+    p.layers[0].cels = [ImageCel(frame=0, x=0, y=0, w=2, h=2, pixels=["0101", "0101"])]
+    monkeypatch.setattr(limits, "OUTPUT_BYTES", 1)
+    convert = Mock(side_effect=AssertionError("must not materialize native arrays"))
+    monkeypatch.setattr(aseprite_io, "to_native", convert)
+    exceeded(lambda: aseprite_io.encode_aseprite(p), "output_bytes", 16, 1)
+    convert.assert_not_called()
+
+
+def test_native_output_reader_keeps_predecode_byte_guard(monkeypatch):
+    from cybersprite.core.models import ImageCel
+
+    p = new_project(width=2, height=2)
+    p.layers[0].cels = [ImageCel(frame=0, x=0, y=0, w=2, h=2, pixels=["0101", "0101"])]
+    data = aseprite_io.encode_aseprite(p)
+    monkeypatch.setattr(limits, "OUTPUT_BYTES", 1)
+    parse = Mock(side_effect=AssertionError("must not parse"))
+    inflate = Mock(side_effect=AssertionError("must not inflate"))
+    monkeypatch.setattr(aseprite_io.ap.Sprite, "from_bytes", parse)
+    monkeypatch.setattr("cybersprite.formats.decode_limits.zlib.decompressobj", inflate)
+    exceeded(lambda: aseprite_io.decode_aseprite(data, source_limits=False), "output_bytes", 16, 1)
+    parse.assert_not_called()
+    inflate.assert_not_called()
+
+
+def test_native_frame_volume_before_parsing(monkeypatch):
+    data = bytearray(aseprite_io.encode_aseprite(new_project(width=2, height=2)))
+    struct.pack_into("<HHH", data, 6, 4096, 4096, 4096)
+    parse = Mock(side_effect=AssertionError("must not decode frames"))
+    monkeypatch.setattr(aseprite_io.ap.Sprite, "from_bytes", parse)
+    exceeded(lambda: aseprite_io.decode_aseprite(bytes(data)), "decoded_bytes", 274_877_906_944)
+    parse.assert_not_called()
+
+
+def test_native_unsupported_depth_before_inflate(monkeypatch):
+    from cybersprite.core.models import ImageCel
+
+    p = new_project(width=2, height=2)
+    p.layers[0].cels = [ImageCel(frame=0, x=0, y=0, w=1, h=1, pixels=["01"])]
+    data = bytearray(aseprite_io.encode_aseprite(p))
+    struct.pack_into("<H", data, 12, 65535)
+    inflate = Mock(side_effect=AssertionError("must not inflate an unsupported mode"))
+    monkeypatch.setattr("cybersprite.formats.decode_limits.zlib.decompressobj", inflate)
+    with pytest.raises(CyberSpriteError) as error:
+        aseprite_io.decode_aseprite(bytes(data))
+    assert error.value.code == "E_IO"
+    inflate.assert_not_called()
+
+
+def test_native_header_guard_keeps_16_bit_tile_references():
+    import zlib
+
+    from cybersprite.formats.decode_limits import aseprite_limits
+
+    # Independent, tiny container vector: four 16-bit tile references.
+    cel = struct.pack("<HhhBHh5s", 0, 0, 0, 255, 3, 0, bytes(5))
+    tilemap = struct.pack("<HHHIIII10s", 2, 2, 16, 0x0FFF, 0x8000, 0x4000, 0x2000, bytes(10))
+    payload = cel + tilemap + zlib.compress(struct.pack("<HHHH", 1, 0, 1, 1))
+    chunk = struct.pack("<IH", len(payload) + 6, 0x2005) + payload
+    frame = struct.pack("<IHHHHI", 16 + len(chunk), 0xF1FA, 1, 100, 0, 1) + chunk
+    header = bytearray(128)
+    struct.pack_into("<IHHHHH", header, 0, 128 + len(frame), 0xA5E0, 1, 2, 2, 8)
+    aseprite_limits(bytes(header) + frame)
+
+
+def test_native_link_expansion_before_canonical_arrays(monkeypatch):
+    from cybersprite.core.models import ImageCel, LinkCel
+
+    p = new_project(width=1, height=1, frames=2)
+    p.layers[0].cels = [
+        ImageCel(frame=0, x=0, y=0, w=2, h=2, pixels=["0101", "0101"]),
+        LinkCel(frame=1, link=0),
+    ]
+    native = aseprite_io.to_native(p)
+    monkeypatch.setattr(limits, "DECODED_BYTES", 16)
+    convert = Mock(side_effect=AssertionError("must not build canonical arrays"))
+    monkeypatch.setattr(aseprite_io.np, "frombuffer", convert)
+    exceeded(lambda: aseprite_io.from_native(native), "decoded_bytes", 32, 16)
+    convert.assert_not_called()
+
+
 @pytest.mark.parametrize(
     "name,args,target",
     [
