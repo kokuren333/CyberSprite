@@ -30,6 +30,19 @@ Vite は 127.0.0.1 だけで待ち受け、`/ws`、`/auth`、`/files` をプロ�
 
 `npm run build` は `src/cybersprite/server/static/` に出力する。`.gitkeep` 以外のビルド結果は git 管理外。リリースはリポジトリ直下から `uv run python tools/build_release.py` で作る。npm ci・原文ライセンス照合・CLIアイコン出力を含むGUIビルド・uv build・wheel内容照合を順に実行する。Nodeは配布後の実行には不要。`tools/verify_release.py <wheel>` はリポジトリ外の新規venvで認証付きHTML/JS/CSS/アイコン配信を確認する。
 
+## 体験デモ（GitHub Pages）
+
+サーバなしでブラウザだけで動く体験用のビルド。UI コンポーネントは同じもので、`Transport`（`gui/src/api/client.ts`）の裏を `gui/src/demo/` の `DemoClient` に差し替える。実装・できること・公開手順は `docs/DEMO_REPORT.md`。
+
+```powershell
+cd gui
+npm run build:demo     # → gui/demo-dist/（base './'、git 管理外）
+npm run preview:demo   # http://127.0.0.1:4174/
+npm run check:demo     # Chromium で PC 幅・スマホ幅を操作して確認し、gui/test-results/demo/ に撮影
+```
+
+公開は `.github/workflows/pages.yml`（手動実行のみ）。デモの疑似バックエンドは正本ではない。サーバが必要な操作は `E_DEMO_SERVER_ONLY` で断る。
+
 ## 接続とデータ
 
 `server.serve` がソケットを先に bind して空きポートを確定し、ランダムなトークンを URL フラグメントで渡す。`/` はデータを持たない初期ページ。`POST /auth` が厳密な Origin と Bearer トークンを検査して HttpOnly / SameSite=Strict Cookie を設定する。静的ファイルと `/files/` は Cookie 必須。WebSocket `/ws` は `['cybersprite', token]` のサブプロトコルと厳密な Origin/Host が必要。トークンを URL クエリやアクセスログへ出さない。

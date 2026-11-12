@@ -1,0 +1,54 @@
+# GitHub Pages: the browser-only hands-on demo of the GUI (gui/, `npm run build:demo`).
+# Manual only — nothing deploys on push. Run it from Actions → "Pages demo" → Run workflow.
+# One-time setup: Settings → Pages → Build and deployment → Source: "GitHub Actions".
+# See docs/DEMO_REPORT.md.
+name: Pages demo
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # The UI icons are exported from assets/ui/icons/*.csprite by the CyberSprite CLI.
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.12.23'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: gui/package-lock.json
+      - run: uv sync --locked --python 3.12
+      - run: npm ci
+        working-directory: gui
+      - run: npm test
+        working-directory: gui
+      - name: Build the demo (relative base, in-browser backend)
+        run: npm run build:demo
+        working-directory: gui
+        env:
+          VITE_DEMO_REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+      - run: touch gui/demo-dist/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: gui/demo-dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

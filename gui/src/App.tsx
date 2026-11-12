@@ -10,6 +10,8 @@ import { useText } from './i18n';
 import { Icon } from './components/chrome';
 import { SettingsDialog } from './components/SettingsDialog';
 import { Tooltip } from './components/Tooltip';
+import { DemoNotice } from './components/DemoNotice';
+import { DEMO } from './demo/flag';
 import { act, closeProject, refresh, rpc, store, useEditor, view, type Tool } from './store';
 export function App() {
   const s = useEditor(), t = useText();
@@ -41,11 +43,13 @@ export function App() {
     window.addEventListener('keydown', key); return () => window.removeEventListener('keydown', key);
   }, [t]);
   const [settings, setSettings] = useState(false), [panel, setPanel] = useState('canvas');
+  // Narrow screens show one docked panel at a time (CSS hides the switch on wide screens).
+  const [dock, setDock] = useState<'palette' | 'timeline' | 'agent'>('timeline');
   const track = (e: React.SyntheticEvent) => { const id = (e.target as Element).closest?.('[data-panel]')?.getAttribute('data-panel'); if (id && id !== panel) setPanel(id); };
   const closeMenus = (e: React.MouseEvent) => { for (const d of e.currentTarget.closest('nav')!.querySelectorAll('details[open]')) d.removeAttribute('open'); };
   const validation = s.project?.validation, counts = validation?.counts ?? {};
   const colors = s.project?.palette.colors ?? [], fg = colors[s.foreground];
-  return <main className="app-shell" data-active-panel={panel} onPointerDownCapture={track} onFocusCapture={track}>
+  return <main className="app-shell" data-active-panel={panel} data-dock={dock} onPointerDownCapture={track} onFocusCapture={track}>
     <nav className="menu-bar" aria-label="CyberSprite">
       <h1 className="brand"><Icon name="tile" /><span>CyberSprite</span></h1>
       <div className="menus">
@@ -60,8 +64,11 @@ export function App() {
         <button className="pad icon-only" aria-label={t('settings')} data-tip={t('settings')} onClick={() => setSettings(true)}><Icon name="settings" /></button>
       </div>
     </nav>
+    {DEMO && <DemoNotice />}
     <ContextBar />
     <div className="workspace"><Palette /><Canvas /><Toolbar /><AgentPanel /></div>
+    <div className="dock-switch" role="tablist" aria-label={t('panels')}>{([['palette', 'tile'], ['timeline', 'play'], ['agent', 'agent']] as const).map(([id, icon]) =>
+      <button key={id} role="tab" className="dtab-btn" aria-selected={dock === id} onClick={() => setDock(id)}><Icon name={icon} /><span>{t(id)}</span></button>)}</div>
     <Timeline />
     <footer className="status-bar" aria-live="polite">
       <span className="sb"><span className="k">x</span><b className="mono">{s.pointer[0]}</b><span className="k">y</span><b className="mono">{s.pointer[1]}</b></span>

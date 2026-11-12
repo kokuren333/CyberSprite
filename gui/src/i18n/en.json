@@ -135,5 +135,14 @@
   "done": "Done",
   "size": "Size",
   "zoomLevel": "Zoom",
-  "opacity": "Opacity"
+  "opacity": "Opacity",
+  "demoBadge": "Demo",
+  "demoNotice": "This is a hands-on demo that runs entirely in your browser. The real CyberSprite runs on your machine: clone the repository and use it with an AI agent (CLI / MCP) and the local GUI.",
+  "demoNoticeShort": "Browser-only demo. The real tool: clone the repo, use it with an AI agent.",
+  "demoAgent": "Simulate an agent commit",
+  "demoReset": "Reset sample",
+  "demoRepo": "Repository",
+  "demoConnected": "In-browser demo",
+  "demoNotAvailable": "Needs the local CyberSprite server, so it is off in this demo. Clone the repository to use it.",
+  "panels": "Panels"
 }

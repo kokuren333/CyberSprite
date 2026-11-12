@@ -13,7 +13,7 @@ export type IconName = typeof ICONS[number];
 
 /** 16×16 icon at an integer scale (1 = 16 px, 2 = 32 px). Decorative unless `label`. */
 export function Icon({ name, scale = 1, label }: { name: IconName; scale?: 1 | 2; label?: string }) {
-  return <img className={`ico ico-x${scale}`} src={`/icons/${name}.png`} width={16 * scale} height={16 * scale}
+  return <img className={`ico ico-x${scale}`} src={`${import.meta.env.BASE_URL}icons/${name}.png`} width={16 * scale} height={16 * scale}
     alt={label ?? ''} aria-hidden={label ? undefined : true} draggable={false} />;
 }
 

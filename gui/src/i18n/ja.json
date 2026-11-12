@@ -135,5 +135,14 @@
   "done": "完了",
   "size": "大きさ",
   "zoomLevel": "拡大率",
-  "opacity": "不透明度"
+  "opacity": "不透明度",
+  "demoBadge": "体験デモ",
+  "demoNotice": "これはブラウザの中だけで動く体験デモです。本物の CyberSprite は、リポジトリをクローンして手元で動かし、AI エージェント連携（CLI / MCP）とローカル GUI で使います。",
+  "demoNoticeShort": "ブラウザだけの体験デモです。本物はリポジトリをクローンし、AI エージェントと使います。",
+  "demoAgent": "エージェントのコミットを再現",
+  "demoReset": "サンプルを初期化",
+  "demoRepo": "リポジトリ",
+  "demoConnected": "ブラウザ内デモ",
+  "demoNotAvailable": "ローカルの CyberSprite サーバが必要なため、このデモでは使えません。リポジトリをクローンしてお使いください。",
+  "panels": "パネル"
 }

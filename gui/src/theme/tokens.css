@@ -136,6 +136,7 @@
   --palette-w: 224px;
   --agent-w: 330px;
   --timeline-h: 240px;
+  --dock-h: 300px;
   --chamfer: polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 1px, calc(100% - 1px) 1px, calc(100% - 1px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 1px) calc(100% - 2px), calc(100% - 1px) calc(100% - 1px), calc(100% - 2px) calc(100% - 1px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 1px), 1px calc(100% - 1px), 1px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 1px 2px, 1px 1px, 2px 1px);
 }
 :root[data-text="12"] { --fs: 12px; --fs-s: 11px; }

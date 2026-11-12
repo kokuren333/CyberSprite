@@ -1,6 +1,7 @@
 import en from './en.json';
 import ja from './ja.json';
 import { create } from 'zustand';
+import { DEMO } from '../demo/flag';
 export type TextKey = keyof typeof en;
 type Language = 'ja' | 'en';
 const KEY = 'cybersprite.gui.language';
@@ -18,7 +19,9 @@ export const useLanguage = create<{ language: Language; setLanguage: (value: Lan
     set({ language });
   },
 }));
+/** The demo build words a few shared strings differently (no server behind it). */
+const DEMO_TEXT: Partial<Record<TextKey, TextKey>> = { connected: 'demoConnected', notAvailable: 'demoNotAvailable' };
 export function useText() {
   const language = useLanguage(s => s.language);
-  return (key: TextKey) => (language === 'ja' ? ja : en)[key];
+  return (key: TextKey) => (language === 'ja' ? ja : en)[DEMO ? DEMO_TEXT[key] ?? key : key];
 }

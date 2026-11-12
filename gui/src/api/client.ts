@@ -3,7 +3,15 @@ export type Notification = { method: string; params: any };
 export class RpcError extends Error {
   constructor(public code: number, message: string, public data?: { code: string; hint: string; details: any }) { super(message); }
 }
-export class RpcClient {
+/** What the store needs from a backend: the local server (RpcClient) or the in-browser demo (src/demo). */
+export interface Transport {
+  subscribe(callback: (n: Notification) => void): () => void;
+  onConnection(callback: (connected: boolean) => void): () => void;
+  connect(): void;
+  call<T = any>(method: string, params?: RpcParams): Promise<T>;
+  close(): void;
+}
+export class RpcClient implements Transport {
   private socket?: WebSocket;
   private nextId = 0;
   private pending = new Map<number, { resolve: (v: any) => void; reject: (e: Error) => void; timer: ReturnType<typeof setTimeout> }>();

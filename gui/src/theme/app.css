@@ -24,9 +24,13 @@ svg { display: block; flex: none; shape-rendering: crispEdges; }
 .app-shell {
   --scale: 1;
   width: calc(100vw / var(--scale)); height: calc(100vh / var(--scale)); zoom: var(--scale);
-  display: grid; grid-template-rows: 32px 38px minmax(0, 1fr) var(--timeline-h) 26px;
+  display: grid; grid-template-rows: 32px auto 38px minmax(0, 1fr) var(--timeline-h) 26px;
+  grid-template-areas: "menu" "demo" "ctx" "work" "time" "status";
   background: var(--cs-board);
 }
+.menu-bar { grid-area: menu; } .demo-notice { grid-area: demo; } .context-bar { grid-area: ctx; }
+.workspace { grid-area: work; } .timeline { grid-area: time; } .status-bar { grid-area: status; }
+.dock-switch { display: none; }
 :root[data-scale="2"] .app-shell { --scale: 2; }
 :root[data-scale="3"] .app-shell { --scale: 3; }
 .workspace {
@@ -405,4 +409,107 @@ dialog::backdrop { background: var(--ui-scrim); opacity: 0.35; }
   :root { --tool-btn: 28px; --timeline-h: 208px; }
   .tool-button img.ico-x2 { width: 16px; height: 16px; }
   .tool-button.group-start { margin-top: 5px; }
+}
+
+/* ---------- demo strip (npm run build:demo only): silk-screened "DEMO" pad on the board ---------- */
+.demo-notice {
+  display: flex; align-items: center; gap: 10px; min-width: 0; padding: 5px 10px;
+  background: var(--ui-sel-bg); border-top: 1px solid var(--ui-sep); border-bottom: 1px solid var(--ui-on-line); font-size: var(--fs-s);
+}
+.demo-chip { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 20px; padding: 0 6px; background: var(--ui-inverse-bg); color: var(--ui-text-inverse); font-weight: 700; clip-path: var(--chamfer); }
+html[lang="en"] .demo-chip-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.demo-text { flex: 1; min-width: 0; line-height: 1.35; }
+.demo-short { display: none; }
+.demo-link { color: var(--ui-text); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+.demo-link:focus-visible { outline: 2px solid var(--ui-focus); }
+.demo-actions { flex: none; display: flex; gap: 4px; }
+
+/* ---------- dock switch (narrow screens): tabs that pick the docked panel ---------- */
+.dock-switch { gap: 3px; padding: 4px 6px 0; border-bottom: 2px solid var(--ui-panel-line); background: var(--cs-board); }
+.dtab-btn {
+  flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px; height: 34px; margin-bottom: -2px;
+  background: var(--cs-pad); border: 2px solid var(--ui-pad-line); border-bottom: 0; white-space: nowrap; overflow: hidden;
+}
+.dtab-btn[aria-selected="true"] { background: var(--cs-panel); border-color: var(--ui-panel-line-on); font-weight: 600; }
+.dtab-btn:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--ui-focus); }
+
+/* ---------- medium widths: narrower side panels ---------- */
+@media (max-width: 1180px) {
+  :root { --palette-w: 180px; --agent-w: 270px; --layer-w: 180px; }
+  .menu-item, .menu-right .path { display: none; }
+  .agent-tabs { overflow-x: auto; }
+  .atab span:not(.badge) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .demo-long { display: none; } .demo-short { display: inline; }
+}
+
+/* ---------- narrow (phones, small tablets): canvas first, one docked panel below ---------- */
+@media (max-width: 760px) {
+  :root { --layer-w: 136px; --cell-w: 34px; --dock-h: clamp(190px, 36dvh, 340px); }
+  body { overflow: hidden; }
+  .app-shell {
+    height: calc(100dvh / var(--scale));
+    grid-template-rows: auto auto auto minmax(150px, 1fr) auto auto var(--dock-h) auto;
+    grid-template-areas: "menu" "demo" "ctx" "canvas" "tools" "switch" "dock" "status";
+  }
+  .workspace { display: contents; }
+  .canvas-region { grid-area: canvas; margin: 6px 6px 0; }
+  .toolbar { grid-area: tools; }
+  .dock-switch { grid-area: switch; display: flex; }
+  .palette-panel, .timeline, .agent-panel { grid-area: dock; margin: 0 6px 6px; border-top: 0; }
+  .app-shell:not([data-dock="palette"]) .palette-panel,
+  .app-shell:not([data-dock="timeline"]) .timeline,
+  .app-shell:not([data-dock="agent"]) .agent-panel { display: none; }
+  .palette-panel .notch, .timeline .notch, .agent-panel .notch { display: none; }
+  /* the dock tab already names the panel: drop the repeated header strip */
+  .palette-panel > .ph, .timeline > .ph, .agent-panel > .ph { display: none; }
+
+  .menu-bar { min-height: 36px; gap: 2px; padding: 0 6px; }
+  .brand { margin-right: 4px; }
+  .op-pick, .menu-right .conn { display: none; }
+  .menu-right { gap: 6px; }
+  .menus summary { height: 32px; }
+
+  .demo-notice { flex-wrap: wrap; gap: 6px 8px; padding: 6px 8px; }
+  .demo-text { flex-basis: calc(100% - 110px); }
+  .demo-actions { width: 100%; }
+  .demo-actions .pad { flex: 1; height: 30px; }
+
+  .context-bar { overflow-x: auto; gap: 10px; padding: 0 8px; scrollbar-width: thin; }
+  .ctx-tool { min-width: 0; flex: none; white-space: nowrap; }
+  .context-bar > * { flex: none; }
+  .ctx-right { margin-left: 0; }
+
+  .canvas-viewport { padding: 8px; }
+  .document-tabs .dtab-name { max-width: 40vw; overflow: hidden; text-overflow: ellipsis; }
+  .canvas-controls .pad.icon-only { width: 32px; height: 30px; }
+
+  /* the DIP tool chip lies on its side: pins above and below */
+  .toolbar { flex-direction: row; justify-content: space-between; gap: 2px; margin: 10px 6px 8px; padding: 3px 4px 3px calc(var(--notch) + 2px); }
+  .pins { top: auto; bottom: auto; left: 28px; right: 28px; width: auto; height: 4px;
+    background-image: linear-gradient(90deg, var(--ui-panel-line-on) 4px, transparent 4px); background-size: 14px 4px; }
+  .pins.left { top: calc(-1 * var(--bw) - 6px); left: 28px; }
+  .pins.right { bottom: calc(-1 * var(--bw) - 6px); right: 28px; }
+  .tool-button { flex: 1 1 0; width: auto; min-width: 26px; max-width: 44px; height: 36px; }
+  .tool-button img.ico-x2 { width: 16px; height: 16px; }
+  .tool-button.group-start { margin-top: 0; margin-left: 6px; }
+
+  .palette-list { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  .palette-color { height: 30px; }
+  .panel-hint { display: none; }
+
+  .timeline .legend { display: none; }
+  .playback-controls { flex-wrap: wrap; row-gap: 4px; }
+  .playback-controls select { min-width: 0; width: 150px; }
+  .transport .pad.icon-only { width: 32px; height: 30px; }
+  .ltype, .lop { display: none; }
+
+  .status-bar { overflow-x: auto; scrollbar-width: none; }
+  .sb { padding: 0 8px; }
+
+  dialog.panel { width: 96vw; max-width: 96vw; }
+  .frow { grid-template-columns: 1fr; gap: 4px; }
+  .dlg-actions { flex-wrap: wrap; }
+}
+@media (max-width: 760px) and (max-height: 819px) {
+  .tool-button { height: 34px; }
 }

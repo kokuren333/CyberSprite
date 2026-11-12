@@ -50,6 +50,7 @@ const pairs = [
   ['button text on hovered pads', '--ui-text', '--ui-pad-hover', BODY],
   ['text on pressed pads, active tool, checked toggles', '--ui-text', '--ui-pad-on-bg', BODY],
   ['selected activity row / selected layer', '--ui-text', '--ui-sel-bg', BODY],
+  ['demo strip (build:demo): notice text and link', '--ui-text', '--ui-sel-bg', BODY],
   ['current frame column', '--ui-text', '--ui-cur-col', BODY],
   ['error issue row', '--ui-text', '--ui-error-bg', BODY],
   ['warning issue row', '--ui-text', '--ui-warn-bg', BODY],
