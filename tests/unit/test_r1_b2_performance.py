@@ -127,7 +127,8 @@ def test_transactions_reuse_unchanged_frames_in_both_validation_reports(tmp_path
         return original(image, ti)
 
     monkeypatch.setattr(quality, "clusters", count)
-    ops.execute("get_history", root)
+    # Read-only history queries no longer validate (R1-B1); warm the cache explicitly.
+    ops.execute("validate", root)
     assert len(calls) == 70
     for color in (2, 1):
         result = ops.execute(

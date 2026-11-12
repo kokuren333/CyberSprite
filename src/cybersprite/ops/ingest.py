@@ -10,7 +10,6 @@ import numpy as np
 from cybersprite.core import history, sources
 from cybersprite.core.canonical import load_project, metadata_bytes, project_path
 from cybersprite.core.errors import CyberSpriteError, invalid
-from cybersprite.core.execution import committed_bytes
 from cybersprite.core.journal_clock import now
 from cybersprite.core.models import (
     Frame,
