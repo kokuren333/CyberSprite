@@ -1,0 +1,16 @@
+{
+  "id": "sprite-16",
+  "preset_version": 1,
+  "title": "Free 16x16 sprite",
+  "extends": "free",
+  "asset": {
+    "class": "sprite-16",
+    "role": "sprite",
+    "canvas": {
+      "w": 16,
+      "h": 16,
+      "fixed": false
+    }
+  },
+  "workflow": "direct"
+}

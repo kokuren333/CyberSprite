@@ -84,17 +84,17 @@
       },
       "colors_per_frame": {
         "before": {
-          "sum": 1,
-          "max": 1
+          "sum": 0,
+          "max": 0
         },
         "after": {
-          "sum": 2,
-          "max": 2
+          "sum": 1,
+          "max": 1
         }
       },
       "colors_per_frame_max": {
-        "before": 1,
-        "after": 2
+        "before": 0,
+        "after": 1
       },
       "colors_used": {
         "before": 0,
@@ -132,7 +132,38 @@
         "before": 2,
         "after": 1
       }
-    }
+    },
+    "updated_issues": [
+      {
+        "rule": "Q-PAL-02",
+        "where": {
+          "frames": [],
+          "layer": null,
+          "bbox": null,
+          "points": []
+        },
+        "before": {
+          "count": 2,
+          "level": "info",
+          "message": "Unused palette indices: [1, 2]."
+        },
+        "after": {
+          "count": 1,
+          "level": "info",
+          "message": "Unused palette indices: [2]."
+        }
+      }
+    ],
+    "new_points": [
+      {
+        "rule": "Q-PIX-02",
+        "frame": 0,
+        "layer": "L1",
+        "x": 1,
+        "y": 1
+      }
+    ],
+    "new_points_count": 1
   },
   "preview": {
     "paths": [],

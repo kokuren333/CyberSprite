@@ -2,7 +2,6 @@
 
 import os
 from contextlib import nullcontext
-from copy import deepcopy
 from functools import partial
 from importlib import import_module
 from types import SimpleNamespace
@@ -22,6 +21,8 @@ from .args import ARGS, TxOptions
 from .common import fail
 from .descriptions import OPERATIONS
 from .ingest_args import (
+    AddSourceArgs,
+    AddSourceResult,
     GetSourceArgs,
     GetSourceResult,
     ImportArgs,
@@ -32,6 +33,12 @@ from .ingest_args import (
 
 
 def _lazy_apply(module, function, *args, **kwargs):
+    if "name" in kwargs:
+        from .platform_ops import apply_defaults
+
+        args[0].defaults_from_platform.extend(
+            apply_defaults(args[0].project, args[1], kwargs["name"])
+        )
     return getattr(import_module(f".{module}", __name__), function)(*args, **kwargs)
 
 
@@ -52,6 +59,7 @@ DRAWING = {
     "cleanup_pixels",
 }
 FRAME = {
+    "move_cel",
     "add_frame",
     "delete_frames",
     "move_frames",
@@ -96,6 +104,7 @@ QUERY = {
     "get_tiles",
 }
 NON_IDEMPOTENT = {
+    "move_cel",
     "delete_tiles",
     "move_tiles",
     "tileset_from_layer",
@@ -184,7 +193,10 @@ def _result(name):
         "undo": {"restored_revision": (int, ...)},
         "redo": {"restored_revision": (int, ...)},
         "apply_ops": {"results": (list[dict], ...)},
-        "new_project": {"summary": (dict, ...)},
+        "new_project": {
+            "summary": (dict, ...),
+            "copied_validation_keys": (list[str], Field(default_factory=lambda: [])),
+        },
         "get_info": {
             key: (Any, None)
             for key in (
@@ -198,6 +210,8 @@ def _result(name):
                 "sources",
                 "validation",
                 "history",
+                "platform",
+                "guide",
             )
         },
         "get_pixels": {
@@ -318,9 +332,23 @@ def registry():
         from .export_ops import register_exports
 
         register_exports(_registry)
+        from .platform_ops import register_platforms
+
+        register_platforms(_registry)
         from .generation import register_generators
 
         register_generators(_registry)
+        _registry.register(
+            Op(
+                "add_source",
+                AddSourceArgs,
+                _special,
+                AddSourceResult,
+                "ingest",
+                "N",
+                description="Register design images with provenance, without canvas placement.",
+            )
+        )
         _registry.register(
             Op(
                 "import_image",
@@ -360,7 +388,7 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
     check_deadline()
     actor = os.environ.get("CYBERSPRITE_ACTOR", "cli") if actor is None else actor
     definition = registry().get(name)
-    args = deepcopy(args or {})
+    args = dict(args or {})
     for key in TxOptions.model_fields:
         if key in args:
             options[key] = args.pop(key)
@@ -373,6 +401,12 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
         ) from error
     parsed = definition.parse(args)
     root = project_path(project).parent
+    if name == "add_source":
+        from .ingest import add_source_top
+
+        value = add_source_top(project, parsed, tx, actor)
+        definition.result.model_validate(value["result"])
+        return value
     if name == "import_aseprite" and definition.kind == "ingest":
         if options:
             raise invalid("Transaction options are accepted only by mutate operations.")
@@ -385,7 +419,7 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
         value = generate_top(project, parsed, tx, actor)
         definition.result.model_validate(value["result"])
         return value
-    if name == "list_generators":
+    if name in ("list_generators", "list_platforms"):
         value = definition.apply(SimpleNamespace(root=root), parsed)
         definition.result.model_validate(value)
         return {
@@ -416,6 +450,8 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
 
         target = project_path(project)
         p = construct(parsed, root)
+        default_keys = parsed.__dict__.pop("_defaults_from_platform", [])
+        copied_keys = parsed.__dict__.pop("_copied_validation_keys", [])
         with (
             nullcontext() if tx.dry_run else history.project_lock(root, actor) as lock,
             save_context(root, lock=lock, durable=not tx.dry_run),
@@ -441,8 +477,12 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
             "op": name,
             "project": root.as_posix(),
             "revision": p.revision,
-            "result": {"summary": summary(p, root)},
+            "result": {
+                "summary": summary(p, root),
+                **({"copied_validation_keys": copied_keys} if p.platform else {}),
+            },
             "warnings": [],
+            **({"defaults_from_platform": default_keys} if default_keys else {}),
         }
     if definition.kind == "mutate":
         from .previews import transaction_previews
@@ -467,7 +507,8 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
     p = load_project(project)
     if definition.kind != "export" and (name != "get_info" or "history" in parsed.include):
         p = synchronize(root, p, actor=actor)
-    value = definition.apply(OpContext(p, root), parsed)
+    ctx = OpContext(p, root)
+    value = definition.apply(ctx, parsed)
     # Validate output without injecting optional absent query sections.
     definition.result.model_validate(value)
     if definition.kind == "export":
@@ -479,4 +520,9 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
         "revision": p.revision,
         "result": value,
         "warnings": value.get("warnings", []),
+        **(
+            {"defaults_from_platform": sorted(set(ctx.defaults_from_platform))}
+            if ctx.defaults_from_platform
+            else {}
+        ),
     }

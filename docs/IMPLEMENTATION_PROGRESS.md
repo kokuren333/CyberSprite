@@ -262,3 +262,19 @@
 - 自作17原画×19条件×2方式=646件を各3回測定、646/646で出力一致。生成(d)8/13合格、非ピクセル(e)10/12拒否、誤固定(f)3/34拒否、AUTO対照16/17合格。非ピクセルの拒否率は実CLIの変更前後とも83.3%。各12入力×3回の生時間と中央値をPIXELIZE_BENCHへ記録し、変動する並行負荷下の時間差を性能改善とは扱わない。
 - 判断I-1301〜I-1309。SPEC §2.3.2、§11.8〜11.10、§11.13を最小更新。正例547件の旧測定と255件の完全一致を保持し、95%条件はrequirements_met=false。
 - 不足: 実ライブラリ3系統・GPU・アニメーション/写真の実測、全OS/同梱バイナリ監査、Linux、Opusの意匠確認、R1-D2の接続。cuda-toolkitのLICENSE原文は未確認のため依存候補を許可しない。xpriteの生成原画は5/16出力、残りの期限/未検出/I/Oエラーを成功・拒否に水増ししていない。詳細はdocs/R1_D1_IMPLEMENTATION_REPORT.md。
+
+## R1-E1: プラットフォームの芯と共有セルの明示化（2026-11-12）
+
+- SPECを先に改訂してM11〜M13を追加し、省略可能platform snapshot、解決・継承、29定義、Op/CLI/MCP、6規則、既定値の駆動、リンク編集の明示scopeを実装した。
+- 個別試験は最終41 passed、全体pytestは1455 passed / 2 skipped（582.06秒、既存Windowsシンボリックリンク権限2件）。実CLIとMCP SDKの通し確認、実PNGの自前/Pillow再復号とファイル確認、Ruff check/format・mypy39ファイル・schema・repositoryは成功。wheel内の29定義とNOTICEも照合済み。既存goldenは8応答の透明除外による色数デルタだけ、新規NDS/DMGは16期待ファイル。既存正本・画像・画素ハッシュは不変。
+- 性能最適化なし、before/afterの速度主張なし。判断I-1401〜I-1417、新規依存なし。ハードウェアの事実はPan Docs/GBATEKで照合した。
+- GUIの意匠、R1-C共通基盤への接合、M12/M13、Linux、過去DS資料の遡及来歴記録は後続工程。詳細は [R1_E1_REPORT.md](R1_E1_REPORT.md)。
+## R1-E2: 保護描画・設計原画・検証デルタ（2026-11-12）
+- 描画14 Opの保護mask、ellipse/polygon・and/or/not領域、outside輪郭の色除外、preview rect、@色名・sym legend、Q-PIX点差分とupdated_issues、source専用登録add_source・side guideを追加した。CLI/MCPは共通Opを使用し、共有セルのlinked_framesを維持する。
+- 全体 `uv run pytest -q --tb=short`: **1464 passed / 2 skipped（807.93秒）**。追加53件を含む。skipは既存のWindowsシンボリックリンク作成権限2件。Ruff check/format、core/ops mypy37ファイル、schema drift、repository検査も成功した。
+- 実CLI12呼び出しで3段階の保護描画、outside outlineの2回目no_op、crop、設計原画登録とguide、validate、RGBA PNG書き出しと復号照合を確認した。error 0 / warning 0 / info 1で、Q-PAL-02は未使用の既定色5〜16を意図どおり保持する。validation_ok/verified=true。crop・guide・書き出した実PNGを開いて確認した。MCP実SDKでも同じ機能と返却filesのguideへの往復、300段領域の直接・mask・batchでのE_LIMIT_EXCEEDEDを検証した。
+- goldenは唯一の更新器で応答JSON10件を更新し、全差分を確認した。点差分と既存issue更新だけで、PNG・正本・画素配列・画素hashは不変。詳細な対象と理由は実装報告に記録した。
+- before/afterの速度比較は未実施。速度向上の主張はなく、テスト実時間は競合したWindows環境での機能検証時間である。完全なQ-PIX点集合の追加時間・メモリはR1-B2統合後の確認事項として残る。
+- 判断I-1461〜I-1475。SPECの領域・輪郭・preview・色名・delta・sourcesと付録C、sources schema、skillsの引数事実を更新した。追加依存・外部参照なし。実装と契約更新は9546d6b / 79413c1 / 58335c7 / 6dedadf。
+- 限定: 種集合除外とinsideの一般冪等性は両立しないため、Iの保証はoutsideだけ、insideはN（I-1463）。guide under/GUI、ramps、H-08/H-06、platform既定値は範囲外。LinuxはCI待ち。見た目の良否は判断していない。統合時は非直列化の完全点集合とMCPの事前領域制限・guideパス往復を維持する。
+- 詳細: [R1_E2_IMPLEMENTATION_REPORT.md](R1_E2_IMPLEMENTATION_REPORT.md)。最終コミット後にも書き出したファイルを確認する。

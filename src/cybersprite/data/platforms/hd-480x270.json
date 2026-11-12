@@ -1,0 +1,23 @@
+{
+  "id": "hd-480x270",
+  "preset_version": 1,
+  "title": "HD-class 480x270 display",
+  "extends": "free",
+  "system": {
+    "id": "hd-480x270",
+    "screen": {
+      "w": 480,
+      "h": 270
+    },
+    "tile": {
+      "w": 16,
+      "h": 16
+    }
+  },
+  "defaults": {
+    "grid": {
+      "w": 16,
+      "h": 16
+    }
+  }
+}

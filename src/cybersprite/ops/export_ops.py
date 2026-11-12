@@ -24,6 +24,9 @@ from cybersprite.formats.plugin_export import export_plugin
 def apply_export(ctx, args, name):
     from cybersprite.formats.export import EXPORTERS
 
+    from .platform_ops import apply_defaults
+
+    ctx.defaults_from_platform.extend(apply_defaults(ctx.project, args, name))
     return EXPORTERS[name](ctx.project, args, ctx.root)
 
 

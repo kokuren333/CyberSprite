@@ -141,13 +141,24 @@ def write_points(ctx, layer, frame, points):
     return changed
 
 
-def rows(p, values, fmt):
+def rows(p, values, fmt, legend=None):
     if not values or not values[0]:
         raise invalid("Rows must be a nonempty rectangular pixel array.")
     if fmt == "hex":
+        if legend is not None:
+            raise invalid("legend is accepted only with format=sym; remove legend or use sym.")
         result = pixels_from_rows(values, len(values[0]) // 2, len(values))
     else:
-        if len(p.palette.colors) > 62:
+        mapping = None
+        if legend is not None:
+            if any(len(key) != 1 or key == "." for key in legend):
+                raise invalid(
+                    "Legend keys must be single characters; dot is reserved for transparency."
+                )
+            mapping = {
+                key: resolve_color(p.palette, color) for key, color in sorted(legend.items())
+            }
+        if mapping is None and len(p.palette.colors) > 62:
             raise invalid("Symbol rows require a palette of at most 62 colors.")
         if any(len(row) != len(values[0]) for row in values):
             raise invalid("Symbol rows must have equal widths.")
@@ -155,6 +166,11 @@ def rows(p, values, fmt):
         for y, row in enumerate(values):
             for x, symbol in enumerate(row):
                 if symbol == ".":
+                    continue
+                if mapping is not None:
+                    if symbol not in mapping:
+                        raise invalid("Unknown legend symbol; add it to legend.", symbol=symbol)
+                    result[y, x] = mapping[symbol]
                     continue
                 if symbol not in SYMBOLS:
                     raise invalid("Unknown symbol in pixel rows.", symbol=symbol)

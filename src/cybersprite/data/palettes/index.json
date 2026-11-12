@@ -23,9 +23,9 @@
   {
     "name": "gray-4",
     "colors": 4,
-    "description": "Four evenly spaced greys from black to white (value = i * 255 // 3).",
+    "description": "Authored conventional greys (i * 255 // 3); not a hardware RGB standard.",
     "license": "CC0-1.0",
-    "origin": "device"
+    "origin": "original"
   },
   {
     "name": "gray-8",

@@ -8,6 +8,8 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from .platform import Platform
+
 Name = Annotated[str, Field(min_length=1, max_length=255)]
 Byte = Annotated[int, Field(ge=0, le=255)]
 Positive = Annotated[int, Field(ge=1)]
@@ -236,6 +238,7 @@ class Project(Model):
     schema_version: Literal[1] = 1
     revision: Annotated[int, Field(ge=0)] = 0
     name: Name
+    platform: Platform | None = None
     canvas: Canvas
     palette: Palette
     frames: list[Frame]
@@ -247,6 +250,13 @@ class Project(Model):
     user_data: UserData | None = None
     id_counters: IdCounters = Field(default_factory=IdCounters)
     extensions: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("platform")
+    @classmethod
+    def resolved_master(cls, value):
+        if value and value.system.color.model == "master" and not value.system.color.master_colors:
+            raise ValueError("A platform snapshot using master colors requires master_colors.")
+        return value
 
 
 class SourceFile(Model):
@@ -285,6 +295,7 @@ class Placement(Model):
 class Source(Model):
     id: Annotated[str, Field(pattern=r"^SRC[1-9][0-9]*$")]
     kind: Literal["generated", "imported"]
+    use: Literal["canvas", "design"] = "canvas"
     files: list[SourceFile]
     provider: str
     model: SourceModel | None

@@ -1,0 +1,62 @@
+{
+  "id": "dmg",
+  "preset_version": 1,
+  "title": "DMG-compatible display",
+  "extends": "free",
+  "system": {
+    "id": "dmg",
+    "screen": {
+      "w": 160,
+      "h": 144
+    },
+    "color": {
+      "model": "master",
+      "master_palette": "gray-4",
+      "alpha": "binary"
+    },
+    "palette": {
+      "rows": 2,
+      "row_size": 4,
+      "slot0": "transparent",
+      "unit": "object"
+    },
+    "tile": {
+      "w": 8,
+      "h": 8,
+      "bpp": 2,
+      "flips": {
+        "x": true,
+        "y": true,
+        "d": false
+      },
+      "map_max": {
+        "w": 32,
+        "h": 32
+      }
+    },
+    "object": {
+      "sizes": [
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          16
+        ]
+      ],
+      "notes": "Larger assets require multiple hardware objects."
+    },
+    "native": [
+      "gb-2bpp"
+    ]
+  },
+  "defaults": {
+    "grid": {
+      "w": 8,
+      "h": 8
+    },
+    "palette": "gray-4"
+  },
+  "notes": "gray-4 uses authored conventional shades, not a hardware RGB standard."
+}

@@ -115,12 +115,12 @@
       },
       "colors_per_frame": {
         "before": {
-          "sum": 8,
-          "max": 3
+          "sum": 4,
+          "max": 2
         },
         "after": {
-          "sum": 14,
-          "max": 3
+          "sum": 8,
+          "max": 2
         }
       },
       "frames": {
@@ -159,7 +159,38 @@
         "before": 4,
         "after": 8
       }
-    }
+    },
+    "new_points": [
+      {
+        "rule": "Q-PIX-02",
+        "frame": 1,
+        "layer": "L1",
+        "x": 1,
+        "y": 1
+      },
+      {
+        "rule": "Q-PIX-02",
+        "frame": 1,
+        "layer": "L1",
+        "x": 2,
+        "y": 1
+      },
+      {
+        "rule": "Q-PIX-02",
+        "frame": 4,
+        "layer": "L1",
+        "x": 1,
+        "y": 1
+      },
+      {
+        "rule": "Q-PIX-02",
+        "frame": 4,
+        "layer": "L1",
+        "x": 2,
+        "y": 1
+      }
+    ],
+    "new_points_count": 4
   },
   "preview": {
     "paths": [],

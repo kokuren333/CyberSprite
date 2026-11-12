@@ -180,11 +180,17 @@ def test_registry_coverage_and_contracts():
         "cleanup_pixels",
         "import_aseprite",
         "import_image",
+        "add_source",
         "list_sources",
         "get_source",
         "list_generators",
         "generate_image",
         "export_plugin",
+        "move_cel",
+        "set_platform",
+        "list_platforms",
+        "conform_palette",
+        "set_frame_ticks",
     }
     for op in registry().all():
         description = op.describe()

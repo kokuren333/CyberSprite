@@ -191,7 +191,7 @@ def cli(ctx, project, output_format, actor, quiet):
 
 @cli.command("new")
 @click.argument("path", type=click.Path(path_type=Path))
-@click.option("--size", required=True, help="Canvas WIDTHxHEIGHT in integer pixels.")
+@click.option("--size", help="Canvas WIDTHxHEIGHT in integer pixels; defaults to platform canvas.")
 @click.pass_obj
 def new_command(state, path, size, frames, duration_ms, name, palette, background, **extra):
     """Create a new project at revision zero; never overwrite an existing project."""
@@ -201,16 +201,15 @@ def new_command(state, path, size, frames, duration_ms, name, palette, backgroun
     from cybersprite.ops import execute
 
     state.update(op="new_project", project=path)
-    match = re.fullmatch(r"([0-9]+)[xX]([0-9]+)", size)
-    if match is None:
+    match = re.fullmatch(r"([0-9]+)[xX]([0-9]+)", size) if size else None
+    if size and match is None:
         raise invalid("--size must be WIDTHxHEIGHT, for example 32x32.")
     colors = "cs-circuit-16" if palette == "default" else palette
     envelope = execute(
         "new_project",
         path,
         {
-            "width": int(match[1]),
-            "height": int(match[2]),
+            **({"width": int(match[1]), "height": int(match[2])} if match else {}),
             **({"frames": frames} if frames is not None else {}),
             **({"duration_ms": duration_ms} if duration_ms is not None else {}),
             "name": name or path.stem,
@@ -222,6 +221,32 @@ def new_command(state, path, size, frames, duration_ms, name, palette, backgroun
     )
     state.update(project_path=envelope["project"], revision=envelope["revision"])
     write(state, envelope)
+
+
+@cli.group("platforms")
+def platforms_command():
+    """List or inspect platform definitions and creation guides."""
+
+
+@platforms_command.command("list")
+@click.pass_obj
+def platforms_list(state):
+    from cybersprite.ops import execute
+
+    write(state, execute("list_platforms", state.get("project") or Path.cwd()))
+
+
+@platforms_command.command("show")
+@click.argument("id")
+@click.option("--guide", is_flag=True, help="Include the deterministic platform guide.")
+@click.pass_obj
+def platforms_show(state, id, guide):
+    from cybersprite.ops import execute
+
+    write(
+        state,
+        execute("list_platforms", state.get("project") or Path.cwd(), {"id": id, "guide": guide}),
+    )
 
 
 @cli.command("info")
@@ -607,6 +632,7 @@ cli.add_command(
         "source",
         help="Read source provenance.",
         routes={
+            "add": ("add_source", "M12", "files"),
             "list": ("list_sources", "M6", None),
             "show": ("get_source", "M6", "id"),
         },

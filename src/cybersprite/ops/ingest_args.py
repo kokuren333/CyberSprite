@@ -140,3 +140,16 @@ class GetSourceArgs(Model):
 
 class GetSourceResult(Source):
     report: dict | None = None
+
+
+class AddSourceArgs(Model):
+    files: str | Annotated[list[str], Field(min_length=1, max_length=4096)] = Field(
+        description="Design image paths to retain without placing pixels on the canvas.",
+        json_schema_extra={"x-cybersprite-path": "input"},
+    )
+    provenance: Provenance = Field(description="Origin and license; use unknown if unknown.")
+
+
+class AddSourceResult(Model):
+    source: str | None
+    files: list[str]

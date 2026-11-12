@@ -42,6 +42,8 @@ csp -p hero.csprite op set_pixel layer=body frame=2 x=7 y=7 color=5 --dry-run
 
 ### 2.3 各フレームを描き分ける
 
+`region` は `ellipse`（x/y/w/h）、`polygon`（points）、`and/or/not`（of 配列）も受ける。組合せは深さ16・256ノードまで、not の子は1個。`transform_region.mask` は取り出す位置を描画前に制限し、共有画像の編集結果には `linked_frames` が返る。
+
 - 部分を動かす・写すには `transform_region`。`region` は `{"type":"all"}`、`{"type":"rect","x":…,"y":…,"w":…,"h":…}`、`{"type":"mask","x":…,"y":…,"rows":["#.#",…]}`（`#` = 選ぶ）、`{"type":"color","color":n}`、`{"type":"wand","x":…,"y":…}`。`action` は `move`（既定。元を消す）か `copy`。ほかに `flip`（`h`/`v`）、`rotate`、`target_layer`、`target_frame`。
   ```powershell
   csp -p hero.csprite op transform_region layer=body frame=1 dy=-1 --args '{"region":{"type":"all"}}'                     # 1px 上げる（上下動）

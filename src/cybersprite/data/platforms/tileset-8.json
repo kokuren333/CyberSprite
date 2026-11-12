@@ -1,0 +1,27 @@
+{
+  "id": "tileset-8",
+  "preset_version": 1,
+  "title": "Free 8x8 tileset",
+  "extends": "free",
+  "asset": {
+    "class": "tileset-8",
+    "role": "tileset",
+    "canvas": {
+      "w": 8,
+      "h": 8
+    }
+  },
+  "system": {
+    "tile": {
+      "w": 8,
+      "h": 8
+    }
+  },
+  "defaults": {
+    "grid": {
+      "w": 8,
+      "h": 8
+    }
+  },
+  "workflow": "tiles-first"
+}

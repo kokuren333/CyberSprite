@@ -4,6 +4,7 @@ from typing import Annotated, Any, Literal, Self
 
 from pydantic import BaseModel, Field, create_model, model_validator
 
+from cybersprite.core.errors import CyberSpriteError
 from cybersprite.core.limits import drawing_work
 from cybersprite.core.models import (
     BlendMode,
@@ -17,7 +18,7 @@ from cybersprite.core.models import (
     SliceKey,
     UserData,
 )
-from cybersprite.core.raster import geometry_work
+from cybersprite.core.raster import RasterError, check_region_tree, geometry_work
 
 from .descriptions import argument_model
 
@@ -35,6 +36,30 @@ class AllRegion(Model):
 
 class RectRegion(Rect):
     type: Literal["rect"]
+
+
+class EllipseRegion(Rect):
+    type: Literal["ellipse"]
+
+
+class PolygonRegion(Model):
+    type: Literal["polygon"]
+    points: Annotated[list[Point], Field(min_length=2)]
+
+
+class CombinedRegion(Model):
+    type: Literal["and", "or", "not"]
+    of: list["Region"]
+
+    @model_validator(mode="before")
+    @classmethod
+    def bounded_tree(cls, value):
+        if isinstance(value, dict):
+            try:
+                check_region_tree(value)
+            except RasterError as error:
+                raise CyberSpriteError(error.code, error.message, error.hint) from error
+        return value
 
 
 class MaskRegion(Model):
@@ -57,8 +82,36 @@ class WandRegion(Model):
 
 
 Region = Annotated[
-    AllRegion | RectRegion | MaskRegion | ColorRegion | WandRegion, Field(discriminator="type")
+    AllRegion
+    | RectRegion
+    | EllipseRegion
+    | PolygonRegion
+    | MaskRegion
+    | ColorRegion
+    | WandRegion
+    | CombinedRegion,
+    Field(discriminator="type"),
 ]
+CombinedRegion.model_rebuild()
+
+
+class DrawingMask(Model):
+    only_on: list[Color] | None = None
+    not_on: list[Color] | None = None
+    region: Region = Field(default_factory=AllRegion)
+
+
+class Guide(Model):
+    source: str
+    file: str | None = Field(
+        None,
+        description="Registered source image path; workspace-relative in MCP.",
+        json_schema_extra={"x-cybersprite-path": "input"},
+    )
+    x: Annotated[int, Field(ge=0)] = 0
+    y: Annotated[int, Field(ge=0)] = 0
+    scale: Annotated[int, Field(ge=1, le=64)] | None = None
+    mode: Literal["side"] = "side"
 
 
 class Brush(Model):
@@ -140,6 +193,29 @@ ARGS: dict[str, type[BaseModel]] = {}
 
 
 def define(name: str, fields: dict[str, Any], draw: bool = False) -> None:
+    if name in {
+        "set_pixel",
+        "set_pixels",
+        "draw_rows",
+        "line",
+        "rect",
+        "ellipse",
+        "polygon",
+        "stroke",
+        "fill",
+        "erase",
+        "replace_color",
+        "transform_region",
+        "outline",
+        "cleanup_pixels",
+    }:
+        fields = {
+            **fields,
+            "mask": (
+                DrawingMask | None,
+                Field(None, json_schema_extra={"x-cybersprite-region-mask": True}),
+            ),
+        }
     ARGS[name] = argument_model(
         name, contract("".join(s.title() for s in name.split("_")) + "Args", fields, draw=draw)
     )
@@ -162,6 +238,7 @@ define(
         "rows": (list[str], ...),
         "format": (Literal["hex", "sym"], "hex"),
         "skip_transparent": (bool, False),
+        "legend": (dict[str, Color] | None, None),
     },
     True,
 )
@@ -230,6 +307,7 @@ define(
     {
         "color": COLOR,
         "placement": (Literal["outside", "inside"], "outside"),
+        "exclude_colors": (list[Color] | None, None),
         "connectivity": (Literal[4, 8], 4),
         "region": REGION,
     },
@@ -272,9 +350,28 @@ define("set_frame_duration", {"frames": (Frames, ...), "duration_ms": (Duration,
 define(
     "set_cel",
     {
+        "linked": (
+            Literal["error", "all", "unlink"],
+            Field(
+                "error",
+                description="Shared position/opacity edits: error, all, or unlink this frame.",
+            ),
+        ),
         **{k: (Coordinate | None, None) for k in ("x", "y", "z_index")},
         "opacity": (Byte | None, None),
         "user_data": (UserData | None, None),
+    },
+    True,
+)
+define(
+    "move_cel",
+    {
+        "dx": (int, 0),
+        "dy": (int, 0),
+        "scope": (
+            Literal["frame", "shared"],
+            Field(description="Move this frame after detaching, or every shared frame."),
+        ),
     },
     True,
 )
@@ -456,8 +553,30 @@ for name in ("undo", "redo"):
 define(
     "new_project",
     {
-        "width": (Positive, ...),
-        "height": (Positive, ...),
+        "width": (Positive | None, None),
+        "height": (Positive | None, None),
+        "platform": (
+            str | dict | None,
+            Field(
+                None,
+                description="Platform ID or data-only definition; omission uses user defaults.",
+            ),
+        ),
+        "platform_file": (
+            str | None,
+            Field(
+                None,
+                description="Platform JSON file path.",
+                json_schema_extra={"x-cybersprite-path": "input"},
+            ),
+        ),
+        "platform_overrides": (
+            dict,
+            Field(
+                default_factory=lambda: {},
+                description="Platform override values keyed by JSON Pointer.",
+            ),
+        ),
         "palette": (str | list[str], "cs-circuit-16"),
         "transparent_index": (int, 0),
         "frames": (Positive, 1),
@@ -484,6 +603,7 @@ define(
                     "sources",
                     "validation",
                     "history",
+                    "platform",
                 ]
             ],
             ["summary"],
@@ -507,8 +627,8 @@ define(
     "add_tileset",
     {
         "name": (Name, ...),
-        "tile_w": (TileSize, ...),
-        "tile_h": (TileSize, ...),
+        "tile_w": (TileSize | None, None),
+        "tile_h": (TileSize | None, None),
         "base_index": (int, 1),
         "if_exists": (Literal["error", "reuse", "allow"], "error"),
     },
@@ -555,8 +675,8 @@ define(
     "tileset_from_layer",
     {
         "layer": (str, ...),
-        "tile_w": (TileSize, ...),
-        "tile_h": (TileSize, ...),
+        "tile_w": (TileSize | None, None),
+        "tile_h": (TileSize | None, None),
         "origin_x": (
             int | None,
             Field(None, description="Grid origin X; defaults to canvas.grid.x."),
@@ -589,6 +709,8 @@ define(
         "grid": (bool, False),
         "rulers": (bool, False),
         "onion": (Onion | None, None),
+        "rect": (Rect | None, None),
+        "guide": (Guide | None, None),
         "background": (Color, "checker"),
         "inline": (bool, True),
     },

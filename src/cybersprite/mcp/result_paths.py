@@ -18,7 +18,7 @@ def response_schema(op):
         properties["paths"] = PATHS
     if op.name == "import_image":
         properties.update(report_path=PATH, stage_paths=PATHS)
-    if op.name == "generate_image":
+    if op.name in {"generate_image", "add_source"}:
         properties["files"] = PATHS
     if op.name == "get_info":
         sources = Sources.model_json_schema(by_alias=True)

@@ -30,3 +30,7 @@ Source: https://bottosson.github.io/posts/oklab/
 The author releases that code to the public domain, with MIT as an alternative.
 CyberSprite uses the public-domain coefficients in its independently implemented
 integer conversion; the normative coefficients are in docs/SPEC.md, Appendix B.
+Platform identifiers describe technical compatibility only. DMG and NDS-class
+presets are independent implementations and do not imply endorsement by Nintendo
+or other trademark owners. All trademarks belong to their respective owners.
+The authored gray-4 palette uses conventional shades, not standardized hardware RGB.

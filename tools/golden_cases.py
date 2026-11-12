@@ -15,8 +15,21 @@ from cybersprite.formats.png import encode_png
 
 
 def execute_case(directory: Path) -> dict[str, bytes]:
-    project = load_project(directory / "project.json")
     case = json.loads((directory / "case.json").read_bytes())
+    if "new_project" in case:
+        from cybersprite.ops import registry
+        from cybersprite.ops.queries import construct
+
+        with (
+            tempfile.TemporaryDirectory() as settings,
+            patch.dict(os.environ, {"CYBERSPRITE_CONFIG_DIR": settings}),
+            patch("cybersprite.platforms.plugin_definitions", return_value={}),
+        ):
+            project = construct(
+                registry().get("new_project").parse(case["new_project"]), Path("golden.csprite")
+            )
+    else:
+        project = load_project(directory / "project.json")
     output = {}
     if case.get("canonical"):
         output["canonical.project.json"] = dumps_project(project)

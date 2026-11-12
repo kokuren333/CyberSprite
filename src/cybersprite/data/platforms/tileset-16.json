@@ -1,0 +1,27 @@
+{
+  "id": "tileset-16",
+  "preset_version": 1,
+  "title": "Free 16x16 tileset",
+  "extends": "free",
+  "asset": {
+    "class": "tileset-16",
+    "role": "tileset",
+    "canvas": {
+      "w": 16,
+      "h": 16
+    }
+  },
+  "system": {
+    "tile": {
+      "w": 16,
+      "h": 16
+    }
+  },
+  "defaults": {
+    "grid": {
+      "w": 16,
+      "h": 16
+    }
+  },
+  "workflow": "tiles-first"
+}

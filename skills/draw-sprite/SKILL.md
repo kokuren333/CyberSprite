@@ -46,9 +46,11 @@ csp -p hero.csprite info --include layers
 |---|---|
 | 格子をそのまま流し込む | `draw_rows`（`format: "sym"` で `.` = 透明、`0-9` / `a-z` / `A-Z` = 0–9 / 10–35 / 36–61 番。62 色まで。既定の `format` は `hex`（1 番号 = 16 進 2 桁）） |
 | 図形 | `rect`（`filled`）、`ellipse`、`line`、`polygon`、`stroke`（点列をブラシでつなぐ）、`fill` |
-| 輪郭 | `outline`（`placement: outside/inside`、`connectivity: 4/8`） |
+| 輪郭 | `outline`（`placement: outside/inside`、`connectivity: 4/8`、`exclude_colors` で種色を除外。outside で輪郭色を除くと再適用は no_op） |
 | 消す・動かす | `erase`、`clear_cel`、`transform_region`（例は `animate` §2.3） |
 | 色の置き換え | `replace_color` |
+
+色引数は `"@<palette.names の名前>"` も受ける。`draw_rows` の sym は `legend: {"b":"@body.base"}` のような文字対応表を指定できる（`.` は透明、legend 使用時は62色制限なし）。描画 Op の `mask: {only_on: [色], not_on: [色], region: 領域}` は描画前の対象セルで一度だけ判定する。プレビューは `--rect x,y,w,h` で部分を原座標のまま切り出せる。
 
 ```powershell
 csp -p hero.csprite apply body.json                   # {"label":"…","ops":[{"op":…,"args":{…}}, …]}
