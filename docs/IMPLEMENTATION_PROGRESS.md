@@ -3,6 +3,18 @@
 オーケストレーター: Claude Opus 5.5（effort 高）。仕様の正本は `docs/SPEC.md`、判断は `docs/DECISIONS.md`。
 新しい記録を下に足していく（追記式）。
 
+## FIX-5: トランザクション／GUI遅延とCLI・再取り込み（2026-11-12）
+
+- `fix5-perf` でフレーム解析の内容SHA-256キャッシュ、画素使用数・行検査・トリム・正準行JSONの上限付き再利用、検証済み正準bytesのsnapshot共有、gzip level=1、複製1回とその内部での正規化を実装した。汎用copy-on-writeは任意プラグインの可変編集を隔離するため見送った。
+- GUIは実bytes一致時だけ解析モデルを再利用し、検証済みRGBAを差分と既定frame配信で共有する。同サイズ・同mtimeの外部変更、範囲描画、無効フレーム、読込失敗時の既存エラーコードを検査した。
+- `op` のカンマ区切り配列を生成オプションと同じ変換器へ接続した。未作成プロジェクトへのimport自動作成とundo後の再取り込みを文書化し、不透明色のない既存パレットでは明示modeがなければextractを選ぶ。FIX-4領域は `ops/ingest.py` のこの最小変更だけで、`pipeline/` は未編集。
+- `uv run pytest -q --tb=short`: **1370 passed, 2 skipped（263.52秒）**。skipは既存のWindowsシンボリックリンク権限2件。GUI読込エラー互換性の最後の変更は `uv run pytest tests/server/test_fix5_cache.py tests/server/test_server.py -q --tb=short` の **14 passed** でも追試した。
+- 固定シード3本・実Op195回のキャッシュあり／なし報告JSON・デルタ比較、正準JSONの従来整形との一致、入力複製の独立性、gzip展開bytes・mtime・OS、リンク所有者変更時のz_index維持を確認した。既存ゴールデンは全件成功、更新・再生成は0件。
+- Ruff check / format、core/opsのmypy（36ファイル）、7ファイルのstrict、schema drift、repository check、既存Python依存監査（mcp/gui込み）・JS原文監査が成功。`npm test` は **627 passed** とコントラスト86組成功、`npm run build` 成功、`npm run test:e2e` は **3 passed**。
+- `tools/profile_transactions.py` と `python -X importtime` で前後を計測した。`tools.bench` の各3回の最終中央値はtransaction **205.148 ms**、GUI往復 **92.965 ms**（変更直前950.395 / 236.209 ms）。150 / 50 ms目標は未達。観測最小184.519 / 79.732 msと、残る全正本の読込・構造検査・JSON生成・同期保存の費用を [PERFORMANCE.md](PERFORMANCE.md) と [KNOWN_ISSUES.md](KNOWN_ISSUES.md) に記録した。Linuxとブラウザpointer-upからの表示完了時間は未計測。
+- 実CLI子プロセス10呼出しでカンマ指定、作成不要import、undo、再import、validate、stored PNG exportを実行し、validation_ok/verified=trueと書出しファイルの復号画素一致を確認した。全5フレームの一覧と実PNGも確認した。警告・エラーは0、未使用色と空の初期レイヤーのinfo指摘は工学用fixtureの意図どおりとして保持した。成果物はgit管理外の `build/fix5-verified/`。
+- 判断 **I-881〜I-887**。仕様変更は§10.12／§11.11の自動作成・undo後再取り込みの補足だけ。新規依存・外部参照・ビジュアル判断なし。mainへの統合はオーケストレーターが行う。
+
 ## 現在地（2026-11-12 11:05 JST）
 
 | マイルストーン | 状態 | 備考 |
