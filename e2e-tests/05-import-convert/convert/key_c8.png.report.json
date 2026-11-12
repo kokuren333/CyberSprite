@@ -1,0 +1,1188 @@
+{
+  "accepted": true,
+  "configuration": {
+    "calibration": {
+      "cases": 471,
+      "pending": [
+        "d"
+      ],
+      "pillow": "13.0.0",
+      "status": "original-corpus-pending-generated-d",
+      "version": 1
+    },
+    "overrides": {
+      "background": {
+        "color": [
+          246,
+          244,
+          238
+        ],
+        "mode": "key",
+        "tolerance": 20
+      },
+      "grid": {
+        "mode": "target",
+        "target_h": 32,
+        "target_w": 32
+      },
+      "palette": {
+        "max_colors": 8
+      }
+    },
+    "preset": "ai"
+  },
+  "environment": "cybersprite 0.1.0 / zlib 1.3.1 / python 3.12",
+  "gates": [
+    {
+      "name": "grid_detected",
+      "outcome": "pass",
+      "threshold": true,
+      "value": true
+    },
+    {
+      "name": "grid_score",
+      "outcome": "pass",
+      "threshold": [
+        415,
+        707
+      ],
+      "value": 895
+    },
+    {
+      "name": "palette_budget",
+      "outcome": "pass",
+      "threshold": {
+        "frozen": false,
+        "max": 256
+      },
+      "value": 9
+    },
+    {
+      "name": "off_palette",
+      "outcome": "pass",
+      "threshold": 0,
+      "value": 0
+    },
+    {
+      "name": "orphans",
+      "outcome": "pass",
+      "threshold": 0,
+      "value": 0
+    },
+    {
+      "name": "colors_per_frame",
+      "outcome": "pass",
+      "threshold": null,
+      "value": 8
+    },
+    {
+      "name": "fidelity",
+      "outcome": "pass",
+      "threshold": [
+        466954543,
+        233477271
+      ],
+      "value": 17416379
+    },
+    {
+      "name": "size",
+      "outcome": "pass",
+      "threshold": [
+        32,
+        32
+      ],
+      "value": [
+        [
+          32,
+          32
+        ]
+      ]
+    },
+    {
+      "name": "fits_canvas",
+      "outcome": "pass",
+      "threshold": null,
+      "value": true
+    },
+    {
+      "name": "frame_consistency",
+      "outcome": "pass",
+      "threshold": true,
+      "value": true
+    }
+  ],
+  "gates_overridden": [],
+  "grid": {
+    "candidates": {
+      "x": [],
+      "y": []
+    },
+    "cell_h": 11,
+    "cell_w": 11,
+    "columns": 32,
+    "detected": true,
+    "grid_score": 895,
+    "interior_pixels": 47961,
+    "matched_pixels": 42936,
+    "mode": "target",
+    "offset_x": 0,
+    "offset_y": 0,
+    "peak": 0,
+    "rows": 32,
+    "x": {
+      "boundaries": [
+        11,
+        22,
+        33,
+        43,
+        54,
+        65,
+        76,
+        87,
+        98,
+        108,
+        119,
+        130,
+        141,
+        152,
+        163,
+        174,
+        184,
+        195,
+        206,
+        217,
+        228,
+        239,
+        249,
+        260,
+        271,
+        282,
+        293,
+        304,
+        314,
+        325,
+        336
+      ],
+      "cell": 11,
+      "denominator": 32,
+      "family": "A",
+      "numerator": 347,
+      "offset": 0,
+      "peak": 0
+    },
+    "x_cells": [
+      [
+        0,
+        11
+      ],
+      [
+        11,
+        22
+      ],
+      [
+        22,
+        33
+      ],
+      [
+        33,
+        43
+      ],
+      [
+        43,
+        54
+      ],
+      [
+        54,
+        65
+      ],
+      [
+        65,
+        76
+      ],
+      [
+        76,
+        87
+      ],
+      [
+        87,
+        98
+      ],
+      [
+        98,
+        108
+      ],
+      [
+        108,
+        119
+      ],
+      [
+        119,
+        130
+      ],
+      [
+        130,
+        141
+      ],
+      [
+        141,
+        152
+      ],
+      [
+        152,
+        163
+      ],
+      [
+        163,
+        174
+      ],
+      [
+        174,
+        184
+      ],
+      [
+        184,
+        195
+      ],
+      [
+        195,
+        206
+      ],
+      [
+        206,
+        217
+      ],
+      [
+        217,
+        228
+      ],
+      [
+        228,
+        239
+      ],
+      [
+        239,
+        249
+      ],
+      [
+        249,
+        260
+      ],
+      [
+        260,
+        271
+      ],
+      [
+        271,
+        282
+      ],
+      [
+        282,
+        293
+      ],
+      [
+        293,
+        304
+      ],
+      [
+        304,
+        314
+      ],
+      [
+        314,
+        325
+      ],
+      [
+        325,
+        336
+      ],
+      [
+        336,
+        347
+      ]
+    ],
+    "y": {
+      "boundaries": [
+        11,
+        22,
+        33,
+        43,
+        54,
+        65,
+        76,
+        87,
+        98,
+        108,
+        119,
+        130,
+        141,
+        152,
+        163,
+        174,
+        184,
+        195,
+        206,
+        217,
+        228,
+        239,
+        249,
+        260,
+        271,
+        282,
+        293,
+        304,
+        314,
+        325,
+        336
+      ],
+      "cell": 11,
+      "denominator": 32,
+      "family": "A",
+      "numerator": 347,
+      "offset": 0,
+      "peak": 0
+    },
+    "y_cells": [
+      [
+        0,
+        11
+      ],
+      [
+        11,
+        22
+      ],
+      [
+        22,
+        33
+      ],
+      [
+        33,
+        43
+      ],
+      [
+        43,
+        54
+      ],
+      [
+        54,
+        65
+      ],
+      [
+        65,
+        76
+      ],
+      [
+        76,
+        87
+      ],
+      [
+        87,
+        98
+      ],
+      [
+        98,
+        108
+      ],
+      [
+        108,
+        119
+      ],
+      [
+        119,
+        130
+      ],
+      [
+        130,
+        141
+      ],
+      [
+        141,
+        152
+      ],
+      [
+        152,
+        163
+      ],
+      [
+        163,
+        174
+      ],
+      [
+        174,
+        184
+      ],
+      [
+        184,
+        195
+      ],
+      [
+        195,
+        206
+      ],
+      [
+        206,
+        217
+      ],
+      [
+        217,
+        228
+      ],
+      [
+        228,
+        239
+      ],
+      [
+        239,
+        249
+      ],
+      [
+        249,
+        260
+      ],
+      [
+        260,
+        271
+      ],
+      [
+        271,
+        282
+      ],
+      [
+        282,
+        293
+      ],
+      [
+        293,
+        304
+      ],
+      [
+        304,
+        314
+      ],
+      [
+        314,
+        325
+      ],
+      [
+        325,
+        336
+      ],
+      [
+        336,
+        347
+      ]
+    ]
+  },
+  "plugins": [],
+  "preset": "ai",
+  "result": {
+    "frame_pixel_sha256": [
+      "ce3c76808e4bf6d62316761e592b0adc5b5186bc9f85cc335877ee193c84961b"
+    ],
+    "height": 32,
+    "palette_added": [
+      "#1d2e32ff",
+      "#2e693cff",
+      "#585e6cff",
+      "#2d7b3cff",
+      "#4cae4bff",
+      "#4eb34aff",
+      "#50ba4cff",
+      "#96e774ff"
+    ],
+    "pixel_sha256": "ce3c76808e4bf6d62316761e592b0adc5b5186bc9f85cc335877ee193c84961b",
+    "width": 32
+  },
+  "settings": {
+    "background": {
+      "color": [
+        246,
+        244,
+        238
+      ],
+      "mode": "key",
+      "tolerance": 20
+    },
+    "cleanup": {
+      "connectivity": 8,
+      "max_passes": 2,
+      "min_cluster": 2,
+      "protect": []
+    },
+    "dither": {
+      "strength": 255,
+      "type": "none"
+    },
+    "downsample": {
+      "alpha_threshold": 128,
+      "method": "auto"
+    },
+    "gates": {
+      "fidelity": [
+        466954543,
+        233477271
+      ],
+      "grid_score": [
+        415,
+        707
+      ]
+    },
+    "grid": {
+      "force_square": true,
+      "harmonic_tolerance": 850,
+      "max_cell": 64,
+      "min_cell": 2,
+      "min_peak": 1500,
+      "mode": "target",
+      "purity_tolerance": 16,
+      "target_h": 32,
+      "target_w": 32
+    },
+    "outline": {
+      "mode": "keep"
+    },
+    "palette": {
+      "max_colors": 8,
+      "min_color_pixels": 0,
+      "mode": "extract",
+      "refine_iterations": 8
+    }
+  },
+  "source_id": "SRC1",
+  "stage_paths": [
+    "stage1_grid.png",
+    "stage2_downsampled.png",
+    "stage3_quantized.png",
+    "stage4_cleaned.png",
+    "stage5_final.png"
+  ],
+  "steps": [
+    {
+      "frame_pixel_sha256": [
+        "f397cf83d5094b155f9fa649e06f6e3b8c4ef8853d61f467f10a208f447bde0a"
+      ],
+      "image": "stage1_grid.png",
+      "images": [
+        "stage1_grid.png"
+      ],
+      "method": "target",
+      "metrics": {
+        "candidates": {
+          "x": [],
+          "y": []
+        },
+        "cell_h": 11,
+        "cell_w": 11,
+        "columns": 32,
+        "detected": true,
+        "grid_score": 895,
+        "interior_pixels": 47961,
+        "matched_pixels": 42936,
+        "mode": "target",
+        "offset_x": 0,
+        "offset_y": 0,
+        "peak": 0,
+        "rows": 32,
+        "x": {
+          "boundaries": [
+            11,
+            22,
+            33,
+            43,
+            54,
+            65,
+            76,
+            87,
+            98,
+            108,
+            119,
+            130,
+            141,
+            152,
+            163,
+            174,
+            184,
+            195,
+            206,
+            217,
+            228,
+            239,
+            249,
+            260,
+            271,
+            282,
+            293,
+            304,
+            314,
+            325,
+            336
+          ],
+          "cell": 11,
+          "denominator": 32,
+          "family": "A",
+          "numerator": 347,
+          "offset": 0,
+          "peak": 0
+        },
+        "x_cells": [
+          [
+            0,
+            11
+          ],
+          [
+            11,
+            22
+          ],
+          [
+            22,
+            33
+          ],
+          [
+            33,
+            43
+          ],
+          [
+            43,
+            54
+          ],
+          [
+            54,
+            65
+          ],
+          [
+            65,
+            76
+          ],
+          [
+            76,
+            87
+          ],
+          [
+            87,
+            98
+          ],
+          [
+            98,
+            108
+          ],
+          [
+            108,
+            119
+          ],
+          [
+            119,
+            130
+          ],
+          [
+            130,
+            141
+          ],
+          [
+            141,
+            152
+          ],
+          [
+            152,
+            163
+          ],
+          [
+            163,
+            174
+          ],
+          [
+            174,
+            184
+          ],
+          [
+            184,
+            195
+          ],
+          [
+            195,
+            206
+          ],
+          [
+            206,
+            217
+          ],
+          [
+            217,
+            228
+          ],
+          [
+            228,
+            239
+          ],
+          [
+            239,
+            249
+          ],
+          [
+            249,
+            260
+          ],
+          [
+            260,
+            271
+          ],
+          [
+            271,
+            282
+          ],
+          [
+            282,
+            293
+          ],
+          [
+            293,
+            304
+          ],
+          [
+            304,
+            314
+          ],
+          [
+            314,
+            325
+          ],
+          [
+            325,
+            336
+          ],
+          [
+            336,
+            347
+          ]
+        ],
+        "y": {
+          "boundaries": [
+            11,
+            22,
+            33,
+            43,
+            54,
+            65,
+            76,
+            87,
+            98,
+            108,
+            119,
+            130,
+            141,
+            152,
+            163,
+            174,
+            184,
+            195,
+            206,
+            217,
+            228,
+            239,
+            249,
+            260,
+            271,
+            282,
+            293,
+            304,
+            314,
+            325,
+            336
+          ],
+          "cell": 11,
+          "denominator": 32,
+          "family": "A",
+          "numerator": 347,
+          "offset": 0,
+          "peak": 0
+        },
+        "y_cells": [
+          [
+            0,
+            11
+          ],
+          [
+            11,
+            22
+          ],
+          [
+            22,
+            33
+          ],
+          [
+            33,
+            43
+          ],
+          [
+            43,
+            54
+          ],
+          [
+            54,
+            65
+          ],
+          [
+            65,
+            76
+          ],
+          [
+            76,
+            87
+          ],
+          [
+            87,
+            98
+          ],
+          [
+            98,
+            108
+          ],
+          [
+            108,
+            119
+          ],
+          [
+            119,
+            130
+          ],
+          [
+            130,
+            141
+          ],
+          [
+            141,
+            152
+          ],
+          [
+            152,
+            163
+          ],
+          [
+            163,
+            174
+          ],
+          [
+            174,
+            184
+          ],
+          [
+            184,
+            195
+          ],
+          [
+            195,
+            206
+          ],
+          [
+            206,
+            217
+          ],
+          [
+            217,
+            228
+          ],
+          [
+            228,
+            239
+          ],
+          [
+            239,
+            249
+          ],
+          [
+            249,
+            260
+          ],
+          [
+            260,
+            271
+          ],
+          [
+            271,
+            282
+          ],
+          [
+            282,
+            293
+          ],
+          [
+            293,
+            304
+          ],
+          [
+            304,
+            314
+          ],
+          [
+            314,
+            325
+          ],
+          [
+            325,
+            336
+          ],
+          [
+            336,
+            347
+          ]
+        ]
+      },
+      "name": "stage1_grid",
+      "pixel_sha256": "f397cf83d5094b155f9fa649e06f6e3b8c4ef8853d61f467f10a208f447bde0a"
+    },
+    {
+      "frame_pixel_sha256": [
+        "89d88cd38af145b410a262010e1cea04101e6c53e59d413d2eb0db9b1ec010be"
+      ],
+      "image": "stage2_downsampled.png",
+      "images": [
+        "stage2_downsampled.png"
+      ],
+      "method": "kcentroid",
+      "metrics": {
+        "background": [
+          {
+            "color": [
+              246,
+              244,
+              238
+            ],
+            "mode": "key",
+            "removed_pixels": 589,
+            "warnings": []
+          }
+        ],
+        "method": "kcentroid",
+        "requested_method": "auto"
+      },
+      "name": "stage2_downsampled",
+      "pixel_sha256": "89d88cd38af145b410a262010e1cea04101e6c53e59d413d2eb0db9b1ec010be"
+    },
+    {
+      "frame_pixel_sha256": [
+        "da2c4cc7cac4d3e1791d692958e93942d632543d6077cdfb64c4aecb6222f5c9"
+      ],
+      "image": "stage3_quantized.png",
+      "images": [
+        "stage3_quantized.png"
+      ],
+      "method": "extract",
+      "metrics": {
+        "dither": {
+          "strength": 255,
+          "type": "none"
+        },
+        "mode": "extract",
+        "palette_added": [
+          [
+            29,
+            46,
+            50,
+            255
+          ],
+          [
+            46,
+            105,
+            60,
+            255
+          ],
+          [
+            88,
+            94,
+            108,
+            255
+          ],
+          [
+            45,
+            123,
+            60,
+            255
+          ],
+          [
+            76,
+            174,
+            75,
+            255
+          ],
+          [
+            78,
+            179,
+            74,
+            255
+          ],
+          [
+            80,
+            186,
+            76,
+            255
+          ],
+          [
+            150,
+            231,
+            116,
+            255
+          ]
+        ],
+        "palette_size": 9
+      },
+      "name": "stage3_quantized",
+      "pixel_sha256": "da2c4cc7cac4d3e1791d692958e93942d632543d6077cdfb64c4aecb6222f5c9"
+    },
+    {
+      "frame_pixel_sha256": [
+        "ce3c76808e4bf6d62316761e592b0adc5b5186bc9f85cc335877ee193c84961b"
+      ],
+      "image": "stage4_cleaned.png",
+      "images": [
+        "stage4_cleaned.png"
+      ],
+      "method": "components",
+      "metrics": {
+        "frames": [
+          {
+            "passes": 2,
+            "positions": [
+              [
+                14,
+                8
+              ],
+              [
+                20,
+                10
+              ],
+              [
+                9,
+                11
+              ],
+              [
+                13,
+                11
+              ],
+              [
+                23,
+                12
+              ],
+              [
+                6,
+                14
+              ],
+              [
+                10,
+                14
+              ],
+              [
+                10,
+                16
+              ],
+              [
+                11,
+                16
+              ],
+              [
+                18,
+                16
+              ],
+              [
+                19,
+                16
+              ],
+              [
+                5,
+                17
+              ],
+              [
+                24,
+                17
+              ],
+              [
+                26,
+                17
+              ],
+              [
+                24,
+                18
+              ],
+              [
+                20,
+                20
+              ],
+              [
+                27,
+                20
+              ],
+              [
+                17,
+                21
+              ],
+              [
+                23,
+                23
+              ]
+            ],
+            "positions_truncated": false,
+            "replaced_pixels": 19,
+            "unique_replaced_pixels": 19
+          }
+        ]
+      },
+      "name": "stage4_cleaned",
+      "pixel_sha256": "ce3c76808e4bf6d62316761e592b0adc5b5186bc9f85cc335877ee193c84961b"
+    },
+    {
+      "frame_pixel_sha256": [
+        "ce3c76808e4bf6d62316761e592b0adc5b5186bc9f85cc335877ee193c84961b"
+      ],
+      "image": "stage5_final.png",
+      "images": [
+        "stage5_final.png"
+      ],
+      "method": "keep",
+      "metrics": {
+        "chosen_by": {
+          "dither": "preset",
+          "outline": "preset"
+        },
+        "dither": {
+          "strength": 255,
+          "type": "none"
+        },
+        "outline": {
+          "mode": "keep"
+        },
+        "palette_added": []
+      },
+      "name": "stage5_final",
+      "pixel_sha256": "ce3c76808e4bf6d62316761e592b0adc5b5186bc9f85cc335877ee193c84961b"
+    },
+    {
+      "image": "result.png",
+      "method": "integer-metrics",
+      "metrics": {
+        "colors_per_frame": 8,
+        "fidelity": 17416379,
+        "fidelity_pixels": 435,
+        "fidelity_sum": 7576124908,
+        "frame_color_counts": [
+          8
+        ],
+        "frame_consistency": true,
+        "off_palette": 0,
+        "orphans": 0,
+        "orphans_per_frame": [
+          0
+        ],
+        "palette_size": 9,
+        "pixel_sha256": [
+          "ce3c76808e4bf6d62316761e592b0adc5b5186bc9f85cc335877ee193c84961b"
+        ],
+        "sizes": [
+          [
+            32,
+            32
+          ]
+        ]
+      },
+      "name": "validation",
+      "pixel_sha256": "ce3c76808e4bf6d62316761e592b0adc5b5186bc9f85cc335877ee193c84961b"
+    }
+  ],
+  "verified": true
+}

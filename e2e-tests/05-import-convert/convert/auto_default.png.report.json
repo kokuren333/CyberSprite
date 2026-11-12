@@ -1,0 +1,1330 @@
+{
+  "accepted": false,
+  "configuration": {
+    "calibration": {
+      "cases": 471,
+      "pending": [
+        "d"
+      ],
+      "pillow": "13.0.0",
+      "status": "original-corpus-pending-generated-d",
+      "version": 1
+    },
+    "overrides": {},
+    "preset": "ai"
+  },
+  "environment": "cybersprite 0.1.0 / zlib 1.3.1 / python 3.12",
+  "gates": [
+    {
+      "name": "grid_detected",
+      "outcome": "pass",
+      "threshold": true,
+      "value": true
+    },
+    {
+      "name": "grid_score",
+      "outcome": "pass",
+      "threshold": [
+        415,
+        707
+      ],
+      "value": 773
+    },
+    {
+      "name": "palette_budget",
+      "outcome": "pass",
+      "threshold": {
+        "frozen": false,
+        "max": 256
+      },
+      "value": 32
+    },
+    {
+      "name": "off_palette",
+      "outcome": "pass",
+      "threshold": 0,
+      "value": 0
+    },
+    {
+      "name": "orphans",
+      "outcome": "fail",
+      "threshold": 0,
+      "value": 1
+    },
+    {
+      "name": "colors_per_frame",
+      "outcome": "pass",
+      "threshold": null,
+      "value": 22
+    },
+    {
+      "name": "fidelity",
+      "outcome": "pass",
+      "threshold": [
+        466954543,
+        233477271
+      ],
+      "value": 75433611
+    },
+    {
+      "name": "size",
+      "outcome": "pass",
+      "threshold": null,
+      "value": [
+        [
+          11,
+          11
+        ]
+      ]
+    },
+    {
+      "name": "fits_canvas",
+      "outcome": "pass",
+      "threshold": null,
+      "value": true
+    },
+    {
+      "name": "frame_consistency",
+      "outcome": "pass",
+      "threshold": true,
+      "value": true
+    }
+  ],
+  "gates_overridden": [],
+  "grid": {
+    "candidates": {
+      "x": [
+        {
+          "boundaries": [
+            32,
+            88,
+            144,
+            200,
+            256,
+            312
+          ],
+          "cell": 56,
+          "denominator": 1,
+          "family": "B",
+          "numerator": 56,
+          "offset": 32,
+          "peak": 1727
+        },
+        {
+          "boundaries": [
+            32,
+            96,
+            160,
+            224,
+            288
+          ],
+          "cell": 64,
+          "denominator": 1,
+          "family": "B",
+          "numerator": 64,
+          "offset": 32,
+          "peak": 1694
+        },
+        {
+          "boundaries": [
+            56,
+            120,
+            184,
+            248,
+            312
+          ],
+          "cell": 64,
+          "denominator": 1,
+          "family": "B",
+          "numerator": 64,
+          "offset": 56,
+          "peak": 1688
+        },
+        {
+          "boundaries": [
+            32,
+            64,
+            96,
+            128,
+            160,
+            192,
+            224,
+            256,
+            288,
+            320
+          ],
+          "cell": 32,
+          "denominator": 1,
+          "family": "B",
+          "numerator": 32,
+          "offset": 0,
+          "peak": 1603
+        },
+        {
+          "boundaries": [
+            34,
+            88,
+            142,
+            196,
+            250,
+            304
+          ],
+          "cell": 54,
+          "denominator": 1,
+          "family": "B",
+          "numerator": 54,
+          "offset": 34,
+          "peak": 1597
+        }
+      ],
+      "y": [
+        {
+          "boundaries": [
+            56,
+            120,
+            184,
+            248,
+            312
+          ],
+          "cell": 64,
+          "denominator": 1,
+          "family": "B",
+          "numerator": 64,
+          "offset": 56,
+          "peak": 1747
+        },
+        {
+          "boundaries": [
+            24,
+            72,
+            120,
+            168,
+            216,
+            264,
+            312
+          ],
+          "cell": 48,
+          "denominator": 1,
+          "family": "B",
+          "numerator": 48,
+          "offset": 24,
+          "peak": 1576
+        },
+        {
+          "boundaries": [
+            8,
+            52,
+            96,
+            140,
+            184,
+            228,
+            272,
+            316
+          ],
+          "cell": 44,
+          "denominator": 1,
+          "family": "B",
+          "numerator": 44,
+          "offset": 8,
+          "peak": 1540
+        },
+        {
+          "boundaries": [
+            24,
+            56,
+            88,
+            120,
+            152,
+            184,
+            216,
+            248,
+            280,
+            312,
+            344
+          ],
+          "cell": 32,
+          "denominator": 1,
+          "family": "B",
+          "numerator": 32,
+          "offset": 24,
+          "peak": 1513
+        },
+        {
+          "boundaries": [
+            59,
+            122,
+            185,
+            248,
+            311
+          ],
+          "cell": 63,
+          "denominator": 1,
+          "family": "B",
+          "numerator": 63,
+          "offset": 59,
+          "peak": 1463
+        }
+      ]
+    },
+    "cell_h": 32,
+    "cell_w": 32,
+    "columns": 11,
+    "detected": true,
+    "grid_score": 773,
+    "interior_pixels": 46872,
+    "matched_pixels": 36276,
+    "mode": "auto",
+    "offset_x": 0,
+    "offset_y": 24,
+    "peak": 1513,
+    "rows": 11,
+    "x": {
+      "boundaries": [
+        32,
+        64,
+        96,
+        128,
+        160,
+        192,
+        224,
+        256,
+        288,
+        320
+      ],
+      "cell": 32,
+      "denominator": 1,
+      "family": "B",
+      "numerator": 32,
+      "offset": 0,
+      "peak": 1603
+    },
+    "x_cells": [
+      [
+        0,
+        32
+      ],
+      [
+        32,
+        64
+      ],
+      [
+        64,
+        96
+      ],
+      [
+        96,
+        128
+      ],
+      [
+        128,
+        160
+      ],
+      [
+        160,
+        192
+      ],
+      [
+        192,
+        224
+      ],
+      [
+        224,
+        256
+      ],
+      [
+        256,
+        288
+      ],
+      [
+        288,
+        320
+      ],
+      [
+        320,
+        347
+      ]
+    ],
+    "y": {
+      "boundaries": [
+        24,
+        56,
+        88,
+        120,
+        152,
+        184,
+        216,
+        248,
+        280,
+        312,
+        344
+      ],
+      "cell": 32,
+      "denominator": 1,
+      "family": "B",
+      "numerator": 32,
+      "offset": 24,
+      "peak": 1513
+    },
+    "y_cells": [
+      [
+        0,
+        24
+      ],
+      [
+        24,
+        56
+      ],
+      [
+        56,
+        88
+      ],
+      [
+        88,
+        120
+      ],
+      [
+        120,
+        152
+      ],
+      [
+        152,
+        184
+      ],
+      [
+        184,
+        216
+      ],
+      [
+        216,
+        248
+      ],
+      [
+        248,
+        280
+      ],
+      [
+        280,
+        312
+      ],
+      [
+        312,
+        344
+      ]
+    ]
+  },
+  "plugins": [],
+  "preset": "ai",
+  "result": {
+    "frame_pixel_sha256": [
+      "77ae38778eb4eb342e3752e9d4c327b5dfb5b4450e28dccf7ed62b90d9ae6f9d"
+    ],
+    "height": 11,
+    "palette_added": [
+      "#1d2b3bff",
+      "#32643cff",
+      "#5c646dff",
+      "#2e7a3cff",
+      "#5c964cff",
+      "#4cad4cff",
+      "#4cb249ff",
+      "#4cb44cff",
+      "#54b54aff",
+      "#51ba4bff",
+      "#8ddc6bff",
+      "#f6eef2ff",
+      "#f6f1edff",
+      "#f3f3eeff",
+      "#f1f4edff",
+      "#f6f3eaff",
+      "#f6f3edff",
+      "#f6f3f2ff",
+      "#f3f5eeff",
+      "#f6f5f0ff",
+      "#fbf3f1ff",
+      "#faf5edff",
+      "#eaffcdff",
+      "#fbf6edff",
+      "#f6f9eaff",
+      "#fcf6f1ff",
+      "#faf9edff",
+      "#fcfbfbff",
+      "#fffcf4ff",
+      "#fffef1ff",
+      "#fffefbff"
+    ],
+    "pixel_sha256": "77ae38778eb4eb342e3752e9d4c327b5dfb5b4450e28dccf7ed62b90d9ae6f9d",
+    "width": 11
+  },
+  "settings": {
+    "background": {
+      "mode": "keep",
+      "tolerance": 0
+    },
+    "cleanup": {
+      "connectivity": 8,
+      "max_passes": 2,
+      "min_cluster": 2,
+      "protect": []
+    },
+    "dither": {
+      "strength": 255,
+      "type": "none"
+    },
+    "downsample": {
+      "alpha_threshold": 128,
+      "method": "auto"
+    },
+    "gates": {
+      "fidelity": [
+        466954543,
+        233477271
+      ],
+      "grid_score": [
+        415,
+        707
+      ]
+    },
+    "grid": {
+      "force_square": true,
+      "harmonic_tolerance": 850,
+      "max_cell": 64,
+      "min_cell": 2,
+      "min_peak": 1500,
+      "mode": "auto",
+      "purity_tolerance": 16
+    },
+    "outline": {
+      "mode": "keep"
+    },
+    "palette": {
+      "max_colors": 32,
+      "min_color_pixels": 0,
+      "mode": "extract",
+      "refine_iterations": 8
+    }
+  },
+  "source_id": "SRC1",
+  "stage_paths": [
+    "stage1_grid.png",
+    "stage2_downsampled.png",
+    "stage3_quantized.png",
+    "stage4_cleaned.png",
+    "stage5_final.png"
+  ],
+  "steps": [
+    {
+      "frame_pixel_sha256": [
+        "f17dbadbd24a24590e65be1d142bd53a2eedb2af2d138de4caf9f13202fd7f4c"
+      ],
+      "image": "stage1_grid.png",
+      "images": [
+        "stage1_grid.png"
+      ],
+      "method": "auto",
+      "metrics": {
+        "candidates": {
+          "x": [
+            {
+              "boundaries": [
+                32,
+                88,
+                144,
+                200,
+                256,
+                312
+              ],
+              "cell": 56,
+              "denominator": 1,
+              "family": "B",
+              "numerator": 56,
+              "offset": 32,
+              "peak": 1727
+            },
+            {
+              "boundaries": [
+                32,
+                96,
+                160,
+                224,
+                288
+              ],
+              "cell": 64,
+              "denominator": 1,
+              "family": "B",
+              "numerator": 64,
+              "offset": 32,
+              "peak": 1694
+            },
+            {
+              "boundaries": [
+                56,
+                120,
+                184,
+                248,
+                312
+              ],
+              "cell": 64,
+              "denominator": 1,
+              "family": "B",
+              "numerator": 64,
+              "offset": 56,
+              "peak": 1688
+            },
+            {
+              "boundaries": [
+                32,
+                64,
+                96,
+                128,
+                160,
+                192,
+                224,
+                256,
+                288,
+                320
+              ],
+              "cell": 32,
+              "denominator": 1,
+              "family": "B",
+              "numerator": 32,
+              "offset": 0,
+              "peak": 1603
+            },
+            {
+              "boundaries": [
+                34,
+                88,
+                142,
+                196,
+                250,
+                304
+              ],
+              "cell": 54,
+              "denominator": 1,
+              "family": "B",
+              "numerator": 54,
+              "offset": 34,
+              "peak": 1597
+            }
+          ],
+          "y": [
+            {
+              "boundaries": [
+                56,
+                120,
+                184,
+                248,
+                312
+              ],
+              "cell": 64,
+              "denominator": 1,
+              "family": "B",
+              "numerator": 64,
+              "offset": 56,
+              "peak": 1747
+            },
+            {
+              "boundaries": [
+                24,
+                72,
+                120,
+                168,
+                216,
+                264,
+                312
+              ],
+              "cell": 48,
+              "denominator": 1,
+              "family": "B",
+              "numerator": 48,
+              "offset": 24,
+              "peak": 1576
+            },
+            {
+              "boundaries": [
+                8,
+                52,
+                96,
+                140,
+                184,
+                228,
+                272,
+                316
+              ],
+              "cell": 44,
+              "denominator": 1,
+              "family": "B",
+              "numerator": 44,
+              "offset": 8,
+              "peak": 1540
+            },
+            {
+              "boundaries": [
+                24,
+                56,
+                88,
+                120,
+                152,
+                184,
+                216,
+                248,
+                280,
+                312,
+                344
+              ],
+              "cell": 32,
+              "denominator": 1,
+              "family": "B",
+              "numerator": 32,
+              "offset": 24,
+              "peak": 1513
+            },
+            {
+              "boundaries": [
+                59,
+                122,
+                185,
+                248,
+                311
+              ],
+              "cell": 63,
+              "denominator": 1,
+              "family": "B",
+              "numerator": 63,
+              "offset": 59,
+              "peak": 1463
+            }
+          ]
+        },
+        "cell_h": 32,
+        "cell_w": 32,
+        "columns": 11,
+        "detected": true,
+        "grid_score": 773,
+        "interior_pixels": 46872,
+        "matched_pixels": 36276,
+        "mode": "auto",
+        "offset_x": 0,
+        "offset_y": 24,
+        "peak": 1513,
+        "rows": 11,
+        "x": {
+          "boundaries": [
+            32,
+            64,
+            96,
+            128,
+            160,
+            192,
+            224,
+            256,
+            288,
+            320
+          ],
+          "cell": 32,
+          "denominator": 1,
+          "family": "B",
+          "numerator": 32,
+          "offset": 0,
+          "peak": 1603
+        },
+        "x_cells": [
+          [
+            0,
+            32
+          ],
+          [
+            32,
+            64
+          ],
+          [
+            64,
+            96
+          ],
+          [
+            96,
+            128
+          ],
+          [
+            128,
+            160
+          ],
+          [
+            160,
+            192
+          ],
+          [
+            192,
+            224
+          ],
+          [
+            224,
+            256
+          ],
+          [
+            256,
+            288
+          ],
+          [
+            288,
+            320
+          ],
+          [
+            320,
+            347
+          ]
+        ],
+        "y": {
+          "boundaries": [
+            24,
+            56,
+            88,
+            120,
+            152,
+            184,
+            216,
+            248,
+            280,
+            312,
+            344
+          ],
+          "cell": 32,
+          "denominator": 1,
+          "family": "B",
+          "numerator": 32,
+          "offset": 24,
+          "peak": 1513
+        },
+        "y_cells": [
+          [
+            0,
+            24
+          ],
+          [
+            24,
+            56
+          ],
+          [
+            56,
+            88
+          ],
+          [
+            88,
+            120
+          ],
+          [
+            120,
+            152
+          ],
+          [
+            152,
+            184
+          ],
+          [
+            184,
+            216
+          ],
+          [
+            216,
+            248
+          ],
+          [
+            248,
+            280
+          ],
+          [
+            280,
+            312
+          ],
+          [
+            312,
+            344
+          ]
+        ]
+      },
+      "name": "stage1_grid",
+      "pixel_sha256": "f17dbadbd24a24590e65be1d142bd53a2eedb2af2d138de4caf9f13202fd7f4c"
+    },
+    {
+      "frame_pixel_sha256": [
+        "bdf7272f94df3d2fe42a404f79ae3ad9acfe7868a963a381d94e3429cd36a5ad"
+      ],
+      "image": "stage2_downsampled.png",
+      "images": [
+        "stage2_downsampled.png"
+      ],
+      "method": "mode",
+      "metrics": {
+        "background": [
+          {
+            "mode": "keep",
+            "removed_pixels": 0,
+            "warnings": []
+          }
+        ],
+        "method": "mode",
+        "requested_method": "auto"
+      },
+      "name": "stage2_downsampled",
+      "pixel_sha256": "bdf7272f94df3d2fe42a404f79ae3ad9acfe7868a963a381d94e3429cd36a5ad"
+    },
+    {
+      "frame_pixel_sha256": [
+        "7ad0f65e05fc2bb81410fb42effe861d4cd7fc57ab0f835f7a44cd76ed8bedf3"
+      ],
+      "image": "stage3_quantized.png",
+      "images": [
+        "stage3_quantized.png"
+      ],
+      "method": "extract",
+      "metrics": {
+        "dither": {
+          "strength": 255,
+          "type": "none"
+        },
+        "mode": "extract",
+        "palette_added": [
+          [
+            29,
+            43,
+            59,
+            255
+          ],
+          [
+            50,
+            100,
+            60,
+            255
+          ],
+          [
+            92,
+            100,
+            109,
+            255
+          ],
+          [
+            46,
+            122,
+            60,
+            255
+          ],
+          [
+            92,
+            150,
+            76,
+            255
+          ],
+          [
+            76,
+            173,
+            76,
+            255
+          ],
+          [
+            76,
+            178,
+            73,
+            255
+          ],
+          [
+            76,
+            180,
+            76,
+            255
+          ],
+          [
+            84,
+            181,
+            74,
+            255
+          ],
+          [
+            81,
+            186,
+            75,
+            255
+          ],
+          [
+            141,
+            220,
+            107,
+            255
+          ],
+          [
+            246,
+            238,
+            242,
+            255
+          ],
+          [
+            246,
+            241,
+            237,
+            255
+          ],
+          [
+            243,
+            243,
+            238,
+            255
+          ],
+          [
+            241,
+            244,
+            237,
+            255
+          ],
+          [
+            246,
+            243,
+            234,
+            255
+          ],
+          [
+            246,
+            243,
+            237,
+            255
+          ],
+          [
+            246,
+            243,
+            242,
+            255
+          ],
+          [
+            243,
+            245,
+            238,
+            255
+          ],
+          [
+            246,
+            245,
+            240,
+            255
+          ],
+          [
+            251,
+            243,
+            241,
+            255
+          ],
+          [
+            250,
+            245,
+            237,
+            255
+          ],
+          [
+            234,
+            255,
+            205,
+            255
+          ],
+          [
+            251,
+            246,
+            237,
+            255
+          ],
+          [
+            246,
+            249,
+            234,
+            255
+          ],
+          [
+            252,
+            246,
+            241,
+            255
+          ],
+          [
+            250,
+            249,
+            237,
+            255
+          ],
+          [
+            252,
+            251,
+            251,
+            255
+          ],
+          [
+            255,
+            252,
+            244,
+            255
+          ],
+          [
+            255,
+            254,
+            241,
+            255
+          ],
+          [
+            255,
+            254,
+            251,
+            255
+          ]
+        ],
+        "palette_size": 32
+      },
+      "name": "stage3_quantized",
+      "pixel_sha256": "7ad0f65e05fc2bb81410fb42effe861d4cd7fc57ab0f835f7a44cd76ed8bedf3"
+    },
+    {
+      "frame_pixel_sha256": [
+        "77ae38778eb4eb342e3752e9d4c327b5dfb5b4450e28dccf7ed62b90d9ae6f9d"
+      ],
+      "image": "stage4_cleaned.png",
+      "images": [
+        "stage4_cleaned.png"
+      ],
+      "method": "components",
+      "metrics": {
+        "frames": [
+          {
+            "passes": 2,
+            "positions": [
+              [
+                5,
+                0
+              ],
+              [
+                8,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                8,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                4,
+                2
+              ],
+              [
+                5,
+                2
+              ],
+              [
+                0,
+                3
+              ],
+              [
+                3,
+                3
+              ],
+              [
+                7,
+                3
+              ],
+              [
+                8,
+                3
+              ],
+              [
+                0,
+                4
+              ],
+              [
+                1,
+                4
+              ],
+              [
+                2,
+                4
+              ],
+              [
+                7,
+                4
+              ],
+              [
+                8,
+                4
+              ],
+              [
+                9,
+                4
+              ],
+              [
+                0,
+                5
+              ],
+              [
+                1,
+                5
+              ],
+              [
+                6,
+                5
+              ],
+              [
+                9,
+                5
+              ],
+              [
+                10,
+                5
+              ],
+              [
+                0,
+                6
+              ],
+              [
+                1,
+                6
+              ],
+              [
+                9,
+                6
+              ],
+              [
+                10,
+                6
+              ],
+              [
+                1,
+                7
+              ],
+              [
+                3,
+                7
+              ],
+              [
+                5,
+                7
+              ],
+              [
+                6,
+                7
+              ],
+              [
+                8,
+                7
+              ],
+              [
+                1,
+                9
+              ],
+              [
+                2,
+                9
+              ],
+              [
+                8,
+                9
+              ],
+              [
+                2,
+                10
+              ],
+              [
+                3,
+                10
+              ],
+              [
+                4,
+                10
+              ],
+              [
+                5,
+                10
+              ],
+              [
+                6,
+                10
+              ],
+              [
+                7,
+                10
+              ],
+              [
+                8,
+                10
+              ],
+              [
+                9,
+                10
+              ]
+            ],
+            "positions_truncated": false,
+            "replaced_pixels": 49,
+            "unique_replaced_pixels": 42
+          }
+        ]
+      },
+      "name": "stage4_cleaned",
+      "pixel_sha256": "77ae38778eb4eb342e3752e9d4c327b5dfb5b4450e28dccf7ed62b90d9ae6f9d"
+    },
+    {
+      "frame_pixel_sha256": [
+        "77ae38778eb4eb342e3752e9d4c327b5dfb5b4450e28dccf7ed62b90d9ae6f9d"
+      ],
+      "image": "stage5_final.png",
+      "images": [
+        "stage5_final.png"
+      ],
+      "method": "keep",
+      "metrics": {
+        "chosen_by": {
+          "dither": "preset",
+          "outline": "preset"
+        },
+        "dither": {
+          "strength": 255,
+          "type": "none"
+        },
+        "outline": {
+          "mode": "keep"
+        },
+        "palette_added": []
+      },
+      "name": "stage5_final",
+      "pixel_sha256": "77ae38778eb4eb342e3752e9d4c327b5dfb5b4450e28dccf7ed62b90d9ae6f9d"
+    },
+    {
+      "image": "result.png",
+      "method": "integer-metrics",
+      "metrics": {
+        "colors_per_frame": 22,
+        "fidelity": 75433611,
+        "fidelity_pixels": 121,
+        "fidelity_sum": 9127467011,
+        "frame_color_counts": [
+          22
+        ],
+        "frame_consistency": true,
+        "off_palette": 0,
+        "orphans": 1,
+        "orphans_per_frame": [
+          1
+        ],
+        "palette_size": 32,
+        "pixel_sha256": [
+          "77ae38778eb4eb342e3752e9d4c327b5dfb5b4450e28dccf7ed62b90d9ae6f9d"
+        ],
+        "sizes": [
+          [
+            11,
+            11
+          ]
+        ]
+      },
+      "name": "validation",
+      "pixel_sha256": "77ae38778eb4eb342e3752e9d4c327b5dfb5b4450e28dccf7ed62b90d9ae6f9d"
+    }
+  ],
+  "verified": true
+}

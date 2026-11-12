@@ -1,0 +1,5 @@
+{"kind": "generated", "provider": "user", "license": "Apache-2.0",
+ "prompt": "pixel art, 32x32 sprite of a cute green slime monster, dark outline, two black eyes with white highlights, pink cheeks, small smile, soft drop shadow, plain white background, game asset, centered",
+ "negative_prompt": "", "model": null, "url": "",
+ "rights_note": "Synthetic stand-in for a generator output, made by the e2e test agent with Pillow (see source_input/PROVENANCE.txt). No third-party IP.",
+ "seed": 20261112, "params": {"synthetic_degradation": "bicubic 32->347, blur 0.7, smooth colour drift, noise, JPEG q80"}}

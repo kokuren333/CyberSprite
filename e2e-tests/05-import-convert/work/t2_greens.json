@@ -1,0 +1,7 @@
+{"label":"unify body greens: one mid green, one dark green","ops":[
+ {"op":"replace_color","args":{"from":23,"to":26,"layers":["L2"],"region":{"type":"all"}}},
+ {"op":"replace_color","args":{"from":24,"to":26,"layers":["L2"],"region":{"type":"all"}}},
+ {"op":"replace_color","args":{"from":25,"to":26,"layers":["L2"],"region":{"type":"all"}}},
+ {"op":"replace_color","args":{"from":27,"to":26,"layers":["L2"],"region":{"type":"all"}}},
+ {"op":"replace_color","args":{"from":28,"to":26,"layers":["L2"],"region":{"type":"all"}}},
+ {"op":"replace_color","args":{"from":22,"to":21,"layers":["L2"],"region":{"type":"all"}}}]}

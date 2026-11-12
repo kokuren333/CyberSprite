@@ -1,0 +1,3 @@
+{"label":"unify outline shades (noise duplicates) into one ink","ops":[
+ {"op":"replace_color","args":{"from":18,"to":17,"layers":["L2"],"frames":"all","region":{"type":"all"}}},
+ {"op":"replace_color","args":{"from":19,"to":17,"layers":["L2"],"frames":"all","region":{"type":"all"}}}]}
