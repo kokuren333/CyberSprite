@@ -1,0 +1,23 @@
+{
+  "id": "hd-640x360",
+  "preset_version": 1,
+  "title": "HD-class 640x360 display",
+  "extends": "free",
+  "system": {
+    "id": "hd-640x360",
+    "screen": {
+      "w": 640,
+      "h": 360
+    },
+    "tile": {
+      "w": 16,
+      "h": 16
+    }
+  },
+  "defaults": {
+    "grid": {
+      "w": 16,
+      "h": 16
+    }
+  }
+}

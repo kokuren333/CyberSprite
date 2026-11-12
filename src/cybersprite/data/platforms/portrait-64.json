@@ -1,0 +1,10 @@
+{
+  "id": "portrait-64",
+  "preset_version": 1,
+  "title": "Free portrait-64",
+  "extends": "sprite-64",
+  "asset": {
+    "class": "portrait-64",
+    "role": "portrait"
+  }
+}

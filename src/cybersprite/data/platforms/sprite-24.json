@@ -1,0 +1,16 @@
+{
+  "id": "sprite-24",
+  "preset_version": 1,
+  "title": "Free 24x24 sprite",
+  "extends": "free",
+  "asset": {
+    "class": "sprite-24",
+    "role": "sprite",
+    "canvas": {
+      "w": 24,
+      "h": 24,
+      "fixed": false
+    }
+  },
+  "workflow": "direct"
+}

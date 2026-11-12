@@ -1,0 +1,16 @@
+{
+  "id": "sprite-96",
+  "preset_version": 1,
+  "title": "Free 96x96 sprite",
+  "extends": "free",
+  "asset": {
+    "class": "sprite-96",
+    "role": "sprite",
+    "canvas": {
+      "w": 96,
+      "h": 96,
+      "fixed": false
+    }
+  },
+  "workflow": "turnaround-parts"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "free",
+  "preset_version": 1,
+  "title": "Free pixel granularity",
+  "system": {
+    "id": "free",
+    "color": {
+      "alpha": "any"
+    }
+  },
+  "defaults": {
+    "preview": {
+      "scale": 6
+    },
+    "export": {
+      "scale": 1
+    }
+  },
+  "craft": {
+    "basis": "authored"
+  }
+}

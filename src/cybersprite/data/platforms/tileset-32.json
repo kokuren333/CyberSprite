@@ -1,0 +1,27 @@
+{
+  "id": "tileset-32",
+  "preset_version": 1,
+  "title": "Free 32x32 tileset",
+  "extends": "free",
+  "asset": {
+    "class": "tileset-32",
+    "role": "tileset",
+    "canvas": {
+      "w": 32,
+      "h": 32
+    }
+  },
+  "system": {
+    "tile": {
+      "w": 32,
+      "h": 32
+    }
+  },
+  "defaults": {
+    "grid": {
+      "w": 32,
+      "h": 32
+    }
+  },
+  "workflow": "tiles-first"
+}

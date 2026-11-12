@@ -27,6 +27,8 @@ def _ordered(value: Any, context: str = "") -> Any:
         result = {}
         for name in names:
             item = getattr(value, name)
+            if isinstance(value, Project) and name == "platform" and item is None:
+                continue
             if name == "user_data" and (
                 item is None
                 or (
@@ -40,7 +42,7 @@ def _ordered(value: Any, context: str = "") -> Any:
             key = type(value).model_fields[name].alias or name
             if key == "color" and isinstance(item, str):
                 item = item.lower()
-            if key in ("colors", "pixels"):
+            if key in ("colors", "pixels") and isinstance(item, list):
                 item = [entry.lower() for entry in item]
                 result[key] = item
                 continue

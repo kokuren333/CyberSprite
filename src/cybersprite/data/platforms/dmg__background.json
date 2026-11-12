@@ -1,0 +1,50 @@
+{
+  "id": "dmg/background",
+  "preset_version": 1,
+  "title": "DMG-class background",
+  "extends": "dmg",
+  "asset": {
+    "class": "background",
+    "role": "background",
+    "canvas": {
+      "w": 160,
+      "h": 144,
+      "fixed": true
+    },
+    "colors": {
+      "palette_max": 5,
+      "opaque_max": 4
+    }
+  },
+  "defaults": {
+    "pipeline": {
+      "preset": "ai",
+      "overrides": {
+        "palette.max_colors": 4
+      }
+    },
+    "palette": [
+      "#00000000",
+      "#ffffffff",
+      "#aaaaaaff",
+      "#555555ff",
+      "#000000ff"
+    ]
+  },
+  "workflow": "scene",
+  "system": {
+    "palette": {
+      "rows": 1,
+      "row_size": 4,
+      "slot0": "color",
+      "unit": "tile"
+    },
+    "tile": {
+      "flips": {
+        "x": false,
+        "y": false,
+        "d": false
+      }
+    }
+  }
+}

@@ -64,7 +64,12 @@ class PluginSettings(SettingsModel):
     enabled: list[str] = Field(default_factory=list)
 
 
+class Defaults(SettingsModel):
+    platform: str | None = None
+
+
 class UserConfig(SettingsModel):
+    defaults: Defaults = Field(default_factory=Defaults)
     generators: Generators = Field(default_factory=Generators)
     gui: GuiSettings = Field(default_factory=GuiSettings)
     plugins: PluginSettings = Field(default_factory=PluginSettings)

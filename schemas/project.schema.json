@@ -1,39 +1,529 @@
 {
   "$defs": {
-    "Canvas": {
+    "Animation": {
       "additionalProperties": false,
       "properties": {
-        "width": {
-          "minimum": 1,
-          "title": "Width",
-          "type": "integer"
-        },
-        "height": {
-          "minimum": 1,
-          "title": "Height",
-          "type": "integer"
-        },
-        "grid": {
-          "$ref": "#/$defs/Grid"
-        },
-        "pixel_ratio": {
-          "$ref": "#/$defs/Size"
-        },
-        "color_profile": {
-          "default": "srgb",
-          "enum": [
-            "srgb",
-            "none"
+        "tick": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Tick"
+            },
+            {
+              "type": "null"
+            }
           ],
-          "title": "Color Profile",
+          "default": null
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        },
+        "tags_optional": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags Optional",
+          "type": "array"
+        },
+        "frames_max": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Frames Max"
+        }
+      },
+      "title": "Animation",
+      "type": "object"
+    },
+    "Asset": {
+      "additionalProperties": false,
+      "properties": {
+        "class": {
+          "default": "custom",
+          "title": "Class",
+          "type": "string"
+        },
+        "role": {
+          "default": "sprite",
+          "enum": [
+            "sprite",
+            "tileset",
+            "background",
+            "ui",
+            "portrait",
+            "effect"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "canvas": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/cybersprite__core__platform__Canvas"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "colors": {
+          "$ref": "#/$defs/Colors"
+        },
+        "animation": {
+          "$ref": "#/$defs/Animation"
+        }
+      },
+      "title": "Asset",
+      "type": "object"
+    },
+    "Bits": {
+      "additionalProperties": false,
+      "properties": {
+        "r": {
+          "default": 8,
+          "maximum": 8,
+          "minimum": 1,
+          "title": "R",
+          "type": "integer"
+        },
+        "g": {
+          "default": 8,
+          "maximum": 8,
+          "minimum": 1,
+          "title": "G",
+          "type": "integer"
+        },
+        "b": {
+          "default": 8,
+          "maximum": 8,
+          "minimum": 1,
+          "title": "B",
+          "type": "integer"
+        }
+      },
+      "title": "Bits",
+      "type": "object"
+    },
+    "Color": {
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "default": "rgb",
+          "enum": [
+            "rgb",
+            "master"
+          ],
+          "title": "Model",
+          "type": "string"
+        },
+        "bits": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Bits"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "expand": {
+          "anyOf": [
+            {
+              "enum": [
+                "replicate",
+                "shift"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expand"
+        },
+        "master_palette": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Master Palette"
+        },
+        "master_colors": {
+          "items": {
+            "items": {
+              "maximum": 255,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "type": "array"
+          },
+          "title": "Master Colors",
+          "type": "array"
+        },
+        "alpha": {
+          "default": "any",
+          "enum": [
+            "binary",
+            "any"
+          ],
+          "title": "Alpha",
+          "type": "string"
+        }
+      },
+      "title": "Color",
+      "type": "object"
+    },
+    "Colors": {
+      "additionalProperties": false,
+      "properties": {
+        "palette_max": {
+          "anyOf": [
+            {
+              "maximum": 256,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Palette Max"
+        },
+        "opaque_max": {
+          "anyOf": [
+            {
+              "maximum": 256,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Opaque Max"
+        }
+      },
+      "title": "Colors",
+      "type": "object"
+    },
+    "Corpus": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "count": {
+          "minimum": 1,
+          "title": "Count",
+          "type": "integer"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
           "type": "string"
         }
       },
       "required": [
-        "width",
-        "height"
+        "name",
+        "count",
+        "sha256"
       ],
-      "title": "Canvas",
+      "title": "Corpus",
+      "type": "object"
+    },
+    "Craft": {
+      "additionalProperties": false,
+      "properties": {
+        "basis": {
+          "default": "authored",
+          "enum": [
+            "authored",
+            "measured"
+          ],
+          "title": "Basis",
+          "type": "string"
+        },
+        "corpus": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Corpus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "ramp_steps": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ramp Steps"
+        },
+        "outline": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Outline"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "dither": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dither"
+        },
+        "light": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Light"
+        },
+        "fill_permille": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fill Permille"
+        },
+        "depth_max": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Depth Max"
+        },
+        "flat_permille": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Flat Permille"
+        },
+        "region_density_x100": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region Density X100"
+        },
+        "parts": {
+          "additionalProperties": {
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "type": "array"
+          },
+          "title": "Parts",
+          "type": "object"
+        }
+      },
+      "title": "Craft",
+      "type": "object"
+    },
+    "Defaults": {
+      "additionalProperties": false,
+      "properties": {
+        "grid": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Size"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "palette": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Palette"
+        },
+        "preview": {
+          "$ref": "#/$defs/PreviewDefaults"
+        },
+        "export": {
+          "$ref": "#/$defs/ExportDefaults"
+        },
+        "pipeline": {
+          "$ref": "#/$defs/PipelineDefaults"
+        }
+      },
+      "title": "Defaults",
+      "type": "object"
+    },
+    "ExportDefaults": {
+      "additionalProperties": false,
+      "properties": {
+        "scale": {
+          "anyOf": [
+            {
+              "maximum": 16,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scale"
+        },
+        "review_scale": {
+          "anyOf": [
+            {
+              "maximum": 16,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Review Scale"
+        },
+        "sheet": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SheetDefaults"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "ExportDefaults",
+      "type": "object"
+    },
+    "Flips": {
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "default": false,
+          "title": "X",
+          "type": "boolean"
+        },
+        "y": {
+          "default": false,
+          "title": "Y",
+          "type": "boolean"
+        },
+        "d": {
+          "default": false,
+          "title": "D",
+          "type": "boolean"
+        }
+      },
+      "title": "Flips",
       "type": "object"
     },
     "Frame": {
@@ -450,6 +940,75 @@
       "title": "MatchFlips",
       "type": "object"
     },
+    "ObjectSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "sizes": {
+          "anyOf": [
+            {
+              "items": {
+                "items": {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "maxItems": 2,
+                "minItems": 2,
+                "type": "array"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sizes"
+        },
+        "notes": {
+          "default": "",
+          "title": "Notes",
+          "type": "string"
+        }
+      },
+      "title": "ObjectSpec",
+      "type": "object"
+    },
+    "Outline": {
+      "additionalProperties": false,
+      "properties": {
+        "style": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Style"
+        },
+        "dark_permille": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dark Permille"
+        }
+      },
+      "title": "Outline",
+      "type": "object"
+    },
     "Palette": {
       "additionalProperties": false,
       "properties": {
@@ -486,6 +1045,163 @@
       "title": "Palette",
       "type": "object"
     },
+    "PaletteStructure": {
+      "additionalProperties": false,
+      "properties": {
+        "rows": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Rows",
+          "type": "integer"
+        },
+        "row_size": {
+          "default": 16,
+          "maximum": 256,
+          "minimum": 1,
+          "title": "Row Size",
+          "type": "integer"
+        },
+        "slot0": {
+          "default": "transparent",
+          "enum": [
+            "transparent",
+            "shared",
+            "color"
+          ],
+          "title": "Slot0",
+          "type": "string"
+        },
+        "unit": {
+          "default": "object",
+          "enum": [
+            "object",
+            "tile",
+            "block",
+            "layer"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "block": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Size"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "PaletteStructure",
+      "type": "object"
+    },
+    "PipelineDefaults": {
+      "additionalProperties": false,
+      "properties": {
+        "preset": {
+          "anyOf": [
+            {
+              "enum": [
+                "ai",
+                "exact",
+                "upscaled",
+                "photo"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Preset"
+        },
+        "overrides": {
+          "additionalProperties": true,
+          "title": "Overrides",
+          "type": "object"
+        }
+      },
+      "title": "PipelineDefaults",
+      "type": "object"
+    },
+    "Platform": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "default": "custom",
+          "title": "Id",
+          "type": "string"
+        },
+        "title": {
+          "default": "Custom platform",
+          "title": "Title",
+          "type": "string"
+        },
+        "preset_version": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Preset Version",
+          "type": "integer"
+        },
+        "origin": {
+          "default": "custom",
+          "title": "Origin",
+          "type": "string"
+        },
+        "overrides": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Overrides",
+          "type": "array"
+        },
+        "system": {
+          "$ref": "#/$defs/System"
+        },
+        "asset": {
+          "$ref": "#/$defs/Asset"
+        },
+        "defaults": {
+          "$ref": "#/$defs/Defaults"
+        },
+        "validation": {
+          "$ref": "#/$defs/Validation"
+        },
+        "craft": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Craft"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "workflow": {
+          "default": "direct",
+          "enum": [
+            "direct",
+            "silhouette-first",
+            "turnaround-parts",
+            "tiles-first",
+            "scene"
+          ],
+          "title": "Workflow",
+          "type": "string"
+        },
+        "notes": {
+          "default": "",
+          "title": "Notes",
+          "type": "string"
+        }
+      },
+      "title": "Platform",
+      "type": "object"
+    },
     "Point": {
       "additionalProperties": false,
       "properties": {
@@ -503,6 +1219,34 @@
         "y"
       ],
       "title": "Point",
+      "type": "object"
+    },
+    "PreviewDefaults": {
+      "additionalProperties": false,
+      "properties": {
+        "scale": {
+          "anyOf": [
+            {
+              "maximum": 16,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scale"
+        },
+        "backgrounds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Backgrounds",
+          "type": "array"
+        }
+      },
+      "title": "PreviewDefaults",
       "type": "object"
     },
     "Rect": {
@@ -534,6 +1278,23 @@
         "h"
       ],
       "title": "Rect",
+      "type": "object"
+    },
+    "SheetDefaults": {
+      "additionalProperties": false,
+      "properties": {
+        "layout": {
+          "default": "horizontal",
+          "title": "Layout",
+          "type": "string"
+        },
+        "data_format": {
+          "default": "json-hash",
+          "title": "Data Format",
+          "type": "string"
+        }
+      },
+      "title": "SheetDefaults",
       "type": "object"
     },
     "Size": {
@@ -661,6 +1422,75 @@
       "title": "SliceKey",
       "type": "object"
     },
+    "System": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "default": "free",
+          "title": "Id",
+          "type": "string"
+        },
+        "screen": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Size"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "pixel_aspect": {
+          "$ref": "#/$defs/Size"
+        },
+        "color": {
+          "$ref": "#/$defs/Color"
+        },
+        "palette": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PaletteStructure"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "tile": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TileSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "object": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ObjectSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "native": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Native",
+          "type": "array"
+        }
+      },
+      "title": "System",
+      "type": "object"
+    },
     "Tag": {
       "additionalProperties": false,
       "properties": {
@@ -726,6 +1556,25 @@
         "to"
       ],
       "title": "Tag",
+      "type": "object"
+    },
+    "Tick": {
+      "additionalProperties": false,
+      "properties": {
+        "num": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Num",
+          "type": "integer"
+        },
+        "den": {
+          "default": 60,
+          "minimum": 1,
+          "title": "Den",
+          "type": "integer"
+        }
+      },
+      "title": "Tick",
       "type": "object"
     },
     "Tile": {
@@ -828,6 +1677,66 @@
         "tiles"
       ],
       "title": "TileCel",
+      "type": "object"
+    },
+    "TileSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "w": {
+          "default": 1,
+          "minimum": 1,
+          "title": "W",
+          "type": "integer"
+        },
+        "h": {
+          "default": 1,
+          "minimum": 1,
+          "title": "H",
+          "type": "integer"
+        },
+        "bpp": {
+          "anyOf": [
+            {
+              "maximum": 8,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bpp"
+        },
+        "flips": {
+          "$ref": "#/$defs/Flips"
+        },
+        "unique_max": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unique Max"
+        },
+        "map_max": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Size"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "TileSpec",
       "type": "object"
     },
     "TilemapLayer": {
@@ -1031,6 +1940,104 @@
       "title": "UserData",
       "type": "object"
     },
+    "Validation": {
+      "additionalProperties": false,
+      "properties": {
+        "palette_max": {
+          "anyOf": [
+            {
+              "maximum": 256,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Palette Max"
+        },
+        "colors_per_frame_max": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Colors Per Frame Max"
+        },
+        "orphan_pixels_max": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Orphan Pixels Max"
+        },
+        "min_cluster": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Cluster"
+        },
+        "require_tag_coverage": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Require Tag Coverage"
+        },
+        "silhouette_jitter_max": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Silhouette Jitter Max"
+        },
+        "severity": {
+          "additionalProperties": {
+            "enum": [
+              "error",
+              "warning",
+              "info",
+              "off"
+            ],
+            "type": "string"
+          },
+          "title": "Severity",
+          "type": "object"
+        }
+      },
+      "title": "Validation",
+      "type": "object"
+    },
     "ValidationSettings": {
       "additionalProperties": false,
       "properties": {
@@ -1107,6 +2114,66 @@
       },
       "title": "ValidationSettings",
       "type": "object"
+    },
+    "cybersprite__core__models__Canvas": {
+      "additionalProperties": false,
+      "properties": {
+        "width": {
+          "minimum": 1,
+          "title": "Width",
+          "type": "integer"
+        },
+        "height": {
+          "minimum": 1,
+          "title": "Height",
+          "type": "integer"
+        },
+        "grid": {
+          "$ref": "#/$defs/Grid"
+        },
+        "pixel_ratio": {
+          "$ref": "#/$defs/Size"
+        },
+        "color_profile": {
+          "default": "srgb",
+          "enum": [
+            "srgb",
+            "none"
+          ],
+          "title": "Color Profile",
+          "type": "string"
+        }
+      },
+      "required": [
+        "width",
+        "height"
+      ],
+      "title": "Canvas",
+      "type": "object"
+    },
+    "cybersprite__core__platform__Canvas": {
+      "additionalProperties": false,
+      "properties": {
+        "w": {
+          "default": 1,
+          "minimum": 1,
+          "title": "W",
+          "type": "integer"
+        },
+        "h": {
+          "default": 1,
+          "minimum": 1,
+          "title": "H",
+          "type": "integer"
+        },
+        "fixed": {
+          "default": false,
+          "title": "Fixed",
+          "type": "boolean"
+        }
+      },
+      "title": "Canvas",
+      "type": "object"
     }
   },
   "additionalProperties": false,
@@ -1135,8 +2202,19 @@
       "title": "Name",
       "type": "string"
     },
+    "platform": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Platform"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
     "canvas": {
-      "$ref": "#/$defs/Canvas"
+      "$ref": "#/$defs/cybersprite__core__models__Canvas"
     },
     "palette": {
       "$ref": "#/$defs/Palette"

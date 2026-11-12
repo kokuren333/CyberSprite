@@ -1,0 +1,28 @@
+{
+  "id": "nds/sprite-80",
+  "preset_version": 1,
+  "title": "NDS-class sprite-80",
+  "extends": "nds",
+  "asset": {
+    "class": "sprite-80",
+    "role": "sprite",
+    "canvas": {
+      "w": 80,
+      "h": 80,
+      "fixed": true
+    },
+    "colors": {
+      "palette_max": 16,
+      "opaque_max": 15
+    }
+  },
+  "defaults": {
+    "pipeline": {
+      "preset": "ai",
+      "overrides": {
+        "palette.max_colors": 15
+      }
+    }
+  },
+  "workflow": "turnaround-parts"
+}

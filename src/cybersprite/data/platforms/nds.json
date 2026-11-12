@@ -1,0 +1,106 @@
+{
+  "id": "nds",
+  "preset_version": 1,
+  "title": "NDS-class 4bpp display",
+  "extends": "free",
+  "system": {
+    "id": "nds",
+    "screen": {
+      "w": 256,
+      "h": 192
+    },
+    "color": {
+      "bits": {
+        "r": 5,
+        "g": 5,
+        "b": 5
+      },
+      "expand": "replicate",
+      "alpha": "binary"
+    },
+    "palette": {
+      "rows": 16,
+      "row_size": 16,
+      "slot0": "transparent",
+      "unit": "object"
+    },
+    "tile": {
+      "w": 8,
+      "h": 8,
+      "bpp": 4,
+      "flips": {
+        "x": true,
+        "y": true,
+        "d": false
+      }
+    },
+    "object": {
+      "sizes": [
+        [
+          8,
+          8
+        ],
+        [
+          16,
+          16
+        ],
+        [
+          32,
+          32
+        ],
+        [
+          64,
+          64
+        ],
+        [
+          16,
+          8
+        ],
+        [
+          32,
+          8
+        ],
+        [
+          32,
+          16
+        ],
+        [
+          64,
+          32
+        ],
+        [
+          8,
+          16
+        ],
+        [
+          8,
+          32
+        ],
+        [
+          16,
+          32
+        ],
+        [
+          32,
+          64
+        ]
+      ],
+      "notes": "80x80 and 96x96 assets require several objects."
+    },
+    "native": [
+      "gba-4bpp",
+      "rgb555-le"
+    ]
+  },
+  "defaults": {
+    "grid": {
+      "w": 8,
+      "h": 8
+    },
+    "palette": [
+      "#00000000",
+      "#000000ff",
+      "#ffffffff"
+    ]
+  }
+}

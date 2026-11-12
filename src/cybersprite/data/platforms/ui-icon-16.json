@@ -1,0 +1,10 @@
+{
+  "id": "ui-icon-16",
+  "preset_version": 1,
+  "title": "Free ui-icon-16",
+  "extends": "sprite-16",
+  "asset": {
+    "class": "ui-icon-16",
+    "role": "ui"
+  }
+}

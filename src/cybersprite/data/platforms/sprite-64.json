@@ -1,0 +1,16 @@
+{
+  "id": "sprite-64",
+  "preset_version": 1,
+  "title": "Free 64x64 sprite",
+  "extends": "free",
+  "asset": {
+    "class": "sprite-64",
+    "role": "sprite",
+    "canvas": {
+      "w": 64,
+      "h": 64,
+      "fixed": false
+    }
+  },
+  "workflow": "turnaround-parts"
+}

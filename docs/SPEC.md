@@ -383,6 +383,12 @@ CyberSprite は Aseprite の機能と操作体系を参照するが、**コー�
 
 ---
 
+### 3.6 ゲーム資料の参照の規律（H-20）
+
+参照画像はリポジトリ外または `_private/refs-library/` に置き、公開されうるプロジェクトの `source/` には入れない。正本に残せるのは参照ID、ハッシュ、計測値だけである。計測と自分の言葉での所見を認めるが、なぞり、画素の転記、単一スプライトのパレットの転用、既存キャラクターへの模倣は認めない。参照を並べたシートは `.cybersprite/previews/` の中だけに置く。
+
+参照資料と得た事実は §3.3 のログへ記録する。追跡する文書には統計値までを載せ、題名や画像は載せない。手順書は参照ライブラリのディレクトリと `manifest.jsonl` があれば計測できることを案内し、取得方法やコネクタ本体を公開リポジトリに入れない。
+
 ## 4. アーキテクチャ
 
 ### 4.1 全体構成
@@ -871,6 +877,223 @@ hero.csprite/
 - ツールの版は SemVer。同じメジャー版の中では、同じ `project.json` から同じピクセルが出ることを保証する。レンダリング結果が変わる修正はメジャー版を上げるか、`project.json` に描画互換の版を記録して旧挙動を保つ。
 
 ---
+
+### 5.13 プラットフォーム（H-01〜04）
+
+粒度は第一級の宣言データであり、機種はその具体例である。全フィールドは省略でき、nullは制約なしを表す。
+
+#### 5.13.1 データの形
+
+`project.json` の最上位に `platform` を足す。位置は `name` の次。**省略可**（無ければ今と同じ挙動）。1.0 を出す前なので `schema_version` は 1 のまま、省略可のキーの追加として扱う（判断 D-41 として記録する）。移行経路は合成の旧版 fixture で別に検査する。
+
+```json
+"platform": {
+  "id": "nds/sprite-80",
+  "title": "NDS-class sprite 80x80",
+  "preset_version": 1,
+  "origin": "builtin",
+  "overrides": [],
+  "system": {
+    "id": "nds",
+    "screen": {"w": 256, "h": 192},
+    "pixel_aspect": {"w": 1, "h": 1},
+    "color": {"model": "rgb", "bits": {"r": 5, "g": 5, "b": 5}, "expand": "replicate",
+              "master_palette": null, "alpha": "binary"},
+    "palette": {"rows": 16, "row_size": 16, "slot0": "transparent", "unit": "object", "block": null},
+    "tile": {"w": 8, "h": 8, "bpp": 4, "flips": {"x": true, "y": true, "d": false},
+             "unique_max": null, "map_max": null},
+    "object": {"sizes": [[8,8],[16,16],[32,32],[64,64],[16,8],[32,8],[32,16],[64,32],[8,16],[8,32],[16,32],[32,64]],
+               "notes": "80x80 is composed of several objects"},
+    "native": ["gba-4bpp", "rgb555-le"]
+  },
+  "asset": {
+    "class": "sprite-80",
+    "role": "sprite",
+    "canvas": {"w": 80, "h": 80, "fixed": true},
+    "colors": {"palette_max": 16, "opaque_max": 15},
+    "animation": {"tick": {"num": 1, "den": 60}, "tags": ["idle"], "tags_optional": [], "frames_max": null}
+  },
+  "defaults": {
+    "grid": {"w": 8, "h": 8},
+    "palette": null,
+    "preview": {"scale": 6, "backgrounds": ["checker", "#808080"]},
+    "export": {"scale": 1, "review_scale": 4, "sheet": {"layout": "horizontal", "data_format": "json-hash"}},
+    "pipeline": {"preset": "ai", "overrides": {"palette.max_colors": 15}}
+  },
+  "validation": {"palette_max": 16, "colors_per_frame_max": 15,
+                 "severity": {"Q-PAL-04": "error", "Q-LYR-01": "error"}},
+  "craft": {
+    "basis": "authored",
+    "corpus": null,
+    "ramp_steps": [2, 4],
+    "outline": {"style": "selective", "dark_permille": null},
+    "dither": "none",
+    "light": "top-left",
+    "fill_permille": null,
+    "depth_max": null,
+    "parts": {}
+  },
+  "workflow": "turnaround-parts",
+  "notes": ""
+}
+```
+
+#### 5.13.2 フィールドの定義
+
+キーはこの順で書く。値はすべて整数、文字列、真偽、`null`、またはそれらの配列・オブジェクト。`null` は「定めない」。
+
+**最上位**
+
+| キー | 型 | 説明 |
+|---|---|---|
+| `id` | 文字列 | `<system>/<class>`。その場で作ったものは `custom` |
+| `title` | 文字列 | 人間向けの名前（英語） |
+| `preset_version` | 整数 | 解決したときのプリセットの版。`custom` は 0 |
+| `origin` | 文字列 | `builtin` / `user` / `file` / `plugin:<名前>` / `custom` |
+| `overrides` | 文字列の配列 | プリセットから上書きした場所（JSON Pointer）。来歴のため |
+| `system` | オブジェクト | 表示系。下表 |
+| `asset` | オブジェクト | このプロジェクトが何のアセットか。下表 |
+| `defaults` | オブジェクト | 引数を省略したときの既定値 |
+| `validation` | オブジェクト | §13.3 の設定の一部。適用時に `project.validation` へ書き写す（§5.13.4） |
+| `craft` | オブジェクトまたは `null` | 作法データ（§5.13.5）。規範ではない |
+| `workflow` | 文字列 | 推奨する手順書。`direct` / `silhouette-first` / `turnaround-parts` / `tiles-first` / `scene` |
+| `notes` | 文字列 | 自由記述 |
+
+**`system`**（役割ごとに違う値は、スナップショットでは解決済みの値を持つ。例: ゲームボーイの反転は、スプライトなら可、背景なら不可）
+
+| キー | 型 | 説明 | 検証 |
+|---|---|---|---|
+| `id` | 文字列 | `free` `dmg` `cgb` `nes` `sfc` `md` `gba` `nds` `hd-320x180` など | — |
+| `screen` | `{w, h}` / `null` | 画面の解像度。プレビューの実寸枠と、背景の大きさの上限に使う | Q-PLT-01 |
+| `pixel_aspect` | `{w, h}` | ピクセルの縦横比。**記録だけ。** `canvas.pixel_ratio` が表せる 1:1 / 2:1 / 1:2 以外（例: 8:7）は表示に反映しない（原則 3） | — |
+| `color.model` | `"rgb"` / `"master"` | 自由な RGB か、決まった色表（マスターパレット）から選ぶか | Q-PLT-02 |
+| `color.bits` | `{r, g, b}` / `null` | チャンネルあたりのビット数。`null` は 8 ビット自由 | Q-PLT-02 |
+| `color.expand` | `"replicate"` / `"shift"` | n ビット値 `c` を 8 ビットに広げる規則。`replicate` は上位ビットを下位に複製、`shift` は `c << (8 − n)`。8 ビット値 `v` は、`expand(v >> (8 − n)) = v` のときだけ「表せる」とみなす | Q-PLT-02 |
+| `color.master_palette` | 文字列 / `null` | `model: "master"` のときの色表（パレットのプリセット名） | Q-PLT-02 |
+| `color.alpha` | `"binary"` / `"any"` | `binary` は、半透明の色と 255 未満の不透明度を認めない | Q-PLT-03 |
+| `palette.rows` / `row_size` | 整数 | パレットの行の構造。パレット番号 `i` の行は `i div row_size` | Q-PLT-04 |
+| `palette.slot0` | `"transparent"` / `"shared"` / `"color"` | 各行の先頭の意味。透明、全行共通の 1 色、ふつうの色 | Q-PLT-04 |
+| `palette.unit` | `"object"` / `"tile"` / `"block"` / `"layer"` | 1 行に収めなければならない単位。スプライト 1 体、タイル 1 枚、`block` の大きさの升目、レイヤー | Q-PLT-04 |
+| `palette.block` | `{w, h}` / `null` | `unit: "block"` のときの升目（例: 16×16） | Q-PLT-04 |
+| `tile.w` / `h` / `bpp` | 整数 | タイルの大きさと、1 ピクセルのビット数 | Q-PLT-05 |
+| `tile.flips` | `{x, y, d}` | 実機が使える反転。ユニークなタイルを数えるときに使う | Q-PLT-06 |
+| `tile.unique_max` / `map_max` | 整数 / `{w, h}` / `null` | タイル数とマップの上限 | Q-PLT-06 |
+| `object.sizes` | `[[w, h], …]` / `null` | 実機のスプライト 1 個が取れる大きさ | Q-PLT-05 |
+| `native` | 文字列の配列 | 実機向けの書き出し形式の名前（M13） | — |
+
+**`asset`**
+
+| キー | 型 | 説明 | 検証 |
+|---|---|---|---|
+| `class` | 文字列 | `sprite-16` `sprite-80` `tileset-8` `background` `ui-icon-16` など | — |
+| `role` | 文字列 | `sprite` / `tileset` / `background` / `ui` / `portrait` / `effect` | — |
+| `canvas` | `{w, h, fixed}` | `new` の既定のキャンバス。`fixed: true` なら、ずれたら指摘する | Q-PLT-01 |
+| `colors.palette_max` | 整数 / `null` | パレットの大きさの予算（透明を含む） | Q-PAL-01（書き写し） |
+| `colors.opaque_max` | 整数 / `null` | 1 フレームの不透明色の上限 | Q-PAL-05（書き写し） |
+| `animation.tick` | `{num, den}` / `null` | 時間の単位（秒）。60 分の 1 秒なら `{1, 60}`、24 fps なら `{1, 24}` | Q-PLT-07 |
+| `animation.tags` / `tags_optional` | 文字列の配列 | あるべきタグと、あってもよいタグ（例: `idle` `attack` `hurt` `death` `skill` `power`） | Q-PLT-08 |
+| `animation.frames_max` | 整数 / `null` | フレーム数の上限 | Q-PLT-08 |
+
+**`defaults`**: `grid`（`canvas.grid` の升目）、`palette`（`new` の既定パレット）、`preview.scale` と `preview.backgrounds`（レビューシートが使う背景色の列）、`export.scale`、`export.review_scale`、`export.sheet`、`pipeline.preset` と `pipeline.overrides`。呼び出しが引数を明示したら、常に引数が勝つ。既定値がプラットフォームから来たことは、結果の封筒の `defaults_from_platform`（使ったキーの一覧）に入れる。
+
+**表示時間と `tick`。** 表示時間は整数ミリ秒のまま持つ（§5.4）。24 fps は 1 コマ 41.67 ms で、整数にならない。次の規則で決定的に割り振る。
+
+- タグの中で先頭から数えて `k` 番目（0 始まり）までの累積コマ数を `T(k)` とする。`T(k)` コマ目の終わりの時刻は `floor(T(k) × 1000 × num / den)` ミリ秒。各フレームの表示時間は、その差である。
+- 24 fps で 1 コマずつなら 41、42、42、41、42、42…となる。
+- この割り振りを行う Op `set_frame_ticks`（フレーム指定と、各フレームのコマ数）を足す。Q-PLT-07 は、表示時間がこの規則から 1 ms を超えてずれたフレームを指摘する。
+
+#### 5.13.3 解決、継承、置き場所
+
+- **探す順**: 引数に直接書かれたオブジェクト → `--platform-file <パス>` → 利用者の設定ディレクトリ `cybersprite/platforms/*.json` → プラグイン（エントリポイント群 `cybersprite.platforms`）→ 内蔵（`src/cybersprite/data/platforms/*.json`）。
+- **継承**: 定義ファイルは `extends: "<id>"` を 1 つ持てる。オブジェクトは深く併合し、配列は置き換え、`null` は「定めない」に戻す。循環は `E_INVALID_ARGS`。
+- **部分指定**: `--platform nds/sprite-80` のほか、`--platform nds`（表示系だけ。`asset` は `--size` から `custom` として作る）、`--platform free --size 48x48` を認める。
+- **既定**: `config.toml` の `[defaults] platform = "<id>"`。`new` が `--platform` なしで呼ばれたときに使う。設定はツール引数から変えられない（§9.6 のまま）。
+- **解決の結果はスナップショット**として `project.json` に入る。以後、定義ファイルは読まない。
+
+#### 5.13.4 プラットフォームが駆動するもの
+
+プラットフォームが駆動する値は次のとおり。
+
+| 駆動する項目 | 仕組み |
+|---|---|
+| `new` の既定キャンバス | `asset.canvas`、`defaults.grid`、`defaults.palette` |
+| タイルの既定の大きさ | `system.tile`。`add_tileset` と `tileset_from_layer` の既定値になる |
+| パレットの色数の予算 | `asset.colors` を、適用時に `project.validation` の `palette_max` と `colors_per_frame_max` へ**書き写す** |
+| プレビューと書き出しの既定の倍率 | `defaults.preview`、`defaults.export` |
+| 検証の水準 | `platform.validation`（しきい値と `severity`）の書き写しと、新しい規則 Q-PLT |
+| 手順書と粒度ガイドの注入 | `workflow` と `craft` から作る短い案内文。`get_info` と `platforms show --guide` が返す（§5.13.6） |
+
+- **書き写しにする理由。** `validation` のキーは「既定値でも必ず書く」（§5.2.2）。層を重ねて動的に解決するより、適用時に書き写して、変えたキーを結果に列挙するほうが、正本を読めば設定が分かる。
+- **取り込みパイプライン**も駆動する。`import_image` が `preset` と `pipeline` を省略したら `defaults.pipeline` を使う。`color.bits` があれば、量子化の段（§11.5）で、表せる色にパレットを丸める。量子化は取り込み時の 1 回だけ、という原則 2 の中に収まる。
+
+#### 5.13.5 検証規則
+
+**制約（Q-PLT）。** `platform` が無いプロジェクトでは、どれも走らない。水準は `validation.severity` で変えられる。
+
+| ID | 既定の水準 | 内容 | 段階 |
+|---|---|---|---|
+| Q-PLT-01 | error | キャンバスが `asset.canvas` と違う（`fixed` のとき）。役割が `background` で `system.screen` より小さい、または `tile.map_max` を超える | 1 |
+| Q-PLT-02 | error | パレットに、`color.bits` で表せない色、または `master_palette` にない色がある。該当の番号と、最も近い表せる色を `where` に入れる | 1 |
+| Q-PLT-03 | error | `alpha: "binary"` なのに、半透明のパレット色か、255 未満の不透明度がある | 1 |
+| Q-PLT-04 | error | パレットの行の違反。1 単位（`palette.unit`）の画素が 2 つ以上の行にまたがる。または、行の先頭（`slot0` が `transparent` / `shared` の行の、透明インデックス以外の先頭）を画素が使っている | 2 |
+| Q-PLT-05 | warning | キャンバス、スライス、セルが、`tile` の倍数や `object.sizes` に合わない | 1 |
+| Q-PLT-06 | warning | ユニークなタイルの数が `tile.unique_max` を超える。数は `tile.flips` で同じとみなせるものを 1 つに数える | 2 |
+| Q-PLT-07 | info | 表示時間が `animation.tick` の割り振りから 1 ms を超えてずれている | 1 |
+| Q-PLT-08 | info | `animation.tags` のタグがない。フレーム数が `frames_max` を超える | 1 |
+
+検証報告の `metrics.platform` に、`id`、不透明色の最大数、表せない色の数、ユニークなタイルの数（反転を考慮する場合としない場合）、`tick` からずれたフレームの数を、判定の有無によらず常に入れる。
+
+**色を合わせる Op。** Q-PLT-02 を直すために `conform_palette`（種別 `mutate`、冪等性 I）を足す。パレットの各色を、最も近い表せる色（付録 B の距離）に**明示的に**置き換え、変えた色の前後を結果に並べる。予行で確かめてから使う。編集で色を黙って近似する経路は作らない（原則 2）。
+
+**作法（Q-CRF）。** 既定の水準は `info` で固定の 1 規則だけにする。
+
+| ID | 既定の水準 | 内容 |
+|---|---|---|
+| Q-CRF-01 | info | `craft` の範囲から外れた指標がある。指標ごとに 1 件、範囲と実測値を出す |
+
+`craft` のキー（どれも `[最小, 最大]` か `null`）:
+
+| キー | 意味 | 測り方 |
+|---|---|---|
+| `fill_permille` | 不透明ピクセル ÷ キャンバス | 千分率 |
+| `depth_max` | 輪郭からの最大の深さ | 透明からの 4 近傍の距離の最大 |
+| `flat_permille` | 3×3 が 1 色だけの画素の割合 | 千分率 |
+| `region_density_x100` | 同色の連結領域の数 ÷ 不透明ピクセル × 100 | 4 近傍 |
+| `ramp_steps` | 1 つの素材の陰影の段数 | `palette.ramps`（H-16）があるときだけ |
+| `outline.dark_permille` | 輪郭の画素のうち、最も暗い色の割合 | 千分率 |
+| `parts` | 部品どうしの寸法比。例 `"eye.near.w/head.w": [250, 400]` | 名前が `part.` で始まるスライスの矩形から計算する |
+
+`basis` は `authored`（自分たちで書いた一般則）か `measured`（測った値）。`measured` のときは `corpus` に、測った集合の名前、点数、入力一覧のハッシュを入れる。ファイルのパスは入れない。
+
+**作法の指標は関門にしない。** 全体の指標だけでは造形の質を判定できない。しきい値として使えるかは、発注者が選んだ参照の集合で確かめてから決める。用途は、人間が見るときの手がかりと、作り手が設計の段階で照合する物差しである。
+
+#### 5.13.6 Op、CLI、MCP、GUI
+
+| 追加・変更 | 内容 |
+|---|---|
+| `new_project` | 引数 `platform`（ID かオブジェクト）、`platform_overrides`。`width` / `height` / `palette` を省略したら、プラットフォームの既定を使う |
+| `set_platform`（新規、mutate、I） | `platform`、`overrides`、`apply_validation`（既定 true）。ピクセルとパレットは変えない。結果に、書き写した設定と、その時点の Q-PLT の違反を入れる。`platform: null` で外す |
+| `get_info` | 要約に `platform: {id, canvas, opaque_max, workflow}` を常に入れる。`include: ["platform"]` で全体と案内文 `guide`（2 KB 以内）を返す。ツールは増やさない（MCP のツール定義は今でも大きい。R1-08） |
+| `list_platforms`（新規、query） | 使えるプラットフォームの一覧（ID、題名、出どころ） |
+| `render_preview` | `scale: "auto"` のとき `defaults.preview.scale` を使う。`layout: "review"`（H-08）と `rect`（H-15）を足す |
+| `export_*` | `scale` を省略したら `defaults.export.scale` |
+| `export_native`（新規、段階 2） | M13 |
+| CLI | `new --platform <id> [--platform-file <パス>]`、`platforms list`、`platforms show <id> [--guide]`、`op set_platform …` |
+| GUI | 新規ダイアログにプラットフォームの選択を足す。ステータスバーに ID を出す。検証パネルに Q-PLT をまとめて出す。定義の編集画面は v1.x |
+| `AGENTS.md` §6.1 | 「状況をつかむ」に、プラットフォームと案内文を読むことを足す |
+
+案内文 `guide` は、制約の要約、作法データの数値、手順書へのパス（`skills/workflows/<workflow>.md`）、確認事項を並べた短い文章にする。定義から決定的に作る。
+
+
+#### 5.13.7 M11 の初期定義と境界
+
+`system.color.master_colors` は解決時に固定するRGB整数三つ組の配列である。master_paletteの名前は来歴として保持し、検証やconform_paletteはこの保存済み色表だけを使う。既定パレットがasset.colors.palette_maxを超える場合は番号順の先頭を採用する。明示パレットは切り詰めない。
+
+- 表示系は `free`、`dmg`、`nds`、`hd-320x180`、`hd-384x216`、`hd-480x270`、`hd-640x360`。汎用役割は sprite-16/24/32/48/64/80/96/128、tileset-8/16/32、background、ui-icon-16、portrait-64。組は dmg/sprite-16、dmg/tileset-8、dmg/background、nds/sprite-80、nds/sprite-96、hd-320x180/sprite-64、free/sprite-32。`motion` は tick={num:1,den:24}、必須 idle、任意 attack/hurt/death/skill/power。
+- DMG の画面160×144、8×8・2bpp、背景マップ32×32、物体8×8/8×16、背景1行×4・物体2行×4。NDS の画面256×192、RGB555、代表モードは8×8・4bpp、16行×16、物体12寸法（8〜64px）。公開技術資料の事実のみで照合する。gray-4 は自作の慣用灰色で、実機のRGB規格ではない。背景用は透明予約枠に加えて4階調を保持する。
+- 内蔵craftはauthoredだけ。Q-PLT-04/06、Q-CRF-01、export_native は後続段階。M11でもmetrics.platformにunique_tiles/unique_tiles_with_flipsを含める。色数は常に透明インデックスを除く使用色数。
+- JSON Pointer の上書きは既存オブジェクトのキーに適用する辞書。配列は整数添字。未知の場所・不正な値はE_INVALID_ARGS。
+- set_frame_ticks は frames と正整数ticks（単一値または同じ長さの列）、任意tickを受ける。各タグ先頭で累積を0に戻し、タグ外は先頭から配分。Q-PLT-07は各durationから最も近い正整数tick数を復元して同じ累積規則で比較する。
 
 ## 6. コア動作仕様
 
@@ -1556,6 +1779,8 @@ csp         [全体オプション] <コマンド> [引数…]      （短縮別
 | `gui [<プロジェクト>] [--port n] [--no-browser]` | — | GUI サーバを起動し、ブラウザで開く（§14.6） |
 | `doctor` | — | 実行環境の診断（版、実行環境指紋、任意依存の有無、書き込み権限） |
 
+`new --platform <id> [--platform-file <path>] [--size WxH]` は解決済み定義を保存する。`platforms list` と `platforms show <id> [--guide]` はレジストリの list_platforms を使う。
+
 ### 9.4 主要コマンドの詳細
 
 #### 9.4.1 `op` と `apply`
@@ -1810,6 +2035,8 @@ MCP ではツール実行エラー（`isError: true`）として返す。プロ�
 | `set_project_meta` | `name`、`grid`、`pixel_ratio`、`user_data`（いずれも省略可。指定したものだけ変える） | `{}` | I |
 | `set_validation` | `settings`（§13.3 の設定の一部。指定したキーだけ変える） | `{validation}`（変更後の設定） | I |
 
+platform関連の共通Opは§5.13.6に従う。new_projectはplatform（IDまたはオブジェクト）/platform_file/platform_overridesを受け、省略寸法はasset.canvasから得る。get_infoのinclude=platformは全snapshotとguideを返す。list_platformsはプロジェクト未作成でも使える。set_platformはmutate/I、apply_validation=true、nullで解除。conform_paletteはmutate/Iで付録B距離最小、同距離ならRGB辞書順、alphaを維持し凍結中は拒否する。
+
 ### 10.5 描画
 
 特記のない限り、すべて `layer` と `frame`（整数 1 個）を必須で取る。色は共通の色型。`result` には `{pixels_written}`（実際に値が変わったピクセル数）を入れる。アルゴリズムは §6.4。
@@ -1845,6 +2072,8 @@ MCP ではツール実行エラー（`isError: true`）として返す。プロ�
 | `copy_cel` | `layer`、`frame`、`to_layer`（同じレイヤー）、`to_frame`、`mode`（`"copy"`）、`on_conflict`（`"replace"`） | 複製先に独立したセルを作る。`"move"` は元を消す | C（`"copy"` は I、`"move"` は N） |
 | `link_cel` | `layer`、`source_frame`、`frames`（フレーム指定） | 指定したフレームのセルを、`source_frame` のセルへのリンクに置き換える。`source_frame` にセルがなければ `E_CEL_NOT_FOUND` | I |
 | `unlink_cel` | `layer`、`frame` | リンクを独立した複製にする。リンクでなければ `no_op` | I |
+
+set_cel.linked は error/all/unlink（既定error）。リンク組のx/y/opacityの実変更でerrorならE_LINKED_CEL（linked_framesとall/unlinkのヒント）。allは共有変更、unlinkは対象フレームを独立化して変更する。move_celはdx/dyと必須scope=frame/sharedを受けるmutate/N。frameは独立化後に移動、sharedは共有元を移動する。set_frame_ticksは§5.13.7の配分を行うmutate/I。
 
 ### 10.7 パレット
 
@@ -2299,6 +2528,8 @@ license = "model card license name"
 
 プラグインは `Q-<提供者>-nn` の形で規則を足せる（§15）。
 
+platformがある場合だけ§5.13.5のQ-PLT-01/02/03/05/07/08を実行する。水準はerror/error/error/warning/info/info。
+
 ### 13.3 検証の設定（`project.json` の `validation`）
 
 ```json
@@ -2353,6 +2584,8 @@ license = "model card license name"
 - 指摘の同一性は `(rule, where.frames, where.layer)` で判定する。コミット前になくて後にある指摘が `new_issues`、前にあって後にない指摘が `resolved_issues`。
 - `metrics_delta` には、値が変わった数値の指標だけを `{before, after}` で入れる（配列の指標は、合計と最大値で比べる）。
 - **差分計算の結果は、全体を計算し直した結果と必ず一致しなければならない。** 実装は、フレーム単位のキャッシュ（内容のハッシュをキーにする）を使ってよい。
+
+色数指標colors_used、colors_per_frame、colors_per_frame_maxは、透明インデックスを除く使用色数に統一する。platformがある場合はmetrics.platformを規則選択に関わらず返す（id、opaque_max、unrepresentable_colors、unique_tiles、unique_tiles_with_flips、tick_deviations）。
 
 ### 13.5 ゴールデンファイル
 
@@ -2793,6 +3026,18 @@ tests/golden/<ケース名>/
 | 作業 | `skills/`（§16.7）。`examples/`（自作のサンプル 3 点以上: キャラクターのアニメーション、タイルセット、生成画像からの取り込み例）。利用者向け文書。wheel の作成（GUI の成果物を同梱）。`NOTICE` と台帳の最終確認。通しテストの全シナリオ。`docs/PERFORMANCE.md`。レビュー依頼の作成 |
 | 受け入れ基準 | 新しい環境で `uv tool install` 相当の手順だけで CLI、MCP、GUI が動く。何も知らないエージェント（新しいセッションの Claude Code）が、`AGENTS.md` と `skills/` だけを頼りにシナリオ 1 を完走できる。§13.7 の完了条件を満たす作例がある |
 
+#### M11: プラットフォームの芯と罠の除去
+
+H-01〜04、H-12前半、H-20。前提はR1-03/04/07/09/10/12/13/18。受け入れ: 解決・snapshot・既定値・Q-PLT・CLI/MCPの通し検査、旧正本互換、リンク編集の明示化。
+
+#### M12: 質の関門と成形
+
+H-06指標、H-07〜09、H-11、H-13〜17、H-19。最初にR1-06の実生成入力を検証。受け入れ: 標準工程でDS級を1体作り直し、発注者が見て合否を決める。
+
+#### M13: 機種仕様の深掘りと生成の拡張
+
+H-05、H-06部品、H-10、H-12後半、H-16後半、H-21/22。残るcgb/nes/sfc/md/gba、行・タイル予算、実機出力、ずれつきリンク、ランプ、計測、GPU/ComfyUI。1.0か1.xかは発注者が決める。
+
 ### 16.5 レビューループ（最大 3 回）
 
 1. M10 の完了後、オーケストレーターが `docs/REVIEW_REQUEST_<n>.md` を書く（できたこと、既知の不足、テスト結果、動かし方）。
@@ -3137,6 +3382,7 @@ L = (M2i[0][0] × l' + M2i[0][1] × m' + M2i[0][2] × s' + 32768) >> 16      （
 | `E_AMBIGUOUS_REF` | 名前での指定が複数に当たった | 候補の ID と経路 |
 | `E_WRONG_LAYER_TYPE` | レイヤーの種類が合わない | 実際の種類 |
 | `E_LAYER_LOCKED` | レイヤー（または祖先）がロックされている | ロックしているレイヤー |
+| `E_LINKED_CEL` | 共有位置・不透明度の変更に明示指定がない | linked_frames、linked=all/unlinkの選択肢 |
 | `E_PALETTE_FROZEN` | パレットが凍結されている | |
 | `E_INDEX_OUT_OF_RANGE` | パレット番号が範囲外 | パレットの大きさ |
 | `E_COLOR_NOT_IN_PALETTE` | 色がパレットにない | 近い 3 色 |
