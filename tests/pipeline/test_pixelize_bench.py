@@ -31,6 +31,10 @@ def test_recipes_and_palette_mapping():
     assert metrics["size_exact"] and metrics["mask_iou"] == 1
     assert metrics["exact_rgba"] == 0.25 and metrics["mapped_exact_rgba"] == 1
     assert metrics["grid_step_error"] == 0
+    swapped = truth.copy()
+    swapped[1, 0, :3] = (200, 40, 10)
+    swapped[0, 1, :3] = swapped[1, 1, :3] = (20, 40, 180)
+    assert compare(swapped, truth, [2, 1], (4, 4, 4))["mapped_exact_rgba"] == 1
     wrong = compare(truth.repeat(2, 0), truth, [2, 1], (4, 4, 4))
     assert not wrong["size_exact"] and wrong["exact_rgba"] is None
 

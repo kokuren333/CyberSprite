@@ -163,7 +163,8 @@ def cases(truth, *, smoke=False):
 def compare(result, truth, expected_step, input_shape):
     """No spatial resize/alignment of a wrong-sized result; report those metrics as null.
 
-    Palette mapping is many-to-one nearest fixed-point Oklab (ties RGBA order).
+    Palette mapping maximizes spatial agreement, independently for each output color
+    within its opacity class. Ties use fixed-point Oklab distance, then RGBA order.
     Raw exact RGBA accuracy is also reported so palette mapping cannot hide color changes.
     """
     h, w = truth.shape[:2]
@@ -194,7 +195,10 @@ def compare(result, truth, expected_step, input_shape):
     metrics["mask_iou"] = int(np.count_nonzero(a & b)) / union if union else 1
     metrics["exact_rgba"] = float(np.all(result == truth, axis=2).mean())
     source, inverse = np.unique(result.reshape(-1, 4), axis=0, return_inverse=True)
-    target = np.unique(truth.reshape(-1, 4), axis=0)
+    target, truth_inverse = np.unique(truth.reshape(-1, 4), axis=0, return_inverse=True)
+    overlap = np.bincount(
+        inverse * len(target) + truth_inverse, minlength=len(source) * len(target)
+    ).reshape(len(source), len(target))
     labs = rgb_to_oklab_fixed_numpy(target[:, :3])
     source_labs = rgb_to_oklab_fixed_numpy(source[:, :3])
     mapped = source.copy()
@@ -202,6 +206,8 @@ def compare(result, truth, expected_step, input_shape):
         valid = (target[:, 3] >= 128) == (color[3] >= 128)
         if np.any(valid):
             candidates = np.flatnonzero(valid)
+            support = overlap[i, candidates]
+            candidates = candidates[support == support.max()]
             dist = ((labs[candidates] - source_labs[i]) ** 2).sum(axis=1)
             mapped[i] = target[candidates[int(np.argmin(dist))]]
     mapped = mapped[inverse].reshape(truth.shape)
@@ -367,7 +373,8 @@ def benchmark(output, *, limit=None, smoke=False, repeats=3, xprite_root=None, g
                             "runs_ms": elapsed,
                             "median_ms": statistics.median(elapsed),
                             "repeat_identical": len(set(hashes)) == 1,
-                            "output_sha256": hashes[0],
+                            "output_sha256": hashes[-1],
+                            "repeat_pixel_sha256": hashes,
                             "size": [result.shape[1], result.shape[0]],
                             "metrics": compare(result, truth, step, image.shape),
                             "accepted": detail.get("accepted"),

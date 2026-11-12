@@ -1,3 +1,28 @@
+# パイプライン較正（R1-D1、版5）
+
+正本はこの文書。現行測定は `docs/reference/pixelize_calibration_v5.json`、詳細は `docs/PIXELIZE_BENCH.md`。`uv run python tools/calibrate_pixelize_gates.py` がAUTO最終関門を計測する。旧calibrate_pipeline入口もこちらへ委譲する。閾値の正本は `pipeline_defaults.json` の版5で、95%要件は未達。
+
+| 分類 | 件数 | 合格 | 拒否 | 測定エラー |
+|---|---:|---:|---:|---:|
+| d | 13 | 8 | 5 | 0 |
+| d-nonpixel-control | 3 | 2 | 1 | 0 |
+| e | 12 | 2 | 10 | 0 |
+| f | 34 | 31 | 3 | 0 |
+| f-auto-control | 17 | 16 | 1 | 0 |
+
+(e)は再試行で完了したnoise_white_128も含めて10/12拒否（83.3%）。Fable R1-06の83%を再現し、95%には届かない。(f)は3/34拒否（8.8%）、AUTO対照は16/17合格。誤固定格子に対するsnap誤差は仕様どおり警告に留まるため、この関門だけで誤指定を排除できない。閾値を変更していないので、改善を主張しない。
+
+[全測定値・個別関門・再試行](../../docs/reference/pixelize_calibration_v5.json)。計測途中に修正したNone集計の問題は、保存済みの個別判定を `--summarize` で再集計した。時間切れによる拒否の水増しは行っていない。
+
+## 既定値（変更なし、配置だけを外部化）
+
+grid_score=[415,707]、fidelity=[466954543,233477271]、grid_cell_count=[12,96]、boundary_alignment=[80,250]、snap_fidelity=[3000,500]、grid.candidate_agreement=950。すべてpipelineの同名設定で上書きできる。生成素材(d)の未入手は解消したが、判別性能の合格とは扱わない。警告は合格に含める。
+
+## 版4の正例・旧指標測定（履歴）
+
+以下の547件は旧条件の記録を保持したもので、現行AUTOの拒否率ではない。正例(a)255件の完全一致を引き続きテストで固定する。元のベクタと閾値を機械的に書き換えていない。
+
+<!-- R1-D1 LEGACY V4 -->
 # パイプライン較正（M6、版 4）
 
 正本はこの文書。測定値は `calibration_metrics.json`、再実行は `uv run python tools/calibrate_pipeline.py`。
