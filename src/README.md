@@ -10,7 +10,7 @@ Python パッケージ `cybersprite` の置き場所。M1〜M9 のヘッドレ�
 | `cybersprite/ops/` | `args` 引数モデルと `descriptions` の Field 説明、`ingest` が来歴・変換・配置、`export_ops` が形式登録、`common` 参照・リンク共有編集、`drawing` ラスタ関数の接続、`frames` フレーム／セル、`palette` パレット、`structure` レイヤー／タグ／スライス／メタデータ、`canvas` キャンバス、`queries` 読取と初期構築、`previews` PNG 保存。`__init__` の `registry()` と `execute()` が利用面の共通入口 | §6.4、§10 | M2、M7 |
 | `cybersprite/formats/` | `png` 自前 PNG codec、`animation` 自前 GIF/LZW と APNG、`sheet` 配置と JSON 3 形式、`export` 共通の自己検査付き書出し、`export_args` 利用面共通の引数、`palette_files` パレット codec、`aseprite_io` 唯一のパッケージ依存境界、`input_adapter` 一時取り込み。`common.export_policy` が利用面の root/allow-dir を共有する | §5.9、§6.6、§8 | M1、M2、M5 |
 | `cybersprite/pipeline/` | `runner` が6段階変換・関門・報告を実行。`decode` は復号と共通シート分割、`cli_api` は convert/detect_grid、その他は整数の純粋ステップ | §11 | M6 |
-| `cybersprite/generate/` | `contracts` のバックエンド契約、`registry` の遅延プラグイン、`backends` の command/Diffusers API 接続、`licenses` の実体ハッシュと承諾、`service` の source 専用保存と再実行 | §12 | M9 |
+| `cybersprite/generate/` | `contracts` のバックエンド契約、`registry` の遅延プラグイン、`backends` の command/Diffusers API 接続、`models` のBYOW登録と条件表示、`comfyui` の登録ワークフローHTTP接続と対応付け検査、`licenses` の実体ハッシュとベースを含む承諾、`service` のsource専用保存・用途・権利メモ・workflow来歴と再実行。配置済みモデル条件は `core/source_terms.py` とQ-SRC-04が読む | §12 | M9、R1-F1 |
 | `cybersprite/cli/` | 全コマンド。`generated` が登録済み Op の引数から Click オプションを遅延生成し、`output` が JSON・要約・エラー封筒と正本への出力保護を担当する。GUIと生成の入口も統合済み。使い方は `docs/CLI.md` | §9 | M1〜M9 |
 | `cybersprite/config.py` | ユーザーの config.toml の場所解決と厳密なスキーマ、生成コマンドの置換名検査、モデル実体の設定。`CYBERSPRITE_CONFIG_DIR` で設定ディレクトリを分離できる | §9.6、§12 | M3、M9 |
 | `cybersprite/mcp/` | `server` が Op 実行と利用範囲、`contracts` がプロファイルとスキーマ、`paths` が入力・出力の実体パス制限、`execution` が期限とロールバックを担当。export_policy は同じ root/allow-dir を共有 | §10 | M4 |
