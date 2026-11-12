@@ -4,6 +4,7 @@ import os
 from contextlib import nullcontext
 from copy import deepcopy
 from functools import partial
+from importlib import import_module
 from types import SimpleNamespace
 from typing import Any, Literal
 
@@ -17,27 +18,21 @@ from cybersprite.core.registry import EmptyResult, Op, OpContext, Registry
 from cybersprite.core.transactions import synchronize, transact
 
 from .args import ARGS, TxOptions
-from .canvas import canvas_op
 from .common import fail
 from .descriptions import OPERATIONS
-from .drawing import drawing
-from .frames import frame_op
-from .ingest import (
+from .ingest_args import (
     GetSourceArgs,
     GetSourceResult,
     ImportArgs,
     ImportResult,
     ListSourcesArgs,
     ListSourcesResult,
-    import_top,
-    place,
-    source_query,
 )
-from .palette import palette_op
-from .previews import transaction_previews
-from .queries import construct, query, summary
-from .structure import layer_op, metadata_op, tag_slice_op
-from .tiles import tile_op
+
+
+def _lazy_apply(module, function, *args, **kwargs):
+    return getattr(import_module(f".{module}", __name__), function)(*args, **kwargs)
+
 
 DRAWING = {
     "set_pixel",
@@ -278,21 +273,21 @@ def registry():
                 (
                     fn
                     for group, fn in (
-                        (DRAWING, drawing),
-                        (FRAME, frame_op),
-                        (PALETTE, palette_op),
-                        (LAYERS, layer_op),
-                        (TAG_SLICE, tag_slice_op),
-                        (CANVAS, canvas_op),
-                        (TILES, tile_op),
-                        (QUERY, query),
-                        ({"set_project_meta", "set_validation"}, metadata_op),
+                        (DRAWING, ("drawing", "drawing")),
+                        (FRAME, ("frames", "frame_op")),
+                        (PALETTE, ("palette", "palette_op")),
+                        (LAYERS, ("structure", "layer_op")),
+                        (TAG_SLICE, ("structure", "tag_slice_op")),
+                        (CANVAS, ("canvas", "canvas_op")),
+                        (TILES, ("tiles", "tile_op")),
+                        (QUERY, ("queries", "query")),
+                        ({"set_project_meta", "set_validation"}, ("structure", "metadata_op")),
                     )
                     if name in group
                 ),
                 None,
             )
-            apply = partial(function, name=name) if function else _special
+            apply = partial(_lazy_apply, *function, name=name) if function else _special
             kind: Literal["query", "mutate"] = "query" if name in QUERY else "mutate"
             idem: Literal["R", "N", "C", "I"] = (
                 "R"
@@ -329,7 +324,7 @@ def registry():
             Op(
                 "import_image",
                 ImportArgs,
-                place,
+                partial(_lazy_apply, "ingest", "place"),
                 ImportResult,
                 "ingest",
                 "N",
@@ -344,7 +339,7 @@ def registry():
                 Op(
                     name,
                     arguments,
-                    partial(source_query, name=name),
+                    partial(_lazy_apply, "queries", "source_query", name=name),
                     result,
                     "query",
                     "R",
@@ -395,6 +390,8 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
             "warnings": [],
         }
     if name == "import_image" and definition.kind == "ingest":
+        from .ingest import import_top
+
         return import_top(registry(), project, parsed, tx, actor)
     if name in ("list_sources", "get_source") and not project_path(project).exists():
         value = definition.apply(SimpleNamespace(root=root), parsed)
@@ -408,6 +405,8 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
             "warnings": [],
         }
     if name == "new_project":
+        from .queries import construct, summary
+
         target = project_path(project)
         p = construct(parsed, root)
         with nullcontext() if tx.dry_run else history.ProjectLock(root, actor):
@@ -436,6 +435,8 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
             "warnings": [],
         }
     if definition.kind == "mutate":
+        from .previews import transaction_previews
+
         calls = (
             [item.model_dump() for item in parsed.ops]
             if name == "apply_ops"
@@ -453,7 +454,9 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
         )
     if options:
         raise invalid("Transaction options are accepted only by mutate operations.")
-    p = synchronize(root, load_project(project), actor=actor)
+    p = load_project(project)
+    if name != "get_info" or "history" in parsed.include:
+        p = synchronize(root, p, actor=actor)
     value = definition.apply(OpContext(p, root), parsed)
     # Validate output without injecting optional absent query sections.
     definition.result.model_validate(value)

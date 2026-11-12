@@ -3,10 +3,8 @@
 from copy import deepcopy
 from hashlib import sha256
 from pathlib import Path
-from typing import Annotated, Literal
 
 import numpy as np
-from pydantic import Field
 
 from cybersprite.core import history, sources
 from cybersprite.core.canonical import load_project, metadata_bytes, project_path
@@ -16,183 +14,48 @@ from cybersprite.core.models import (
     Frame,
     ImageCel,
     ImageLayer,
-    Model,
     Placement,
     Source,
     SourceFile,
-    SourceModel,
     SourcePipeline,
 )
 from cybersprite.core.pixels import pixels_to_rows
 from cybersprite.core.projects import new_project
 from cybersprite.core.transactions import transact
 from cybersprite.pipeline._common import PipelineError
-from cybersprite.pipeline.args import PipelineSettings
 from cybersprite.pipeline.decode import decode_raster, split_sheet
 from cybersprite.pipeline.runner import color_strings, run_pipeline
 
 from .common import fail, image_layer, write_points
+from .ingest_args import (
+    GetSourceArgs as GetSourceArgs,
+)
+from .ingest_args import (
+    GetSourceResult as GetSourceResult,
+)
+from .ingest_args import (
+    ImportArgs as ImportArgs,
+)
+from .ingest_args import (
+    ImportResult as ImportResult,
+)
+from .ingest_args import (
+    ListSourcesArgs as ListSourcesArgs,
+)
+from .ingest_args import (
+    ListSourcesResult as ListSourcesResult,
+)
+from .ingest_args import (
+    Provenance as Provenance,
+)
+from .ingest_args import (
+    Sheet as Sheet,
+)
+from .ingest_args import (
+    Target as Target,
+)
 from .previews import transaction_previews
-
-Nonnegative = Annotated[int, Field(ge=0)]
-Positive = Annotated[int, Field(ge=1)]
-
-
-class Provenance(Model):
-    license: Annotated[str, Field(min_length=1)] = Field(
-        description="Usage license identifier; use unknown when usage terms are unknown."
-    )
-    kind: Literal["imported", "generated"] = Field(
-        "imported", description="Source origin: imported or generated."
-    )
-    provider: str = Field("file", description="Input provider name, for example file.")
-    prompt: str = Field(
-        "", description="Original generation prompt; empty for non-generated input."
-    )
-    negative_prompt: str = Field("", description="Original negative generation prompt, if any.")
-    model: SourceModel | None = Field(
-        None, description="Generator model identifier and version, if any."
-    )
-    url: str = Field("", description="Source attribution URL, if available.")
-    rights_note: str = Field("", description="Additional usage-rights or attribution notes.")
-    seed: int | None = Field(None, description="Original generation seed, if known.")
-    params: dict = Field(
-        default_factory=dict, description="Original generation parameters retained as provenance."
-    )
-
-
-class Target(Model):
-    mode: Literal["new_layer", "layer"] = Field(
-        "new_layer",
-        description="Place in a new image layer or an explicitly referenced existing layer.",
-    )
-    layer: str | None = Field(None, description="Target layer ID, unique name, or group path.")
-    name: Annotated[str, Field(min_length=1, max_length=255)] | None = Field(
-        None, description="Human-readable resource name, at most 255 characters."
-    )
-    frame: Nonnegative = Field(0, description="Zero-based placement starting frame.")
-    x: int = Field(0, description="Horizontal pixel coordinate from the canvas left edge.")
-    y: int = Field(0, description="Vertical pixel coordinate from the canvas top edge.")
-    add_frames: bool = Field(
-        True, description="Extend the timeline when imported frames exceed its current length."
-    )
-
-
-class Sheet(Model):
-    cell_w: Positive = Field(description="Sheet cell width in integer pixels.")
-    cell_h: Positive = Field(description="Sheet cell height in integer pixels.")
-    offset_x: Nonnegative = Field(0, description="Horizontal sheet margin before the first cell.")
-    offset_y: Nonnegative = Field(0, description="Vertical sheet margin before the first cell.")
-    spacing: Nonnegative = Field(0, description="Integer gap between neighboring sheet items.")
-
-
-class ImportArgs(Model):
-    files: str | Annotated[list[str], Field(min_length=1, max_length=4096)] | None = Field(
-        None,
-        description="One input raster path or a list of paths; mutually exclusive with source.",
-    )
-    sheet: Sheet | None = Field(
-        None,
-        description=(
-            "Split one static input into complete cells using integer sizes, offsets, and spacing."
-        ),
-    )
-    preset: Literal["ai", "exact", "upscaled", "photo"] = Field(
-        "ai", description="Pipeline preset: ai, exact (lossless), upscaled, or photo."
-    )
-    pipeline: PipelineSettings = Field(
-        default_factory=PipelineSettings,
-        description="Documented section overrides; unspecified fields inherit preset values.",
-    )
-    target: Target = Field(
-        default_factory=lambda: Target.model_validate({}),
-        description=(
-            "Placement layer, zero-based starting frame, integer position, and "
-            "frame-extension policy."
-        ),
-    )
-    provenance: Provenance | None = Field(
-        None,
-        description=(
-            "Input origin and usage terms; license is required for new files (use "
-            "unknown when unknown)."
-        ),
-    )
-    on_gate_fail: Literal["reject", "accept"] = Field(
-        "reject",
-        description=(
-            "Reject failed gates or explicitly accept and record overridden gates; "
-            "capacity/freeze limits remain enforced."
-        ),
-    )
-    source: str | None = Field(
-        None,
-        description=(
-            "Existing source ID to reconvert with its original provenance; mutually "
-            "exclusive with files."
-        ),
-    )
-
-
-class ImportResult(Model):
-    source: str | None
-    accepted: bool
-    report_path: str
-    stage_paths: list[str]
-    gates: list[dict]
-    placed: dict | None
-
-
-class ListSourcesArgs(Model):
-    pass
-
-
-class ListSourcesResult(Model):
-    sources: list[dict]
-
-
-class GetSourceArgs(Model):
-    id: str = Field(description="Stored source ID, such as SRC1.")
-    include_report: bool = Field(
-        False, description="Include the saved pipeline report in the source response."
-    )
-
-
-class GetSourceResult(Source):
-    report: dict | None = None
-
-
-def source_query(ctx, args, name):
-    manifest = sources.read_manifest(ctx.root)
-    if name == "list_sources":
-        return {
-            "sources": [
-                {
-                    "id": s.id,
-                    "kind": s.kind,
-                    "provider": s.provider,
-                    "license": s.license,
-                    "accepted": s.pipeline.accepted if s.pipeline else False,
-                    "placements": [p.model_dump() for p in s.placements],
-                }
-                for s in manifest.sources
-            ]
-        }
-    source = sources.find_source(manifest, args.id)
-    value = source.model_dump()
-    if args.include_report and source.pipeline:
-        path = sources.source_path(ctx.root, f"{source.id}/pipeline_report.json")
-        import json
-
-        try:
-            value["report"] = json.loads(path.read_bytes())
-        except (OSError, ValueError) as error:
-            raise CyberSpriteError(
-                "E_IO",
-                "Cannot read pipeline report.",
-                "Reconvert the source to recreate its report.",
-            ) from error
-    return value
+from .queries import source_query as source_query
 
 
 def decode_files(paths, sheet=None):

@@ -19,9 +19,6 @@ from cybersprite.core.pixels import pixels_to_rows
 from cybersprite.core.projects import create_project, new_project
 from cybersprite.core.quality import report
 from cybersprite.core.render import render
-from cybersprite.formats.png import encode_png
-from cybersprite.pipeline.cli_api import convert
-from tools.gui_test_support import connect_gui, rpc, running_gui
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -58,7 +55,21 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--out", type=Path, default=ROOT / "build/m10-bench.json")
+    parser.add_argument(
+        "--representative",
+        action="store_true",
+        help="Measure R1-B2 distinct-frame fixtures and CLI info end-to-end.",
+    )
     args = parser.parse_args()
+    if args.representative:
+        from tools.benchmark_r1_b2 import main as representative_main
+
+        representative_main(["--out", str(args.out)])
+        return
+    from cybersprite.formats.png import encode_png
+    from cybersprite.pipeline.cli_api import convert
+    from tools.gui_test_support import connect_gui, rpc, running_gui
+
     if args.repeats < 1:
         parser.error("--repeats must be positive.")
     values = {}

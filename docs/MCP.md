@@ -31,6 +31,10 @@ tool_timeout_sec = 310
 
 相対パスは入出力とも `--root` 基準。別の場所が必要なら `--allow-dir C:/inputs` を追加する。シンボリックリンク・ジャンクションの実体を検査し、結果のパスも root 基準の `/` 区切りで返す。allow-dir が root の外なら `../inputs/...` のようになる。
 
+`get_info` の既定の `summary` は品質検証を実行せず、`validation_ok` を含めない。
+現在の品質状態が必要なら `include: ["summary", "validation"]` を指定し、
+`result.validation.ok` と指摘を読む。明示した `validation` は全体を検証する。
+
 呼出例:
 
 ```json

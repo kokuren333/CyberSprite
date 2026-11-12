@@ -49,7 +49,11 @@ def test_cluster_traversal_matches_original_integer_vectors():
     for _ in range(50):
         image = np.array([[rng.randrange(4) for _ in range(17)] for _ in range(13)], dtype=np.uint8)
         for ti in (0, 2, -1):
-            assert quality.clusters(image, ti) == reference_clusters(image, ti)
+            expected = reference_clusters(image, ti)
+            actual = quality.clusters(image, ti)
+            assert actual.sizes.tolist() == [len(part) for part in expected]
+            for index, part in enumerate(expected):
+                assert actual.points(np.arange(len(expected)) == index) == part[:64]
 
 
 @pytest.mark.parametrize("factory", [lambda: fixture(16, 2, 4), animated_project, tile_project])

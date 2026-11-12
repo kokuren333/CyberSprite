@@ -32,9 +32,9 @@ GUIサーバは正本bytesを毎回読み、完全一致時だけ解析モデル
 
 M2 のコミット処理は `normalize_cels` → `require_valid` → `dumps_project` を再利用する。M1 の `create_project` は排他作成のみで、既存正本を上書きする API はない。`render` / `render_indexed` は ndarray を返し、警告と描画用パレットが必要なら `render_result` / `indexed_result` を使う。
 
-`ops.execute(name, project, args, actor="cli", **transaction_options)` は成功の封筒を返す。失敗は `CyberSpriteError` として返し、バッチ内の失敗には `op_index` が付く。MCP と GUI はこの入口を使い、プロジェクトを直接保存しない。`registry().get(name).describe()` が入力・出力スキーマと annotations を生成する。Op のスキーマは現時点では実行時生成であり、`schemas/` に別の正本を置かない。
+`ops.execute(name, project, args, actor="cli", **transaction_options)` は成功の封筒を返す。失敗は `CyberSpriteError` として返し、バッチ内の失敗には `op_index` が付く。MCP と GUI はこの入口を使い、プロジェクトを直接保存しない。`registry().get(name).describe()` が入力・出力スキーマと annotations を生成する。Op のスキーマは現時点では実行時生成であり、`schemas/` に別の正本を置かない。R1-B2では全契約の登録を維持したまま適用関数を遅延importする。`ingest_args.py` は取り込み契約だけを持ち、変換実行部を読み込まない。`get_info` はhistoryを要求しない限り履歴同期を遅延し、summaryは品質検証・validation_okを含めない。
 
-`core.validation.validation_report` は M1 互換の構造検証である。品質を含む報告は `core.quality.report`、利用面からは登録済み `validate` を使う。品質デルタは全体を検査し、`core.quality.validation_delta` が同一性と指標の比較を担当する。M10では直前1フレームと厳密に同じ合成入力に限り、1回のreport内だけ描画・閉包・クラスタ結果を再利用する。永続キャッシュはない（I-804）。
+`core.validation.validation_report` は M1 互換の構造検証である。品質を含む報告は `core.quality.report`、利用面からは登録済み `validate` を使う。品質デルタは全体を検査し、`core.quality.validation_delta` が同一性と指標の比較を担当する。R1-B2では内容ハッシュをキーとする256 MiBのフレームLRUで、前後の報告と後続トランザクションの描画・閉包・成分解析を再利用する。`core/components.py` は同色8近傍の成分をNumPy整数配列で集計し、報告する最大64点だけ従来BFS順に列挙する。永続キャッシュはない（I-1142、I-1143）。
 
 プレビューの PNG エンコードは `ops/previews.py` から自前 writer を呼ぶ。`core` には formats の import を持ち込まない。`inline` の画像は `result.images` の PNG base64 配列として運び、M4 が MCP 画像コンテンツへ変換できる。
 

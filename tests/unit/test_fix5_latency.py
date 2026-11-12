@@ -143,15 +143,16 @@ def test_canonical_row_cache_matches_reference_for_controls_and_extension_keys()
     assert zipped[4:8] == bytes(4) and zipped[9] == 255
 
 
-def test_frame_cache_is_bounded_and_does_not_hide_invalid_frame():
+def test_frame_cache_is_bounded_and_does_not_hide_invalid_frame(monkeypatch):
+    quality._FRAME_CACHE.clear()
+    monkeypatch.setattr(quality, "_FRAME_CACHE_BYTES", 48 * 1024)
     for i in range(70):
         p = fixture(2)
         p.layers[0].cels[0].x = i
         report(p)
-    assert len(quality._FRAME_CACHE) <= 64
     assert (
-        sum(v[1].shape[0] * v[1].shape[1] for v in quality._FRAME_CACHE.values())
-        <= quality._FRAME_CACHE_PIXELS
+        sum(quality._frame_bytes(value) for value in quality._FRAME_CACHE.values())
+        <= quality._FRAME_CACHE_BYTES
     )
     assert quality.cached_frame_rgba(p, -1) is None
     assert quality.cached_frame_rgba(p, True) is None

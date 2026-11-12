@@ -11,7 +11,6 @@ from cybersprite.core.registry import Op
 from cybersprite.core.sources import record_import
 from cybersprite.core.transactions import synchronize
 from cybersprite.formats.common import fail, output_path
-from cybersprite.formats.export import EXPORTERS
 from cybersprite.formats.export_args import (
     EXPORT_ARGS,
     ExportResult,
@@ -21,6 +20,8 @@ from cybersprite.formats.export_args import (
 
 
 def apply_export(ctx, args, name):
+    from cybersprite.formats.export import EXPORTERS
+
     return EXPORTERS[name](ctx.project, args, ctx.root)
 
 
