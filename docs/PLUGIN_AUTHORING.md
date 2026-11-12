@@ -24,7 +24,7 @@ from cybersprite.plugins.contracts import PipelineStep
 
 def run(image, params):
     grid = params["grid"]
-    output = image[::2, ::2].copy()  # 工学用の最小例。一般の格子には使わない。
+    output = image[::2, ::2].copy()  # Minimal test example; not valid for arbitrary grids.
     return output, {"output_rows": int(output.shape[0])}
 
 def make_step():
@@ -58,5 +58,7 @@ metrics と params は JSON 化可能な値にする。プラグイン内部は�
 - `platforms`: メタデータ群を予約。機種プロファイルの解決はプラットフォーム工程で接続する。
 
 exporter の `write` は `formats.export_args.ExportResult`（またはその辞書）を返す。wrapper は戻り値のスキーマを検査し、warnings を引き継ぐ。ファイルのメタデータ・validation_ok・verified は共通層が独立して求め、writer の自己申告で上書きしない。
+
+validator の規則 ID は組み込みと他の登録済み規則を含めて一意にする。同じ ID の置換は許さず、衝突した登録を `E_PLUGIN` で破棄する。downsample は `params.grid` の実際のセル数に合わせる。自動格子が未検出の場合も診断用 none 格子で画像と不合格の報告を残す（関門は合格に変更しない）。
 
 テストの最小実装は `tests/test_plugins_r1.py`。外部の製品や素材を使わず、fake entry point で読み込み範囲・API 版・失敗時の登録破棄・各実行経路を検査している。

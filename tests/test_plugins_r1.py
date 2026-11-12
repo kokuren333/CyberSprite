@@ -193,10 +193,12 @@ def test_pipeline_downsample_convert_import_provenance(plugins, tmp_path):
         "palette": {"mode": "exact"},
         "cleanup": {"min_cluster": 1},
     }
-    frames, _, report = run_pipeline(
+    frames, palette, report = run_pipeline(
         [image()], tmp_path / "stages", preset="exact", overrides=overrides
     )
     assert frames[0].shape == (2, 2) and calls[0]["amount"] == 3
+    assert frames[0].tolist() == [[1, 1], [1, 1]]
+    assert palette == [(0, 0, 0, 0), (40, 80, 120, 255)]
     record = report["plugins"][0]
     assert record["name"] == "downsample.tiny" and record["version"] == "2.3.4"
     assert record["params"]["params"] == {"amount": 3}
@@ -271,6 +273,31 @@ def test_target_auto_uses_enabled_pixeloe_only(plugins, tmp_path):
     assert frames[0].shape == (2, 2)
     assert report["plugins"][0]["method"] == "pixeloe"
     assert loaded == ["downsample.pixeloe"]
+
+
+def test_plugin_preserves_diagnostic_conversion_when_auto_grid_fails(plugins, tmp_path):
+    install, _, _ = plugins
+    install(
+        "pipeline_steps",
+        "downsample.tiny",
+        PipelineStep(
+            "downsample",
+            "tiny",
+            lambda im, params: (im.copy(), {}),
+            True,
+        ),
+    )
+    frames, _, report = run_pipeline(
+        [image()],
+        tmp_path / "diagnostic",
+        overrides={
+            "grid": {"mode": "auto"},
+            "downsample": {"method": "tiny"},
+        },
+    )
+    assert frames[0].shape == (4, 4)
+    assert report["accepted"] is False and report["grid"]["detected"] is False
+    assert (tmp_path / "diagnostic" / "result.png").is_file()
 
 
 @pytest.mark.parametrize("kind", ["api", "exception", "dtype", "unknown"])
@@ -351,6 +378,25 @@ def test_validator_failure_does_not_commit(plugins, tmp_path):
     with pytest.raises(CyberSpriteError, match="specific rule failure"):
         ops.execute("set_frame_duration", path, {"frames": [0], "duration_ms": 200}, preview="none")
     assert (path / "project.json").read_bytes() == before
+
+
+def test_plugin_validator_cannot_shadow_builtin_rule(plugins):
+    install, _, _ = plugins
+    checked = []
+    install(
+        "validators",
+        "PAL",
+        Validator(
+            "Q-PAL-01",
+            "warning",
+            lambda p, fs: (checked.append(True) or [], {}),
+        ),
+    )
+    manager = PluginManager()
+    configure_validation(manager)
+    with pytest.raises(CyberSpriteError, match="unique ID"):
+        quality.report(new_project(width=2, height=2))
+    assert checked == [] and manager.loaded == {}
 
 
 def test_palette_listing_and_new_project(plugins, tmp_path):

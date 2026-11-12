@@ -2646,7 +2646,7 @@ tests/golden/<ケース名>/
 - パイプラインは組み込み方式を先に解決し、その他は登録名 `<ステップ>.<方式>`（方式名だけも可）を読む。ステップは `grid` / `downsample` / `quantize` / `cleanup` / `reconstruct`、実装は `step`、`method`、`level_a: bool`、`run(image, params) -> (image, metrics)` を持つ。方式固有の引数は各節の `params`。`quantize` は既存の `palette` 節で選択する（`quantize` 節も同義）。`reconstruct` は grid と downsample を置換し、量子化は後段で一度だけ行う。
 - 画像契約は RGBA `uint8[H,W,4]`、量子化の出力と cleanup の入出力は `IndexedImage(pixels: uint8[H,W], palette: RGBAタプルの列)`。フレーム間で寸法・パレットを一致させる。cleanup はパレットを変えない。量子化は既存パレットの接頭辞と透明番号を保持し、project モードでは追加しない。プラグイン内部の浮動小数は許すが、同一環境・同一入力で決定的でなければならない。
 - プラグインの配布名・版・登録名・方式・引数・決定性を報告の `plugins` に記録し、その報告を source の来歴にも保存する。水準 A を申告しない実装は `W_PLUGIN_DETERMINISM` と `determinism: "same-platform"` を返す。同梱の任意アダプタも自パッケージの entry point と同じ契約で登録する。
-- 検証実装は `rule`、`default_severity`、`check(document, frame_range) -> (issues, metrics)`。規則 ID は `Q-<登録名>-nn` とし、metrics は `metrics.plugins[規則ID]` に置く。通常の水準上書き・絞込・デルタに含める。文書は独立コピーで渡す。
+- 検証実装は `rule`、`default_severity`、`check(document, frame_range) -> (issues, metrics)`。規則 ID は `Q-<登録名>-nn` とし、組み込み・他の登録済み規則との ID 衝突は `E_PLUGIN` とする。metrics は `metrics.plugins[規則ID]` に置く。通常の水準上書き・絞込・デルタに含める。文書は独立コピーで渡す。
 - パレットの factory は `{name, colors, license, names?}` の列を返す。名前衝突は拒否し、組み込みと同じ読取入口で使える。ライセンス未指定時は配布メタデータの表示を使う。
 - 書出実装は登録名に一致する `name`、`extension`、`options_model`、`write(document, renderer, out, options)` を持つ。`export_plugin`（`format`、`out`、`options`）が共通の検証・パス preflight を通す。v1 は単一ファイル。任意の `decode(bytes)` は全フレームの RGBA 配列の列を返し、ディスクから読んだデータをコア描画と照合する。未実装なら `verified: false` と `verification_reason` を必ず返す。
 

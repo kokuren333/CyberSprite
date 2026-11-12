@@ -18,7 +18,12 @@ def rules(manager):
                     raise ValueError("rule ID must be Q-<entry-point-name>-nn")
                 if rule.default_severity not in ("error", "warning", "info", "off"):
                     raise ValueError("default_severity must be error, warning, info or off")
-                if not callable(rule.check) or rule.rule in pending or rule.rule in staged:
+                if (
+                    not callable(rule.check)
+                    or rule.rule in pending
+                    or rule.rule in staged
+                    or rule.rule in quality.DEFAULT_LEVELS
+                ):
                     raise ValueError("rule must have a unique ID and callable check")
                 pending[rule.rule] = rule
             staged.update(pending)

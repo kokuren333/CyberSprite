@@ -134,8 +134,13 @@ def _run(images, directory, source_id, preset, overrides, project, position):
         downs, down_report = plugins.run(
             "downsample", down_method, images, settings["downsample"], grid=working_grid
         )
-        if any(im.shape[:2] != (grid["rows"], grid["columns"]) for im in downs):
-            raise plugin_error(down_method, "downsample dimensions must match the detected grid.")
+        if any(im.shape[:2] != (working_grid["rows"], working_grid["columns"]) for im in downs):
+            raise plugin_error(
+                plugins.records[-1]["name"],
+                "Downsample dimensions must match the effective params.grid rows and columns.",
+                expected_shape=[working_grid["rows"], working_grid["columns"]],
+                actual_shape=list(downs[0].shape[:2]),
+            )
     else:
         require(
             not settings["downsample"].get("params"),
