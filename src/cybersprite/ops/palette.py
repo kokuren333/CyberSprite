@@ -1,9 +1,11 @@
 """Palette mutation and index remapping; edits never silently quantize colors."""
 
 from collections import Counter
+from functools import cmp_to_key
 
 import numpy as np
 
+from cybersprite.core.color import compare_hue, rgb_to_oklab_fixed
 from cybersprite.core.errors import invalid
 from cybersprite.core.models import ImageLayer, LinkCel, Palette
 from cybersprite.core.pixels import pixels_from_rows, pixels_to_rows, rgb_distance, rgba
@@ -134,28 +136,15 @@ def palette_op(ctx, a, name):
             raise invalid("order must be a permutation of every old palette index.")
         order = list(a.order)
     elif a.sort_by is not None:
-
-        def key(i):
-            r, g, b, _ = rgba(pal.colors[i])
-            if a.sort_by == "usage":
-                return (-counts[i], i)
-            if a.sort_by == "lightness":
-                return (2126 * r + 7152 * g + 722 * b, i)
-            # Integer six-sector hue, with achromatic colors before hue zero.
-            high, low = max(r, g, b), min(r, g, b)
-            span = high - low
-            if not span:
-                return (-1, high, i)
-            hue = (
-                (g - b) * 256 // span
-                if high == r
-                else 512 + (b - r) * 256 // span
-                if high == g
-                else 1024 + (r - g) * 256 // span
-            ) % 1536
-            return (hue, high, i)
-
-        order.sort(key=key)
+        labs = [rgb_to_oklab_fixed(rgba(c)[:3]) for c in pal.colors]
+        if a.sort_by == "hue":
+            order.sort(
+                key=cmp_to_key(lambda i, j: compare_hue(labs[i], labs[j]) or (i > j) - (i < j))
+            )
+        elif a.sort_by == "lightness":
+            order.sort(key=lambda i: (labs[i][0], i))
+        else:
+            order.sort(key=lambda i: (-counts[i], i))
     elif a.merge_duplicates:
         unique = {}
         order = []
