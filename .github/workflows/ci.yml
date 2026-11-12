@@ -23,4 +23,5 @@ jobs:
       - run: uv run pytest
       - run: uv run python tools/gen_schemas.py --check
       - run: uv run python tools/check_licenses.py --include-dev
+      - run: uv pip install hatchling==1.27.0 && uv run --no-sync python tools/check_licenses.py --include-build
       - run: uv run python tools/check_repository.py

@@ -26,6 +26,14 @@ ALLOWED = {
 }
 # (normalized distribution name, exact version): (SPDX, reason). No silent unknown exemptions.
 REVIEWED_EXCEPTIONS: dict[tuple[str, str], tuple[str, str]] = {}
+# Build-time-only tools: never imported at runtime, never bundled into the wheel/sdist.
+# Allowed ONLY when auditing build-system requirements (decision I-010 in docs/DECISIONS.md).
+BUILD_ONLY_EXCEPTIONS: dict[str, tuple[str, str]] = {
+    "pathspec": (
+        "MPL-2.0",
+        "hatchling build dependency; runs only at build time and is not distributed (I-010)",
+    ),
+}
 
 
 def allowed_expression(expression: str) -> bool:
@@ -154,16 +162,19 @@ def runtime_closure(roots: list[str], distribution=metadata.distribution) -> lis
     return [found[name] for name in sorted(found)]
 
 
-def audit(roots: list[str]) -> tuple[list[str], bool]:
+def audit(roots: list[str], build_only: bool = False) -> tuple[list[str], bool]:
     rows = []
     failed = False
     for dist in runtime_closure(roots):
         expression, source = identify_license(dist)
         valid = allowed_expression(expression)
-        rows.append(
-            f"{'OK' if valid else 'FAIL'} {dist.metadata['Name']} {dist.version}: "
-            f"{expression} ({source})"
-        )
+        status = "OK" if valid else "FAIL"
+        name = canonicalize_name(dist.metadata["Name"])
+        if not valid and build_only and name in BUILD_ONLY_EXCEPTIONS:
+            spdx, reason = BUILD_ONLY_EXCEPTIONS[name]
+            if expression == spdx:
+                valid, status, source = True, "OK(build-only)", reason
+        rows.append(f"{status} {dist.metadata['Name']} {dist.version}: {expression} ({source})")
         failed |= not valid
     return rows, failed
 
@@ -179,10 +190,13 @@ def main() -> int:
     roots = list(project["project"]["dependencies"])
     if args.include_dev:
         roots.extend(project["dependency-groups"]["dev"])
-    if args.include_build:
-        roots.extend(project["build-system"]["requires"])
+    build_roots = list(project["build-system"]["requires"]) if args.include_build else []
     try:
         rows, failed = audit(roots)
+        if build_roots:
+            build_rows, build_failed = audit(build_roots, build_only=True)
+            rows += build_rows
+            failed |= build_failed
     except (metadata.PackageNotFoundError, ValueError) as error:
         print(f"FAIL: {error}. Run uv sync --locked before checking licenses.")
         return 1
