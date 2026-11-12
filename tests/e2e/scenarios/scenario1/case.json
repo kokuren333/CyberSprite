@@ -1,0 +1,5 @@
+{
+  "description": "16x16 synthetic character geometry, four distinct walk phases, tag, validation, sheet and GIF",
+  "project": "hero.csprite",
+  "exports_require": ["export_sheet", "export_animation"]
+}

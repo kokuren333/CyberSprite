@@ -23,9 +23,22 @@ ALLOWED = {
     "PSF-2.0",
     "Unlicense",
     "CC0-1.0",
+    # Explicitly permissive variants (decision I-012): MIT without attribution, the HPND
+    # variant named in SPEC §2.1, and zero-clause BSD.
+    "MIT-0",
+    "MIT-CMU",
+    "0BSD",
 }
 # (normalized distribution name, exact version): (SPDX, reason). No silent unknown exemptions.
-REVIEWED_EXCEPTIONS: dict[tuple[str, str], tuple[str, str]] = {}
+REVIEWED_EXCEPTIONS: dict[tuple[str, str], tuple[str, str]] = {
+    # Windows-only transitive dependency of the optional `mcp` extra (via the MCP SDK). Core code
+    # is BSD-3-Clause / PSF-style; the bundled, unused `adodbapi` subpackage is LGPL-2.1.
+    # CyberSprite never imports or redistributes pywin32; users install it separately (I-012).
+    ("pywin32", "312"): (
+        "PSF-2.0",
+        "reviewed: optional-extra transitive dep; unused LGPL adodbapi part not used (I-012)",
+    ),
+}
 # Build-time-only tools: never imported at runtime, never bundled into the wheel/sdist.
 # Allowed ONLY when auditing build-system requirements (decision I-010 in docs/DECISIONS.md).
 BUILD_ONLY_EXCEPTIONS: dict[str, tuple[str, str]] = {
@@ -97,6 +110,23 @@ def identify_license(dist) -> tuple[str, str]:
     name = canonicalize_name(dist.metadata["Name"])
     if (name, dist.version) in REVIEWED_EXCEPTIONS:
         return REVIEWED_EXCEPTIONS[name, dist.version]
+    texts = license_files(dist)
+    # Distribution-level classifiers can omit licenses of bundled Python modules
+    # (pywin32/adodbapi), or mislabel MIT No Attribution as MIT (cffi 2.0.0).
+    # Fail closed on the actual grant before accepting aggregate metadata (I-356).
+    for path, text in texts:
+        heading = " ".join(text.split())
+        for title, spdx in (
+            ("GNU LESSER GENERAL PUBLIC LICENSE Version 2.1", "LGPL-2.1-only"),
+            ("GNU LESSER GENERAL PUBLIC LICENSE Version 3", "LGPL-3.0-only"),
+            ("GNU GENERAL PUBLIC LICENSE Version 2", "GPL-2.0-only"),
+            ("GNU GENERAL PUBLIC LICENSE Version 3", "GPL-3.0-only"),
+            ("GNU AFFERO GENERAL PUBLIC LICENSE Version 3", "AGPL-3.0-only"),
+        ):
+            if heading.startswith(title):
+                return spdx, f"Bundled license grant: {path}; metadata is not sufficient"
+        if "MIT No Attribution" in text and "Permission is hereby granted, free of charge" in text:
+            return "MIT-0", path
     expression = dist.metadata.get("License-Expression", "")
     if expression:
         return expression, "License-Expression"
@@ -117,7 +147,6 @@ def identify_license(dist) -> tuple[str, str]:
     for suffix, spdx in sorted(mapping.items(), key=lambda item: item[1] in ALLOWED):
         if any(item.endswith(" :: " + suffix) for item in classifiers):
             return spdx, "License classifier"
-    texts = license_files(dist)
     # Recognize complete standard grants, never an arbitrary mention of a license name.
     for path, text in texts:
         if text.lstrip().startswith("Mozilla Public License Version 2.0"):
@@ -183,11 +212,17 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--include-dev", action="store_true")
     parser.add_argument("--include-build", action="store_true")
+    parser.add_argument("--extra", action="append", default=[], help="Audit an installed extra.")
     args = parser.parse_args()
     project = tomllib.loads(
         (Path(__file__).resolve().parents[1] / "pyproject.toml").read_text(encoding="utf-8")
     )
     roots = list(project["project"]["dependencies"])
+    for extra in args.extra:
+        optional = project["project"].get("optional-dependencies", {})
+        if extra not in optional:
+            parser.error(f"Unknown extra {extra!r}; choose from {', '.join(sorted(optional))}.")
+        roots.extend(optional[extra])
     if args.include_dev:
         roots.extend(project["dependency-groups"]["dev"])
     build_roots = list(project["build-system"]["requires"]) if args.include_build else []
