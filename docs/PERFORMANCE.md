@@ -1,5 +1,38 @@
 # 性能測定
 
+## FIX-5: 変更前のプロファイル（2026-11-12）
+
+同じ開発機・固定fixture、`uv sync --locked --extra mcp --extra gui`。
+`uv run python -m tools.bench --out build/fix5-before.json` の3回測定は、
+transaction が1168.956 / 931.010 / 950.395 ms、GUI実WebSocket往復が
+383.699 / 236.209 / 220.322 ms（中央値950.395 / 236.209 ms）。
+
+`uv run python -X importtime -c "import cybersprite.ops; import cybersprite.server.app"`
+ではops累積751.563 ms（NumPy 111.321 ms、pydantic 104.446 msを含む）、
+追加のserver.app累積132.678 ms。これは起動時だけの費用で、上記編集時間には含まない。
+
+`uv run python -m tools.profile_transactions --out build/fix5-profile-before` は
+実際のOp・保存・プレビューとGUI dispatch→変更通知scan→RGBA取得を各3回cProfileで計測する。
+GUI通信待ちは含まないため、上記実WebSocketの値と区別する。
+下表は3回合計の累積時間（入れ子なので加算しない）。cProfile自体の費用も含む。
+
+| 区間 | transaction | GUI |
+|---|---:|---:|
+| 全体 | 6548 ms | 739 ms |
+| 構造検証 | 3362 ms / 18回 | 39 ms / 24回 |
+| 品質報告 | 1773 ms / 6回 | 348 ms / 6回 |
+| 正本シリアライズ | 2314 ms / 6回 | — |
+| セル正規化 | 695 ms / 3回 | — |
+| deepcopy | 552 ms | — |
+| snapshot（再シリアライズ含む） | 1152 ms | — |
+| cluster探索 | — | 291 ms / 6回 |
+| 読込 | 620 ms / 3回 | 56 ms / 9回 |
+| GUI run_op / scan | — | 610 / 89 ms |
+
+主因は同じモデルへの構造検証の重複、全セルの再正規化・複製、
+正本とsnapshotの二重シリアライズ、品質報告をまたぐcluster再探索。
+GUI初回にはjsonschema遅延import約119 msも含まれた。
+
 ## M3: CLI 起動（2026-11-12）
 
 - Windows 11（10.0.26200）、CPython 3.12.10、uv の仮想環境。
