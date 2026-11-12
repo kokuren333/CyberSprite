@@ -1,0 +1,18 @@
+{
+  "exports": [
+    {"name": "image-indexed-stored", "op": "export_image", "args": {"out": "image-indexed-stored.png", "frames": [0], "compression": "stored"}},
+    {"name": "image-rgba-stored", "op": "export_image", "args": {"out": "image-rgba-stored.png", "frames": [0], "color_mode": "rgba", "compression": "stored"}},
+    {"name": "image-indexed-zlib", "op": "export_image", "pixel_only": true, "args": {"out": "image-indexed-zlib.png", "frames": [0], "compression": "zlib"}},
+    {"name": "image-rgba-zlib", "op": "export_image", "pixel_only": true, "args": {"out": "image-rgba-zlib.png", "frames": [0], "color_mode": "rgba", "compression": "zlib"}},
+    {"name": "sheet-horizontal", "op": "export_sheet", "args": {"out": "sheet-horizontal.png", "data_out": "sheet-horizontal.json", "layout": "horizontal", "compression": "stored"}},
+    {"name": "sheet-vertical", "op": "export_sheet", "args": {"out": "sheet-vertical.png", "data_out": "sheet-vertical.json", "layout": "vertical", "compression": "stored"}},
+    {"name": "sheet-rows", "op": "export_sheet", "args": {"out": "sheet-rows.png", "data_out": "sheet-rows.json", "layout": "rows", "compression": "stored"}},
+    {"name": "sheet-columns", "op": "export_sheet", "args": {"out": "sheet-columns.png", "data_out": "sheet-columns.json", "layout": "columns", "compression": "stored"}},
+    {"name": "sheet-packed", "op": "export_sheet", "args": {"out": "sheet-packed.png", "data_out": "sheet-packed.json", "layout": "packed", "compression": "stored"}},
+    {"name": "sheet-hash", "op": "export_sheet", "args": {"out": "sheet-hash.png", "data_out": "sheet-hash.json", "data_format": "json-hash", "trim": true, "merge_duplicates": true, "border": 1, "spacing": 2, "inner": 1, "compression": "stored"}},
+    {"name": "sheet-array", "op": "export_sheet", "args": {"out": "sheet-array.png", "data_out": "sheet-array.json", "data_format": "json-array", "split_layers": true, "split_tags": true, "split_slices": true, "item_name": "{layer}-{tag}-{slice}-{frame}", "trim": true, "compression": "stored"}},
+    {"name": "animation-gif", "op": "export_animation", "args": {"out": "animation.gif", "tag": "Motion"}},
+    {"name": "animation-apng", "op": "export_animation", "args": {"out": "animation.apng", "tag": "Motion", "compression": "stored"}},
+    {"name": "animation-rgba-apng", "op": "export_animation", "args": {"out": "animation-rgba.apng", "color_mode": "rgba", "compression": "stored"}}
+  ]
+}

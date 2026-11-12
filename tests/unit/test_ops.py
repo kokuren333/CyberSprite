@@ -172,7 +172,13 @@ def test_class_i_second_call_is_no_op(project, name):
 
 
 def test_registry_coverage_and_contracts():
-    assert {op.name for op in registry().all()} == set(CASES) | {"new_project", "cleanup_pixels"}
+    from cybersprite.formats.export_args import EXPORT_ARGS
+
+    assert {op.name for op in registry().all()} == set(CASES) | set(EXPORT_ARGS) | {
+        "new_project",
+        "cleanup_pixels",
+        "import_aseprite",
+    }
     for op in registry().all():
         description = op.describe()
         assert description["inputSchema"]["additionalProperties"] is False
