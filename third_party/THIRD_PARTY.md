@@ -3,7 +3,7 @@
 方針と手順は `docs/SPEC.md` §2 にある。この台帳は、**実際に依存に追加した、または同梱したもの**を記録する。
 
 - 追加する前に、そのリポジトリの **LICENSE の原文**を開いて確認する。検索結果や二次情報だけで決めない。
-- 許可するライセンス: MIT / BSD-2-Clause / BSD-3-Clause / Apache-2.0 / ISC / Zlib / HPND（MIT-CMU）/ PSF-2.0 / Unlicense / CC0-1.0。アセットは OFL-1.1 も可。
+- 許可するライセンス: MIT / MIT-0 / BSD-2-Clause / BSD-3-Clause / 0BSD / Apache-2.0 / ISC / Zlib / HPND（MIT-CMU）/ PSF-2.0 / Unlicense / CC0-1.0（MIT-0 と 0BSD は I-012 で明記）。アセットは OFL-1.1 も可。
 - GPL / LGPL / AGPL / MPL のコードは入れない。モデルの重みは入れない。
 - 同梱するものは、ライセンス本文を `third_party/licenses/<名前>.txt` に置き、`NOTICE` に帰属表示を足す。
 
@@ -30,6 +30,27 @@
 | hatchling | 1.27.0 | MIT | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | ビルドのみ | Codex（M1）/ オーケストレーター |
 | trove-classifiers | 2026.9.21.13 | Apache-2.0 | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | ビルドのみ（推移） | Codex（M1）/ オーケストレーター |
 | pathspec | 0.12.1 / 1.1.1 | MPL-2.0 | PyPI | 2026-11-12 | インストール済み dist-info の LICENSE 原文（`docs/M1_LICENSE_REVIEW.md`） | ビルドのみ（推移）。配布物に入らない例外（I-010） | Codex（M1）/ オーケストレーター |
+| pillow | 13.0.0 | MIT-CMU | PyPI | 2026-11-12 | dist-info の LICENSE 原文（M0 / M4） | 必須依存（formats / pipeline の読み込みのみ） | オーケストレーター |
+| mcp | 2.3.0 | MIT | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| mcp-types | 2.3.0 | MIT | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| anyio | 4.16.0 | MIT | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| attrs | 26.1.0 | MIT | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| cffi | 2.1.1 | MIT-0 | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| cryptography | 50.0.2 | Apache-2.0 OR BSD-3-Clause | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| idna | 3.20 | BSD-3-Clause | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| jsonschema | 4.26.0 | MIT | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| jsonschema-specifications | 2025.9.1 | MIT | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| opentelemetry-api | 1.45.2 | Apache-2.0 | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| pycparser | 3.12 | BSD-3-Clause | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| PyJWT | 2.15.1 | MIT | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| python-multipart | 0.0.33 | Apache-2.0 | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| referencing | 0.37.0 | MIT | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| rpds-py | 2026.9.1 | MIT | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| sse-starlette | 3.7.0 | BSD-3-Clause | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| starlette | 1.10.0 | BSD-3-Clause | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| truststore | 0.10.5 | MIT | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| uvicorn | 0.54.0 | BSD-3-Clause | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
+| pywin32 | 312 | PSF-2.0 / BSD-3-Clause（未使用の adodbapi は LGPL-2.1。I-012 の例外） | PyPI | 2026-11-12 | dist-info の LICENSE 原文（`docs/M4_IMPLEMENTATION_REPORT.md`） | 任意 extra `mcp`（推移を含む） | Codex（M4）/ オーケストレーター |
 | CyberSprite 組み込みパレット（`src/cybersprite/data/palettes/`） | — | Apache-2.0（自作）/ CC0-1.0（機器・汎用の灰色と白黒） | 自作 | 2026-11-12 | 自作（`docs/design/PALETTES.md`） | 同梱データ | Opus（デザイン） |
 
 ## 2. 上流工程での事前確認（2026-11-12、Fable 5.2）

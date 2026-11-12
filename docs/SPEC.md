@@ -134,7 +134,7 @@ CyberSprite は、**AI エージェントがピクセル単位で正確にドッ
 ### 2.1 方針
 
 - CyberSprite のコード、文書、自作アセットは **Apache License 2.0** で公開する。
-- 組み込んでよいのは、Apache-2.0 の成果物に組み込めるパーミッシブライセンスのものだけである: **MIT / BSD-2-Clause / BSD-3-Clause / Apache-2.0 / ISC / Zlib / HPND（MIT-CMU）/ PSF-2.0 / Unlicense / CC0-1.0**。
+- 組み込んでよいのは、Apache-2.0 の成果物に組み込めるパーミッシブライセンスのものだけである: **MIT / MIT-0 / BSD-2-Clause / BSD-3-Clause / 0BSD / Apache-2.0 / ISC / Zlib / HPND（MIT-CMU）/ PSF-2.0 / Unlicense / CC0-1.0**（MIT-0 と 0BSD は帰属表示の義務もない、より緩い形として I-012 で明記した）。
 - **GPL / LGPL / AGPL のコードは取り込まない。** 必須依存にもしない。ユーザーが自分で導入した外部プログラムを別プロセスとして呼ぶ連携は許すが、それがなくても全機能が動くようにする。
 - MPL-2.0 などの弱いコピーレフトも、コアには入れない。
 - フォントなどのアセットは **OFL-1.1 / Apache-2.0 / CC0-1.0 / 自作** のいずれかに限る [D-28]。
