@@ -186,6 +186,8 @@ def test_registry_coverage_and_contracts():
         "list_generators",
         "generate_image",
         "export_plugin",
+        "export_native",  # Native vectors and failure paths: test_r1_e3_native_ramps.py.
+        "shift_ramp",  # Material, mask, link and undo paths: test_r1_e3_native_ramps.py.
         "move_cel",
         "set_platform",
         "list_platforms",
