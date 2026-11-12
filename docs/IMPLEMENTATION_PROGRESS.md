@@ -306,3 +306,12 @@
 - RTX 3080でSDXL+Pixel Art XL LoRAを実CLIから3回生成。seed42、1024×1024、30 steps、guidance7、deterministic=trueでPNGバイト一致。全体時間540.420334100003 / 446.6919937000057 / 337.9346435000043秒、中央値446.6919937000057秒、観測VRAMピークはいずれも13342MiB。起動・ハッシュ・ロード・保存込みであり、性能改善の前後比較ではない。直列化の並行性能比較は未測定。
 - SRC1はai全14関門pass、128×128/33パレットで配置。変更後プレビューと実書き出しPNGを表示し、validate ok/error0/warning0、validation_ok/verified=true、Pillowと独自デコーダのRGBA一致を確認した。追加GPU画像は孤立画素1件で拒否し、段階画像確認後も関門を変更しなかった。privateへ合格PNG・途中段階・拒否例を保存し、画像・重みはコミットしていない。
 - 初回1800秒タイムアウトとRAM圧迫も記録。判断 **I-1641〜I-1649**、SPEC §12.4局所追記、ゴールデン変更なし。実装 `d7d3a5f` / `799c69b`。Linux/他GPU/別版、CIコーパス化、美的評価は未実施。原文参照・台帳用行・残件は [R1_F2_REPORT.md](R1_F2_REPORT.md)。
+## R1-G: 制作マニュアルと品質担保（2026-11-12）
+
+- `fixr1-g` で、REVIEW_1 の R1-02、R1-11、H-07〜H-09、H-11（手順の側）、H-19、H-20 の文書の部分を入れた。担当は Opus 5.5（中）。コードの変更はない。
+- 標準ワークフローの手順書 5 冊を `skills/workflows/` に新設した: `turnaround-parts`（三面図 → 部品。Codex imagegen の呼び出し方、肯定形の指示、背景色、来歴、道 A / 道 B、段・担当・関門の表、80×80 級の測った観察）、`silhouette-first`、`direct`、`tiles-first`、`scene`。共通の `references.md`（参照の入手、計測、してはならないこと、記録）。`skills/README.md` に大きさとプラットフォームでの振り分けを足した。
+- 品質担保: SPEC §13.7 と `AGENTS.md` §6.3 の完了条件に、人間が見る関門 3 つと「見た目の判定は人間が決めるまで `pending`」を足し、報告の規則（H-09）を入れた。`skills/validate-export` にレビューシート（§2.5、`layout: "review"` までの代わり方を含む）と報告の規則（§2.6）を足した。制作テストの記録の形として `skills/templates/review-record.md` と `e2e-tests/README.md` を新設した。
+- SPEC は §3.6（新設、参照の規律）、§13.7、§16.2、§16.7 だけを直した。`AGENTS.md` は §4、§5.1、§6.1、§6.3、§6.4。`skills/draw-sprite` と `skills/import-convert` に、工程への案内、背景色、肯定形の指示、原画をキャンバスに入れないことを足した。
+- `docs/reference/PROVENANCE_LOG.md` に、DS 粒度の特別テストの参照 4 点の計測を 2 行さかのぼって記録した（題名なし、統計値だけ）。
+- 判断 I-1801〜I-1817。`add_source`、`render_preview` の `guide` と `layout: "review"`、`--rect`、新しいピクセル化の方式は並行の作業なので、名前で参照して「M12 で追加」と印を付けた。手順書の呼び出し例のうち、これらを使うものは未検証である。
+- 発注者の判断が要るもの: 取得ツールを使い続けるか（REVIEW_1 §6 の 2）、参照の画像を imagegen に渡すか（§6 の 3）。手順書は上流の推奨（人が保存したものを標準、画像は渡さない）で書いた。
