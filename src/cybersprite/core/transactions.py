@@ -13,10 +13,12 @@ from . import history
 from .canonical import dumps_project, json_bytes, load_project, project_path
 from .errors import CyberSpriteError, invalid
 from .journal_clock import now
+from .models import GroupLayer, TilemapLayer
 from .normalize import normalize_cels
+from .pixels import tiles_from_rows
 from .quality import bbox, report, validation_delta
 from .raster import RasterError
-from .references import walk_layers
+from .references import cel_owner, walk_layers
 from .registry import OpContext
 from .render import render
 from .validation import check_structure
@@ -28,6 +30,42 @@ def changes(before, after, ctx):
     layers = sorted(
         k for k in set(oldlayers) | set(newlayers) if oldlayers.get(k) != newlayers.get(k)
     )
+    oldsets = {ts.id: ts for ts in before.tilesets}
+    newsets = {ts.id: ts for ts in after.tilesets}
+    tilesets = sorted(
+        k for k in oldsets.keys() | newsets.keys() if oldsets.get(k) != newsets.get(k)
+    )
+
+    def cel_data(layer, sets):
+        if layer is None or isinstance(layer, GroupLayer):
+            return {}
+        result = {}
+        for cel in layer.cels:
+            owner = cel_owner(layer, cel)
+            shared = None
+            if isinstance(layer, TilemapLayer):
+                ts = sets[layer.tileset]
+                indices = sorted(
+                    {
+                        ref.index
+                        for row in tiles_from_rows(owner.tiles, owner.w, owner.h)
+                        for ref in row
+                    }
+                )
+                shared = (ts.id, ts.tile_w, ts.tile_h, [(i, ts.tiles[i]) for i in indices])
+            result[cel.frame] = (layer.type, cel, owner, shared)
+        return result
+
+    cels = []
+    for key in sorted(oldlayers.keys() | newlayers.keys()):
+        old = cel_data(oldlayers.get(key), oldsets)
+        new = cel_data(newlayers.get(key), newsets)
+        cels.extend(
+            {"layer": key, "frame": f}
+            for f in sorted(old.keys() | new.keys())
+            if old.get(f) != new.get(f)
+        )
+    layers = sorted(set(layers) | {item["layer"] for item in cels})
     frame_changes = []
     for f in range(max(len(before.frames), len(after.frames))):
         w = max(before.canvas.width, after.canvas.width)
@@ -48,6 +86,8 @@ def changes(before, after, ctx):
         "data": before != after,
         "frames": frame_changes,
         "layers": layers,
+        "cels": cels,
+        "tilesets": tilesets,
         "linked_frames": sorted(ctx.linked_frames),
         "link_groups": [list(group) for group in sorted(ctx.link_groups)],
         "clipped_pixels": ctx.clipped_pixels,

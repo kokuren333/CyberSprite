@@ -9,6 +9,7 @@ EXIT_CODES = {
     "E_UNKNOWN_OP": 2,
     "E_PROJECT_NOT_FOUND": 3,
     "E_EXISTS": 3,
+    "E_IN_USE": 3,
     "E_LAYER_NOT_FOUND": 3,
     "E_CEL_NOT_FOUND": 3,
     "E_TAG_NOT_FOUND": 3,

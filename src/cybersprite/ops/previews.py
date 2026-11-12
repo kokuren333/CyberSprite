@@ -7,7 +7,7 @@ import numpy as np
 
 from cybersprite.core import history
 from cybersprite.core.errors import CyberSpriteError, invalid
-from cybersprite.core.previews import checker, composite_preview, preview_array
+from cybersprite.core.previews import checker, composite_preview, preview_array, tileset_preview
 from cybersprite.core.quality import bbox
 from cybersprite.core.render import render, render_indexed
 from cybersprite.formats.png import encode_png
@@ -15,7 +15,36 @@ from cybersprite.formats.png import encode_png
 from .common import frame_index
 
 
-def previews(p, fs, root, *, dry=False, inline=False, retain=True, layout="frames", **options):
+def previews(
+    p, fs, root, *, dry=False, inline=False, retain=True, layout="frames", tileset=None, **options
+):
+    if tileset is not None:
+        from .tiles import resolve_tileset
+
+        ts = resolve_tileset(p, tileset)
+        data, scale = tileset_preview(
+            p,
+            ts,
+            scale=options.get("scale", "auto"),
+            background=options.get("background", "checker"),
+        )
+        folder = Path(root) / ".cybersprite/previews"
+        if dry:
+            folder /= "dry"
+        path = folder / f"r{p.revision:06d}_tileset_{ts.id}.png"
+        raw = encode_png(data)
+        history.atomic_write(path, raw)
+        if not dry and retain:
+            history.retain_previews(root)
+        result = {
+            "paths": [path.relative_to(root).as_posix()],
+            "scale": scale,
+            "width": data.shape[1],
+            "height": data.shape[0],
+        }
+        if inline:
+            result["images"] = [base64.b64encode(raw).decode("ascii")]
+        return result
     if not fs and layout != "frames":
         raise invalid("Preview requires at least one frame.")
     limit = 8 if layout == "frames" else 4096
@@ -64,6 +93,19 @@ def transaction_previews(p, changed, root, mode, dry):
     fs = [item["frame"] for item in changed["frames"] if item["frame"] < len(p.frames)]
     result = previews(p, fs[:4], root, dry=dry, inline=mode == "inline", retain=False)
     result["omitted_frames"] = fs[4:]
+    sets = [ts for ts in changed["tilesets"] if any(t.id == ts for t in p.tilesets)]
+    for ts in sets[:4]:
+        tile_view = previews(
+            p, [], root, tileset=ts, dry=dry, inline=mode == "inline", retain=False
+        )
+        result["paths"].extend(tile_view["paths"])
+        if "images" in tile_view:
+            result.setdefault("images", []).extend(tile_view["images"])
+        if not fs:
+            for key in ("scale", "width", "height"):
+                result[key] = tile_view[key]
+    if len(sets) > 4:
+        result["omitted_tilesets"] = sets[4:]
     return result
 
 

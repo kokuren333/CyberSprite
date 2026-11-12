@@ -50,6 +50,43 @@ def test_all_tool_contracts(tmp_path):
     asyncio.run(run())
 
 
+def test_tileset_preview_and_deletion_through_sdk(tmp_path):
+    async def run():
+        async with Client(create_server(root=tmp_path)) as client:
+            tools = {tool.name: tool for tool in (await client.list_tools()).tools}
+
+            async def call(opname, **args):
+                response = await client.call_tool(opname, {"project": "tile.csprite", **args})
+                value = response.structured_content
+                Draft202012Validator(tools[opname].output_schema).validate(value)
+                return response, value
+
+            await call("new_project", width=4, height=4)
+            await call("add_tileset", name="Tiles", tile_w=2, tile_h=2, preview="none")
+            image, result = await call(
+                "set_tile_pixels",
+                tileset="TS1",
+                tile="new",
+                rows=["0101", "0101"],
+                preview="inline",
+            )
+            assert result["ok"] and result["changed"]["tilesets"] == ["TS1"]
+            assert sum(item.type == "image" for item in image.content) == 1
+            image, result = await call("render_preview", tileset="TS1", scale=4)
+            assert result["ok"] and sum(item.type == "image" for item in image.content) == 1
+            await call("add_layer", name="Map", type="tilemap", tileset="TS1", preview="none")
+            response, result = await call("delete_tileset", tileset="TS1")
+            assert response.is_error and result["error"]["code"] == "E_IN_USE"
+            assert result["error"]["details"]["layers"] == [{"id": "L2", "name": "Map"}]
+            await call("delete_layer", layer="L2", preview="none")
+            _, result = await call("delete_tileset", tileset="TS1", preview="none")
+            assert result["ok"] and result["changed"]["tilesets"] == ["TS1"]
+            _, result = await call("delete_tileset", tileset="TS1", missing_ok=True, preview="none")
+            assert result["no_op"]
+
+    asyncio.run(run())
+
+
 @pytest.mark.parametrize("profile", ["standard", "minimal"])
 @pytest.mark.parametrize("read_only", [False, True])
 def test_profiles(tmp_path, profile, read_only):

@@ -142,6 +142,10 @@ ARGUMENTS = {
 }
 
 OPERATIONS = {
+    "delete_tileset": (
+        "Delete an unused tileset; E_IN_USE lists referencing layers. "
+        "Remove or reassign those layers first. missing_ok tolerates only a missing tileset."
+    ),
     "add_tileset": "Create a tileset containing immutable transparent tile zero.",
     "set_tile_pixels": "Replace one tile image or append a new tile, affecting all references.",
     "delete_tiles": "Delete tiles, compact indices, and remap or clear all placements atomically.",
@@ -169,6 +173,8 @@ OPERATIONS = {
     ),
     "transform_region": (
         "Move or copy a selected region with integer translation, reflection, and rotation."
+        " Flip is applied first, then clockwise rotation. "
+        "Tile flags instead apply transpose, then x flip, then y flip."
     ),
     "outline": "Add an inside or outside outline to opaque pixels using the selected connectivity.",
     "cleanup_pixels": (
@@ -245,6 +251,7 @@ OPERATIONS = {
     ),
     "render_preview": (
         "Render separate frames (at most eight) or a composite strip/grid with diagnostic overlays."
+        " Set tileset to render a labeled grid of its zero-based data indices instead."
     ),
     "diff_preview": "Compare history revisions with pixel counts and before/after/highlight PNGs.",
     "get_history": "Read recent transaction entries and whether undo or redo is available.",

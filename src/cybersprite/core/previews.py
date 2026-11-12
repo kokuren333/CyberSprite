@@ -5,7 +5,7 @@ from math import isqrt
 import numpy as np
 
 from .errors import invalid
-from .pixels import resolve_color, rgba
+from .pixels import pixels_from_rows, resolve_color, rgba
 from .references import resolve_tag
 from .render import render
 
@@ -102,8 +102,12 @@ def preview_array(
     image = np.repeat(np.repeat(image, scale, 0), scale, 1)
     if grid:
         if scale >= 4:
-            image[::scale, :] = (160, 160, 160, 255)
-            image[:, ::scale] = (160, 160, 160, 255)
+            mask = np.zeros(image.shape[:2], dtype=bool)
+            mask[::scale, :] = True
+            mask[:, ::scale] = True
+            image[mask, :3] = ((image[mask, :3].astype(np.int32) * 3 + 160 + 2) // 4).astype(
+                np.uint8
+            )
         g = p.canvas.grid
         for y in range(g.y % g.h, p.canvas.height, g.h):
             image[y * scale : y * scale + 2, :] = (96, 96, 96, 255)
@@ -146,14 +150,51 @@ def _over(foreground, background):
 
 def composite_preview(p, fs, *, layout, scale="auto", **options):
     """Compose bounded thumbnails sequentially, avoiding a full-size frame stack."""
+
+    def thumbnail(frame, factor, step):
+        image, _ = preview_array(p, frame, scale=factor, inline=False, **options)
+        return image[::step, ::step]
+
+    return _contact_sheet(
+        p.canvas.width,
+        p.canvas.height,
+        fs,
+        thumbnail,
+        layout=layout,
+        scale=scale,
+        pad=18 if options.get("rulers") else 0,
+    )
+
+
+def tileset_preview(p, ts, *, scale="auto", background="checker"):
+    """Use existing preview decoration and data indices for a tileset contact sheet."""
+    palette = np.array([rgba(color) for color in p.palette.colors], dtype=np.uint8)
+    palette[p.palette.transparent_index, 3] = 0
+
+    def thumbnail(index, factor, step):
+        # Sample the repeated pixels directly, so large scales do not allocate huge tiles.
+        yy = np.arange(0, ts.tile_h * factor, step, dtype=np.int32) // factor
+        xx = np.arange(0, ts.tile_w * factor, step, dtype=np.int32) // factor
+        if index == 0:
+            return checker(np.zeros((len(yy), len(xx), 4), dtype=np.uint8))
+        image = checker(
+            palette[pixels_from_rows(ts.tiles[index].pixels, ts.tile_w, ts.tile_h)], background, p
+        )
+        return image[yy[:, None], xx]
+
+    return _contact_sheet(
+        ts.tile_w, ts.tile_h, list(range(len(ts.tiles))), thumbnail, layout="grid", scale=scale
+    )
+
+
+def _contact_sheet(tile_w, tile_h, fs, thumbnail, *, layout, scale, pad=0):
     columns = len(fs) if layout == "strip" else isqrt(len(fs) - 1) + 1
     rows = (len(fs) + columns - 1) // columns
     label_width = 4 * len(str(max(fs))) - 1
-    pad = 18 if options.get("rulers") else 0
 
     def dimensions(factor, step=1):
-        w = max(label_width, (p.canvas.width * factor + pad + step - 1) // step)
-        h = (p.canvas.height * factor + pad + step - 1) // step + 7
+        w = max(label_width, (tile_w * factor + pad + step - 1) // step)
+        h = (tile_h * factor + pad + step - 1) // step + 7
         return w, h, columns * (w + 2) - 2, rows * (h + 2) - 2
 
     if scale == "auto":
@@ -165,14 +206,13 @@ def composite_preview(p, fs, *, layout, scale="auto", **options):
     available_h = max(1, (1024 + 2) // rows - 9)
     step = max(
         1,
-        (p.canvas.width * scale + pad + available_w - 1) // available_w,
-        (p.canvas.height * scale + pad + available_h - 1) // available_h,
+        (tile_w * scale + pad + available_w - 1) // available_w,
+        (tile_h * scale + pad + available_h - 1) // available_h,
     )
     w, h, width, height = dimensions(scale, step)
     output = np.full((height, width, 4), (240, 240, 240, 255), dtype=np.uint8)
     for index, frame in enumerate(fs):
-        image, _ = preview_array(p, frame, scale=scale, inline=False, **options)
-        image = image[::step, ::step]
+        image = thumbnail(frame, scale, step)
         x, y = index % columns * (w + 2), index // columns * (h + 2)
         _label(output, x, y, frame)
         output[y + 7 : y + 7 + image.shape[0], x : x + image.shape[1]] = image

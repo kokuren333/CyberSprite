@@ -222,11 +222,17 @@ def from_layer(ctx, a):
             cels.append(deepcopy(cel))
             continue
         data = array(cel)
-        w, h = (cel.w + ts.tile_w - 1) // ts.tile_w, (cel.h + ts.tile_h - 1) // ts.tile_h
+        ox = p.canvas.grid.x if a.origin_x is None else a.origin_x
+        oy = p.canvas.grid.y if a.origin_y is None else a.origin_y
+        left = ox + (cel.x - ox) // ts.tile_w * ts.tile_w
+        top = oy + (cel.y - oy) // ts.tile_h * ts.tile_h
+        dx, dy = cel.x - left, cel.y - top
+        w = (dx + cel.w + ts.tile_w - 1) // ts.tile_w
+        h = (dy + cel.h + ts.tile_h - 1) // ts.tile_h
         padded = np.full(
             (h * ts.tile_h, w * ts.tile_w), p.palette.transparent_index, dtype=np.uint8
         )
-        padded[: cel.h, : cel.w] = data
+        padded[dy : dy + cel.h, dx : dx + cel.w] = data
         refs = []
         for row in range(h):
             entries = []
@@ -241,7 +247,12 @@ def from_layer(ctx, a):
             refs.append(entries)
         cels.append(
             TileCel(
-                **cel.model_dump(exclude={"pixels", "w", "h"}), w=w, h=h, tiles=tiles_to_rows(refs)
+                **cel.model_dump(exclude={"pixels", "w", "h", "x", "y"}),
+                x=left,
+                y=top,
+                w=w,
+                h=h,
+                tiles=tiles_to_rows(refs),
             )
         )
     replacement = TilemapLayer(
@@ -249,7 +260,7 @@ def from_layer(ctx, a):
     )
     items = siblings(p, layer)
     items[items.index(layer)] = replacement
-    return {"tileset": ts.id, "tiles": len(ts.tiles)}
+    return {"tileset": ts.id, "tiles": len(ts.tiles) - 1, "tiles_total": len(ts.tiles)}
 
 
 def tile_op(ctx, a, name):
@@ -267,7 +278,27 @@ def tile_op(ctx, a, name):
                 return {"id": matches[0].id}
             fail("E_EXISTS", "Tileset name already exists.", id=matches[0].id)
         return {"id": new_tileset(p, a.name, a.tile_w, a.tile_h, base_index=a.base_index).id}
-    ts = resolve_tileset(p, a.tileset)
+    try:
+        ts = resolve_tileset(p, a.tileset)
+    except CyberSpriteError as error:
+        if name == "delete_tileset" and a.missing_ok and error.code == "E_TILESET_NOT_FOUND":
+            return {}
+        raise
+    if name == "delete_tileset":
+        users = sorted(tile_layers(p, ts), key=lambda layer: layer.id)
+        if users:
+            names = ", ".join(layer.id for layer in users)
+            raise CyberSpriteError(
+                "E_IN_USE",
+                f"Tileset {ts.id} is used by tilemap layers: {names}.",
+                "Delete those layers or reassign their tileset with update_layer, then retry.",
+                {
+                    "tileset": ts.id,
+                    "layers": [{"id": layer.id, "name": layer.name} for layer in users],
+                },
+            )
+        p.tilesets.remove(ts)
+        return {}
     list(tile_layers(p, ts, edit=True))
     if name == "set_tile_pixels":
         data = rows(p, a.rows, a.format)

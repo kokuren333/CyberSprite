@@ -79,6 +79,7 @@ LAYERS = {"add_layer", "update_layer", "delete_layer", "duplicate_layer", "merge
 TAG_SLICE = {"add_tag", "update_tag", "delete_tag", "add_slice", "update_slice", "delete_slice"}
 CANVAS = {"resize_canvas", "crop_canvas", "scale_sprite", "transform_sprite"}
 TILES = {
+    "delete_tileset",
     "add_tileset",
     "set_tile_pixels",
     "delete_tiles",
@@ -119,6 +120,7 @@ NON_IDEMPOTENT = {
     "apply_ops",
 }
 CONDITIONAL = {
+    "delete_tileset",
     "add_tileset",
     "set_tile_pixels",
     "new_project",
@@ -133,6 +135,7 @@ CONDITIONAL = {
     "crop_canvas",
 }
 DESTRUCTIVE = {
+    "delete_tileset",
     "delete_tiles",
     "tileset_from_layer",
     "delete_layer",
@@ -163,7 +166,11 @@ def _result(name):
     fields: dict[str, Any] = {
         "set_tile_pixels": {"tile": (int, ...)},
         "move_tiles": {"mapping": (dict[str, int], ...)},
-        "tileset_from_layer": {"tileset": (str, ...), "tiles": (int, ...)},
+        "tileset_from_layer": {
+            "tileset": (str, ...),
+            "tiles": (int, ...),
+            "tiles_total": (int, ...),
+        },
         "get_tiles": {
             "col": (int, ...),
             "row": (int, ...),

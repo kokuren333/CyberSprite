@@ -11,13 +11,27 @@
   "dry_run": false,
   "result": {
     "tileset": "TS1",
-    "tiles": 5
+    "tiles": 6,
+    "tiles_total": 7
   },
   "changed": {
     "data": true,
     "frames": [],
     "layers": [
       "L1"
+    ],
+    "cels": [
+      {
+        "layer": "L1",
+        "frame": 0
+      },
+      {
+        "layer": "L1",
+        "frame": 1
+      }
+    ],
+    "tilesets": [
+      "TS1"
     ],
     "linked_frames": [],
     "link_groups": [],

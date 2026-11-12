@@ -333,9 +333,15 @@ def export_tileset(p, a, root=None):
             schema_version=1,
             image=Path(a.out).name,
             tileset=ts.id,
+            name=ts.name,
+            tile_w=ts.tile_w,
+            tile_h=ts.tile_h,
+            base_index=ts.base_index,
+            size=dict(w=pixels.shape[1], h=pixels.shape[0]),
             tiles=[
                 dict(
                     index=index,
+                    display_index=index + ts.base_index,
                     rect=item.rect,
                     user_data=ts.tiles[index].user_data.model_dump()
                     if ts.tiles[index].user_data

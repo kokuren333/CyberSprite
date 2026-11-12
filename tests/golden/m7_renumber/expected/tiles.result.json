@@ -10,8 +10,8 @@
     },
     {
       "path": "tiles.json",
-      "bytes": 265,
-      "sha256": "3f90dcf05ef6c411407bcbf1272768541f68c2ecff58dc23022bbb02640a1069",
+      "bytes": 400,
+      "sha256": "a06df49ec92f37299b5ff25b2b2a383759b62d7f1dde248c6c519163e8a27572",
       "kind": "data"
     }
   ],

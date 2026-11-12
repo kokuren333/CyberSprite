@@ -80,6 +80,14 @@ Op 引数はファイル → `--args` → `キー=値` の順で上書きする�
 キャンバス全体を取得するには、例えば 16×16 の場合は `--rect 0,0,16,16` を指定する。
 空セルの場合、省略時は幅・高さ 0、空の行配列になる。
 
+タイル配置の読取は `op get_tiles layer=L1 frame=0`。全セルのタイル番号行を返す。
+範囲指定は `op get_tiles --args '{"layer":"L1","frame":0,"rect":{"x":0,"y":0,"w":2,"h":2}}'`
+（rect はピクセルでなくタイル単位）。`ops describe get_tiles` で契約を確認できる。
+タイルセット一覧は `preview --tileset TS1 --scale 4`（数字は0始まりのデータ番号）。
+`op delete_tileset tileset=TS1 missing_ok=true` で未参照セットを削除でき、参照中なら
+`E_IN_USE` の layers に対象が出る。`tileset_from_layer` の origin_x/origin_y を省略すると
+canvas.grid の原点を使い、切り出し寸法には tile_w/tile_h を使う。
+
 CLI の書き出し先は、現在の作業ディレクトリ（cwd）配下に限る（I-602）。
 プロジェクトの親ではなくコマンドを実行した場所が基準になる。
 外への出力で `E_PATH_NOT_ALLOWED` になったら、出力先も含む親ディレクトリで実行するか、
