@@ -277,6 +277,9 @@ def registry():
         from .export_ops import register_exports
 
         register_exports(_registry)
+        from .generation import register_generators
+
+        register_generators(_registry)
         _registry.register(
             Op(
                 "import_image",
@@ -329,6 +332,23 @@ def execute(name, project, args=None, *, actor=None, label=None, **options):
         from .export_ops import execute_import
 
         return execute_import(project, parsed, actor=actor)
+    if name == "generate_image":
+        from cybersprite.generate.service import generate_top
+
+        value = generate_top(project, parsed, tx, actor)
+        definition.result.model_validate(value["result"])
+        return value
+    if name == "list_generators":
+        value = definition.apply(SimpleNamespace(root=root), parsed)
+        definition.result.model_validate(value)
+        return {
+            "ok": True,
+            "op": name,
+            "project": root.as_posix(),
+            "revision": load_project(project).revision if project_path(project).exists() else 0,
+            "result": value,
+            "warnings": [],
+        }
     if name == "import_image" and definition.kind == "ingest":
         return import_top(registry(), project, parsed, tx, actor)
     if name in ("list_sources", "get_source") and not project_path(project).exists():

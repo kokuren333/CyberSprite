@@ -25,7 +25,10 @@ def test_all_tool_contracts(tmp_path):
         async with Client(create_server(root=tmp_path)) as client:
             tools = (await client.list_tools()).tools
             assert [tool.name for tool in tools] == [
-                name for name in ORDER if name in {op.name for op in ops.registry().all()}
+                name
+                for name in ORDER
+                if name in {op.name for op in ops.registry().all()}
+                and name not in {"list_generators", "generate_image"}
             ]
             for tool in tools:
                 op = ops.registry().get(tool.name)
@@ -51,7 +54,7 @@ def test_all_tool_contracts(tmp_path):
 @pytest.mark.parametrize("read_only", [False, True])
 def test_profiles(tmp_path, profile, read_only):
     service = MCPService(root=tmp_path, profile=profile, read_only=read_only)
-    expected = {op.name for op in ops.registry().all()}
+    expected = {op.name for op in ops.registry().all()} - {"list_generators", "generate_image"}
     if profile == "minimal":
         expected &= MINIMAL
     if read_only:

@@ -16,10 +16,22 @@ class SettingsModel(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
 
 
+class ModelLocation(SettingsModel):
+    id: str | None = None
+    local_path: str | None = None
+    license: Annotated[str, Field(min_length=1)]
+    source_url: str = ""
+
+
+class GenerationModel(ModelLocation):
+    adapters: list[ModelLocation] = Field(default_factory=list)
+
+
 class CommandBackend(SettingsModel):
     program: Annotated[str, Field(min_length=1)]
     args: list[str]
     license: Annotated[str, Field(min_length=1)]
+    model: GenerationModel | None = None
     timeout_seconds: Annotated[int, Field(ge=1)] = 600
 
     @field_validator("args")
@@ -31,17 +43,6 @@ class CommandBackend(SettingsModel):
                 if field is not None and (field not in allowed or spec or conversion):
                     raise ValueError("Only documented generation placeholders are allowed.")
         return args
-
-
-class ModelLocation(SettingsModel):
-    id: str | None = None
-    local_path: str | None = None
-    license: Annotated[str, Field(min_length=1)]
-    source_url: str = ""
-
-
-class GenerationModel(ModelLocation):
-    adapters: list[ModelLocation] = Field(default_factory=list)
 
 
 class DiffusersSettings(SettingsModel):
@@ -70,6 +71,9 @@ class UserConfig(SettingsModel):
 
 
 def config_path() -> Path:
+    override = os.environ.get("CYBERSPRITE_CONFIG_DIR")
+    if override:
+        return Path(override).expanduser().resolve() / "config.toml"
     if sys.platform == "win32":
         folder = Path(os.environ.get("APPDATA", str(Path.home() / "AppData/Roaming")))
     else:
