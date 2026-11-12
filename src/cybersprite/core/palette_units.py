@@ -35,7 +35,7 @@ def resources(p, *, selected_layer=None, selected_frame=None, include_tilesets=T
                 for y, row in enumerate(refs):
                     for x, ref in enumerate(row):
                         data = pixels_from_rows(ts.tiles[ref.index].pixels, ts.tile_w, ts.tile_h)
-                        if ref.d:
+                        if ref.d and ts.tile_w == ts.tile_h:
                             data = data.T
                         if ref.x:
                             data = data[:, ::-1]

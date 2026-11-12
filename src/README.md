@@ -1,6 +1,6 @@
 # src/
 
-Python パッケージ `cybersprite` の置き場所。M1〜M11とM12/M13の工学機能（review、craft、行/反転タイル検査、ramps、gb-2bpp）を統合済み（86 Op、生成を無効にした標準MCPは84ツール）。Diffusers extra の依存追加は監査保留。M10の配布手順は `tools/build_release.py`。
+Python パッケージ `cybersprite` の置き場所。M1〜M11とM12/M13の工学機能（review、craft、行/反転タイル検査、ramps、gb-2bpp）を統合済み（89 Op、生成を無効にした標準MCPは87ツール）。Diffusers extra の依存追加は監査保留。M10の配布手順は `tools/build_release.py`。
 
 `src/` レイアウトにしているのは、インストールしていない状態のコードをテストが誤って読み込むのを防ぐためである。
 

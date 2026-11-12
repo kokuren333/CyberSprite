@@ -280,3 +280,4 @@
 | 2026-11-12 | I-1514 | §5.3.2、H-16 | set_paletteはramps未指定なら保持、無効化は訂正要求。remapは番号を追従、remove_unusedだけ欠番と空ランプを除き、素材のmerge衝突は拒否する | パレット編集で素材メタデータが黙って別の番号を指さないため。Fable H-16の正本化に従う | Codex / R1-E3 |
 | 2026-11-12 | I-1515 | M13、H-10、H-12後半 | offset links・analyze・gba-4bpp/rgb555-leとnative sidecarsはM13-later/v1.xへ延期する | 前6項の共通Op・往復・自己検査を完了境界とする。offset linksはschema/history/GUI/形式の横断工程（8〜15人日）、analyzeは設定保存と統計集合契約を別途検証する必要がある | Codex / R1-E3 |
 | 2026-11-12 | I-1516 | §13.5、R1-E2統合 | m11_nds/dmgのtx0応答だけを唯一の更新器から更新し、PNG・正本・画素は保持する | 統合元に残ったE2のnew_pointsと未使用色updated_issuesの未反映を確認した。失敗した期待値を無条件に採用したのではない | Codex / R1-E3 |
+| 2026-11-12 | I-1517 | §6.7.1、H-08 | reviewの実寸枠はscreen寸法を厳密に守り、超えるrectは小さいrectの指定を促して拒否する | Fable §3.3.2のscreen枠と実寸を同時に守るため、黙った拡張・縮小・切捨てをしない | Codex / R1-E3 |

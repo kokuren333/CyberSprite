@@ -76,7 +76,13 @@ def review_sheet(p, fs, *, design=None, guide=None, scale="auto", rect=None, lay
     if guide and guide.get("scale") not in (None, factor):
         raise invalid("Review guide scale must equal the review zoom scale; omit guide.scale.")
     screen = platform.system.screen if platform else None
-    sw, sh = max(w, screen.w if screen else w), max(h, screen.h if screen else h)
+    if screen and (w > screen.w or h > screen.h):
+        raise invalid(
+            "Review rect exceeds the actual-size screen frame; select a smaller rect.",
+            screen={"w": screen.w, "h": screen.h},
+            rect={"w": w, "h": h},
+        )
+    sw, sh = (screen.w, screen.h) if screen else (w, h)
     # Plans contain sizes and recipes, never full intermediate zoomed images.
     plans = []
     for background in backgrounds:

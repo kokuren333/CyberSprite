@@ -12,8 +12,8 @@ from cybersprite.config import UserConfig
 from cybersprite.core import canonical
 from cybersprite.core.craft import measure
 from cybersprite.core.errors import CyberSpriteError
-from cybersprite.core.models import ImageCel, Slice, Tag
-from cybersprite.core.palette_units import violations
+from cybersprite.core.models import ImageCel, Slice, Tag, TileCel, TilemapLayer, Tileset
+from cybersprite.core.palette_units import resources, violations
 from cybersprite.core.pixels import pixels_to_rows
 from cybersprite.core.projects import new_project
 from cybersprite.core.quality import report, validation_delta
@@ -163,6 +163,29 @@ def test_palette_findings_retain_each_block_position():
     assert [v["bbox"]["x"] for v in issue["where"]["findings"]] == [0, 2]
 
 
+def test_palette_units_follow_rectangular_tile_renderer():
+    p = project([[1, 2]], platform={"system": {"palette": {"rows": 1, "row_size": 4}}})
+    p.tilesets = [
+        Tileset(
+            id="TS1",
+            name="Test",
+            tile_w=2,
+            tile_h=1,
+            tiles=[{"pixels": ["0000"]}, {"pixels": ["0102"]}],
+        )
+    ]
+    p.layers = [
+        TilemapLayer(
+            id="L1",
+            name="Map",
+            tileset="TS1",
+            cels=[TileCel(frame=0, x=0, y=0, w=1, h=1, tiles=["1d"])],
+        )
+    ]
+    data = list(resources(p, include_tilesets=False))[0][0]
+    assert data.tolist() == [[1, 2]]  # Non-square d follows the renderer's unchanged orientation.
+
+
 @pytest.mark.parametrize(
     "direction,repeat,expected",
     [
@@ -218,6 +241,14 @@ def test_review_design_zoom_same_row_and_exact_scale():
     reference = next(v for v in panels if v["kind"] == "design")
     assert zoom["y"] == reference["y"] and zoom["scale"] == reference["scale"] == scale
     assert image[reference["y"], reference["x"]].tolist() == [80, 80, 80, 255]
+
+
+def test_review_screen_frame_never_silently_expands():
+    p = project([[1, 2]], platform={"system": {"screen": {"w": 1, "h": 1}}})
+    with pytest.raises(CyberSpriteError, match="select a smaller rect"):
+        review_sheet(p, [0])
+    _, _, panels = review_sheet(p, [0], rect={"x": 0, "y": 0, "w": 1, "h": 1})
+    assert (panels[0]["w"], panels[0]["h"]) == (3, 3)
 
 
 def test_preview_animation_review_defaults_to_all(tmp_path):
