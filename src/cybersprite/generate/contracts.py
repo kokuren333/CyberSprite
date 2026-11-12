@@ -2,7 +2,7 @@
 
 from collections.abc import Callable
 from pathlib import Path
-from typing import Annotated, Protocol
+from typing import Annotated, Literal, Protocol
 
 from pydantic import Field
 
@@ -23,10 +23,17 @@ class ModelInfo(Model):
     base_model: str | None = None
     sha256: str = ""
     adapters: list["ModelInfo"] = Field(default_factory=list)
+    display_name: str = ""
+    kind: str = "checkpoint"
+    license_url: str = ""
+    commercial_use: Literal["yes", "no", "unknown"] = "unknown"
+    note: str = ""
+    registered_at: str = ""
+    bases: list["ModelInfo"] = Field(default_factory=list)
 
 
 class GenerationRequest(Model):
-    backend: str = Field(description="Configured backend name: diffusers or command:<name>.")
+    backend: str = Field(description="Configured backend: diffusers, comfyui or command:<name>.")
     prompt: str = Field(description="Image generation prompt, passed as one argument.")
     negative_prompt: str = Field("", description="Content to avoid in generation.")
     width: Annotated[int, Field(ge=1, le=16384, description="Requested width in pixels.")]
@@ -44,6 +51,13 @@ class GenerationRequest(Model):
     accept_model_license: bool = Field(
         False, description="Accept configured model and adapter terms."
     )
+    use: Literal["design", "canvas"] = Field(
+        "canvas",
+        description="Source purpose: design reference or later canvas import; never places pixels.",
+    )
+    rights_note: str = Field(
+        "", description="Known rights concerns or output terms to preserve in provenance."
+    )
 
 
 class GeneratedImage(Model):
@@ -51,6 +65,7 @@ class GeneratedImage(Model):
     seed: int
     model: ModelInfo
     params: dict
+    workflow: dict | None = None
 
 
 class GenerationBackend(Protocol):

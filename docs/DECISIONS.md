@@ -328,3 +328,14 @@
 | 2026-11-12 | I-1515 | M13、H-10、H-12後半 | offset links・analyze・gba-4bpp/rgb555-leとnative sidecarsはM13-later/v1.xへ延期する | 前6項の共通Op・往復・自己検査を完了境界とする。offset linksはschema/history/GUI/形式の横断工程（8〜15人日）、analyzeは設定保存と統計集合契約を別途検証する必要がある | Codex / R1-E3 |
 | 2026-11-12 | I-1516 | §13.5、R1-E2統合 | m11_nds/dmgのtx0応答だけを唯一の更新器から更新し、PNG・正本・画素は保持する | 統合元に残ったE2のnew_pointsと未使用色updated_issuesの未反映を確認した。失敗した期待値を無条件に採用したのではない | Codex / R1-E3 |
 | 2026-11-12 | I-1517 | §6.7.1、H-08 | reviewの実寸枠はscreen寸法を厳密に守り、超えるrectは小さいrectの指定を促して拒否する | Fable §3.3.2のscreen枠と実寸を同時に守るため、黙った拡張・縮小・切捨てをしない | Codex / R1-E3 |
+| 2026-11-12 | I-1601 | §12.4、H-21 | BYOW登録は既存TOMLを保持して引用した名前の表を追記し、重複名はE_EXISTS、ベースは登録済み別名かunknown、循環は拒否する。旧設定の新項目はunknown等で読む | H-21の人間用登録経路を既存設定と共存させ、無断上書きやモデル自動取得を避ける | Codex / R1-F1 |
+| 2026-11-12 | I-1602 | §12.6、§13.2、H-21 | useはparams.use、モデル・アダプタ・ベースの登録情報はparams.model_registryに固定し、Q-SRC-04はこのsnapshotを読む。旧来歴のモデル条件はunknownとする | 設定変更で過去の条件を変えず、既存source schemaと保存形式を維持する | Codex / R1-F1 |
+| 2026-11-12 | I-1603 | §12.4、H-21 | OpenRAIL系・NC・未知条件の指定バッジとcommercial_useの申告値を別々に示し、ベースとアダプタ両方を列挙する。不明ベースのアダプタも要確認とする | LoRA自身の許諾だけによる誤判断とOpenRAILのOSI誤認を防ぎ、GUIにはデータと平文だけを渡す | Codex / R1-F1 |
+| 2026-11-12 | I-1604 | §12.7、H-22 | ComfyUIではmodelを登録ワークフロー名とし、paramsは対応付け済みsteps/cfg/checkpoint/loraに限定する。prompt/seed/width/heightは対応付け必須、空negative_promptだけ未対応付けを許す | H-22の任意JSON禁止を守り、要求値が黙って無視される経路を作らない | Codex / R1-F1 |
+| 2026-11-12 | I-1605 | §12.7、H-22 | workflow.jsonを各SRCへ保存し、登録元ファイルと埋込み後の両SHA-256を区別する。承諾はcomfyui:<名前>と登録元ハッシュに拘束し、再送時は保存workflowも照合する | サーバ上の重みハッシュを推測せず、実際に送ったグラフと承諾対象を追跡できるようにする | Codex / R1-F1 |
+| 2026-11-12 | I-1606 | §12.7、H-22 | ComfyUIは1回のPOSTがcount枚を返す方式とし、履歴をポーリングする。全体と各HTTPの期限、JSON8MiB/画像64MiB上限を設け、設定先へ直接接続し環境プロキシとリダイレクトを使わず、期限切れ時の全体interruptは送らない | バッチや他利用者のジョブへ暗黙の変更をせず、外部入力と待機を制限する | Codex / R1-F1 |
+| 2026-11-12 | I-1607 | §12.7、H-22 | comfy-inspectはKSamplerの正負接続から区別できるときだけprompt対応を提案し、曖昧な場合は候補を返して設定を変更しない | H-22の人間による確認を維持し、ノードの列挙順から正負を推測しない | Codex / R1-F1 |
+| 2026-11-12 | I-1608 | §12.4、R1-14 | ローカル実体限定のI-703を仕様に明記し、rights_noteをgenerate_imageからsourceへ渡す。Diffusersの呼出し署名とGPUスタックは変更しない | Fable §3.6とR1-14に合わせ、GPU確認・依存監査を並行R1-F2に分離する | Codex / R1-F1 |
+| 2026-11-12 | I-1609 | §13.6、R1-F1検証 | 実子プロセスを起動する既存の生成試験だけ、設定fixtureの期限を30秒から120秒にした。製品の既定値とTimeoutExpiredを注入する期限試験は変更しない | 並行稼働中に自作fake_command.pyのPython起動が30秒を超え、生成試験68件中2件が同じTimeoutExpiredで失敗した。起動速度を生成の正しさの条件にしない | Codex / R1-F1 |
+| 2026-11-12 | I-1610 | §13.2、§13.6 | Q-SRC-04は既存のsource用検出・非検出試験へ追加し、商用条件unknown/yesと配置有無を検査する。sourceがない汎用fixtureからは既存Q-SRC-01〜03同様に除く | 全体試験で自動列挙された新規ルールにsourceなしfixtureが割り当たり、1458件成功・2件skip中の1件だけ失敗した。機能を弱めず共通試験にも正式な正例・負例を置く | Codex / R1-F1 |
+| 2026-11-12 | I-1904 | ?5.10??12.3 | ???????E2?Source.use?F1?params.use??????? | Fable H-11/H-21???????????????????????????????? | Codex / R1-INT |

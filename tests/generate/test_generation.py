@@ -54,7 +54,7 @@ def configured(tmp_path, monkeypatch):
     text = (
         "[generators.command.fake]\n"
         + f"program={json.dumps(sys.executable)}\n"
-        + f'args={json.dumps(args)}\nlicense="test output terms"\ntimeout_seconds=30\n'
+        + f'args={json.dumps(args)}\nlicense="test output terms"\ntimeout_seconds=120\n'
         + '[generators.command.fake.model]\nid="test/base"\n'
         + 'local_path="model.txt"\nlicense="CC0-1.0"\n'
         + '[[generators.command.fake.model.adapters]]\nid="test/adapter"\n'

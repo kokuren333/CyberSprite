@@ -218,6 +218,7 @@ CyberSprite は、**AI エージェントがピクセル単位で正確にドッ
 - **重みは同梱しない [D-26]。** Stable Diffusion 1.5 / SDXL / Pixel Art XL などは CreativeML OpenRAIL-M 系で、OSI 承認ライセンスではなく、利用制限が再配布に付いて回る。Apache-2.0 の重み（FLUX.1 [schnell] など）も、容量と管理の都合から同梱しない。
 - 重みはユーザーが自分でダウンロードする。CyberSprite は初回利用時にモデルカードのライセンス名を表示し、ユーザーが `--accept-model-license` を付けるか設定ファイルで承諾を記録するまで生成を実行しない。承諾とモデルの識別子・ライセンス名・ファイルのハッシュは、ユーザー設定の `models.json` と、生成物の来歴（`source/manifest.json`）に記録する（§12）。
 - アダプタ（LoRA）とベースモデルのライセンスは別物として両方記録する。
+- BYOW の登録は重みを複製せず、ローカル実体のハッシュ・ライセンス ID・取得先・商用条件を記録する（§12.4）。アダプタの商用条件は参照先ベースと合わせて表示・検証する。ComfyUI のサーバ上の重みは未確認として、登録ワークフローのハッシュと申告条件を別に記録する（§12.7）。
 - **パレット。** Lospec のパレットを一括で同梱しない（一括再配布の条件が未確認のため）。同梱するプリセットは、自作のもの、パブリックドメインであることが明らかな機器パレット（例: 1 ビット白黒、グレースケール段階）、および作者がライセンスを明示していて §2.1 に合うものに限る。それ以外はユーザーが `.gpl` / `.pal` / `.hex` / PNG を自分で読み込む。
 
 ### 2.5 実装着手前の再確認チェックリスト
@@ -1919,6 +1920,7 @@ csp export anim -p hero.csprite --tag walk --out walk.gif --scale 4
 
 - ユーザー設定: `<ユーザー設定ディレクトリ>/cybersprite/config.toml`（Windows は `%APPDATA%`、それ以外は XDG の規則）。生成バックエンドの定義、`command` バックエンドのコマンド、モデルのライセンス承諾（`models.json`）、GUI の設定を置く。
 - **エージェントがツール引数から任意のコマンドや設定を注入できないようにする。** 外部コマンドの定義とプラグインの許可は、設定ファイルと起動オプションでしか行えない。
+- 人間用の `gen register-model` はモデルメタデータだけを設定へ追記できる。モデル登録、ComfyUI の URL・ファイル・対応付けの定義は MCP に公開しない。生成ツールは登録済みの名前を選ぶだけとする。
 
 ---
 
@@ -1948,6 +1950,7 @@ cybersprite mcp serve [--root <ディレクトリ>] [--allow-dir <ディレク�
 - `--enable-generation` を付けたときだけ `list_generators` と `generate_image` を公開する。
 - MCP のスキーマは説明用の冗長なタイトルを省略し、成功・失敗の共通フィールドを 1 つの封筒にまとめる。結果の相対パス化は、完全な応答スキーマの `format: "path"` で指定したフィールドだけに適用する。レイヤー経路や任意メタデータ中の文字列は変換しない。
 - ツール一覧はコンパクトな宣言を返す。入力は必須キー・スカラー制約と小さな入れ子の形を掲載し、大きな入れ子は型だけを掲載する。出力は共通封筒の必須キーと成功・失敗の分岐を掲載する。完全な引数・結果の検証とパス検査には省略前の登録定義を使い、詳細は `ops describe` と `schema op` で取得できる。外部参照の取得は要求しない。
+- モデル登録とワークフロー検査は人間用 CLI だけで行う。`generate_image` は任意のワークフロー JSON やサーバ URL を受け付けず、ComfyUI では登録名と明示された入力の値だけを選択できる（§12.7）。
 - プラグインの Op は、`--allow-plugin-op` で名前を挙げたものだけを公開する。
 - `--read-only` は `query` のツールだけを公開する。
 - **`run_lua`、`run_script`、`eval`、任意のシェルコマンドを実行するツールは作らない。** プラグインもそのようなツールを MCP に出してはならない（サーバは Op の種別と定義元を検査し、`--allow-plugin-op` にないものを出さない）。
@@ -2503,7 +2506,8 @@ R1-D1の実行時既定は較正版5とする。版4の547件の正例・指標�
 | **エージェント側で生成** | エージェント（Codex など）が自分の画像生成ツールで作り、ファイルを保存し、`import_image` に `provenance`（`provider: "codex-imagegen"`、プロンプト、利用条件）を付けて渡す | 対応。CyberSprite 側の実装は不要で、来歴の記録だけを担う |
 | **ローカル GPU** | `generate_image` が `diffusers` バックエンドを呼ぶ | 対応（任意 extra） |
 | **外部コマンド** | `generate_image` が、ユーザー設定で定義されたコマンド（stable-diffusion.cpp など）を呼ぶ | 対応 |
-| 外部サービス（InvokeAI、ユーザーが起動した ComfyUI、各社の画像 API） | HTTP で呼ぶ | v1.x（プラグイン） |
+| **ComfyUI** | 利用者が起動したサーバを、登録済みワークフローで HTTP 呼出し（§12.7） | R1 で段階 1・2 に対応 |
+| 外部サービス（InvokeAI、各社の画像 API） | HTTP で呼ぶ | v1.x（プラグイン） |
 
 ### 12.3 バックエンドのインターフェース
 
@@ -2518,14 +2522,15 @@ class GenerationBackend(Protocol):
                  progress: Callable[[float, str], None]) -> list[GeneratedImage]: ...
 ```
 
-- `GenerationRequest`: `prompt`、`negative_prompt`、`width`、`height`、`seed`（省略時はバックエンドが決め、結果に記録する）、`count`、`model`、`params`（バックエンド固有。スキーマをバックエンドが公開する）。
+- `GenerationRequest`: `prompt`、`negative_prompt`、`width`、`height`、`seed`（省略時はバックエンドが決め、結果に記録する）、`count`、`model`、`params`（バックエンド固有。スキーマをバックエンドが公開する）、`use`（`design` / `canvas`、既定 `canvas`）、`rights_note`（既定空文字）。`use` は来歴の `params.use` に記録する。`design` は参照原画、`canvas` は後続の `import_image source=SRC<n>` 用で、どちらも生成時には配置しない。
 - `GeneratedImage`: `path`（`out_dir` の中）、`seed`、`model`（`ModelInfo`）、`params`（実際に使った値）。
 - コアは、返されたファイルを `source/SRC<n>/` に収め、`kind: "generated"` の来歴を書く。
 
 ### 12.4 `diffusers` バックエンド
 
 - 利用者が Diffusers と PyTorch を自分で導入したときだけ使える。入っていなければ `availability` が理由を返す。v1 では `cybersprite[diffusers]` に依存を固定しない（PyTorch は環境ごとの導入方法が異なり、推移的依存の全件監査を CyberSprite の配布条件として保証できないため。[I-014]）。
-- モデルは、ユーザー設定 `config.toml` の `[generators.diffusers.models.<名前>]` に、Hugging Face の ID かローカルパス、ライセンス名、任意のアダプタ（LoRA）を書いて登録する。**ツール引数で任意のモデル ID を渡してダウンロードさせることはできない。**
+- モデルは、ユーザー設定 `config.toml` の `[generators.diffusers.models.<名前>]` にローカル実体だけを登録する（I-703）。ID は識別用でありダウンロードを行わない。人間用 `gen register-model <path>` は `--name`、`--kind`、`--base-model`、`--license`、`--license-url`、`--commercial-use`、`--source-url`、`--note` を受け、表示名 `display_name`、`kind`（`diffusers-dir` / `checkpoint` / `lora` / `vae` / `controlnet`）、`base_model`、`local_path`、`source_url`、`license`、`license_url`、`commercial_use`（`yes` / `no` / `unknown`）、`note`、実体の `sha256`、登録日時 `registered_at` を保存する。既存名は拒否する。ディレクトリのハッシュ方式は I-703 に従う。`base_model` は登録済みの別名か `unknown` とし、循環を拒否する。旧設定の省略項目は unknown 等の既定値で読む。
+- `gen models` は GPU ランタイムを起動せず登録一覧を示す。OpenRAIL 系は「commercial OK with use restrictions (not OSI)」、NC は「non-commercial only」、未知・独自条件は「needs review」と表示する。明示的な商用利用不可・不明は別途表示し、アダプタと参照先ベースの両方の条件をたどる。生成結果にも同じバッジ・説明を返す。登録は人間用 CLI と設定ファイルだけで行い、MCP に登録ツールを出さない。
 - 初回利用時、そのモデル（とアダプタ）のライセンス名を表示し、承諾（`cybersprite gen accept-license <名前>`、または `--accept-model-license`）が `models.json` に記録されていなければ `E_LICENSE_NOT_ACCEPTED`。
 - 推奨設定（ドット絵向けの解像度、ステップ数、アダプタ）は `skills/` に書く。仕様では固定しない（モデルの世代交代が速いため）。
 
@@ -2553,7 +2558,15 @@ license = "model card license name"
 
 ### 12.6 来歴に必ず残すもの
 
-提供元、モデルとアダプタの識別子とライセンス、プロンプト、シード、パラメータ、生成日時、ファイルのハッシュ。プロプライエタリなサービスの出力については、利用規約の版（分かる範囲で）を `license` に書く。第三者の IP が写り込んでいる可能性は規約では解決しないので、気づいた場合は `rights_note` に書く。
+提供元、モデルとアダプタの識別子とライセンス、プロンプト、シード、パラメータ、生成日時、ファイルのハッシュ。登録情報（ベース参照、実体ハッシュ、商用利用条件を含む）のスナップショットは `params.model_registry` に保存し、将来の設定変更で過去の条件を変えない。登録済みモデルとそのベース・アダプタはローカル実体だけをハッシュ検証する。プロプライエタリなサービスの出力については、利用規約の版（分かる範囲で）を `license` に書く。第三者の IP が写り込んでいる可能性は規約では解決しないので、気づいた場合は `generate_image.rights_note` に書く。
+
+### 12.7 `comfyui` バックエンド（H-22 段階 1・2）
+
+- ComfyUI 本体・ノード・他者のワークフローを同梱しない。公開 HTTP API 文書と観察できる挙動だけを参照する。`cybersprite.generators` と同じ契約に `comfyui` を登録する。標準ライブラリの HTTP で `POST /prompt`、`GET /history/<id>`、`GET /view` を使い、`GET /system_stats` で稼働を確認する。
+- `[generators.comfyui]` の `url`（既定 `http://127.0.0.1:8188`）、`timeout_seconds`（全要求の期限、既定600）、`request_timeout_seconds`（通信ごとの期限、既定10）、`poll_interval_ms`（既定500）は設定ファイル専用。設定先へ直接接続し、環境の HTTP プロキシやリダイレクトは使わない。応答サイズにも上限を設ける。
+- `[generators.comfyui.workflows.<名前>]` に `file`、`license`、`commercial_use` を必須とし、`bind` で prompt / negative_prompt / seed / width / height / steps / cfg / checkpoint / lora を `[node_id, "inputs", key]` に対応付ける。同じ入力の重複対応付けは拒否する。API形式のJSONだけを読み、`gen comfy-inspect <file>` は既知のノード種別から候補を返すだけで設定を変更しない。CLIPTextEncode の正負は KSampler の接続から推定できない場合は候補を示し、人間が確認する。
+- ツールは `model` に登録ワークフロー名を指定し、`params` は steps / cfg（整数）/ checkpoint / lora の対応付け済みキーだけを受け付ける。prompt / negative_prompt / width / height / seed はトップレベル引数から対応する入力へ埋める。prompt / width / height / seed は対応付け必須とし、負プロンプトは空なら対応付けを省略できる。任意の JSON、URL、ファイル、ノード種類は引数で受け付けない。checkpoint / lora はサーバ側の名前であり、ローカル重みの適法性や実体ハッシュを保証しない。
+- `gen accept-license comfyui:<名前>` または生成の承諾フラグで、ワークフローファイルの SHA-256 と license に承諾を結び付ける。生成ごとに1要求につき `count` 枚を返すワークフローを使う。画像の数・寸法・復号を検査する。完全に値を埋めた JSON を `source/SRC<n>/workflow.json` に保存し、そのハッシュ・元ファイルハッシュ・サーバ URL・seed・使用パラメータ・license・commercial_use を来歴に残す。再送時には画像と workflow.json の両方をハッシュ照合する。サーバ上の処理は期限切れ時も残ることがあり、自動で全体割込みをしない。
 
 ---
 
@@ -2613,6 +2626,7 @@ license = "model card license name"
 | Q-SRC-01 | warning | 関門を破って配置したソースがある | |
 | Q-SRC-02 | warning | 利用条件が `"unknown"` のソースが配置されている | |
 | Q-SRC-03 | error | 配置済みソースの元ファイルがない、またはハッシュが合わない | |
+| Q-SRC-04 | warning | 配置済みソースのモデル・アダプタ・参照先ベース（ComfyUI は登録ワークフロー）の `commercial_use` が `yes` でない。旧来歴で条件が不明なモデルも含む | |
 
 プラグインは `Q-<提供者>-nn` の形で規則を足せる（§15）。
 
@@ -3541,6 +3555,8 @@ L = (M2i[0][0] × l' + M2i[0][1] × m' + M2i[0][2] × s' + 32768) >> 16      （
 | `W_DEFAULT_PALETTE` | 明示パレットがなく、未変更の既定プロジェクトパレットへ暗黙に写像した |
 | `W_PIPELINE_GATE` | 変換の関門が不合格になった（段階画像と gates を確認する） |
 | `W_SOURCE_HISTORY_UNAVAILABLE` | 古い履歴にソース指標がなく、復元できない値を明示した |
+| `Q-SRC-04` | 配置済み生成ソースのモデル・アダプタ・ベースまたはワークフローの商用利用条件が yes でない |
+| `W_MODEL_TERMS` | モデル・ベース・アダプタ・ワークフローの利用条件バッジと商用利用条件を確認する必要がある |
 
 ---
 

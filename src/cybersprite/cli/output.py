@@ -35,6 +35,9 @@ def write(state, envelope):
             if isinstance(value, list):
                 fields.append(f"{key}={len(value)}")
         click.echo(f"{envelope['op']}: " + (", ".join(fields[:8]) or "OK"))
+        if envelope["op"] == "generate_image":
+            for term in result.get("model_terms", []):
+                click.echo(term["message"])
     else:
         click.echo(json.dumps(envelope, ensure_ascii=False, allow_nan=False))
 

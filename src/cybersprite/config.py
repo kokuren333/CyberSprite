@@ -6,7 +6,7 @@ import tomllib
 from pathlib import Path
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
 from cybersprite.core.errors import invalid
 from cybersprite.core.plugin_settings import PluginSettings
@@ -22,6 +22,14 @@ class ModelLocation(SettingsModel):
     local_path: str | None = None
     license: Annotated[str, Field(min_length=1)]
     source_url: str = ""
+    display_name: str = ""
+    kind: Literal["diffusers-dir", "checkpoint", "lora", "vae", "controlnet"] = "checkpoint"
+    base_model: str = "unknown"
+    license_url: str = ""
+    commercial_use: Literal["yes", "no", "unknown"] = "unknown"
+    note: str = ""
+    sha256: str = ""
+    registered_at: str = ""
 
 
 class GenerationModel(ModelLocation):
@@ -49,10 +57,83 @@ class CommandBackend(SettingsModel):
 class DiffusersSettings(SettingsModel):
     models: dict[str, GenerationModel] = Field(default_factory=dict)
 
+    @model_validator(mode="after")
+    def valid_bases(self):
+        for alias in sorted(self.models):
+            visited = {alias}
+            base = self.models[alias].base_model
+            while base != "unknown":
+                if base not in self.models or base in visited:
+                    raise ValueError(
+                        f"Model {alias!r} needs a registered, non-cyclic base_model or unknown."
+                    )
+                visited.add(base)
+                base = self.models[base].base_model
+            for adapter in self.models[alias].adapters:
+                if adapter.base_model != "unknown" and adapter.base_model not in self.models:
+                    raise ValueError(
+                        f"Adapter of {alias!r} needs a registered base_model or unknown."
+                    )
+        return self
+
+
+BindKey = Literal[
+    "prompt", "negative_prompt", "seed", "width", "height", "steps", "cfg", "checkpoint", "lora"
+]
+
+
+class ComfyWorkflow(SettingsModel):
+    file: Annotated[str, Field(min_length=1)]
+    license: Annotated[str, Field(min_length=1)]
+    commercial_use: Literal["yes", "no", "unknown"]
+    bind: dict[BindKey, list[str]] = Field(default_factory=dict)
+
+    @field_validator("bind")
+    @classmethod
+    def input_paths_only(cls, bindings):
+        paths = []
+        for key in sorted(bindings):
+            path = bindings[key]
+            if len(path) != 3 or path[1] != "inputs" or not path[0] or not path[2]:
+                raise ValueError(f"Binding {key!r} must be [node_id, 'inputs', key].")
+            if path in paths:
+                raise ValueError("Each workflow input may be bound only once.")
+            paths.append(path)
+        return bindings
+
+
+class ComfySettings(SettingsModel):
+    url: str = "http://127.0.0.1:8188"
+    timeout_seconds: Annotated[int, Field(ge=1, le=86400)] = 600
+    request_timeout_seconds: Annotated[int, Field(ge=1, le=60)] = 10
+    poll_interval_ms: Annotated[int, Field(ge=1, le=60000)] = 500
+    workflows: dict[str, ComfyWorkflow] = Field(default_factory=dict)
+
+    @field_validator("url")
+    @classmethod
+    def http_server_only(cls, value):
+        from urllib.parse import urlsplit
+
+        parsed = urlsplit(value)
+        if (
+            parsed.scheme not in {"http", "https"}
+            or not parsed.hostname
+            or parsed.username
+            or parsed.password
+            or parsed.port == 0
+            or parsed.query
+            or parsed.fragment
+        ):
+            raise ValueError(
+                "ComfyUI URL must be an HTTP(S) server URL without credentials, query or fragment."
+            )
+        return value.rstrip("/")
+
 
 class Generators(SettingsModel):
     command: dict[str, CommandBackend] = Field(default_factory=dict)
     diffusers: DiffusersSettings = Field(default_factory=DiffusersSettings)
+    comfyui: ComfySettings = Field(default_factory=ComfySettings)
 
 
 class GuiSettings(SettingsModel):

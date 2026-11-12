@@ -15,13 +15,16 @@ from cybersprite.core.models import Source, SourceFile, SourceModel
 from cybersprite.pipeline.decode import decode_raster
 
 from .contracts import GeneratedImage
-from .licenses import fingerprint, identities, require_license
+from .licenses import all_models, fingerprint, identities, require_license
+from .models import term_badges
 from .registry import BackendRegistry
 
 
 def accept_license(name, **_kwargs):
     registry = BackendRegistry()
-    if name in registry.settings.generators.diffusers.models:
+    if name.startswith("comfyui:"):
+        backend, alias = registry.get("comfyui"), name.removeprefix("comfyui:")
+    elif name in registry.settings.generators.diffusers.models:
         backend, alias = registry.get("diffusers"), name
     elif name.startswith("command:"):
         backend, alias = registry.get(name), None
@@ -46,9 +49,8 @@ def _select(backend, request):
     if selected is None:
         raise invalid("Select a model advertised by the configured generator.")
     model = selected.model_copy(deep=True)
-    model.sha256 = fingerprint(model.local_path)
-    for adapter in model.adapters:
-        adapter.sha256 = fingerprint(adapter.local_path)
+    for info in all_models(model):
+        info.sha256 = fingerprint(info.local_path)
     require_license(model, accept=request.accept_model_license)
     try:
         backend.params_schema.model_validate(request.params)
@@ -98,6 +100,15 @@ def _generate(root, request, tx, actor):
                             "E_IO",
                             "Replayed generation source is missing or changed.",
                             "Restore its original file before retrying this key.",
+                        )
+                workflow = source.params.get("workflow")
+                if workflow:
+                    path = sources.source_path(root, workflow["path"])
+                    if not path.is_file() or fingerprint(path) != workflow["sha256"]:
+                        raise CyberSpriteError(
+                            "E_IO",
+                            "Replayed generation workflow is missing or changed.",
+                            "Restore workflow.json before retrying this key.",
                         )
             return envelope(root, revision, previous)
     backend = BackendRegistry().get(request.backend)
@@ -167,7 +178,7 @@ def _generate(root, request, tx, actor):
                 )
             captured.append((image, data, path.suffix.lower()))
         # Detect weights changed while generation was running before accepting their provenance.
-        for info in [model, *model.adapters]:
+        for info in all_models(model):
             if fingerprint(info.local_path) != info.sha256:
                 raise CyberSpriteError(
                     "E_GENERATION_FAILED",
@@ -189,6 +200,29 @@ def _generate(root, request, tx, actor):
                 bytes=len(data),
             )
             stamp = now()
+            params = {
+                **image.params,
+                "width": request.width,
+                "height": request.height,
+                "adapters": [
+                    {"id": a.id, "license": a.license, "sha256": a.sha256} for a in model.adapters
+                ],
+                "use": request.use,
+                "model_registry": model.model_dump(),
+                "_generation": {
+                    "key": tx.idempotency_key,
+                    "request_sha256": signature,
+                    "actor": actor,
+                },
+            }
+            if image.workflow is not None:
+                workflow_data = metadata_bytes(image.workflow)
+                workflow_path = f"source/{source_id}/workflow.json"
+                params["workflow"] = {
+                    "path": workflow_path,
+                    "sha256": hashlib.sha256(workflow_data).hexdigest(),
+                }
+                writes.append((sources.source_path(root, workflow_path), workflow_data))
             source = Source(
                 id=source_id,
                 kind="generated",
@@ -203,19 +237,10 @@ def _generate(root, request, tx, actor):
                 prompt=request.prompt,
                 negative_prompt=request.negative_prompt,
                 seed=image.seed,
-                params={
-                    **image.params,
-                    "width": request.width,
-                    "height": request.height,
-                    "adapters": identities(model)[1:],
-                    "_generation": {
-                        "key": tx.idempotency_key,
-                        "request_sha256": signature,
-                        "actor": actor,
-                    },
-                },
+                params=params,
                 license=(backend.command.license if hasattr(backend, "command") else model.license),
-                rights_note="",
+                rights_note=request.rights_note,
+                use=request.use,
                 url=model.source_url,
                 created_at=stamp,
                 imported_at=stamp,
@@ -232,6 +257,14 @@ def _generate(root, request, tx, actor):
 
 
 def envelope(root, revision, stored):
+    terms = [
+        entry for source in stored for entry in term_badges(source.params.get("model_registry"))
+    ]
+    warnings = [
+        {"code": "W_MODEL_TERMS", **entry}
+        for entry in terms
+        if entry["commercial_use"] != "yes" or entry["badge"] != "commercial OK"
+    ]
     return {
         "ok": True,
         "op": "generate_image",
@@ -240,6 +273,9 @@ def envelope(root, revision, stored):
         "result": {
             "sources": [s.id for s in stored],
             "files": [f.path for s in stored for f in s.files],
+            "use": stored[0].params.get("use", "canvas") if stored else "canvas",
+            "model_terms": terms,
+            "message": " ".join(entry["message"] for entry in terms),
         },
-        "warnings": [],
+        "warnings": warnings,
     }
