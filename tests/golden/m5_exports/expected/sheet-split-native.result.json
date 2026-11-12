@@ -1,0 +1,26 @@
+{
+  "files": [
+    {
+      "path": "sheet-split-native.png",
+      "bytes": 125,
+      "sha256": "7f9155cf5804d1680ed0a3678ef4bd75ab92d88e2773e6cf7c0e67df793087d0",
+      "pixel_sha256": "7321a51bef9ff93bee6579b71706618fc5bd8bc65f18df0af8fc17f8afa8be5e",
+      "width": 4,
+      "height": 4
+    },
+    {
+      "path": "sheet-split-native.json",
+      "bytes": 3383,
+      "sha256": "e2e4eb75fdb5d0140719d9e39763e0de0203a4eb0fca0104460dcb6d86fbec23",
+      "kind": "data"
+    }
+  ],
+  "warnings": [],
+  "validation_ok": true,
+  "verified": true,
+  "sheet": {
+    "width": 4,
+    "height": 4
+  },
+  "items": 3
+}

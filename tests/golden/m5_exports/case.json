@@ -11,6 +11,7 @@
     {"name": "sheet-packed", "op": "export_sheet", "args": {"out": "sheet-packed.png", "data_out": "sheet-packed.json", "layout": "packed", "compression": "stored"}},
     {"name": "sheet-hash", "op": "export_sheet", "args": {"out": "sheet-hash.png", "data_out": "sheet-hash.json", "data_format": "json-hash", "trim": true, "merge_duplicates": true, "border": 1, "spacing": 2, "inner": 1, "compression": "stored"}},
     {"name": "sheet-array", "op": "export_sheet", "args": {"out": "sheet-array.png", "data_out": "sheet-array.json", "data_format": "json-array", "split_layers": true, "split_tags": true, "split_slices": true, "item_name": "{layer}-{tag}-{slice}-{frame}", "trim": true, "compression": "stored"}},
+    {"name": "sheet-split-native", "op": "export_sheet", "args": {"out": "sheet-split-native.png", "data_out": "sheet-split-native.json", "split_layers": true, "split_tags": true, "split_slices": true, "item_name": "{layer}-{tag}-{slice}-{frame}", "trim": true, "compression": "stored"}},
     {"name": "animation-gif", "op": "export_animation", "args": {"out": "animation.gif", "tag": "Motion"}},
     {"name": "animation-apng", "op": "export_animation", "args": {"out": "animation.apng", "tag": "Motion", "compression": "stored"}},
     {"name": "animation-rgba-apng", "op": "export_animation", "args": {"out": "animation-rgba.apng", "color_mode": "rgba", "compression": "stored"}},

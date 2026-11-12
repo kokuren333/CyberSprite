@@ -943,7 +943,7 @@ hero.csprite/
 #### 6.4.1 共通規則
 
 - 描画の対象は「レイヤー `layer` のフレーム `frame` のセル」である。セルがなければ作る。描く範囲がセルの外なら、セルを広げる。
-- 描画はキャンバスの範囲（`0 ≤ x < width`、`0 ≤ y < height`）で切り取る。範囲外への描画は黙って捨てる。結果の `clipped_pixels` に捨てた数を入れる。
+- 描画はキャンバスの範囲（`0 ≤ x < width`、`0 ≤ y < height`）で切り取る。範囲外への描画は黙って捨てる。成功封筒の `changed.clipped_pixels` に捨てた数を入れる（§10.3.1）。
 - 対象がリンクセルなら、共有しているデータを書き換える（全フレームに効く）。結果の `linked_frames` に、影響を受けたフレームの一覧を入れる。
 - 対象のレイヤーが `locked`（祖先のロックを含む）なら `E_LAYER_LOCKED`。グループなら `E_WRONG_LAYER_TYPE`。タイルマップレイヤーに対するピクセル描画 Op は v1 では `E_WRONG_LAYER_TYPE`（タイルの中身は `set_tile_pixels` で編集する）。
 - 「消す」とは、透明インデックスを書くことである。背景レイヤーでも同じ（背景レイヤーではその番号の色として見える）。
@@ -2275,7 +2275,7 @@ license = "model card license name"
 | ID | 既定の水準 | 内容 | 関係する設定 |
 |---|---|---|---|
 | Q-PAL-01 | error | パレットの色数が予算を超えている | `palette_max`（既定 256） |
-| Q-PAL-02 | info | 使われていないパレット色がある | |
+| Q-PAL-02 | info | 透明インデックスを除き、使われていないパレット色がある | |
 | Q-PAL-03 | info | 同じ色が複数の番号にある | |
 | Q-PAL-04 | warning | 半透明のパレット色（アルファが 0 でも 255 でもない）が使われている | |
 | Q-PAL-05 | warning | フレームの色数が上限を超えている | `colors_per_frame_max`（既定 未設定 = 判定しない） |
@@ -2344,6 +2344,7 @@ license = "model card license name"
 
 - `ok` は、エラー水準の指摘が 0 件のとき true。
 - `colors_used` の使用数には、予約された空タイル0の画素を加算しない。他の画像セル・登録タイルの実データは従来どおり数える。
+- `unused_palette` は、透明インデックスを除く未使用番号の数（Q-PAL-02 と同じ対象）。
 - `issues[].where.points` は、該当ピクセルの座標（64 個まで）。
 - `issues` の並びは、水準（error → warning → info）、規則 ID、フレーム、レイヤーの順。
 
@@ -3192,8 +3193,11 @@ L = (M2i[0][0] × l' + M2i[0][1] × m' + M2i[0][2] × s' + 32768) >> 16      （
       "name": "hero 0",
       "frame": 0,
       "layer": null,
+      "layer_id": null,
       "tag": null,
+      "tag_id": null,
       "slice": null,
+      "slice_id": null,
       "rect": {"x": 0, "y": 0, "w": 16, "h": 16},
       "trimmed": false,
       "source_rect": {"x": 0, "y": 0, "w": 16, "h": 16},
@@ -3202,13 +3206,15 @@ L = (M2i[0][0] × l' + M2i[0][1] × m' + M2i[0][2] × s' + 32768) >> 16      （
       "pixel_sha256": "…"
     }
   ],
-  "tags": [{"name": "walk", "from": 0, "to": 3, "direction": "forward", "repeat": 0, "color": "#19c3e6"}],
+  "tags": [{"id": "T1", "name": "walk", "from": 0, "to": 3, "direction": "forward", "repeat": 0, "color": "#19c3e6"}],
   "layers": [{"id": "L1", "name": "Body", "path": "Body", "opacity": 255, "blend_mode": "normal"}],
-  "slices": [{"name": "hitbox", "color": "#19c3e6ff", "keys": [{"frame": 0, "x": 1, "y": 1, "w": 6, "h": 6, "center": null, "pivot": null}]}]
+  "slices": [{"id": "S1", "name": "hitbox", "color": "#19c3e6ff", "keys": [{"frame": 0, "x": 1, "y": 1, "w": 6, "h": 6, "center": null, "pivot": null}]}]
 }
 ```
 
 - 正準形式（§5.2.2）で書く。時刻と実行環境指紋は入れない（全環境でバイト同一にするため）。
+- `items[].layer` / `tag` / `slice` は対象の名前（レイヤーは経路ではなく末端の名前）、対応する `layer_id` / `tag_id` / `slice_id` はプロジェクト内の ID とする。対象がないときは名前・ID とも `null`。タグは分割時または `tag` 指定時、レイヤーとスライスは各分割時に対象を持つ。
+- `layers[]` / `tags[]` / `slices[]` はそれぞれ `id` と `name` を持つ。同名の対象も ID で対応付けられる。分割や明示の `tag` 指定から決まる対象だけを記録し、フレームを覆うタグや単一レイヤーからは推測しない。
 - `rect` はシート上の位置。`source_rect` は、トリム後の絵が元のキャンバス（拡大後）のどこにあったか。
 - `tags` の番号はプロジェクトのフレーム番号。書き出したフレームが一部だけの場合も、プロジェクトの番号のままにする。
 
