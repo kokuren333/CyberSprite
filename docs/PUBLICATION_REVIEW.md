@@ -4,7 +4,7 @@
 - レビュアー: Fable 5.2（上流工程。`docs/REVIEW_1.md`、`docs/REVIEW_2.md` と同じ担当）
 - 対象: ローカル `main` = `origin/main` = `ae3937b`（全ブランチで 216 コミット）。GitHub のリポジトリは private のまま
 - 入力: `docs/PUBLICATION_AUDIT.md`（第 2 回と補遺 B、付録 1 の第 1 回）、`docs/PUBLICATION_FIX_REPORT.md`、`docs/HISTORY_REWRITE_REPORT.md`、`docs/REVIEW_2.md`（R2-01、R2-11、R2-12）、リポジトリの実物、GitHub の API（読み取りだけ）
-- 範囲: 判定と文書化だけ。visibility の変更、push、履歴の改変、既存ファイルの書き換えはしていない。本書のコミットには本書だけを入れた（push していない。理由は §4.3）
+- 範囲: 判定と文書化だけ。visibility の変更、push、履歴の改変、既存ファイルの書き換えはしていない。本書のコミットには本書だけを入れた（push していない。作り直す前のリポジトリに足す理由が無いため。§4.4）
 - 根拠の印: ［実行］は、この PC で自分で動かして確かめたもの。［読解］は、コードや文書を読んで確かめたもの。印の無い数値は、入力の文書からの引用である
 
 ---
