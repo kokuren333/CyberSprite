@@ -43,7 +43,7 @@
 | E3 | review_sheet/craft/palette_units、Q-PLT04/06、代表5機種、native gb-2bppと独立decoder、ramps/shift/選択輪郭。H-05/06/08/16後半 | 1725 passed / 8 skipped、新規63、関連131、実CLI13呼出し | offset links/analyze/追加形式/sidecars延期。代表モードの範囲と実寸を守る。速度比較なし。I-1501〜1517。[報告](R1_E3_IMPLEMENTATION_REPORT.md) |
 | F1 | config/generateのBYOW登録・base/adapter条件・用途/rights_note、Q-SRC04、登録workflow限定ComfyUI HTTP。R1-14、H-21/22 | 1466 passed / 2 skipped、生成75（新規54）、自作HTTPと実CLI7呼出し | 実ComfyUI未試験、段階3対象外、登録だけでVAE等単体生成は保証しない。速度比較なし。I-1601〜1610。[報告](R1_F1_IMPLEMENTATION_REPORT.md) |
 | F2 | backendsのlocal fp16・決定性状態復元/RLock、依存原文監査・GPU計測・試験。H-21、依頼7 | 1427 passed / 3 skipped、回帰22 / skip1、明示GPU1 passed、RTX実CLI3回 | 監査(b)、空extra維持。特定GPU/版のみ、F2画像CI化・並行性能未測定。§3に実数。I-1641〜1649。[報告](R1_F2_REPORT.md) |
-| G | skills/workflows5冊とreferences、3関門、報告規則・REVIEW雛形、遡及参照ログ。R1-02/11、H-07/09/19/20 | 文書・既存e2e01〜06の判定欄、旧DS failを記録。工程例は当時未検証でINTスモークが後続 | e2e-07人間判定pending、48pxは目安。コネクタ方針は後続発注指示I-1807が優先。I-1801〜1817。進捗R1-G |
+| G | skills/workflows5冊とreferences、3関門、報告規則・REVIEW雛形、遡及参照ログ。R1-02/11、H-07/09/19/20 | 文書・既存e2e01〜06の判定欄、旧DS failを記録。工程例は当時未検証でINTスモークが後続 | e2e-07人間判定pending、48pxは目安。参照の入手方針は後続発注指示I-1807が優先（公開前にI-2002で手動の取り込みへ変更）。I-1801〜1817。進捗R1-G |
 | GUI | platform selector/status/check group、model Terms、reviewの見出し・配置・自作字形、authored craft。H-02/06/08/21 | 698 tests、contrast100、build、Playwright5。自作NDS/DMGシートをOpusが確認 | R1-17/30の専用forms・palette・設定は範囲外、source別badgeなし。I-1851〜1865。進捗R1-GUI・docs/design/gui |
 | H | .github/workflows/ci.yml、GUI Ubuntu24.04固定、Windows JS台帳を検査モード。R1-01/22 | 変更commit3962a41、merge61ae19f、INTで既存JS46件照合 | 最終リモートCIは差込み待ち。独立したH報告・判断番号なし（本書はcommitを根拠に整理）。性能比較なし |
 | M | compact MCP契約、flatten/merge背景保存、警告/ヒント、schema、path注釈、include/port、golden更新器、独立復号、GUI生成opt-in。R1-08/12/23〜25/28/29/31/32 | 1735 passed / 5 skipped、実CLIと全形式独立復号 | M0棚卸しは残る。§3のサイズ比較。I-1701〜1711。[報告](R1_M_REPORT.md) |
@@ -269,13 +269,13 @@ Fableは **fixed24 / partially6 / deferred2 / not addressed0**、Codexは **fixe
 | H-17 | E2/INT：新規／解消点と既存issue悪化・水準変更 |
 | H-18 | deferred：apply --replace-lastは元指定どおりv1.x |
 | H-19 | G：imagegen原案→Opus解釈／描画の分担、5冊のworkflow |
-| H-20 | G/E1/INT/DOC：参照規律・遡及ログ・privateコネクタ標準と403観測 |
+| H-20 | G/E1/INT/DOC：参照規律・遡及ログ・非公開ツールの扱い（I-2002で標準から外した）と403観測 |
 | H-21 | F1/F2/GUI：BYOW/use/Q-SRC04・実GPU・監査(b)・条件バッジ |
 | H-22 | F1：段階1/2を自作HTTPで検証。実ComfyUI未試験、段階3対象外 |
 
 ### 4.2 発注者項目1〜9への対応
 
-原文が公開入力にない番号は推測で埋めない。1〜8はREVIEW_1の見出し「申し送りn」から対応付けた。後続の項目14（コネクタ標準）はI-1807に記録された発注者指示として区別する。
+原文が公開入力にない番号は推測で埋めない。1〜8はREVIEW_1の見出し「申し送りn」から対応付けた。後続の項目14（参照の入手。のちI-2002で変更）はI-1807に記録された発注者指示として区別する。
 
 | 項目 | 対応・残件 |
 |---|---|
@@ -463,7 +463,7 @@ Fableは **fixed24 / partially6 / deferred2 / not addressed0**、Codexは **fixe
 | `skills/workflows/turnaround-parts.md` §3.4（G） | 段 3a に 2 つの道（A: 原画を見ながら手で打つ、B: ピクセルアート風の三面図を変換パイプラインで取り込んで直す）を並記し、優劣を書かなかった。定期の e2e で両方を作り発注者が決める | Fable §3.3〜3.5/3.9、後続発注指示I-1807が優先、SPEC | REVIEW_1 §3.4 で、どちらが良いかは未知とされた。手順書が片方を推すと比較ができなくなる | I-1804 |
 | `skills/workflows/turnaround-parts.md` §3.2（G） | Codex の呼び出しを `codex exec -m gpt-6.1-sol -c model_reasoning_effort=medium --dangerously-bypass-approvals-and-sandbox -C <dir> -`（指示は標準入力）に固定し、生成物は `~/.codex/generated_images/` から移動せず写す、送った指示とログを `design/` に残す、とした | Fable §3.3〜3.5/3.9、後続発注指示I-1807が優先、SPEC | 発注者が確認した呼び出し方。写すことで生成の記録が両方に残り、来歴の材料（実際の指示）が失われない | I-1805 |
 | 新 §3.6、`AGENTS.md` §4（G） | 制作の参照（ゲームの実スプライトなど）の規律を §3.6 として新設し、§3.1 の「他製品のスプライトを使わない」はリポジトリ・作例・成果物に入れないことを意味する、と範囲を明記した | Fable §3.3〜3.5/3.9、後続発注指示I-1807が優先、SPEC | H-20、R1-11。規則の空白と、§3.1 との文字の上の衝突をなくす | I-1806 |
-| §3.6、`skills/workflows/references.md` §2.2（G） | 参照の入手は、発注者の私物の参照取得コネクタ（`<非公開ツール>`、ライブラリ `_private/refs-library`）を標準手順の段 0 に組み込み、使えない環境では人が保存したものを使う。少量・オンデマンド・取り直さない、を規律とする | Fable §3.3〜3.5/3.9、後続発注指示I-1807が優先、SPEC | 修正ラウンド 1 の発注者指示（項目 14）がコネクタの組み込みを明示した。REVIEW_1 §3.5 の懸念（標準化を勧めない）は手順書に注記し、発注者の判断を優先した（オーケストレーターが R1-G の初稿を修正） | I-1807 |
+| §3.6、`skills/workflows/references.md` §2.2（G） | （I-2002 で廃止）参照の入手に、発注者の私物の非公開ツールを標準手順の段 0 として組み込み、使えない環境では人が保存したものを使う。少量・オンデマンド・取り直さない、を規律とする | Fable §3.3〜3.5/3.9、後続発注指示I-1807が優先、SPEC | 修正ラウンド 1 の発注者指示（項目 14）。REVIEW_1 §3.5 の懸念（標準化を勧めない）は手順書に注記し、発注者の判断を優先した。公開前に I-2002 で手動の取り込みを標準にした | I-1807 |
 | §3.6、`skills/workflows/references.md` §2.5（G） | imagegen に渡すのは文章の指示と計測値だけとし、参照の画像、作品名、キャラクター名は渡さないとした。発注者が別に決めたらそれに従う | Fable §3.3〜3.5/3.9、後続発注指示I-1807が優先、SPEC | REVIEW_1 §3.5 の推奨。発注者は未決（REVIEW_1 §6 の 3） | I-1808 |
 | §3.3、§3.6（G） | DS 粒度の特別テストの参照 4 点について、制作担当の計測とレビューの計測を `docs/reference/PROVENANCE_LOG.md` にさかのぼって 2 行で記録した。題名は書かず、統計値だけにした | Fable §3.3〜3.5/3.9、後続発注指示I-1807が優先、SPEC | R1-11 の期待する状態。追跡する文書に載せてよいのは統計値まで（§3.6） | I-1809 |
 | §13.7、`AGENTS.md` §6.3（G） | 制作物の完了条件を、機械の検査 5 つに人間が見る関門 3 つと「見た目の判定は人間が決めるまで `pending`」を足した 7 条件にした。`direct` は関門 (2)(3) をまとめてよい | Fable §3.3〜3.5/3.9、後続発注指示I-1807が優先、SPEC | H-07、R1-02。衛生の検査だけで「できた」と言える状態をなくす | I-1810 |
@@ -564,7 +564,7 @@ e94bd7aではcoreのUbuntu3.12/3.13・Windows3.12が成功、Windows3.13は期�
 - 道具の摩擦（次の修正候補）: 大きな原画の `guide` が出力予算で `E_LIMIT_EXCEEDED` になり縮小指定がない／選択輪郭はランプの最暗色をすべて `exclude_colors` に入れないと冪等にならない／Q-PLT-05 がセルごとに 73 件重複／`move_cel` で上端からはみ出しても `clipped_pixels: 0`／`apply --replace-last` 未実装（H-18、v1.x）／`draw_rows` の幅不一致エラーが行番号を示さない／`export anim --background` がパレット閉包エラー／`preview --out` が作業ディレクトリ外へ書ける／`conform_palette --dry-run` の `revision.after` が増える。詳細は `e2e-tests/07-ds-turnaround/RECORD.md`。
 - Discord: 投稿用ファイル（×8 PNG、×8 待機 GIF、道 B、仕上げ前シート、`caption.txt`）を `e2e-tests/07-ds-turnaround/discord/` に用意した。オーケストレーターの環境に Discord への投稿手段がないため、投稿は監督側に依頼する（れんカテゴリ #メモ 1569525802729611401）。
 
-非公開コネクタは発注者指示I-1807により標準だが、2026-11-12に利用者PCのChromeからHTTP403を観測。回避せず既存private参照libraryを利用した。公開側には作品名／URL／画像を載せない。Discordツールはないため投稿していない。オーケストレーターの申し送りではDiscord-readyファイルを `e2e-tests/07-ds-turnaround/discord/` に準備済み。DOCのworktreeでは実在一覧を再確認しておらず、ファイル一覧・投稿結果はe2e-07完了時に監督者が追記する。
+非公開の参照取得ツールは当時I-1807で標準だった（公開前にI-2002で外した）。2026-11-12にHTTP403を観測。回避せず既存private参照libraryを利用した。公開側には作品名／URL／画像を載せない。Discordツールはないため投稿していない。オーケストレーターの申し送りではDiscord-readyファイルを `e2e-tests/07-ds-turnaround/discord/` に準備済み。DOCのworktreeでは実在一覧を再確認しておらず、ファイル一覧・投稿結果はe2e-07完了時に監督者が追記する。
 
 ## 8. Deferred / not done と発注者の判断
 
