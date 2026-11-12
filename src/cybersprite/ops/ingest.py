@@ -11,6 +11,7 @@ from pydantic import Field
 from cybersprite.core import history, sources
 from cybersprite.core.canonical import load_project, metadata_bytes, project_path
 from cybersprite.core.errors import CyberSpriteError, invalid
+from cybersprite.core.execution import committed_bytes
 from cybersprite.core.journal_clock import now
 from cybersprite.core.models import (
     Frame,
@@ -185,7 +186,7 @@ def source_query(ctx, args, name):
         import json
 
         try:
-            value["report"] = json.loads(path.read_bytes())
+            value["report"] = json.loads(committed_bytes(path, ctx.root))
         except (OSError, ValueError) as error:
             raise CyberSpriteError(
                 "E_IO",
