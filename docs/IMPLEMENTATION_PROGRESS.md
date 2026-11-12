@@ -195,3 +195,12 @@
 - 唯一の更新器で既存15・新規3のgolden期待値を生成して全差分を確認した。既存PNG・画素配列・画素ハッシュ・正本は不変。新しい独自分割PNGは既存互換配列PNGとバイト同一。M5全出力はハッシュシード17/319でも一致した。
 - 実CLIで2×1・2フレーム・透明番号2・日本語タグ/スライスを作成し、検証デルタ・全フレームプレビュー・書出しPNG/JSONを確認した。validation_ok/verified=true、error/warning=0、未使用色0。情報3件は独立同一セルと1画素クラスタの工学ベクタによる意図どおりの指摘として保持。git管理外の `build/fix6-review/` に実ファイルと記録を残した。
 - 判断I-901〜I-904。SPEC変更は付録D.1と§6.4.1、§13.2/13.4。新規依存・外部参照・ビジュアル判断なし。LinuxはI-007のとおり未実行、main統合はオーケストレーターが行う。詳細は [FIX6_IMPLEMENTATION_REPORT.md](FIX6_IMPLEMENTATION_REPORT.md)。
+
+## R1-C: プラグイン拡張点の接続（2026-11-12）
+
+- `fixr1-c` で共通 PluginManager、メタデータだけの一覧、設定許可・disabled 優先、API 1 の factory 前検査、名前で選ぶ遅延読込と登録失敗時の破棄を実装した。MCP は許可 Op 名に対応する提供者だけを読み、CLI は有効な Op を初回利用時に解決する。
+- ops / generators / pipeline_steps / validators / palettes / exporters の6群を接続。pipeline の5 step、convert・import_image・source 来歴、severity・デルタ、palette reader、新規 export_plugin Op と実ファイルの自己検査をテストした。importers は SPEC §15.1 と I-1201 で v1.x に延期し、platforms はメタデータ群だけ予約した。
+- 最終ソース `e2250be` の `uv run pytest -q --tb=short` は BLAS/OpenMP のスレッド数を1にして **1436 passed / 2 skipped（732.69秒）**。skipは既存のWindows symlink権限2件。プラグイン24件・依存監査1件・トランザクション15件・生成21件の関連試験も **61 passed（124.51秒）**。固定画素ベクタ・保護番号・builtin提供者偽装・disabledを検査した。先行全体試験で見つかった手動登録OpのE_INVARIANT rollback回帰とconfig.sys互換性を修正し、最終全体で成功した。Ruff check/format、core/ops の mypy（38ファイル）、schema drift、相対importも含むrepository checkも成功。
+- 実 CLI の plugins list と export plugin --help を確認。既存生成テスト用の実コマンドも起動し、2枚の出力 PNG を読み戻して8×6 RGBA・アルファ・内部画素を確認した。ゴールデン・正本スキーマの変更は0件。
+- 性能改善・前後比較は本工程では行わず、改善率を主張しない。途中の生成子プロセス4件の30秒期限超過の切分けでは、ops import 44.748秒、registry 構築4.451秒、metadata 列挙3回0.043/0.019/0.084秒を観測した（レビュー性能 fixture の前後測定ではない）。
+- 判断 **I-1201〜I-1213**。仕様変更は拡張契約・延期・W_PLUGIN_DETERMINISM・規則IDの一意性・依存方向・提供者の区別と関連表の整合。低層loaderと許可型・設定場所をcore内で共有し、coreから外側層へ依存しない。自動格子未検出の診断変換はI-467に従い外部stepにも保持した。新規依存・外部参照・ビジュアル判断なし。importer、platform 解決、実コンバータ、複数ファイル exporter、Linux 実行は未実施。詳細は [R1_C_IMPLEMENTATION_REPORT.md](R1_C_IMPLEMENTATION_REPORT.md)。
