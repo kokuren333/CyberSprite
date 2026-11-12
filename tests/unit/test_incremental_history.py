@@ -124,6 +124,37 @@ def test_read_only_ops_do_not_lock(project, monkeypatch):
             assert ops.execute(name, project, args)["ok"]
 
 
+def test_waiting_writer_acquires_after_owner_releases(project, monkeypatch):
+    from threading import Event, Thread
+
+    waiting = Event()
+    done = Event()
+    failures = []
+    original = history.wait_poll
+
+    def poll():
+        waiting.set()
+        original()
+
+    def writer():
+        try:
+            with history.ProjectLock(project, "waiting-writer"):
+                pass
+        except BaseException as error:
+            failures.append(error)
+        finally:
+            done.set()
+
+    monkeypatch.setattr(history, "wait_poll", poll)
+    with history.ProjectLock(project, "owner"):
+        thread = Thread(target=writer)
+        thread.start()
+        assert waiting.wait(5)
+    assert done.wait(5)
+    thread.join()
+    assert failures == []
+
+
 class InjectedFailure(BaseException):
     pass
 

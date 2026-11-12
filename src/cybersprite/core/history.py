@@ -12,7 +12,7 @@ from threading import Event, Thread, get_ident
 from .canonical import dumps_project, json_bytes, loads_project
 from .errors import CyberSpriteError
 from .execution import _active, _records, check_deadline, committed_bytes, recover_pending
-from .journal_clock import elapsed_clock, filesystem_clock, now
+from .journal_clock import elapsed_clock, filesystem_clock, now, wait_poll
 
 LOCK_WAIT_SECONDS = 10
 LOCK_STALE_SECONDS = 30
@@ -108,7 +108,7 @@ class ProjectLock:
                         "Wait for the active writer to finish, then retry.",
                         holder,
                     ) from None
-                Event().wait(25 / 1000)
+                wait_poll()
             except OSError as error:
                 if self.fd is not None:
                     os.close(self.fd)
@@ -227,9 +227,7 @@ def _journal_tail(root, limit, after_revision, records, transactions):
             scope = _active.get()
             if scope is not None:
                 path = scope.resolve(path)
-            old = next(
-                (item for item in records if Path(item["path"]) == path.absolute()), None
-            )
+            old = next((item for item in records if Path(item["path"]) == path.absolute()), None)
             if old is not None and "data" in old:
                 if old["data"] is None:
                     continue
