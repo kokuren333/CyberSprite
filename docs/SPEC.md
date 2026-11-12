@@ -925,7 +925,7 @@ hero.csprite/
 └─ snapshots/r000012.json.gz  そのリビジョンの project.json（gzip）
 ```
 
-- **ジャーナルの 1 行**: `{revision, kind, actor, label, time, idempotency_key, ops, changed, validation_ok}`。`kind` は `tx` / `undo` / `redo` / `external` / `create`。`ops` は適用した Op の名前と引数（1 行が 1 MB を超える場合は、ピクセル列などの大きな引数を SHA-256 に置き換える）。
+- **ジャーナルの 1 行**: `{revision, kind, actor, label, time, idempotency_key, ops, changed, validation_ok, result}`。`kind` は `tx` / `undo` / `redo` / `external` / `create`。`ops` は適用した Op の名前と引数（1 行が 1 MB を超える場合は、ピクセル列などの大きな引数を SHA-256 に置き換える）。`result` は再送時に返す成功の封筒であり、基準記録（`create` / `external`）では `null` とする。
 - **スナップショット**: コミットごとに、コミット後の `project.json` を保存する。保持するのは直近 200 件、かつ合計 256 MB までで、古いものから消す。
 - **取り消し**: `state.json` に `undo_stack` と `redo_stack`（リビジョン番号の列）を持つ。
   - 通常のコミット: コミット前のリビジョンを `undo_stack` に積み、`redo_stack` を空にする。
@@ -1135,6 +1135,8 @@ Ra = 0 のとき: 結果は (0, 0, 0, 0)
   - `onion: {prev: n, next: n}` で、前後のフレームを薄く重ねる（前は赤系、後は青系の色付け）。
 - ファイル名は `r<リビジョン 6 桁>_f<フレーム>.png`。保持は直近 100 コミット分。
 - インラインで返す画像は、長辺 1024 ピクセル以下に収まる拡大率に下げる。
+  元のキャンバス自体が 1024 を超える場合、または定規を加えると超える場合は、プレビューだけを整数間隔の画素抽出で縮小する。正本と書き出しは変えない。
+- 正本の保存に成功した後、派生プレビューを生成できない場合は、成功の封筒に `W_PREVIEW_UNAVAILABLE` を返す。コミット済みの変更を失敗として再適用させない。
 
 #### 6.7.2 差分
 
@@ -3128,6 +3130,7 @@ L = (M2i[0][0] × l' + M2i[0][1] × m' + M2i[0][2] × s' + 32768) >> 16      （
 | `W_CLIPPED` | 描画の一部がキャンバスの外で捨てられた |
 | `W_GATE_OVERRIDDEN` | 関門を破って配置した |
 | `W_EXPORT_INVALID` | 検証が通っていないプロジェクトを強行して書き出した |
+| `W_PREVIEW_UNAVAILABLE` | 正本の保存後に派生プレビューを生成できなかった。変更はコミット済み |
 
 ---
 

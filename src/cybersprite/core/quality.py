@@ -1,0 +1,425 @@
+"""Deterministic quality rules and full-recomputation validation deltas."""
+
+from collections import Counter, deque
+from hashlib import sha256
+from pathlib import Path
+
+import numpy as np
+
+from .errors import CyberSpriteError
+from .models import GroupLayer, ImageLayer, LinkCel, Sources
+from .pixels import rgba, tiles_from_rows
+from .references import cel_owner, walk_layers
+from .render import indexed_result, render
+from .validation import check_structure
+
+DEFAULT_LEVELS = {
+    "Q-PAL-01": "error",
+    "Q-PAL-02": "info",
+    "Q-PAL-03": "info",
+    "Q-PAL-04": "warning",
+    "Q-PAL-05": "warning",
+    "Q-PIX-01": "warning",
+    "Q-PIX-02": "info",
+    "Q-PIX-03": "warning",
+    "Q-LYR-01": "warning",
+    "Q-LYR-02": "warning",
+    "Q-LYR-03": "info",
+    "Q-ANI-01": "warning",
+    "Q-ANI-02": "off",
+    "Q-ANI-03": "info",
+    "Q-ANI-04": "off",
+    "Q-ANI-05": "info",
+    "Q-TIL-01": "info",
+    "Q-TIL-02": "warning",
+    "Q-SLC-01": "warning",
+    "Q-SRC-01": "warning",
+    "Q-SRC-02": "warning",
+    "Q-SRC-03": "error",
+}
+
+
+def bbox(mask):
+    ys, xs = np.nonzero(mask)
+    if not len(xs):
+        return None
+    return {
+        "x": int(xs.min()),
+        "y": int(ys.min()),
+        "w": int(xs.max() - xs.min() + 1),
+        "h": int(ys.max() - ys.min() + 1),
+    }
+
+
+def clusters(image, ti):
+    seen = np.zeros(image.shape, dtype=bool)
+    h, w = image.shape
+    result = []
+    for y in range(h):
+        for x in range(w):
+            if seen[y, x] or image[y, x] == ti:
+                continue
+            value = image[y, x]
+            seen[y, x] = True
+            queue = deque([(x, y)])
+            points = []
+            while queue:
+                px, py = queue.popleft()
+                points.append([px, py])
+                for dy in (-1, 0, 1):
+                    for dx in (-1, 0, 1):
+                        nx, ny = px + dx, py + dy
+                        if (
+                            0 <= nx < w
+                            and 0 <= ny < h
+                            and not seen[ny, nx]
+                            and image[ny, nx] == value
+                        ):
+                            seen[ny, nx] = True
+                            queue.append((nx, ny))
+            result.append(points)
+    return result
+
+
+def report(p, *, root=None, selected_frames=None, rules=None):
+    structural = check_structure(p)
+    issues = [issue.as_dict() for issue in structural]
+    settings = p.validation
+
+    def add(rule, message, *, fs=None, layer=None, box=None, points=None, level=None):
+        severity = settings.severity.get(rule, level or DEFAULT_LEVELS[rule])
+        if severity == "off":
+            return
+        issues.append(
+            {
+                "rule": rule,
+                "level": severity,
+                "message": message,
+                "where": {
+                    "frames": fs or [],
+                    "layer": layer,
+                    "bbox": box,
+                    "points": (points or [])[:64],
+                },
+            }
+        )
+
+    if structural:
+        return {
+            "ok": False,
+            "revision": p.revision,
+            "counts": {"error": len(structural), "warning": 0, "info": 0},
+            "issues": issues,
+            "metrics": {},
+            "settings": settings.model_dump(),
+            "scope": "full",
+        }
+    nodes = list(walk_layers(p.layers))
+    cels = [c for node, _ in nodes if not isinstance(node, GroupLayer) for c in node.cels]
+    usage = Counter()
+    tile_usage = {ts.id: Counter() for ts in p.tilesets}
+    for node, _ in nodes:
+        if node.blend_mode != "normal":
+            add("Q-LYR-02", "Non-normal blend mode is rendered as normal in v1.", layer=node.id)
+        if isinstance(node, GroupLayer):
+            continue
+        if not node.cels:
+            add("Q-LYR-03", "Layer has no cels.", layer=node.id)
+        previous = None
+        previous_owner = None
+        previous_frame = -2
+        for cel in node.cels:
+            owner = cel_owner(node, cel)
+            if isinstance(node, ImageLayer):
+                usage.update(bytes.fromhex("".join(owner.pixels)))
+                w, h = owner.w, owner.h
+            else:
+                ts = next(ts for ts in p.tilesets if ts.id == node.tileset)
+                w, h = owner.w * ts.tile_w, owner.h * ts.tile_h
+                for row in tiles_from_rows(owner.tiles, owner.w, owner.h):
+                    for ref in row:
+                        tile_usage[ts.id][ref.index] += 1
+                        if ref.d and ts.tile_w != ts.tile_h:
+                            add(
+                                "Q-TIL-02",
+                                "A non-square tile has a diagonal flip flag.",
+                                fs=[cel.frame],
+                                layer=node.id,
+                            )
+            outside = (
+                owner.x < 0
+                or owner.y < 0
+                or owner.x + w > p.canvas.width
+                or owner.y + h > p.canvas.height
+            )
+            fully = (
+                owner.x + w <= 0
+                or owner.y + h <= 0
+                or owner.x >= p.canvas.width
+                or owner.y >= p.canvas.height
+            )
+            if outside:
+                add(
+                    "Q-PIX-03",
+                    "Cel is outside the canvas." if fully else "Cel extends beyond the canvas.",
+                    fs=[cel.frame],
+                    layer=node.id,
+                    box={"x": owner.x, "y": owner.y, "w": w, "h": h},
+                    level="warning" if fully else "info",
+                )
+            value = owner.model_dump(exclude={"frame", "z_index"})
+            if (
+                previous_frame + 1 == cel.frame
+                and previous == value
+                and previous_owner != owner.frame
+            ):
+                add(
+                    "Q-ANI-05",
+                    "Consecutive equal cels can share a link.",
+                    fs=[cel.frame - 1, cel.frame],
+                    layer=node.id,
+                )
+            previous, previous_owner, previous_frame = value, owner.frame, cel.frame
+    for ts in p.tilesets:
+        duplicate = len({tuple(tile.pixels) for tile in ts.tiles}) < len(ts.tiles)
+        unused = [i for i in range(1, len(ts.tiles)) if not tile_usage[ts.id][i]]
+        if duplicate or unused:
+            add("Q-TIL-01", f"Tileset {ts.id} has unused or duplicate tiles.")
+        for tile in ts.tiles:
+            usage.update(bytes.fromhex("".join(tile.pixels)))
+    if len(p.palette.colors) > settings.palette_max:
+        add("Q-PAL-01", "Palette exceeds the configured color budget.")
+    unused = [i for i in range(len(p.palette.colors)) if not usage[i]]
+    if unused:
+        add("Q-PAL-02", f"Unused palette indices: {unused}.")
+    if len(set(c.lower() for c in p.palette.colors)) < len(p.palette.colors):
+        add("Q-PAL-03", "Palette contains duplicate colors.")
+    if any(usage[i] and 0 < rgba(c)[3] < 255 for i, c in enumerate(p.palette.colors)):
+        add("Q-PAL-04", "Used palette entries contain partial alpha.")
+    colors_per_frame, orphans, opaque_counts, boxes = [], [], [], []
+    small_total, nonclosed = 0, 0
+    for f in range(len(p.frames)):
+        try:
+            indexed = indexed_result(p, f)
+        except CyberSpriteError as error:
+            if error.code != "E_NOT_PALETTE_CLOSED":
+                raise
+            indexed = indexed_result(p, f, {"flatten": "nearest"})
+            nonclosed += 1
+            add("Q-LYR-01", "Frame is not palette closed.", fs=[f])
+        image = indexed.pixels
+        rgba_image = render(p, f)
+        color_count = len(np.unique(image))
+        colors_per_frame.append(color_count)
+        if (
+            settings.colors_per_frame_max is not None
+            and color_count > settings.colors_per_frame_max
+        ):
+            add("Q-PAL-05", "Frame exceeds the configured color count.", fs=[f])
+        # Cluster metrics require an indexed frame; nearest is the explicit diagnostic fallback.
+        transparent = p.palette.transparent_index
+        if rgba(indexed.palette[transparent])[3] != 0:
+            transparent = -1
+        components = clusters(image, transparent)
+        orphan_points = [part[0] for part in components if len(part) == 1]
+        small = [part for part in components if len(part) < settings.min_cluster]
+        orphans.append(len(orphan_points))
+        small_total += len(small)
+        if (
+            settings.orphan_pixels_max is not None
+            and len(orphan_points) > settings.orphan_pixels_max
+        ):
+            add("Q-PIX-01", "Frame exceeds the orphan pixel budget.", fs=[f], points=orphan_points)
+        if small:
+            add(
+                "Q-PIX-02",
+                "Frame has clusters below min_cluster.",
+                fs=[f],
+                points=[pt for part in small for pt in part],
+            )
+        opaque = rgba_image[:, :, 3] != 0
+        opaque_counts.append(int(np.count_nonzero(opaque)))
+        boxes.append(bbox(opaque))
+        if p.frames[f].duration_ms % 10:
+            add("Q-ANI-03", "Frame duration is not a multiple of 10 ms.", fs=[f])
+    names = Counter(tag.name for tag in p.tags)
+    for name in sorted(names):
+        if names[name] > 1:
+            add("Q-ANI-01", f"Tag name {name!r} is duplicated.")
+    if p.tags:
+        missing = [f for f in range(len(p.frames)) if not any(t.from_ <= f <= t.to for t in p.tags)]
+        if missing:
+            add(
+                "Q-ANI-02",
+                "Some frames are outside every tag.",
+                fs=missing,
+                level="warning" if settings.require_tag_coverage else "off",
+            )
+    if settings.silhouette_jitter_max is not None:
+        for tag in p.tags:
+            for f in range(tag.from_ + 1, tag.to + 1):
+                before, after = boxes[f - 1], boxes[f]
+                delta = (
+                    max(abs(before[k] - after[k]) for k in ("x", "y", "w", "h"))
+                    if before and after
+                    else (max(p.canvas.width, p.canvas.height) if before != after else 0)
+                )
+                if delta > settings.silhouette_jitter_max:
+                    add(
+                        "Q-ANI-04",
+                        "Adjacent silhouettes exceed the configured bounding-box jitter.",
+                        fs=[f - 1, f],
+                        level="warning",
+                    )
+    for slc in p.slices:
+        bad = [
+            k.frame
+            for k in slc.keys
+            if k.w
+            and (k.x < 0 or k.y < 0 or k.x + k.w > p.canvas.width or k.y + k.h > p.canvas.height)
+        ]
+        if bad:
+            add("Q-SLC-01", f"Slice {slc.id} extends beyond the canvas.", fs=bad)
+    sources = {"total": 0, "accepted": 0, "overridden": 0, "grid_scores": {}}
+    if root is not None:
+        path = Path(root) / "source/manifest.json"
+        if path.is_file():
+            manifest = Sources.model_validate_json(path.read_bytes())
+            sources["total"] = len(manifest.sources)
+            for source in manifest.sources:
+                pipeline = source.pipeline
+                sources["accepted"] += int(bool(pipeline and pipeline.accepted))
+                sources["overridden"] += int(bool(pipeline and pipeline.gates_overridden))
+                if pipeline and type(pipeline.report.get("grid_score")) is int:
+                    sources["grid_scores"][source.id] = pipeline.report["grid_score"]
+                if not source.placements:
+                    continue
+                fs = sorted({f for place in source.placements for f in place.frames})
+                if pipeline and pipeline.gates_overridden:
+                    add("Q-SRC-01", f"Source {source.id} was placed with overridden gates.", fs=fs)
+                if source.license == "unknown":
+                    add("Q-SRC-02", f"Source {source.id} has unknown usage terms.", fs=fs)
+                for file in source.files:
+                    relative = Path(file.path)
+                    target = (
+                        Path(root) / relative
+                        if relative.parts and relative.parts[0] == "source"
+                        else path.parent / relative
+                    )
+                    try:
+                        safe = target.resolve().is_relative_to(Path(root).resolve())
+                        valid = (
+                            safe
+                            and target.is_file()
+                            and sha256(target.read_bytes()).hexdigest() == file.sha256
+                        )
+                    except OSError:
+                        valid = False
+                    if not valid:
+                        add(
+                            "Q-SRC-03",
+                            f"Source {source.id} file is missing or has a changed SHA-256.",
+                            fs=fs,
+                        )
+                        break
+    if rules is not None:
+        issues = [i for i in issues if i["rule"] in rules or i["rule"].startswith("S-")]
+    if selected_frames is not None:
+        selected = set(selected_frames)
+        issues = [
+            i
+            for i in issues
+            if not i["where"].get("frames") or selected.intersection(i["where"]["frames"])
+        ]
+    # Coalesce by the identity used by the delta contract.
+    unique = {}
+    for issue in issues:
+        key = identity(issue)
+        if key not in unique:
+            unique[key] = issue
+        elif issue["message"] != unique[key]["message"]:
+            unique[key]["message"] += " " + issue["message"]
+    issues = sorted(
+        unique.values(),
+        key=lambda i: (
+            {"error": 0, "warning": 1, "info": 2}[i["level"]],
+            i["rule"],
+            i["where"].get("frames", []),
+            i["where"].get("layer") or "",
+        ),
+    )
+    counts = {
+        level: sum(i["level"] == level for i in issues) for level in ("error", "warning", "info")
+    }
+    metrics = {
+        "palette_size": len(p.palette.colors),
+        "colors_used": len(usage),
+        "unused_palette": len(unused),
+        "off_palette": 0,
+        "colors_per_frame": colors_per_frame,
+        "colors_per_frame_max": max(colors_per_frame),
+        "orphan_pixels": orphans,
+        "orphan_pixels_total": sum(orphans),
+        "small_clusters_total": small_total,
+        "opaque_pixels": opaque_counts,
+        "opaque_bbox": boxes,
+        "frames": len(p.frames),
+        "layers": len(nodes),
+        "cels": len(cels),
+        "linked_cels": sum(isinstance(c, LinkCel) for c in cels),
+        "tags": len(p.tags),
+        "slices": len(p.slices),
+        "tilesets": len(p.tilesets),
+        "non_closed_frames": nonclosed,
+        "sources": sources,
+    }
+    return {
+        "ok": counts["error"] == 0,
+        "revision": p.revision,
+        "counts": counts,
+        "issues": issues,
+        "metrics": metrics,
+        "settings": settings.model_dump(),
+        "scope": "full",
+    }
+
+
+def identity(issue):
+    where = issue["where"]
+    return issue["rule"], tuple(where.get("frames", [])), where.get("layer")
+
+
+def validation_delta(before, after):
+    old = {identity(i) for i in before["issues"]}
+    new = {identity(i) for i in after["issues"]}
+    changes = {}
+
+    def compare(a, b, prefix=""):
+        for key in sorted(set(a) & set(b)):
+            av, bv = a[key], b[key]
+            name = prefix + key
+            if isinstance(av, dict) and isinstance(bv, dict):
+                compare(av, bv, name + ".")
+            elif type(av) is int and type(bv) is int and av != bv:
+                changes[name] = {"before": av, "after": bv}
+            elif (
+                isinstance(av, list)
+                and isinstance(bv, list)
+                and all(type(v) is int for v in av + bv)
+            ):
+                aa, bb = (
+                    {"sum": sum(av), "max": max(av, default=0)},
+                    {"sum": sum(bv), "max": max(bv, default=0)},
+                )
+                if aa != bb:
+                    changes[name] = {"before": aa, "after": bb}
+
+    compare(before["metrics"], after["metrics"])
+    return {
+        "ok": after["ok"],
+        "errors": after["counts"]["error"],
+        "warnings": after["counts"]["warning"],
+        "new_issues": [i for i in after["issues"] if identity(i) not in old],
+        "resolved_issues": [i for i in before["issues"] if identity(i) not in new],
+        "metrics_delta": changes,
+    }
