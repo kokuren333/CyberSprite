@@ -6,16 +6,20 @@ from pathlib import Path
 import click
 
 
-def protect_project_output(state, path):
-    from cybersprite.core.errors import invalid
+def protect_project_output(state, path, *, directory=False):
+    """Apply the export preflight to a CLI output written outside the Op registry.
 
-    destination = Path(path)
-    root = Path(state.get("project") or Path.cwd())
-    project = root if root.name == "project.json" else root / "project.json"
-    if destination.resolve().name.lower() == "project.json" or (
-        destination.exists() and project.exists() and destination.samefile(project)
-    ):
-        raise invalid("Output must not overwrite project.json; choose a separate destination.")
+    Returns the resolved destination. Errors are E_PATH_NOT_ALLOWED for paths
+    outside the working directory or inside project.json/source/.cybersprite of
+    the selected project (or any project above the destination), as for export.
+    """
+    from cybersprite.core.canonical import project_path
+    from cybersprite.formats.common import guard_output
+
+    selected = state.get("project")
+    canonical = project_path(selected if selected is not None else Path.cwd())
+    root = canonical.parent if selected is not None or canonical.exists() else None
+    return guard_output(Path(path), root, directory=directory)
 
 
 def write(state, envelope):

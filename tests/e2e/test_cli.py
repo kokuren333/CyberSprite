@@ -45,6 +45,7 @@ def test_fresh_cli_workflow(tmp_path):
         "--indexed",
         "--compression",
         "stored",
+        cwd=tmp_path,
     )
     assert result.returncode == 0 and output["result"]["verified"] is True
     assert output["result"]["validation_ok"] is True
@@ -64,7 +65,14 @@ def test_appendix_cli_workflow(tmp_path):
     assert result.returncode == 0 and output["revision"] == 5
     for frame in (0, 1):
         result, output = invoke(
-            "-p", path, "render", "--frame", frame, "--out", tmp_path / f"frame{frame}.png"
+            "-p",
+            path,
+            "render",
+            "--frame",
+            frame,
+            "--out",
+            tmp_path / f"frame{frame}.png",
+            cwd=tmp_path,
         )
         assert result.returncode == 0 and output["result"]["verified"]
     result, output = invoke("-p", path, "validate")
@@ -101,8 +109,10 @@ def test_no_overwrites_or_writes_on_error(tmp_path):
     assert result.returncode == 3 and output["error"]["code"] == "E_EXISTS"
     assert output["op"] == "new_project"
     result, output = invoke("-p", project, "render", "--out", project / "project.json")
-    assert result.returncode == 2 and output["error"]["code"] == "E_INVALID_ARGS"
-    result, output = invoke("-p", project, "render", "--frame", "9", "--out", tmp_path / "bad.png")
+    assert result.returncode == 4 and output["error"]["code"] == "E_PATH_NOT_ALLOWED"
+    result, output = invoke(
+        "-p", project, "render", "--frame", "9", "--out", tmp_path / "bad.png", cwd=tmp_path
+    )
     assert result.returncode == 3 and output["error"]["code"] == "E_FRAME_OUT_OF_RANGE"
     assert output["revision"] == {"before": 0, "after": 0}
     assert not (tmp_path / "bad.png").exists()
@@ -112,7 +122,7 @@ def test_no_overwrites_or_writes_on_error(tmp_path):
 def test_doctor_schema_and_version(tmp_path):
     result, output = invoke("doctor")
     assert result.returncode == 0 and "environment_fingerprint" in output["result"]
-    result, output = invoke("schema", "all", "--out", tmp_path)
+    result, output = invoke("schema", "all", "--out", tmp_path, cwd=tmp_path)
     assert result.returncode == 0
     assert (tmp_path / "project.schema.json").is_file()
     assert (tmp_path / "sources.schema.json").is_file()

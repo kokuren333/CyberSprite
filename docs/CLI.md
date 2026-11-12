@@ -85,7 +85,10 @@ Op 引数はファイル → `--args` → `キー=値` の順で上書きする�
 
 `preview` / `diff` の `--out` は 1 枚ならファイル、複数枚ならディレクトリを指定する。
 省略時はプロジェクト内の `.cybersprite/previews/` に保存する。
-`project.json` を出力で上書きすることはできない。
+`render` / `preview` / `diff` / `schema` / `convert` の出力先は、`export` と同じ事前検査を通る（R2-01、I-2001）。
+プロジェクトの `project.json`・`source/`・`.cybersprite/`（大文字小文字の別名、`..`、ハードリンク、シンボリックリンクを含む）と、
+cwd の外は `E_PATH_NOT_ALLOWED`（終了コード 4、`details.reason` は保護対象なら `protected_project_file`）になり、既存のファイルは 1 バイトも変わらない。
+複数のファイルを書くコマンドは、すべての宛先を検査してから最初の 1 つを書く。保護されていない通常のファイルは、従来どおり上書きする。
 
 `pixels --layer` は、`--rect` を省略すると透明な外周を取り除いたセルの矩形を返す。
 キャンバス全体を取得するには、例えば 16×16 の場合は `--rect 0,0,16,16` を指定する。
@@ -99,7 +102,7 @@ Op 引数はファイル → `--args` → `キー=値` の順で上書きする�
 `E_IN_USE` の layers に対象が出る。`tileset_from_layer` の origin_x/origin_y を省略すると
 canvas.grid の原点を使い、切り出し寸法には tile_w/tile_h を使う。
 
-CLI の書き出し先は、現在の作業ディレクトリ（cwd）配下に限る（I-602）。
+CLI の書き出し先は、現在の作業ディレクトリ（cwd）配下に限る（I-602）。`export` だけでなく、上の `render` などの `--out` も同じ。
 プロジェクトの親ではなくコマンドを実行した場所が基準になる。
 外への出力で `E_PATH_NOT_ALLOWED` になったら、出力先も含む親ディレクトリで実行するか、
 cwd 配下のパスを指定する。

@@ -415,23 +415,15 @@ def test_output_copy_and_project_safety(runner, project):
     from cybersprite.formats.png import decode_png
 
     assert decode_png(Path("copied.png").read_bytes()).pixels.size
-    assert (
-        invoke(runner, "-p", project, "preview", "--out", project / "project.json", code=2)[
-            "error"
-        ]["code"]
-        == "E_INVALID_ARGS"
-    )
-    assert (
-        invoke(runner, "-p", project, "diff", "--out", project / "project.json", code=2)["error"][
-            "code"
-        ]
-        == "E_INVALID_ARGS"
-    )
+    # R2-01: the same preflight as export (E_PATH_NOT_ALLOWED, exit 4).
+    for command in ("preview", "diff"):
+        output = invoke(runner, "-p", project, command, "--out", project / "project.json", code=4)
+        assert output["error"]["code"] == "E_PATH_NOT_ALLOWED"
     assert (project / "project.json").read_bytes() == initial
     os.link(project / "project.json", "linked.png")
     for command in ("render", "preview", "diff"):
-        output = invoke(runner, "-p", project, command, "--out", "linked.png", code=2)
-        assert output["error"]["code"] == "E_INVALID_ARGS"
+        output = invoke(runner, "-p", project, command, "--out", "linked.png", code=4)
+        assert output["error"]["code"] == "E_PATH_NOT_ALLOWED"
     assert (project / "project.json").read_bytes() == initial
 
 

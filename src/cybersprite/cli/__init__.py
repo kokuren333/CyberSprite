@@ -384,9 +384,11 @@ def schema_command(state, kind, name, out):
     if out is None:
         _emit(state, "schema", {name: json.loads(generated[name]) for name in names})
     else:
-        out.mkdir(parents=True, exist_ok=True)
+        protect_project_output(state, out, directory=True)
         for name in names:
             protect_project_output(state, out / f"{name}.schema.json")
+        out.mkdir(parents=True, exist_ok=True)
+        for name in names:
             (out / f"{name}.schema.json").write_bytes(generated[name])
         _emit(
             state, "schema", {"paths": [(out / f"{name}.schema.json").as_posix() for name in names]}
@@ -887,6 +889,10 @@ def convert_command(**values):
     callback = optional_function("cybersprite.pipeline.cli_api", "convert", "M6")
     values["input_path"] = values.pop("input")
     values["output_path"] = values.pop("output")
+    # Every file convert writes (PNG frames, report, stages) passes the export preflight.
+    values["guard"] = lambda path, directory=False: protect_project_output(
+        state, path, directory=directory
+    )
     result = _call_with_diagnostics(
         state, callback, **{key: value for key, value in values.items() if value is not None}
     )

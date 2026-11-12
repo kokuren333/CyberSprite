@@ -28,10 +28,15 @@ def detect_grid(path, **options):
         raise invalid("Unknown grid detection option.", reason=str(error)) from error
 
 
-def convert(input_path, output_path, **options):
-    """Convert to indexed PNG and <output>.report.json, optionally retaining stages."""
+def convert(input_path, output_path, *, guard=None, **options):
+    """Convert to indexed PNG and <output>.report.json, optionally retaining stages.
+
+    ``guard(path, directory=False)`` is called for every destination before the
+    first write; the CLI passes the export preflight so convert refuses the same
+    protected paths as export (R2-01).
+    """
     try:
-        return _convert(input_path, output_path, **options)
+        return _convert(input_path, output_path, guard=guard, **options)
     except OSError as error:
         raise CyberSpriteError(
             "E_IO",
@@ -42,7 +47,7 @@ def convert(input_path, output_path, **options):
         raise invalid("Invalid conversion path or option type.", reason=str(error)) from error
 
 
-def _convert(input_path, output_path, **options):
+def _convert(input_path, output_path, *, guard=None, **options):
     preset = options.pop("preset", "ai")
     pipeline = deepcopy(options.pop("pipeline", None) or {})
     stages = options.pop("stages", None)
@@ -78,6 +83,16 @@ def _convert(input_path, output_path, **options):
     output = Path(output_path)
     if output.suffix.lower() != ".png":
         raise invalid("convert output must use .png; use export operations for other formats.")
+    report_path = Path(str(output) + ".report.json")
+    frame_paths = [
+        output if i == 0 else output.with_name(f"{output.stem}_f{i:04d}.png")
+        for i in range(len(images))
+    ]
+    if guard is not None:
+        for destination in (*frame_paths, report_path):
+            guard(destination)
+        if stages is not None:
+            guard(Path(stages), directory=True)
     output.parent.mkdir(parents=True, exist_ok=True)
     context = nullcontext(stages) if stages is not None else TemporaryDirectory(dir=output.parent)
     outputs = []
@@ -94,6 +109,8 @@ def _convert(input_path, output_path, **options):
         if accepted:
             for i, frame in enumerate(indices):
                 destination = output if i == 0 else output.with_name(f"{output.stem}_f{i:04d}.png")
+                if guard is not None and destination not in frame_paths:
+                    guard(destination)
                 atomic_write(destination, checked_png(frame, color_strings(palette, 0)))
                 outputs.append(destination.as_posix())
         stage_paths = (
@@ -108,7 +125,6 @@ def _convert(input_path, output_path, **options):
                 step.pop("images", None)
         else:
             atomic_write(directory.joinpath("pipeline_report.json"), metadata_bytes(report))
-        report_path = Path(str(output) + ".report.json")
         atomic_write(report_path, metadata_bytes(report))
     return {
         "accepted": accepted,

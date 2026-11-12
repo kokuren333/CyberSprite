@@ -293,7 +293,7 @@ def read_command(name, op):
         state = click.get_current_context().obj
         out = values.pop("out", None)
         if out is not None:
-            protect_project_output(state, out)
+            protect_project_output(state, out, directory=not out.suffix)
         args = {key: value for key, value in values.items() if value is not None}
         if name in {"preview", "diff"}:
             args.setdefault("inline", False)
@@ -310,10 +310,10 @@ def read_command(name, op):
             destinations = [
                 out / Path(path).name if len(paths) > 1 or not out.suffix else out for path in paths
             ]
-            if any(dest.resolve() == (root / "project.json").resolve() for dest in destinations):
-                raise invalid("Preview output must not overwrite the project through a symlink.")
-            for source, destination in zip(paths, destinations, strict=True):
+            # Check every destination before writing any, so a refusal changes no file.
+            for destination in destinations:
                 protect_project_output(state, destination)
+            for source, destination in zip(paths, destinations, strict=True):
                 data = (root / source).read_bytes()
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 destination.write_bytes(data)

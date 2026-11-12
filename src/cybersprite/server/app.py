@@ -139,6 +139,10 @@ class Service:
                     raise invalid(
                         "An output path cannot overwrite project.json; choose another file."
                     )
+                # Same reserved set as export and the CLI outputs (R2-01).
+                from cybersprite.formats.common import protect_project_output
+
+                protect_project_output(target, project)
         for variant in schema.get("anyOf", schema.get("oneOf", [])):
             self.check_outputs(value, variant, project, definitions)
         if isinstance(value, dict):

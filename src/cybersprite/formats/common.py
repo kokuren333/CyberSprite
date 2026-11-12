@@ -254,6 +254,26 @@ def protect_project_output(path, project_root=None, *, original=None):
             )
 
 
+def guard_output(value, project_root=None, *, directory=False):
+    """Export path checks for files a surface writes without an Op (R2-01).
+
+    The CLI's render, preview, diff, schema and convert outputs use this so that
+    they refuse exactly what export refuses: paths outside the policy root and
+    allow-dirs, and anything aliasing project.json, source/ or .cybersprite/.
+    Existing ordinary files may still be replaced; protected ones never are.
+    """
+    path = output_path(value)
+    policy_root = (_POLICY.get() or (Path.cwd(), []))[0]
+    protect_project_output(
+        path, project_root, original=Path(os.path.abspath(Path(policy_root) / value))
+    )
+    if not directory and path.is_dir():
+        fail("E_IO", "Output destination is a directory.", path=display_path(path))
+    if directory and path.exists() and not path.is_dir():
+        fail("E_IO", "Output directory path is an existing file.", path=display_path(path))
+    return path
+
+
 def preflight(paths, overwrite, *, project_root=None):
     resolved = [output_path(path) for path in paths]
     policy_root = (_POLICY.get() or (Path.cwd(), []))[0]
