@@ -870,12 +870,13 @@ hero.csprite/
 |---|---|---|---|
 | `source_width` / `source_height` / `source_area` | 8192 / 8192 / 67,108,864 | ラスターのヘッダ、.aseprite のキャンバス・セル・タイル画像（復号前） | `E_LIMIT_EXCEEDED` |
 | `source_frames` | 4096 | 復号前。複数ファイルは累積し、超過するファイルと残りを配列化しない | `E_LIMIT_EXCEEDED` |
+| `source_tiles` | 65,536（既存のセットあたり上限） | .aseprite のタイル件数を復号／オブジェクト構築前に検査 | `E_LIMIT_EXCEEDED` |
 | `decoded_bytes` | 268,435,456（256 MiB） | 同時保持するフレーム・セル・タイル画像の合計 `w×h×4` を復号前に予約 | `E_LIMIT_EXCEEDED` |
 | `drawing_vertices` | 65,536 | polygon / stroke の入力点列を走査する前 | `E_LIMIT_EXCEEDED` |
 | `drawing_work_per_op` | 1,048,576 | 純粋ラスタ関数と描画 Op の列挙・マスク割当前 | `E_LIMIT_EXCEEDED` |
 | `drawing_work_per_transaction` | 16,777,216 | 描画 Op の累積仕事量を各 Op の実行前に予約 | `E_LIMIT_EXCEEDED` |
 | `output_bytes` | 268,435,456（256 MiB） | render / preview / sheet / animation の割当前。RGBA 換算、整数倍率・画素比・定規・配置余白を含む | `E_LIMIT_EXCEEDED` |
-| `output_frames` | 4096 | アニメーションのタグ反復を展開する前 | `E_LIMIT_EXCEEDED` |
+| `output_frames` | 4096 | アニメーションのタグ反復候補数（末尾重複の除外前）を展開する前 | `E_LIMIT_EXCEEDED` |
 | `output_items` | 65,536 | シートの分割候補数（レイヤー×タグ×スライス×フレーム）をループ前に検査 | `E_LIMIT_EXCEEDED` |
 
 シート・連番画像の `output_bytes` はトリム／空画像除外前の描画サイズを累積する。空の項目を大量に要求して描画仕事量の検査を迂回することはできない。描画で既存セルを広げるときも、保存する外接矩形をRGBA換算で割当前に検査する。

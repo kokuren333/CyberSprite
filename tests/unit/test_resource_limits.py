@@ -187,6 +187,65 @@ def test_aseprite_cel_budget_before_parser(monkeypatch):
     parse.assert_not_called()
 
 
+def _patch_aseprite_chunk(data, kind, body_offset, format, value):
+    data = bytearray(data)
+    frame = 128
+    while frame < len(data):
+        frame_size = struct.unpack_from("<I", data, frame)[0]
+        chunk = frame + 16
+        while chunk < frame + frame_size:
+            size, actual_kind = struct.unpack_from("<IH", data, chunk)
+            if actual_kind == kind:
+                struct.pack_into(format, data, chunk + 6 + body_offset, value)
+                return bytes(data)
+            chunk += size
+        frame += frame_size
+    raise AssertionError("The authored fixture must contain the requested chunk.")
+
+
+@pytest.mark.parametrize(
+    "kind,offset,format,value",
+    [
+        (0x2023, 8, "<I", 65_537),
+        (0x2023, 12, "<H", 0),
+        (0x2005, 16, "<H", 0),
+    ],
+)
+def test_aseprite_cardinality_and_zero_dimensions_before_inflate(
+    monkeypatch, kind, offset, format, value
+):
+    from cybersprite.core.models import ImageCel
+    from tools.m5_cases import tile_project
+
+    p = tile_project() if kind == 0x2023 else new_project(width=2, height=2)
+    if kind == 0x2005:
+        p.layers[0].cels = [ImageCel(frame=0, x=0, y=0, w=1, h=1, pixels=["01"])]
+    data = _patch_aseprite_chunk(aseprite_io.encode_aseprite(p), kind, offset, format, value)
+    parse = Mock(side_effect=AssertionError("must not parse"))
+    inflate = Mock(side_effect=AssertionError("must not inflate"))
+    monkeypatch.setattr(aseprite_io.ap.Sprite, "from_bytes", parse)
+    monkeypatch.setattr("cybersprite.formats.decode_limits.zlib.decompressobj", inflate)
+    if value:
+        exceeded(lambda: aseprite_io.decode_aseprite(data), "source_tiles", 65_537, 65_536)
+    else:
+        with pytest.raises(CyberSpriteError) as error:
+            aseprite_io.decode_aseprite(data)
+        assert error.value.code == "E_IO"
+    parse.assert_not_called()
+    inflate.assert_not_called()
+
+
+def test_native_tileset_count_before_conversion(monkeypatch):
+    from tools.m5_cases import tile_project
+
+    native = aseprite_io.to_native(tile_project())
+    native.tilesets[0].tile_count = 65_537
+    convert = Mock(side_effect=AssertionError("must not convert"))
+    monkeypatch.setattr(aseprite_io.np, "frombuffer", convert)
+    exceeded(lambda: aseprite_io.from_native(native), "source_tiles", 65_537, 65_536)
+    convert.assert_not_called()
+
+
 @pytest.mark.parametrize(
     "name,args,target",
     [

@@ -8,10 +8,26 @@ from cybersprite.core.errors import CyberSpriteError
 from cybersprite.core.limits import (
     FRAME_COUNT,
     SOURCE_AREA,
+    TILES_PER_SET,
     DecodeBudget,
     check_limit,
     source_dimensions,
 )
+
+
+def _positive_dimensions(width, height):
+    if width < 1 or height < 1:
+        raise ValueError("Raster width and height must be positive.")
+    source_dimensions(width, height)
+
+
+def _tile_count(count):
+    check_limit(
+        "source_tiles",
+        count,
+        TILES_PER_SET,
+        "Reduce the source tileset to at most 65536 tiles per set.",
+    )
 
 
 def pillow_bomb_error(error):
@@ -28,17 +44,21 @@ def pillow_bomb_error(error):
 
 def native_limits(sprite):
     """Also protect callers converting an already-decoded adapter object."""
-    source_dimensions(sprite.width, sprite.height)
+    _positive_dimensions(sprite.width, sprite.height)
     check_limit("source_frames", len(sprite.frames), FRAME_COUNT, "Import at most 4096 frames.")
     budget = DecodeBudget()
     for tileset in sprite.tilesets:
+        _tile_count(tileset.tile_count)
         if tileset.pixels is not None:
+            _positive_dimensions(tileset.tile_width, tileset.tile_height)
             budget.reserve_pixels(tileset.tile_width, tileset.tile_height, tileset.tile_count)
     for frame in sprite.frames:
         for cel in frame.cels:
             if cel.pixels is not None:
+                _positive_dimensions(cel.pixels.width, cel.pixels.height)
                 budget.reserve_pixels(cel.pixels.width, cel.pixels.height)
             if cel.tilemap is not None:
+                _positive_dimensions(cel.tilemap.width, cel.tilemap.height)
                 budget.reserve_pixels(cel.tilemap.width, cel.tilemap.height)
 
 
@@ -47,7 +67,7 @@ def aseprite_limits(data):
     if len(data) < 128 or struct.unpack_from("<H", data, 4)[0] != 0xA5E0:
         return  # The adapter reports malformed signatures.
     count, width, height, depth = struct.unpack_from("<HHHH", data, 6)
-    source_dimensions(width, height)
+    _positive_dimensions(width, height)
     check_limit("source_frames", count, FRAME_COUNT, "Import at most 4096 frames.")
     budget = DecodeBudget()
     streams = []
@@ -67,6 +87,7 @@ def aseprite_limits(data):
                 cel_type = struct.unpack_from("<H", body, 7)[0]
                 if cel_type in (0, 2, 3):
                     w, h = struct.unpack_from("<HH", body, 16)
+                    _positive_dimensions(w, h)
                     budget.reserve_pixels(w, h)
                     if cel_type == 2:
                         streams.append((body[20:], w * h * (depth // 8)))
@@ -77,6 +98,8 @@ def aseprite_limits(data):
                         streams.append((body[48:], w * h * 4))
             elif kind == 0x2023:  # Embedded tiles are one compressed vertical strip.
                 _, flags, tiles, w, h = struct.unpack_from("<IIIHH", body)
+                _tile_count(tiles)
+                _positive_dimensions(w, h)
                 budget.reserve_pixels(w, h, tiles)
                 name_len = struct.unpack_from("<H", body, 32)[0]
                 start = 34 + name_len + (8 if flags & 1 else 0)
