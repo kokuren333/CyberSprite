@@ -71,19 +71,21 @@ main のテスト（2026-11-12 11:00、Windows / Python 3.12）: Python 1160 pas
 |---|---|---|---|---|---|
 | 01 | キャラクター（32×32、2 フレームのまばたき、タグ） | 2026-11-12 | Opus 5.5 / 中 | validate ok（警告 0、情報 3 は個別に判断）。書き出し Op が未実装のため `render` で PNG を出力。使い心地 4/5 | `e2e-tests/01-character/REPORT.md` |
 | 02 | UI 素材（GUI アイコン 40 個、原本 `assets/ui/icons/*.csprite`） | 2026-11-12 | Opus 5.5 / 中 | 全件 validate ok。`render` で ×1 / ×4 を出力し、設計データと全ピクセル一致。使い心地 4/5 | `e2e-tests/02-ui-icons/REPORT.md` |
+| 03 | アニメーション（32×32 歩行 8 フレーム＋待機 2 フレーム、リンクセル、タグ 2 個） | 2026-11-12 | Opus 5.5 / 中 | validate ok（警告 0）。GIF ×2、APNG、タグ別シート（json-hash）、`.aseprite` を書き出し、全ファイルをフレーム単位で照合して一致。使い心地 4/5（減点はプレビュー周り） | `e2e-tests/03-walk-animation/REPORT.md` |
 
 ### e2e で見つかった問題（未対応のもの）
 
 | 出所 | 問題 | 担当 |
 |---|---|---|
-| e2e-01 #5 | `ops describe` の説明が定型文で、引数（例: `draw_rows` の `format: sym`）の意味が分からない | M3 後の修正 |
-| e2e-01 #6 | `op` に `--label` がない（単発 Op の履歴ラベルが空） | M3 後の修正 |
-| e2e-01 #7 | 図形系 Op（`ellipse` など）の result に `pixels_written` がない | M3 後の修正 |
-| e2e-01 #8 | undo / redo の結果にプレビューがない | M3 後の修正 |
-| e2e-01 #10 | Q-PIX-02 の `where.layer` が null（どのレイヤーか分からない） | M3 後の修正 |
+| e2e-01 #5（**INT-1 で修正済み**） | `ops describe` の説明が定型文で、引数（例: `draw_rows` の `format: sym`）の意味が分からない | M3 後の修正 |
+| e2e-01 #6（**INT-1 で修正済み**） | `op` に `--label` がない（単発 Op の履歴ラベルが空） | M3 後の修正 |
+| e2e-01 #7（**INT-1 で修正済み**） | 図形系 Op（`ellipse` など）の result に `pixels_written` がない | M3 後の修正 |
+| e2e-01 #8（**INT-1 で修正済み**） | undo / redo の結果にプレビューがない | M3 後の修正 |
+| e2e-01 #10（**INT-1 で修正済み**） | Q-PIX-02 の `where.layer` が null（どのレイヤーか分からない） | M3 後の修正 |
 | e2e-02 #2 | `new --palette <.gpl>` で色名が捨てられる | M7 で修正・load_palette置換/追記も回帰確認 |
 | e2e-02 #3 | 名前だけの `set_palette` でも `changed.frames` にフレームが出る | M7 で全OpのRGBA差に統一して修正 |
 | e2e-02 #6 | `docs/CLI.md` に `pixels --rect` の既定範囲の説明がない | M7 でトリム矩形・全キャンバス指定とcwd出力制約を追記 |
+| e2e-03 #1〜7 | プレビューの frames 指定・横並べ・背景色・オニオンスキン、`info` のリンク表示、書き出し結果のデータファイルの項目、細かい点 | FIX-2（Codex、作業中） |
 | e2e-01 #1〜4、#9 | 書き出し、`preview` / `pixels` / `validate` のオプション、`docs/CLI.md` | M3 / M5（作業中） |
 
 ## M6: 変換パイプライン — Windows 検証完了（2026-11-12）
