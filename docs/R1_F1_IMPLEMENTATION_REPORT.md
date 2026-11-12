@@ -1,6 +1,6 @@
 # R1-F1 — 生成入力・BYOW・ComfyUI 実装報告
 
-作業日: 2026-11-12。ブランチ `fixr1-f1`。実装コミット `568ff08`、生成試験の起動期限調整・検証記録 `321d9b4`。
+作業日: 2026-11-12。ブランチ `fixr1-f1`。実装コミット `568ff08`、生成試験の起動期限調整・検証記録 `321d9b4`、共通source品質fixture補完 `e35549d`。受け入れ基準は全項目合格。
 
 ## 1. 実装
 
@@ -22,15 +22,16 @@
 | Q-SRC-04 | 合格 | モデル・アダプタ・ベース・未知ベースと全yes、実配置 |
 | 偽ComfyUI経由の生成と来歴 | 合格 | 実HTTP、送信グラフと保存JSON、画像とworkflowの実ハッシュ、再送 |
 | 未登録・任意JSON・未対応引数の拒否 | 合格 | 登録名・bind・入力型・HTTP失敗・期限・画像枚数/寸法/復号・応答上限 |
-| 全体試験 | 再実行中 | 共通品質fixtureへのQ-SRC-04追加後、`uv run pytest -q --tb=short` を再実行中 |
+| 全体試験 | 合格 | `uv run pytest -q --tb=short`: 1466 passed / 2 skipped |
 
 ## 3. 検証
 
+- 最終 `uv run pytest -q --tb=short`: **1466 passed / 2 skipped（1212.96秒）**。skipは既存Windowsシンボリックリンク作成権限2件。すべての修正後に完走した。
 - `uv run pytest tests/generate -q --tb=short`: **75 passed（334.57秒）**。旧経路21件、新規54件。
 - 初回の生成試験は **66 passed / 2 failed（727.17秒）**。どちらも既存 `fake_command.py` のPython子プロセスが試験設定の30秒を超えた `TimeoutExpired`。このfixtureだけ120秒に広げて上記75件の成功を確認した。製品既定とTimeoutExpired注入試験は変えていない（I-1609）。この実行時間の差を性能改善の値として扱わない。
 - `uv run pytest -q tests/generate/test_comfyui.py -k invalid_server_urls --tb=short`: **7 passed / 24 deselected（16.45秒）**。最終75件にも含む。
 - 最初の全体試験: **1458 passed / 1 failed / 2 skipped（3537.21秒）**。新規Q-SRC-04がsourceなしの汎用品質fixtureへ自動列挙された1件だけが失敗した。既存Q-SRC-01〜03と同じsource用試験へ正例・負例を追加した（I-1610）。製品コードとgoldenは変更していない。
-- 修正後 `uv run pytest -q tests/unit/test_quality.py --tb=short`: **34 passed（1.52秒）**。全体試験は再実行中。skip2件は既存のWindowsシンボリックリンク作成権限によるもの。
+- 修正後 `uv run pytest -q tests/unit/test_quality.py --tb=short`: **34 passed（1.52秒）**。その後の全体試験も上記のとおり成功した。
 - `uv run ruff check .`、`uv run ruff format --check .`: 成功（178ファイル）。
 - `uv run mypy src/cybersprite/core src/cybersprite/ops`: 成功（37ファイル）。
 - `uv run python tools/gen_schemas.py --check`、`uv run python tools/check_repository.py`、`git diff --check`: 成功。golden更新・スキーマ生成物の変更は0件。
@@ -71,7 +72,7 @@ SPEC §2.4 / §9.6 / §10.1.2 / §12 / §13.2 / 付録Cを局所更新し、§12
 | I-1607 | 正負接続が分かるときだけinspectが提案し、曖昧さを候補として残す。人間の確認を置換しない | Fable §3.7 H-22 |
 | I-1608 | ローカル実体限定とrights_noteを仕様へ合わせ、GPU作業を分離。既存の安全な入力経路とAPIを維持する | Fable §3.6 H-21、R1-14 |
 | I-1609 | 生成試験の子プロセスfixture期限だけ120秒。起動速度の変動を正しさの条件にしない | R1共通の全試験要件、実測TimeoutExpired |
-| I-1610 | Q-SRC-04を共通のsource用検出・非検出fixtureへ追加。sourceなしの汎用fixtureでは検出できないため | SPEC §13.2/§13.6、全体試験の診断 |
+| I-1610 | Q-SRC-04を共通のsource用検出・非検出fixtureへ追加。sourceなしの汎用fixtureでは検出できないため | Fable §3.6 H-21、SPEC §13.6、全体試験の診断 |
 
 Codex §6は本件の生成入力に対する別案を示していないため、対応する設計はFable §3.6/§3.7と発注者の具体指示に従った。
 

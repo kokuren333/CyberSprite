@@ -201,8 +201,9 @@
 - H-21/R1-14: 人間用CLIのBYOW登録・実体ハッシュ・モデル一覧と利用条件バッジ、ベース参照の検査と条件併記、design/canvasとrights_noteを追加した。params.model_registryに生成時の条件を保存し、配置後のQ-SRC-04はこのsnapshotを読む。登録・ワークフロー検査をMCPへ公開しない。
 - H-22段階1・2: 登録済みAPIワークフローと明示bindだけを使うComfyUIバックエンド、HTTP送信・履歴ポーリング・画像取得、登録元ハッシュ拘束の承諾、埋込み済みworkflow.jsonとハッシュの保存・再送照合、comfy-inspectを追加した。標準ライブラリで直接接続し、環境プロキシ・リダイレクト・任意JSON引数を拒否する。JSON8MiB/画像64MiBの応答上限と期限を検査する。
 - SPECは§2.4/§9.6/§10.1.2/§12/§13.2/付録Cを局所更新し、§12.7を追加。GENERATIONとsrc/READMEに登録・2出口・設定・条件・期限切れ時の扱いを記録した。判断I-1601〜I-1610。新規依存・golden更新0件。外部参照は公式公開HTTP文書と索引だけ（PROVENANCE_LOGに記録）で、製品ソース・ノード実装・外部ワークフローは未参照。
-- `uv run pytest tests/generate -q --tb=short`: **75 passed（334.57秒）**。新規54件を含み、登録・ベース承諾・Q-SRC-04・2出口・権利メモ・偽HTTP・拒否条件・応答上限・既存経路を検査した。初回の68件中2件は既存fake_command.pyのPython起動が試験用30秒を超えて失敗し、この実子プロセスfixtureだけ120秒に修正した（I-1609）。タイムアウト注入試験と製品の既定値は維持する。全体試験は進行中。
-- 最初の全体試験は **1458 passed / 1 failed / 2 skipped（3537.21秒）**。新規ルールがsourceなしの汎用品質fixtureへ自動列挙された1件だけが失敗したため、Q-SRC-04を既存source用検出・非検出試験へ追加した（I-1610）。`uv run pytest -q tests/unit/test_quality.py --tb=short` は **34 passed（1.52秒）**。製品コードを変えず、全体を再実行中。skipは既存Windowsシンボリックリンク権限2件。
+- 最終 `uv run pytest -q --tb=short`: **1466 passed / 2 skipped（1212.96秒）**。`uv run pytest tests/generate -q --tb=short`: **75 passed（334.57秒）**。新規54件を含み、登録・ベース承諾・Q-SRC-04・2出口・権利メモ・偽HTTP・拒否条件・応答上限・既存経路を検査した。初回の68件中2件は既存fake_command.pyのPython起動が試験用30秒を超えて失敗し、この実子プロセスfixtureだけ120秒に修正した（I-1609）。タイムアウト注入試験と製品の既定値は維持する。
+- 最初の全体試験は **1458 passed / 1 failed / 2 skipped（3537.21秒）**。新規ルールがsourceなしの汎用品質fixtureへ自動列挙された1件だけが失敗したため、Q-SRC-04を既存source用検出・非検出試験へ追加した（I-1610）。`uv run pytest -q tests/unit/test_quality.py --tb=short` は **34 passed（1.52秒）**。製品コードを変えず、上記の全体成功を確認した。skipは既存Windowsシンボリックリンク権限2件。
 - Ruff check/format、core/ops mypy（37ファイル）、schema drift、repository checkが成功。実CLI子プロセス7呼出しで登録・一覧・検査・生成・配置・validate・PNG書出しを実行し、最終PNGの独立復号RGBAが元の8×6テスト配列に完全一致。validation_ok/verified=true。Q-SRC-04は試験ワークフローの商用条件unknownを意図どおり報告したため保持した。実ファイルとハッシュ記録はgit管理外の `build/r1-f1-manual/`。
 - 前後性能値は対象なし（新規経路であり、既存性能の改善を主張しない）。並行稼働中のWindowsでPython起動・ファイル読込に長い待ちを観測し、通常の偽サーバー試験は期限60秒、期限試験だけ1秒とした。製品既定の全体600秒/HTTP10秒は維持する。
 - 実ComfyUI・実GPU・Linuxは未実行。GPUと依存監査はR1-F2へ、GUIのバッジ表示と参照原画の見た目はOpusへ引き継ぐ。Diffusersの呼出し署名は維持。main統合はオーケストレーターが行う。
+- 受け入れ基準は全項目合格。設計分岐・検証の生値・未実施事項は [R1_F1_IMPLEMENTATION_REPORT.md](R1_F1_IMPLEMENTATION_REPORT.md) に記録した。
