@@ -22,11 +22,15 @@
 どちらか一方でよい。両方とも同じ Op レジストリを通るので、結果は同じである。
 
 - **MCP**: ツール名は Op 名そのもの（`new_project`、`apply_ops`、`render_preview`、`export_sheet` …）。登録の方法は `docs/MCP.md`。相対パスはサーバの `--root` が基準。
-- **CLI**: リポジトリの中なら `uv run csp …`（`csp` は `cybersprite` の短縮名）。外からは `uv run --project <リポジトリ> csp …`。出力は封筒形式の JSON 1 個。
+- **CLI**: リポジトリの中なら `uv run csp …`。外からは `uv run --project <リポジトリ> csp …`。出力は封筒形式の JSON 1 個。
+  - `csp` と `cybersprite` は同じコマンドの別名。タスク文がどちらかを指定していれば、それに合わせる。
+  - `--no-sync`（`uv run --project <リポジトリ> --no-sync csp …`）は、環境の同期を省く。環境がすでにできていれば付けても付けなくても結果は同じで、付けると速く、並行実行での衝突もない。環境がまだなければ、先に 1 回 `uv sync` する。
 
 迷ったら、契約は道具そのものに聞く: `csp ops list`、`csp ops describe <Op 名>`、`csp <コマンド> --help`。
 
 **CLI の書き出し先は、コマンドを実行した場所（cwd）の配下だけ。** 作業用ディレクトリに `cd` してから始めるのが楽である。
+
+**プロジェクト（`hero.csprite`）はディレクトリである。** 中身は正本の `project.json`、派生物の `.cybersprite/`（プレビュー `previews/` など）、取り込んだ原画像と来歴の `source/`。`-p` にはこのディレクトリ（か `project.json`）を渡す。手で書き換えず、変更は必ず Op で行う。
 
 ### 1. 作る → 描く
 
@@ -36,7 +40,9 @@ uv run --project <repo> csp new hero.csprite --size 16x16      # 既定パレッ
 uv run --project <repo> csp -p hero.csprite palette show       # 番号と色名を見る
 ```
 
-描画は 1 つの意図ごとに 1 トランザクション（`apply`）。`draw_rows` の `sym` 形式（`.` = 透明、`0-9a-zA-Z` = 番号）を使うと、格子をそのまま流し込める。
+既定パレット `cs-circuit-16` は、透明（0 番）＋ 16 色 = **17 項目**（1–16 番が色）。番号は必ず `palette show`（MCP は `get_palette`）で確かめる。
+
+描画は 1 つの意図ごとに 1 トランザクション（`apply`）。`draw_rows` の `sym` 形式を使うと、格子をそのまま流し込める。1 文字 = 1 番号で、`.` = 透明、`0–9` = 0–9 番、`a–z` = 10–35 番、`A–Z` = 36–61 番（既定パレットの 10–16 番は `a`–`g`）。`.` は既定で**透明で上書きする**。既存のピクセルを残したいところは `"skip_transparent": true` を付ける。
 
 ```json
 {"label":"body base","ops":[
@@ -74,6 +80,7 @@ uv run --project <repo> csp -p hero.csprite export anim --out export/walk_x4.gif
 
 - `validate` は `ok: true`。警告は 1 件ずつ「直した」か「意図どおり（理由）」を報告に書く。
 - 書き出しの結果は `validation_ok: true` と `verified: true`。
+- `--data-format` を省くとシートの JSON は独自形式（`cybersprite`）になる。ゲームエンジンなどの既存の読み込み機能に渡すなら `json-hash` か `json-array`。違いは `validate-export` の §2.3。
 - 書き出した PNG を開いて見る。GIF は取り込み直して再生順を見る（`validate-export` の §2.4）。
 
 ここまでやって、`AGENTS.md` §6.3 の完了条件がそろう。
@@ -81,6 +88,8 @@ uv run --project <repo> csp -p hero.csprite export anim --out export/walk_x4.gif
 ## 方向性を決める場面
 
 新しいアセットの作風、色調、構図など方向性の判断が要るときは、3 案ほどを小さく作って（小さなキャンバスや 1 フレームで十分）、プレビューを並べて利用者に選んでもらう。決まった後の細部は自分で決めて進める。
+
+**利用者に問い返せない自律タスク**（題材だけが指定されている、途中で質問できない、など）では、待たずに 1 つの方向を選んで最後まで進める。最終報告に、選んだ方向と、考えたほかの案を 1〜2 行ずつ書く（利用者が後から選び直せるように）。
 
 ## 書き方の規則（手順書を足す・直すとき）
 

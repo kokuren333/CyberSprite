@@ -20,6 +20,8 @@ csp -p hero.csprite op add_frame count=3 cels=link copy_from=0     # 全レイ�
 csp -p hero.csprite op add_frame count=1 cels=empty at=2           # 位置を指定して空のフレーム
 ```
 
+`cels=copy` の直後は、全レイヤーの隣どうしのフレームが同じ中身になるので、`validate` に `Q-ANI-05`（info「同じ中身の連続セルはリンクで共有できる」）が、絵のあるレイヤーごとに（フレーム数 − 1）件出る。描き分ければ消える。描き分けずに同じ絵のまま残すレイヤーは、`link_cel` で共有するか、意図どおりとして報告に書く。
+
 `add_frame` の `cels` はプロジェクト全体に効く。レイヤーごとに分けたいときは、足した後で `link_cel` / `unlink_cel` を使う。
 
 ```powershell
@@ -40,7 +42,12 @@ csp -p hero.csprite op set_pixel layer=body frame=2 x=7 y=7 color=5 --dry-run
 
 ### 2.3 各フレームを描き分ける
 
-- フレーム間で部分を動かすには `transform_region`（`dx`、`dy`、`target_frame` で別フレームへ写す、`action: "copy"`）。
+- 部分を動かす・写すには `transform_region`。`region` は `{"type":"all"}`、`{"type":"rect","x":…,"y":…,"w":…,"h":…}`、`{"type":"mask","x":…,"y":…,"rows":["#.#",…]}`（`#` = 選ぶ）、`{"type":"color","color":n}`、`{"type":"wand","x":…,"y":…}`。`action` は `move`（既定。元を消す）か `copy`。ほかに `flip`（`h`/`v`）、`rotate`、`target_layer`、`target_frame`。
+  ```powershell
+  csp -p hero.csprite op transform_region layer=body frame=1 dy=-1 --args '{"region":{"type":"all"}}'                     # 1px 上げる（上下動）
+  csp -p hero.csprite op transform_region layer=arm frame=0 target_frame=2 action=copy --args '{"region":{"type":"rect","x":4,"y":6,"w":3,"h":5}}'
+  ```
+  **キャンバスの外へ出たピクセルは捨てられる**（エラーにも検証の指摘にもならない）。捨てた数は封筒の `changed.clipped_pixels` に出る。逆向きに動かしても戻らないので、0 でなければ意図どおりか確かめ、違えば `undo` する。
 - 関節の座標から手足を毎フレーム描くような作業は、Op の引数 JSON をスクリプトで作って `apply` に渡してよい（ピクセルを書くのは CyberSprite の Op だけ）。
 - 1 回のトランザクションに複数フレームの変更を入れてよいが、意図は 1 つにする（例: 「左脚の歩幅を直す」）。
 
@@ -78,6 +85,7 @@ csp -p hero.csprite op update_tag --args '{"tag":"idle","direction":"forward"}' 
 ## 3. 失敗チェックリスト
 
 - [ ] リンクセルを編集する前に `--dry-run` で `linked_frames` を見たか。編集後も結果の `linked_frames` を読んだか。
+- [ ] `transform_region` の後、`changed.clipped_pixels` が 0 か（端に接した絵を動かすと、はみ出した分が消える）。
 - [ ] `add_frame cels=link` の後、描き分けたいレイヤーを `unlink_cel` し忘れていないか（全フレームが一緒に変わる）。
 - [ ] フレーム番号を 1 始まりで数えていないか。タグの `from` / `to` は両端を含む。
 - [ ] 1 枚ずつのプレビューだけで済ませていないか。横並びとオニオンスキンで、隣のフレームとの差を見たか。

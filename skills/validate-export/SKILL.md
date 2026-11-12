@@ -29,6 +29,7 @@ csp -p hero.csprite validate --strict              # 警告も不合格（終了
 | `Q-PIX-02`（小さなかたまり、info） | 座標を 1 点ずつ見る。迷子なら直す。目・光沢・1px のアクセントなら残す |
 | `Q-PIX-01`（孤立ピクセルが上限超え、warning） | `orphan_pixels_max` を設定したときだけ出る |
 | `Q-PAL-02`（未使用の色、info） | 共通パレットなら残してよい。不要なら `remap_palette`（`remove_unused`） |
+| `Q-ANI-05`（同じ中身の連続セルがリンクされていない、info） | `add_frame cels=copy` の直後に必ず出る。描き分ければ消える。同じ絵のままのレイヤーは `link_cel` で共有するか、残す理由を書く |
 | `Q-ANI-03`（10 ms の倍数でない表示時間） | GIF で丸められる。意図を確かめる |
 | `Q-PIX-03`（セルがキャンバス外） | 取り込みや移動の位置を直す |
 | `Q-SRC-01` / `Q-SRC-02`（関門破り / ライセンス不明のソース） | 報告に理由を書く |
@@ -60,20 +61,25 @@ csp -p hero.csprite export palette --out export/hero.gpl
 
 - 結果の `validation_ok` と `verified` が **両方 true** であることを確かめる。`files[]` に `path`、`sha256`、`pixel_sha256`、大きさが出る。
 - 検証にエラーがあると書き出しは拒否される。`allow_invalid` で押し通すのは、利用者が求めたときだけ。
+- シートの JSON（`--data-format`、仕様は SPEC 付録 D）:
+  - `cybersprite`（既定）: 独自形式。`items[]` に各セルの `frame`（プロジェクトのフレーム番号）、`rect`（シート上の位置）、`duration_ms`、`pixel_sha256`。ほかに `tags`（名前・範囲・方向）、`palette`、`layers`。CyberSprite 側で照合したり、自前のローダーで読むならこれ。
+  - `json-hash` / `json-array`: 広く使われるシート JSON の形（`frames` の `frame` / `duration`、`meta.frameTags`）。既存のゲームエンジンやツールの読み込み機能に渡すならこれ。`hash` は項目名がキー、`array` は順序つきの配列。
+  - 指定がなければ、渡す先が読める形を選び、選んだ形を報告に書く。
 - 既定の色は `indexed`（インデックス PNG）。RGBA が要るなら `--color-mode rgba`。拡大は整数の `--scale` だけ。
 
 ### 2.4 書き出したファイルを確かめる
 
-1. **開いて見る。** PNG はそのまま画像として開く（拡大版があると見やすい）。シートは JSON の `rect` と並びが合っているか。
-2. **アニメーションは再生順で見る。** 書き出した GIF / APNG を、作業用の別プロジェクトに取り込み直すと、フレーム列と表示時間を CyberSprite で見られる:
+1. **開いて見る。** PNG はそのまま画像として開く（拡大版があると見やすい）。シートは JSON の位置（`cybersprite` は `items[].rect`、`json-hash` は `frames.*.frame`）と並びが合っているか。
+2. **アニメーションは再生順で見る。** 書き出した GIF / APNG を、作業用の別プロジェクトに取り込み直すと、フレーム列と表示時間を CyberSprite で見られる。取り込み先は**まだ無い名前**にする。無ければ `import image` が変換結果の大きさ（×4 の GIF なら元の大きさ）で新規作成するので、`new` は要らない（空の `L1` と、取り込んだレイヤーの 2 枚になる）。既存のプロジェクトに入れると、その中にレイヤーが足される。
    ```powershell
    csp -p check.csprite import image export/walk_x4.gif --preset upscaled --provenance '{"kind":"imported","provider":"self-export","license":"<作品のライセンス>"}'
-   csp -p check.csprite info --include frames                       # 表示時間
+   csp -p check.csprite info --include frames                       # フレーム数と表示時間
    csp -p check.csprite preview --frames all --layout strip --out check-strip.png
    ```
-   タグの方向どおりに並んでいるか（例: 0–3 の pingpong は 0,1,2,3,2,1）。確認用のプロジェクトは納品物に含めない。
+   MCP では `import_image`（`{"project":"check.csprite","files":"export/walk_x4.gif","preset":"upscaled","provenance":{…}}`）→ `get_info`（`"include":["frames"]`）→ `render_preview`（`"frames":"all","layout":"strip"`）。
+   タグの方向どおりに並んでいるか（例: 0–3 の pingpong は 6 枚で 0,1,2,3,2,1）。色の番号は取り込みで量子化し直されるので、見るのは並びと表示時間。確認用のプロジェクトは納品物に含めない。
 3. **`.aseprite` は読み戻す。** `csp import aseprite export/hero.aseprite --out check-ase.csprite` で、`dropped` が空、フレーム数・タグ・パレットが一致するか。
-4. 数で確かめたいときは、Pillow などで読み取りだけを行う作業用スクリプトを書いてよい（e2e では、×N 版が ×1 の最近傍拡大と一致すること、パレット外の色がないことを照合した）。
+4. 数で確かめたいときは、Pillow などで読み取りだけを行う作業用スクリプトを書いてよい（e2e では、×N 版が ×1 の最近傍拡大と一致すること、パレット外の色がないことを照合した）。Pillow は CyberSprite の環境に入っているので、`uv run --project <リポジトリ> --no-sync python check.py` で動く。スクリプトは納品物の外に置くか、確認後に消す。
 
 ### 2.5 完了の報告
 
