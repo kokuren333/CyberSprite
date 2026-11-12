@@ -1,6 +1,6 @@
 import { createStore } from 'zustand/vanilla';
 import { useStore } from 'zustand';
-import { RpcClient, RpcError, type RpcParams } from '../api/client';
+import { RpcError, type RpcParams, type Transport } from '../api/client';
 import type { Brush, Point, Region } from '../raster';
 export type Tool = 'pencil' | 'eraser' | 'line' | 'rect' | 'ellipse' | 'fill' | 'eyedropper' | 'select' | 'move' | 'hand' | 'zoom';
 export type Layer = { id: string; name: string; type: string; visible: boolean; locked: boolean; opacity: number; children?: Layer[]; cels?: any[] };
@@ -40,9 +40,9 @@ export const initialState: State = { connected: false, projectPath: '', project:
 export const store = createStore<State>(() => initialState);
 export const useEditor = () => useStore(store);
 export const view = (patch: Partial<State>) => store.setState(patch);
-let client: RpcClient;
+let client: Transport;
 let generation = 0;
-export function attachClient(value: RpcClient) {
+export function attachClient(value: Transport) {
   client = value;
   client.onConnection(connected => {
     view({ connected });
