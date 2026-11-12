@@ -537,7 +537,17 @@ e94bd7aではcoreのUbuntu3.12/3.13・Windows3.12が成功、Windows3.13は期�
 ### DS級の再制作・人間判定
 
 <!-- E2E07 -->
-**進行中**: e2e-tests/07-ds-turnaround/ の実際の題材・platform・原画来歴・道A/B・3関門シート・全frame・最終書出ファイル／hash・検証結果・疑う3点・人間の判定を追記する。見た目はpendingで、工学の成功を合格に読み替えない。
+**e2e-07 実施済み（2026-11-12、Opus 中、`e2e-tests/07-ds-turnaround/`）。人間の判定は `pending`。**
+
+- 題材: オリジナルの生き物「ゼンマイ」（プラム色の直立したイモリ型、頭にゼンマイの若葉 2 本、葉の襟、葉先の尾）。platform `nds/sprite-80`、workflow `turnaround-parts`。Codex の初案（青緑・頭のひれ・頬のえら）は既存の作品の生き物に近いと作り手が判断して破棄し、再生成した。
+- 参照: 非公開コネクタは HTTP 403 のため使わず（回避しない）、既存の非公開参照ライブラリ 4 点を計測だけに使用。参照ログに統計だけを 1 行追記。
+- 原画: Codex imagegen で通常の三面図 → ピクセルアート風の三面図、`add_source`（use: design）で登録。
+- 道 A（手打ち、本命）: 部品 9 レイヤー（楕円なし。多角形・ストローク・行データ）、名前付き 15 色・ランプ 4 本、`mask.only_on` の保護描画、選択輪郭（再実行は no-op）、外周の暗色 60%（参照 40〜64%）。目は頭の幅の 0.26、暗い縁 → 琥珀の輪 → 黒い瞳 → 白の点の層。待機 8 コマ（呼吸、頬の膨らみ、若葉の 1 コマ遅れ、尾の葉、2 段のまばたき）。
+- 道 B（変換、比較用）: 内蔵 `ai` は自動の格子検出に失敗し、目標格子 60×80 の指定で合格。Pixel Art Fixer も合格したが出力が 77×109 で 80×80 に収まらず不採用。色の統合だけの後始末（11 色）。順位は付けない。
+- 検証: 両プロジェクトとも validate エラー 0、全書き出し（PNG、×4、シート＋JSON、GIF、.aseprite）が `validation_ok` / `verified` true、書き出したファイルを復号して目視。3 関門のシートは `review/`（参照画像を含まない）。
+- 作り手が疑う 3 点: (1) 占有率 52%（参照 16〜24%、前回の不合格作 51%）で紫の面が平ら、(2) 頭が箱っぽい、(3) 襟と腕の明度が胴と近く、×1 で溶ける恐れ。
+- 道具の摩擦（次の修正候補）: 大きな原画の `guide` が出力予算で `E_LIMIT_EXCEEDED` になり縮小指定がない／選択輪郭はランプの最暗色をすべて `exclude_colors` に入れないと冪等にならない／Q-PLT-05 がセルごとに 73 件重複／`move_cel` で上端からはみ出しても `clipped_pixels: 0`／`apply --replace-last` 未実装（H-18、v1.x）／`draw_rows` の幅不一致エラーが行番号を示さない／`export anim --background` がパレット閉包エラー／`preview --out` が作業ディレクトリ外へ書ける／`conform_palette --dry-run` の `revision.after` が増える。詳細は `e2e-tests/07-ds-turnaround/RECORD.md`。
+- Discord: 投稿用ファイル（×8 PNG、×8 待機 GIF、道 B、仕上げ前シート、`caption.txt`）を `e2e-tests/07-ds-turnaround/discord/` に用意した。オーケストレーターの環境に Discord への投稿手段がないため、投稿は監督側に依頼する（れんカテゴリ #メモ 1569525802729611401）。
 
 非公開コネクタは発注者指示I-1807により標準だが、2026-11-12に利用者PCのChromeからHTTP403を観測。回避せず既存private参照libraryを利用した。公開側には作品名／URL／画像を載せない。Discordツールはないため投稿していない。オーケストレーターの申し送りではDiscord-readyファイルを `e2e-tests/07-ds-turnaround/discord/` に準備済み。DOCのworktreeでは実在一覧を再確認しておらず、ファイル一覧・投稿結果はe2e-07完了時に監督者が追記する。
 
