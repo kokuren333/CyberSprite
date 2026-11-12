@@ -14,9 +14,20 @@ export function reconcileView(data: ProjectData, layer: string, frame: number) {
 }
 export function playbackFrames(tag: Tag | undefined, count: number): number[] {
   const ascending = Array.from({ length: tag ? tag.to - tag.from + 1 : count }, (_, i) => i + (tag?.from ?? 0));
+  if (!tag || ascending.length <= 1) return ascending;
   if (tag?.direction === 'reverse' || tag?.direction === 'pingpong_reverse') ascending.reverse();
-  if (tag?.direction.startsWith('pingpong') && ascending.length > 1) return [...ascending, ...ascending.slice(1, -1).reverse()];
-  return ascending;
+  const sequence: number[] = [];
+  if (tag.direction.startsWith('pingpong')) {
+    for (let leg = 0; leg < (tag.repeat || 2); leg++) {
+      const pass = leg % 2 === 0 ? ascending : [...ascending].reverse();
+      sequence.push(...(leg === 0 ? pass : pass.slice(1)));
+    }
+  } else {
+    for (let pass = 0; pass < (tag.repeat || 1); pass++) sequence.push(...ascending);
+  }
+  // Match animation_sequence(loop=0) only for an infinitely looping preview.
+  if (!tag.repeat && sequence.length > 2 && sequence.at(-1) === sequence[0]) sequence.pop();
+  return sequence;
 }
 type State = {
   connected: boolean; projectPath: string; project: ProjectData | null; schemas: OpSchema[];
