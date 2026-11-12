@@ -1,0 +1,10 @@
+{"label":"layers: parts bottom to top","ops":[
+ {"op":"update_layer","args":{"layer":"L1","name":"tail"}},
+ {"op":"add_layer","args":{"name":"legs"}},
+ {"op":"add_layer","args":{"name":"torso"}},
+ {"op":"add_layer","args":{"name":"arms"}},
+ {"op":"add_layer","args":{"name":"collar"}},
+ {"op":"add_layer","args":{"name":"fern"}},
+ {"op":"add_layer","args":{"name":"head"}},
+ {"op":"add_layer","args":{"name":"face"}}
+]}

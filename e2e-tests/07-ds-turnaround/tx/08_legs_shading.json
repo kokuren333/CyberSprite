@@ -1,0 +1,210 @@
+{
+"label": "legs: occlusion under torso, inner thighs, toes",
+"ops": [
+{
+"op": "shift_ramp",
+"args": {
+"layer": "legs",
+"frame": 0,
+"direction": "darker",
+"region": {
+"type": "or",
+"of": [
+{
+"type": "polygon",
+"points": [
+[
+16,
+66
+],
+[
+60,
+66
+],
+[
+60,
+69
+],
+[
+16,
+69
+]
+]
+},
+{
+"type": "polygon",
+"points": [
+[
+31,
+60
+],
+[
+37,
+60
+],
+[
+37,
+77
+],
+[
+31,
+77
+]
+]
+},
+{
+"type": "polygon",
+"points": [
+[
+38,
+60
+],
+[
+44,
+60
+],
+[
+44,
+77
+],
+[
+38,
+77
+]
+]
+},
+{
+"type": "polygon",
+"points": [
+[
+53,
+60
+],
+[
+60,
+60
+],
+[
+60,
+77
+],
+[
+53,
+77
+]
+]
+}
+]
+}
+}
+},
+{
+"op": "shift_ramp",
+"args": {
+"layer": "legs",
+"frame": 0,
+"direction": "darker",
+"region": {
+"type": "polygon",
+"points": [
+[
+33,
+66
+],
+[
+42,
+66
+],
+[
+42,
+69
+],
+[
+33,
+69
+]
+]
+}
+}
+},
+{
+"op": "shift_ramp",
+"args": {
+"layer": "legs",
+"frame": 0,
+"direction": "lighter",
+"region": {
+"type": "polygon",
+"points": [
+[
+17,
+70
+],
+[
+21,
+69
+],
+[
+22,
+71
+],
+[
+18,
+73
+]
+]
+}
+}
+},
+{
+"op": "draw_rows",
+"args": {
+"layer": "legs",
+"frame": 0,
+"x": 17,
+"y": 73,
+"format": "sym",
+"skip_transparent": true,
+"legend": {
+"o": "@plum0"
+},
+"rows": [
+"...o..o..o.....",
+"...o..o..o....."
+],
+"mask": {
+"only_on": [
+"@plum2",
+"@plum1",
+"@plum3"
+]
+}
+}
+},
+{
+"op": "draw_rows",
+"args": {
+"layer": "legs",
+"frame": 0,
+"x": 43,
+"y": 73,
+"format": "sym",
+"skip_transparent": true,
+"legend": {
+"o": "@plum0"
+},
+"rows": [
+".....o..o..o...",
+".....o..o..o..."
+],
+"mask": {
+"only_on": [
+"@plum2",
+"@plum1",
+"@plum3"
+]
+}
+}
+}
+]
+}

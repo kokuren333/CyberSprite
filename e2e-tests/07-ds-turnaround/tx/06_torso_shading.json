@@ -1,0 +1,255 @@
+{
+"label": "torso: collar cast shadow on belly, belly segments, shaded right side",
+"ops": [
+{
+"op": "shift_ramp",
+"args": {
+"layer": "torso",
+"frame": 0,
+"direction": "darker",
+"region": {
+"type": "or",
+"of": [
+{
+"type": "polygon",
+"points": [
+[
+25,
+44
+],
+[
+50,
+44
+],
+[
+50,
+47
+],
+[
+44,
+48
+],
+[
+40,
+51
+],
+[
+37,
+56
+],
+[
+34,
+51
+],
+[
+30,
+48
+],
+[
+25,
+48
+]
+]
+},
+{
+"type": "polygon",
+"points": [
+[
+45,
+48
+],
+[
+50,
+48
+],
+[
+50,
+66
+],
+[
+44,
+66
+]
+]
+},
+{
+"type": "polygon",
+"points": [
+[
+26,
+63
+],
+[
+49,
+63
+],
+[
+49,
+67
+],
+[
+26,
+67
+]
+]
+}
+]
+},
+"ramp": "belly"
+}
+},
+{
+"op": "shift_ramp",
+"args": {
+"layer": "torso",
+"frame": 0,
+"direction": "darker",
+"region": {
+"type": "or",
+"of": [
+{
+"type": "polygon",
+"points": [
+[
+47,
+42
+],
+[
+55,
+42
+],
+[
+55,
+67
+],
+[
+49,
+67
+]
+]
+},
+{
+"type": "polygon",
+"points": [
+[
+21,
+62
+],
+[
+55,
+62
+],
+[
+55,
+67
+],
+[
+21,
+67
+]
+]
+}
+]
+},
+"ramp": "plum"
+}
+},
+{
+"op": "stroke",
+"args": {
+"layer": "torso",
+"frame": 0,
+"points": [
+[
+28,
+53
+],
+[
+30,
+54
+],
+[
+45,
+54
+],
+[
+47,
+53
+]
+],
+"color": "@belly0",
+"brush": {
+"size": 1,
+"shape": "square"
+},
+"mask": {
+"only_on": [
+"@belly1"
+]
+}
+}
+},
+{
+"op": "stroke",
+"args": {
+"layer": "torso",
+"frame": 0,
+"points": [
+[
+28,
+59
+],
+[
+30,
+60
+],
+[
+45,
+60
+],
+[
+47,
+59
+]
+],
+"color": "@belly0",
+"brush": {
+"size": 1,
+"shape": "square"
+},
+"mask": {
+"only_on": [
+"@belly1"
+]
+}
+}
+},
+{
+"op": "stroke",
+"args": {
+"layer": "torso",
+"frame": 0,
+"points": [
+[
+31,
+55
+],
+[
+36,
+55
+]
+],
+"color": "@belly1",
+"brush": {
+"size": 1,
+"shape": "square"
+},
+"mask": {
+"only_on": [
+"@belly1"
+]
+}
+}
+}
+]
+}

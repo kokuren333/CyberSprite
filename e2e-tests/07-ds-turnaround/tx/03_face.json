@@ -1,0 +1,44 @@
+{
+"label": "face: eyes (outline, amber ring, pupil, highlight), mouth, fang, freckles",
+"ops": [
+{
+"op": "draw_rows",
+"args": {
+"layer": "face",
+"frame": 0,
+"x": 18,
+"y": 20,
+"format": "sym",
+"legend": {
+"k": "@line",
+"A": "@amber0",
+"a": "@amber1",
+"w": "@white",
+"f": "@lilac"
+},
+"rows": [
+"......kkkk....................kkkk......",
+"....kkAAAAkk................kkAAAAkk....",
+"...kAAaaaaAAk..............kAAaaaaAAk...",
+"...kaakkkkaak..............kaakkkkaak...",
+"..kaakwwkkkaak............kaakwwkkkaak..",
+"..kaakwwkkkaak............kaakwwkkkaak..",
+"..kaakkkkkkaak............kaakkkkkkaak..",
+"..kaakkkkkkaak............kaakkkkkkaak..",
+"...kaakkkkaak..............kaakkkkaak...",
+"...kaaaaaaaak..............kaaaaaaaak...",
+"....kkaaaakk................kkaaaakk....",
+"......kkkk....................kkkk......",
+"........................................",
+"....f..............................f....",
+"..f........k................k........f..",
+".....f......k..............k......f.....",
+"...f.........kkkkkkkkkkkkkk.........f...",
+"......................w.................",
+"......................w.................",
+"........................................"
+]
+}
+}
+]
+}

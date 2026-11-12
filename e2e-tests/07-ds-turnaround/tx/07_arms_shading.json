@@ -1,0 +1,187 @@
+{
+"label": "arms: shoulders under collar, inner sides, fingers",
+"ops": [
+{
+"op": "shift_ramp",
+"args": {
+"layer": "arms",
+"frame": 0,
+"direction": "darker",
+"region": {
+"type": "or",
+"of": [
+{
+"type": "polygon",
+"points": [
+[
+14,
+44
+],
+[
+27,
+44
+],
+[
+27,
+50
+],
+[
+14,
+50
+]
+]
+},
+{
+"type": "polygon",
+"points": [
+[
+48,
+44
+],
+[
+61,
+44
+],
+[
+61,
+50
+],
+[
+48,
+50
+]
+]
+},
+{
+"type": "polygon",
+"points": [
+[
+21,
+50
+],
+[
+26,
+50
+],
+[
+26,
+64
+],
+[
+21,
+64
+]
+]
+},
+{
+"type": "polygon",
+"points": [
+[
+54,
+50
+],
+[
+61,
+50
+],
+[
+61,
+65
+],
+[
+55,
+65
+]
+]
+}
+]
+}
+}
+},
+{
+"op": "shift_ramp",
+"args": {
+"layer": "arms",
+"frame": 0,
+"direction": "lighter",
+"region": {
+"type": "polygon",
+"points": [
+[
+15,
+52
+],
+[
+18,
+50
+],
+[
+19,
+51
+],
+[
+17,
+58
+],
+[
+15,
+60
+]
+]
+}
+}
+},
+{
+"op": "draw_rows",
+"args": {
+"layer": "arms",
+"frame": 0,
+"x": 15,
+"y": 61,
+"format": "sym",
+"skip_transparent": true,
+"legend": {
+"o": "@plum0"
+},
+"rows": [
+"..o.o..",
+"..o.o..",
+"..o.o.."
+],
+"mask": {
+"only_on": [
+"@plum2",
+"@plum1",
+"@plum3"
+]
+}
+}
+},
+{
+"op": "draw_rows",
+"args": {
+"layer": "arms",
+"frame": 0,
+"x": 53,
+"y": 61,
+"format": "sym",
+"skip_transparent": true,
+"legend": {
+"o": "@plum0"
+},
+"rows": [
+"..o.o..",
+"..o.o..",
+"..o.o.."
+],
+"mask": {
+"only_on": [
+"@plum2",
+"@plum1",
+"@plum3"
+]
+}
+}
+}
+]
+}

@@ -1,0 +1,18 @@
+Use your built-in image generation tool to create ONE character design sheet (turnaround) of an ORIGINAL creature, and save it as a PNG file named turnaround-v2.png in the current working directory. Copy it there from wherever the tool writes it.
+
+Creature (original design, name "Zenmai"):
+- A small, sturdy, upright two-legged newt-like creature, about as tall as a sitting cat. Chunky and compact: a wide, slightly flat-topped head (about 45% of total height), short thick torso with a cream-coloured belly plate made of three horizontal soft segments, short stubby arms with three rounded fingers, short thick legs with wide three-toed feet planted on the ground.
+- Skin: dusky plum purple on the back, head and limbs, with small pale lilac freckles on the cheeks.
+- On top of the head: two curled fern fiddleheads (tight spiral fronds) in sage green, sprouting side by side like two little coiled antennae, each about as tall as one third of the head, curling forward.
+- A thick tapering tail ending in a small open sage-green fern frond, curving to one side on the ground.
+- A wide flat sage-green leaf-like collar wrapped around the neck, like a small scarf of three broad leaves.
+- Face: two large round eyes set wide apart. Each eye is about one third of the head width. Each eye has a dark outline, a bright amber iris ring that is clearly visible all around, a big black pupil, and one small white highlight in the upper part of the pupil. A small wide mouth line with one tiny fang visible.
+- Friendly, curious expression.
+
+Layout:
+- Three full-body views side by side in one row, equally spaced: FRONT view (left), SIDE view facing right (middle), BACK view (right).
+- Same scale, same ground line, the same eye line height in all three views.
+- Plain flat solid bright cyan background (#00ffff) across the whole image.
+- Clean bold dark outlines, flat colour areas, one step of cel shadow per material with the light coming from the upper left. The shadows explain the form: the head casts a shadow onto the leaf collar and upper torso, the arms and legs have darker areas where they join the body.
+
+At the end, write the saved file path on one line.

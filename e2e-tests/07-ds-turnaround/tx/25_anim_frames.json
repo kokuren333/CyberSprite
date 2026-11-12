@@ -1,0 +1,1 @@
+{"label": "idle: 7 copies of frame 0", "ops": [{"op": "add_frame", "args": {"count": 7, "cels": "copy", "copy_from": 0}}]}

@@ -1,0 +1,106 @@
+{
+  "format": "cybersprite-sources",
+  "schema_version": 1,
+  "next_id": 4,
+  "sources": [
+    {
+      "id": "SRC1",
+      "kind": "generated",
+      "use": "design",
+      "files": [
+        {
+          "path": "source/SRC1/original_0000.png",
+          "sha256": "a322cb4f24ffe76cbac6999fc8f97a970b2b8dd3d2afd6376c8263a1c168690a",
+          "width": 1752,
+          "height": 897,
+          "bytes": 1541851
+        }
+      ],
+      "provider": "codex-imagegen",
+      "model": null,
+      "prompt": "Use your built-in image generation tool to create ONE character design sheet (turnaround) of an ORIGINAL creature, and save it as a PNG file named turnaround-v2.png in the current working directory. Copy it there from wherever the tool writes it.\u000a\u000aCreature (original design, name \"Zenmai\"):\u000a- A small, sturdy, upright two-legged newt-like creature, about as tall as a sitting cat. Chunky and compact: a wide, slightly flat-topped head (about 45% of total height), short thick torso with a cream-coloured belly plate made of three horizontal soft segments, short stubby arms with three rounded fingers, short thick legs with wide three-toed feet planted on the ground.\u000a- Skin: dusky plum purple on the back, head and limbs, with small pale lilac freckles on the cheeks.\u000a- On top of the head: two curled fern fiddleheads (tight spiral fronds) in sage green, sprouting side by side like two little coiled antennae, each about as tall as one third of the head, curling forward.\u000a- A thick tapering tail ending in a small open sage-green fern frond, curving to one side on the ground.\u000a- A wide flat sage-green leaf-like collar wrapped around the neck, like a small scarf of three broad leaves.\u000a- Face: two large round eyes set wide apart. Each eye is about one third of the head width. Each eye has a dark outline, a bright amber iris ring that is clearly visible all around, a big black pupil, and one small white highlight in the upper part of the pupil. A small wide mouth line with one tiny fang visible.\u000a- Friendly, curious expression.\u000a\u000aLayout:\u000a- Three full-body views side by side in one row, equally spaced: FRONT view (left), SIDE view facing right (middle), BACK view (right).\u000a- Same scale, same ground line, the same eye line height in all three views.\u000a- Plain flat solid bright cyan background (#00ffff) across the whole image.\u000a- Clean bold dark outlines, flat colour areas, one step of cel shadow per material with the light coming from the upper left. The shadows explain the form: the head casts a shadow onto the leaf collar and upper torso, the arms and legs have darker areas where they join the body.\u000a\u000aAt the end, write the saved file path on one line.\u000a",
+      "negative_prompt": "",
+      "seed": null,
+      "params": {
+        "background": "#00ffff",
+        "input_image": null,
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "medium",
+        "stage": 1,
+        "use": "design"
+      },
+      "license": "unknown",
+      "rights_note": "Original design generated for E2E-07 by Codex built-in image generation; no reference images or franchise names were given. Usage terms of the generator output are not confirmed (docs/GENERATION.md, ledger L-12).",
+      "url": "",
+      "created_at": "2026-11-12T09:59:42.927747+00:00",
+      "imported_at": "2026-11-12T09:59:42.927747+00:00",
+      "pipeline": null,
+      "placements": []
+    },
+    {
+      "id": "SRC2",
+      "kind": "generated",
+      "use": "design",
+      "files": [
+        {
+          "path": "source/SRC2/original_0000.png",
+          "sha256": "fe6931936030cf00ecf318899fd1511c5ef7e040e8da413137d189066042dd33",
+          "width": 1752,
+          "height": 897,
+          "bytes": 1337233
+        }
+      ],
+      "provider": "codex-imagegen",
+      "model": null,
+      "prompt": "Look at the image file turnaround-v2.png in the current working directory. It is our own original creature design sheet (front, side, back views).\u000a\u000aUse your built-in image generation tool to create ONE pixel-art-style version of this turnaround, and save it as a PNG file named turnaround-pixel-v2.png in the current working directory. Copy it there from wherever the tool writes it. You may give turnaround-v2.png to the image tool as the input image.\u000a\u000a- Keep the same creature, the same three views (front left, side facing right in the middle, back right), the same arrangement, scale and the same plain flat bright cyan background (#00ffff).\u000a- Make it look like a handheld-console-era pixel sprite: each figure should look about 70 pixels tall, with clearly visible square pixels on a regular grid.\u000a- About 14 flat colours in total for the creature. Each material (plum skin, sage-green leaves and fern spirals, cream belly) uses 3 shading steps; the eyes use a dark outline, a bright amber ring and a black pupil with one white highlight pixel.\u000a- Outline: mostly near-black on the outer silhouette, and the darkest shade of each material inside the silhouette where parts overlap.\u000a- Light from the upper left. Shadows that explain the form: the head casts a shadow onto the leaf collar, darker pixels where arms and legs join the body, a darker underside of the tail.\u000a- Plain flat colours, no gradients, no dithering, no blur, no anti-aliasing against the background.\u000a\u000aAt the end, write the saved file path on one line.\u000a",
+      "negative_prompt": "",
+      "seed": null,
+      "params": {
+        "background": "#00ffff",
+        "input_image": "turnaround-v2.png (own stage-1 design)",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "medium",
+        "stage": 2,
+        "use": "design"
+      },
+      "license": "unknown",
+      "rights_note": "Original design generated for E2E-07 by Codex built-in image generation; no reference images or franchise names were given. Usage terms of the generator output are not confirmed (docs/GENERATION.md, ledger L-12).",
+      "url": "",
+      "created_at": "2026-11-12T09:59:44.688531+00:00",
+      "imported_at": "2026-11-12T09:59:44.688531+00:00",
+      "pipeline": null,
+      "placements": []
+    },
+    {
+      "id": "SRC3",
+      "kind": "generated",
+      "use": "design",
+      "files": [
+        {
+          "path": "source/SRC3/original_0000.png",
+          "sha256": "fc28ce7f8fe41d1f374b76ae1e2cd2c60ce980dca5236a42df5e74e1f25ee04a",
+          "width": 80,
+          "height": 80,
+          "bytes": 8103
+        }
+      ],
+      "provider": "codex-imagegen",
+      "model": null,
+      "prompt": "(derived) front view cropped from SRC2 (square 860 px around the front figure, centre 300,455) and box-downscaled to 80x80 with Pillow; columns 72-79 painted background cyan to hide the side view. See SRC2 for the generation prompt.",
+      "negative_prompt": "",
+      "seed": null,
+      "params": {
+        "derived_from": "SRC2",
+        "method": "Pillow BOX resize 860->80",
+        "use": "design"
+      },
+      "license": "unknown",
+      "rights_note": "Derived from our own stage-2 design SRC2; same terms as SRC2 (unknown).",
+      "url": "",
+      "created_at": "2026-11-12T10:04:43.808577+00:00",
+      "imported_at": "2026-11-12T10:04:43.808577+00:00",
+      "pipeline": null,
+      "placements": []
+    }
+  ]
+}
