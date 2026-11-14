@@ -76,7 +76,7 @@ cybersprite gui demo.csprite --no-browser
 | [`docs/SPEC.md`](docs/SPEC.md) / [`docs/DECISIONS.md`](docs/DECISIONS.md) | 正本の仕様と実装上の判断 |
 | [`tools/README.md`](tools/README.md) / [`tests/README.md`](tests/README.md) | 検査、較正、唯一のゴールデン更新手順 |
 
-制作手順は `skills/`、自作の作例は `examples/` にあります。生成モデルの依存は既定では導入しません。`diffusers` extra は監査保留で空の予約名です（I-014）。
+制作手順は `skills/`、自作の作例は `examples/` にあります。複数の手順を組み合わせたワークフローは `skills/workflows/` にあり、生成 → 変換 → 修正 → アニメーションを1体のスプライトで通す `koitan_workflow` などを含みます。生成モデルの依存は既定では導入しません。`diffusers` extra は監査保留で空の予約名です（I-014）。
 
 ## ピクセルパーフェクトの保証
 
@@ -101,7 +101,7 @@ cybersprite gui demo.csprite --no-browser
 | `src/cybersprite/` | Python パッケージ（コア、Op、形式、パイプライン、生成、CLI、MCP、GUI サーバ） |
 | `gui/` | GUI フロントエンド（TypeScript） |
 | `schemas/` / `tests/` | JSON Schema、テスト、ゴールデンファイル、言語非依存のテストベクタ |
-| `skills/` | エージェント向けの制作手順書 |
+| `skills/` | エージェント向けの制作手順書とワークフロー（`skills/workflows/`） |
 | `assets/` / `examples/` | 自作の UI アセットとサンプル |
 | `third_party/` | 組み込み OSS の台帳とライセンス本文 |
 
